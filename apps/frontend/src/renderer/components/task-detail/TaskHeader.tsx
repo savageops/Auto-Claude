@@ -45,13 +45,13 @@ export function TaskHeader({
             {task.specId}
           </Badge>
           {isStuck ? (
-            <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
+            <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30 animate-pulse">
               <AlertTriangle className="h-3 w-3" />
               Stuck
             </Badge>
           ) : isIncomplete ? (
             <>
-              <Badge variant="warning" className="text-xs flex items-center gap-1">
+              <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30">
                 <AlertTriangle className="h-3 w-3" />
                 Incomplete
               </Badge>

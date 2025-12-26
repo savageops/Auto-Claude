@@ -246,7 +246,7 @@ export function FeatureDetailPanel({
               <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDelete}>
+              <Button variant="ghost" className="bg-primary/30 hover:bg-primary/40 text-primary" onClick={handleDelete}>
                 Delete
               </Button>
             </div>

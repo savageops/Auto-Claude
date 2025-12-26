@@ -297,9 +297,12 @@ export function App() {
   useEffect(() => {
     const currentProjectId = activeProjectId || selectedProjectId;
     if (currentProjectId) {
+      // Load tasks for new project - setTasks() will atomically replace the array
+      // Don't call clearTasks() here - it causes race condition and empty UI flashes
       loadTasks(currentProjectId);
       setSelectedTask(null); // Clear selection on project change
     } else {
+      // No project selected - clear tasks
       useTaskStore.getState().clearTasks();
     }
 

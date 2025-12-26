@@ -156,9 +156,10 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     if (state.isStuck) {
       return (
         <Button
-          variant="warning"
+          variant="ghost"
           onClick={handleRecover}
           disabled={state.isRecovering}
+          className="bg-primary/20 hover:bg-primary/30 text-primary"
         >
           {state.isRecovering ? (
             <>
@@ -177,7 +178,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
     if (state.isIncomplete) {
       return (
-        <Button variant="default" onClick={handleStartStop}>
+        <Button variant="ghost" onClick={handleStartStop} className="bg-primary/80 hover:bg-primary/90 text-background">
           <Play className="mr-2 h-4 w-4" />
           Resume Task
         </Button>
@@ -187,8 +188,9 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     if (task.status === 'backlog' || task.status === 'in_progress') {
       return (
         <Button
-          variant={state.isRunning ? 'destructive' : 'default'}
+          variant="ghost"
           onClick={handleStartStop}
+          className={state.isRunning ? 'bg-primary/30 hover:bg-primary/40 text-primary' : 'bg-primary/80 hover:bg-primary/90 text-background'}
         >
           {state.isRunning ? (
             <>
@@ -258,13 +260,13 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                         {task.specId}
                       </Badge>
                       {state.isStuck ? (
-                        <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
+                        <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30 animate-pulse">
                           <AlertTriangle className="h-3 w-3" />
                           Stuck
                         </Badge>
                       ) : state.isIncomplete ? (
                         <>
-                          <Badge variant="warning" className="text-xs flex items-center gap-1">
+                          <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30">
                             <AlertTriangle className="h-3 w-3" />
                             Incomplete
                           </Badge>

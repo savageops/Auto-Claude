@@ -177,8 +177,8 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
     <Card
       className={cn(
         'card-surface task-card-enhanced cursor-pointer',
-        isRunning && !isStuck && 'ring-2 ring-primary border-primary task-running-pulse',
-        isStuck && 'ring-2 ring-warning border-warning task-stuck-pulse',
+        isRunning && !isStuck && 'ring-2 ring-primary border-primary',
+        isStuck && 'ring-2 ring-warning border-warning',
         isArchived && 'opacity-60 hover:opacity-80'
       )}
       onClick={onClick}
@@ -340,12 +340,12 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             <span>{formatRelativeTime(task.updatedAt)}</span>
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons - monochromatic topographic design */}
           {isStuck ? (
             <Button
-              variant="warning"
+              variant="ghost"
               size="sm"
-              className="h-7 px-2.5"
+              className="h-7 px-2.5 bg-primary/20 hover:bg-primary/30 text-primary"
               onClick={handleRecover}
               disabled={isRecovering}
             >
@@ -363,9 +363,9 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             </Button>
           ) : isIncomplete ? (
             <Button
-              variant="default"
+              variant="ghost"
               size="sm"
-              className="h-7 px-2.5"
+              className="h-7 px-2.5 bg-primary/80 hover:bg-primary/90 text-background"
               onClick={handleStartStop}
             >
               <Play className="mr-1.5 h-3 w-3" />
@@ -375,7 +375,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2.5 hover:bg-muted-foreground/10"
+              className="h-7 px-2.5 bg-muted hover:bg-muted/80 text-foreground/70"
               onClick={handleArchive}
               title={t('tooltips.archiveTask')}
             >
@@ -384,9 +384,14 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             </Button>
           ) : (task.status === 'backlog' || task.status === 'in_progress') && (
             <Button
-              variant={isRunning ? 'destructive' : 'default'}
+              variant="ghost"
               size="sm"
-              className="h-7 px-2.5"
+              className={cn(
+                "h-7 px-2.5",
+                isRunning
+                  ? "bg-primary/30 hover:bg-primary/40 text-primary"
+                  : "bg-primary/80 hover:bg-primary/90 text-background"
+              )}
               onClick={handleStartStop}
             >
               {isRunning ? (

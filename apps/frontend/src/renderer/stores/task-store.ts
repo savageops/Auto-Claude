@@ -4,11 +4,12 @@ import type { Task, TaskStatus, ImplementationPlan, Subtask, TaskMetadata, Execu
 interface TaskState {
   tasks: Task[];
   selectedTaskId: string | null;
+  currentProjectId: string | null; // Track which project's tasks are loaded
   isLoading: boolean;
   error: string | null;
 
   // Actions
-  setTasks: (tasks: Task[]) => void;
+  setTasks: (tasks: Task[], projectId: string) => void;
   addTask: (task: Task) => void;
   updateTask: (taskId: string, updates: Partial<Task>) => void;
   updateTaskStatus: (taskId: string, status: TaskStatus) => void;
@@ -28,10 +29,11 @@ interface TaskState {
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   selectedTaskId: null,
+  currentProjectId: null,
   isLoading: false,
   error: null,
 
-  setTasks: (tasks) => set({ tasks }),
+  setTasks: (tasks, projectId) => set({ tasks, currentProjectId: projectId }),
 
   addTask: (task) =>
     set((state) => ({
@@ -87,22 +89,26 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         let status: TaskStatus = t.status;
         let reviewReason: ReviewReason | undefined = t.reviewReason;
 
-        if (allCompleted) {
-          // Manual tasks skip AI review and go directly to human review
-          status = t.metadata?.sourceType === 'manual' ? 'human_review' : 'ai_review';
-          if (t.metadata?.sourceType === 'manual') {
-            reviewReason = 'completed';
-          } else {
+        // CRITICAL: Don't recalculate status if user already approved/completed the task
+        // This prevents reverting from 'done' back to 'human_review' when plan updates arrive
+        if (t.status !== 'done') {
+          if (allCompleted) {
+            // Manual tasks skip AI review and go directly to human review
+            status = t.metadata?.sourceType === 'manual' ? 'human_review' : 'ai_review';
+            if (t.metadata?.sourceType === 'manual') {
+              reviewReason = 'completed';
+            } else {
+              reviewReason = undefined;
+            }
+          } else if (anyFailed) {
+            // Some subtasks failed - needs human attention
+            status = 'human_review';
+            reviewReason = 'errors';
+          } else if (anyInProgress || anyCompleted) {
+            // Work in progress
+            status = 'in_progress';
             reviewReason = undefined;
           }
-        } else if (anyFailed) {
-          // Some subtasks failed - needs human attention
-          status = 'human_review';
-          reviewReason = 'errors';
-        } else if (anyInProgress || anyCompleted) {
-          // Work in progress
-          status = 'in_progress';
-          reviewReason = undefined;
         }
 
         return {
@@ -154,7 +160,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   setError: (error) => set({ error }),
 
-  clearTasks: () => set({ tasks: [], selectedTaskId: null }),
+  clearTasks: () => set({ tasks: [], selectedTaskId: null, currentProjectId: null }),
 
   getSelectedTask: () => {
     const state = get();
@@ -178,7 +184,7 @@ export async function loadTasks(projectId: string): Promise<void> {
   try {
     const result = await window.electronAPI.getTasks(projectId);
     if (result.success && result.data) {
-      store.setTasks(result.data);
+      store.setTasks(result.data, projectId);
     } else {
       store.setError(result.error || 'Failed to load tasks');
     }

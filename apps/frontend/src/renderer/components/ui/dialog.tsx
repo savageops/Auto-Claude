@@ -43,8 +43,7 @@ const DialogContent = React.forwardRef<
       className={cn(
         'fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh]',
         'translate-x-[-50%] translate-y-[-50%]',
-        'bg-card border border-border rounded-2xl p-6',
-        'shadow-xl',
+        'bg-card rounded-md p-3',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -59,7 +58,7 @@ const DialogContent = React.forwardRef<
       {!hideCloseButton && (
         <DialogPrimitive.Close
           className={cn(
-            'absolute right-4 top-4 rounded-lg p-1',
+            'absolute right-4 top-4 rounded-md p-1',
             'text-muted-foreground hover:text-foreground',
             'hover:bg-accent transition-colors',
             'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
@@ -76,13 +75,13 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)} {...props} />
+  <div className={cn('flex flex-col space-y-1 text-center sm:text-left', className)} {...props} />
 );
 DialogHeader.displayName = 'DialogHeader';
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 mt-6', className)}
+    className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-6', className)}
     {...props}
   />
 );

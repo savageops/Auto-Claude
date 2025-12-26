@@ -46,8 +46,8 @@ export function TaskActions({
       <div className="p-4">
         {isStuck ? (
           <Button
-            className="w-full"
-            variant="warning"
+            className="w-full bg-primary/20 hover:bg-primary/30 text-primary"
+            variant="ghost"
             onClick={onRecover}
             disabled={isRecovering}
           >
@@ -65,8 +65,8 @@ export function TaskActions({
           </Button>
         ) : isIncomplete ? (
           <Button
-            className="w-full"
-            variant="default"
+            className="w-full bg-primary/80 hover:bg-primary/90 text-background"
+            variant="ghost"
             onClick={onStartStop}
           >
             <Play className="mr-2 h-4 w-4" />
@@ -74,8 +74,12 @@ export function TaskActions({
           </Button>
         ) : (task.status === 'backlog' || task.status === 'in_progress') && (
           <Button
-            className="w-full"
-            variant={isRunning ? 'destructive' : 'default'}
+            className={`w-full ${
+              isRunning
+                ? 'bg-primary/30 hover:bg-primary/40 text-primary'
+                : 'bg-primary/80 hover:bg-primary/90 text-background'
+            }`}
+            variant="ghost"
             onClick={onStartStop}
           >
             {isRunning ? (
@@ -102,7 +106,7 @@ export function TaskActions({
         <Button
           variant="ghost"
           size="sm"
-          className="w-full mt-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          className="w-full mt-3 text-muted-foreground hover:bg-muted hover:text-foreground/70"
           onClick={() => onShowDeleteDialog(true)}
           disabled={isRunning && !isStuck}
         >
@@ -143,7 +147,7 @@ export function TaskActions({
                 onDelete();
               }}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-primary/30 hover:bg-primary/40 text-primary"
             >
               {isDeleting ? (
                 <>

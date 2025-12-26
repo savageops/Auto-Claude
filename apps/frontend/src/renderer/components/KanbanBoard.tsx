@@ -94,32 +94,13 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 
   const taskIds = tasks.map((t) => t.id);
 
-  const getColumnBorderColor = (): string => {
-    switch (status) {
-      case 'backlog':
-        return 'column-backlog';
-      case 'in_progress':
-        return 'column-in-progress';
-      case 'ai_review':
-        return 'column-ai-review';
-      case 'human_review':
-        return 'column-human-review';
-      case 'done':
-        return 'column-done';
-      default:
-        return 'border-t-muted-foreground/30';
-    }
-  };
-
   const emptyState = getEmptyStateContent(status, t);
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-xl border border-white/5 bg-linear-to-b from-secondary/30 to-transparent backdrop-blur-sm transition-all duration-200',
-        getColumnBorderColor(),
-        'border-t-2',
+        'flex w-72 shrink-0 flex-col rounded-xl border border-white/5 bg-secondary/30 backdrop-blur-sm transition-all duration-200',
         isOver && 'drop-zone-highlight'
       )}
     >

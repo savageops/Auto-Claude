@@ -156,10 +156,138 @@ npm start
 
 **System requirements for building:**
 - Node.js 24+
-- Python 3.12+
+- Python 3.12+ (see setup instructions below)
 - npm 10+
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development setup.
+
+---
+
+## Setup & Troubleshooting
+
+### Python Installation (Critical)
+
+**⚠️ Use Python 3.12.10 specifically** - newer versions like 3.14 may not have prebuilt wheels for native dependencies.
+
+#### Windows
+
+1. **Download Python 3.12.10**: https://www.python.org/downloads/release/python-31210/
+   - Get "Windows installer (64-bit)"
+   - ✅ Check "Add Python to PATH" during installation
+   - ✅ Check "Install for all users" (recommended)
+
+2. **Install CMake**: https://cmake.org/download/
+   - Get the Windows x64 Installer (.msi)
+   - ✅ Check "Add CMake to system PATH" during installation
+
+3. **Install Visual Studio Build Tools**: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+   - Click "Download Build Tools"
+   - In the installer, select "Desktop development with C++"
+   - This provides the C++ compiler needed for native Python packages
+
+4. **Restart your terminal/IDE** after installing to refresh PATH variables
+
+5. **Run installation**:
+   ```bash
+   npm run install:all
+   ```
+
+#### macOS
+
+```bash
+# Install Python 3.12
+brew install python@3.12
+
+# Install dependencies
+npm run install:all
+```
+
+#### Linux (Ubuntu/Debian)
+
+```bash
+# Install Python 3.12 and build tools
+sudo apt update
+sudo apt install python3.12 python3.12-venv build-essential cmake
+
+# Install dependencies
+npm run install:all
+```
+
+### Common Errors
+
+#### ❌ "Python 3.12+ is required but not found"
+
+**Cause**: Python not in PATH or wrong version installed
+
+**Solution**:
+1. Verify installation: `python --version` (should show 3.12.x)
+2. If not found, restart your terminal/IDE
+3. If still not found, add Python to PATH manually:
+   - Windows: Add `C:\Users\<YourUser>\AppData\Local\Programs\Python\Python312` to PATH
+   - Run `setx PATH "%PATH%;C:\Users\<YourUser>\AppData\Local\Programs\Python\Python312"`
+
+#### ❌ "Building wheel for real_ladybug failed"
+
+**Cause**: Missing C++ compiler or CMake
+
+**Solution (Windows)**:
+1. Install Visual Studio Build Tools (see Python Installation section above)
+2. Install CMake (see Python Installation section above)
+3. Restart terminal and run `npm run install:all` again
+
+**Why this happens**: The `real_ladybug` package (LadybugDB embedded graph database) requires compiling C++ code. Python 3.14 is too new and doesn't have prebuilt binaries yet.
+
+#### ❌ "npm ERR! Electron failed to install correctly"
+
+**Cause**: Network issues or missing system dependencies
+
+**Solution**:
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Remove node_modules
+rm -rf node_modules apps/*/node_modules
+
+# Reinstall
+npm run install:all
+```
+
+#### ❌ Backend virtual environment issues
+
+**Solution**:
+```bash
+# Remove existing venv
+rm -rf apps/backend/.venv
+
+# Reinstall backend
+cd apps/backend
+python -m venv .venv
+.venv/Scripts/activate  # Windows
+# or
+source .venv/bin/activate  # macOS/Linux
+
+pip install -r requirements.txt
+```
+
+### Verifying Installation
+
+After successful installation, verify everything works:
+
+```bash
+# Check Python version
+python --version  # Should show Python 3.12.10
+
+# Check backend venv
+apps/backend/.venv/Scripts/python --version  # Windows
+apps/backend/.venv/bin/python --version      # macOS/Linux
+
+# Check CMake (Windows only)
+cmake --version  # Should show cmake version 4.2.1 or higher
+
+# Run the app
+npm run dev
+```
 
 ---
 

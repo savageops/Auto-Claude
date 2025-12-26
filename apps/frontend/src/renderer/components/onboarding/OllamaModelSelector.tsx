@@ -434,7 +434,7 @@ export function OllamaModelSelector({
                    {/* Progress bar */}
                    <div className="w-full bg-muted rounded-full h-2">
                      <div
-                       className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-300"
+                       className="h-full rounded-full bg-primary transition-all duration-300"
                        style={{ width: `${Math.max(0, Math.min(100, progress.percentage))}%` }}
                      />
                    </div>

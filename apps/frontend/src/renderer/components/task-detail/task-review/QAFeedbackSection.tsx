@@ -35,10 +35,10 @@ export function QAFeedbackSection({
         rows={3}
       />
       <Button
-        variant="warning"
+        variant="ghost"
         onClick={onReject}
         disabled={isSubmitting || !feedback.trim()}
-        className="w-full"
+        className="w-full bg-primary/20 hover:bg-primary/30 text-primary"
       >
         {isSubmitting ? (
           <>

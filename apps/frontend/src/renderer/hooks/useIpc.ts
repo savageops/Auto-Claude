@@ -15,35 +15,56 @@ export function useIpcListeners(): void {
   const setError = useTaskStore((state) => state.setError);
 
   useEffect(() => {
-    // Set up listeners
+    // Helper to check if task belongs to currently loaded project
+    const isTaskInCurrentProject = (taskId: string): boolean => {
+      const tasks = useTaskStore.getState().tasks;
+      return tasks.some(t => t.id === taskId || t.specId === taskId);
+    };
+
+    // Set up listeners with project filtering
     const cleanupProgress = window.electronAPI.onTaskProgress(
       (taskId: string, plan: ImplementationPlan) => {
-        updateTaskFromPlan(taskId, plan);
+        // Only update if task belongs to current project
+        if (isTaskInCurrentProject(taskId)) {
+          updateTaskFromPlan(taskId, plan);
+        }
       }
     );
 
     const cleanupError = window.electronAPI.onTaskError(
       (taskId: string, error: string) => {
-        setError(`Task ${taskId}: ${error}`);
-        appendLog(taskId, `[ERROR] ${error}`);
+        // Only update if task belongs to current project
+        if (isTaskInCurrentProject(taskId)) {
+          setError(`Task ${taskId}: ${error}`);
+          appendLog(taskId, `[ERROR] ${error}`);
+        }
       }
     );
 
     const cleanupLog = window.electronAPI.onTaskLog(
       (taskId: string, log: string) => {
-        appendLog(taskId, log);
+        // Only update if task belongs to current project
+        if (isTaskInCurrentProject(taskId)) {
+          appendLog(taskId, log);
+        }
       }
     );
 
     const cleanupStatus = window.electronAPI.onTaskStatusChange(
       (taskId: string, status: TaskStatus) => {
-        updateTaskStatus(taskId, status);
+        // Only update if task belongs to current project
+        if (isTaskInCurrentProject(taskId)) {
+          updateTaskStatus(taskId, status);
+        }
       }
     );
 
     const cleanupExecutionProgress = window.electronAPI.onTaskExecutionProgress(
       (taskId: string, progress: ExecutionProgress) => {
-        updateExecutionProgress(taskId, progress);
+        // Only update if task belongs to current project
+        if (isTaskInCurrentProject(taskId)) {
+          updateExecutionProgress(taskId, progress);
+        }
       }
     );
 

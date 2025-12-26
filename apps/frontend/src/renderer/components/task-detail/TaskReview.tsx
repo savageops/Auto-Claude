@@ -84,7 +84,7 @@ export function TaskReview({
   return (
     <div className="space-y-4">
       {/* Section divider */}
-      <div className="section-divider-gradient" />
+      <div className="h-px bg-border/15 my-4" />
 
       {/* Staged Success Message */}
       {stagedSuccess && (
