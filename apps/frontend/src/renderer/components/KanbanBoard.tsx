@@ -100,7 +100,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
     <div
       ref={setNodeRef}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-xl border border-white/5 bg-secondary/30 backdrop-blur-sm transition-all duration-200',
+        'flex flex-1 min-w-64 flex-col rounded-xl border border-white/5 bg-secondary/30 backdrop-blur-sm transition-all duration-200',
         isOver && 'drop-zone-highlight'
       )}
     >
@@ -181,6 +181,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
                     key={task.id}
                     task={task}
                     onClick={() => onTaskClick(task)}
+                    isCollapsible={status === 'done'}
                   />
                 ))
               )}

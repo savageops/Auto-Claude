@@ -600,29 +600,6 @@ export function TaskCreationWizard({
     return [...existingFiles, ...newFiles];
   }, []);
 
-  /**
-   * Handle refine with AI - placeholder for now
-   * TODO: Implement actual AI refinement API call
-   */
-  const handleRefineWithAI = useCallback(async () => {
-    if (!description.trim() || isRefining) return;
-
-    setIsRefining(true);
-    setError(null);
-
-    try {
-      // Placeholder: In the future, this will call an AI API to refine the description
-      // For now, just simulate a brief loading state
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // When implemented, the refined description would be set here
-      // setDescription(refinedDescription);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to refine description');
-    } finally {
-      setIsRefining(false);
-    }
-  }, [description, isRefining]);
-
   const handleCreate = async () => {
     if (!description.trim()) {
       setError('Please provide a description');
