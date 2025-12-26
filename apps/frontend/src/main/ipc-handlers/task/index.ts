@@ -6,6 +6,7 @@
  * - Execution management (start, stop, review, status, recovery)
  * - Worktree operations (status, diff, merge, discard, list)
  * - Logs management (get, watch, unwatch)
+ * - Refinement (AI-powered task expansion using Claude Haiku)
  */
 
 import { BrowserWindow } from 'electron';
@@ -16,6 +17,7 @@ import { registerTaskExecutionHandlers } from './execution-handlers';
 import { registerWorktreeHandlers } from './worktree-handlers';
 import { registerTaskLogsHandlers } from './logs-handlers';
 import { registerTaskArchiveHandlers } from './archive-handlers';
+import { registerTaskRefinementHandlers } from './refinement-handlers';
 
 /**
  * Register all task-related IPC handlers
@@ -39,6 +41,9 @@ export function registerTaskHandlers(
 
   // Register archive handlers (archive, unarchive)
   registerTaskArchiveHandlers();
+
+  // Register task refinement handlers (AI-powered task expansion)
+  registerTaskRefinementHandlers();
 }
 
 // Export shared utilities for use by other modules if needed
