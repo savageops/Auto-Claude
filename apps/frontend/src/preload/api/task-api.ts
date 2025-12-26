@@ -6,6 +6,7 @@ import type {
   TaskStartOptions,
   TaskStatus,
   TaskRecoveryResult,
+  TaskRefinementResult,
   ImplementationPlan,
   TaskMetadata,
   TaskLogs,
@@ -42,6 +43,7 @@ export interface TaskAPI {
     options?: import('../../shared/types').TaskRecoveryOptions
   ) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
+  refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
 
   // Workspace Management (for human review)
   getWorktreeStatus: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeStatus>>;
@@ -119,6 +121,9 @@ export const createTaskAPI = (): TaskAPI => ({
 
   checkTaskRunning: (taskId: string): Promise<IPCResult<boolean>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_CHECK_RUNNING, taskId),
+
+  refineTask: (briefDescription: string): Promise<IPCResult<TaskRefinementResult>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_REFINE, briefDescription),
 
   // Workspace Management
   getWorktreeStatus: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeStatus>> =>

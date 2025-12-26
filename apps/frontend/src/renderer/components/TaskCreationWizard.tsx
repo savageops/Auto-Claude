@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -68,6 +68,7 @@ export function TaskCreationWizard({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showFileExplorer, setShowFileExplorer] = useState(false);
@@ -652,6 +653,56 @@ export function TaskCreationWizard({
     }
   };
 
+  /**
+   * Handle refine with AI button click
+   * Calls the AI refinement service to expand a brief description into complete task details
+   */
+  const handleRefineWithAI = async () => {
+    if (!description.trim()) {
+      setError('Please enter a description to refine');
+      return;
+    }
+
+    setIsRefining(true);
+    setError(null);
+
+    try {
+      const result = await window.electronAPI.refineTask(description.trim());
+
+      if (result.success && result.data) {
+        // Auto-populate form fields with AI-generated content
+        if (result.data.title) {
+          setTitle(result.data.title);
+        }
+        if (result.data.description) {
+          setDescription(result.data.description);
+        }
+        if (result.data.category) {
+          setCategory(result.data.category as TaskCategory);
+          setShowAdvanced(true); // Expand advanced section to show populated fields
+        }
+        if (result.data.priority) {
+          setPriority(result.data.priority as TaskPriority);
+          setShowAdvanced(true);
+        }
+        if (result.data.complexity) {
+          setComplexity(result.data.complexity as TaskComplexity);
+          setShowAdvanced(true);
+        }
+        if (result.data.impact) {
+          setImpact(result.data.impact as TaskImpact);
+          setShowAdvanced(true);
+        }
+      } else {
+        setError(result.error || 'Failed to refine task. Please try again.');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to refine task');
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
   const resetForm = () => {
     setTitle('');
     setDescription('');
@@ -681,7 +732,7 @@ export function TaskCreationWizard({
    * Handle dialog close - save draft if content exists
    */
   const handleClose = () => {
-    if (isCreating) return;
+    if (isCreating || isRefining) return;
 
     const draft = getCurrentDraft();
 
@@ -814,9 +865,31 @@ export function TaskCreationWizard({
                 />
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Files and images can be copy/pasted or dragged & dropped into the description.
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                Files and images can be copy/pasted or dragged & dropped into the description.
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleRefineWithAI}
+                disabled={isCreating || isRefining || !description.trim()}
+                className="h-7 px-2 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                {isRefining ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Refining...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Refine with AI
+                  </>
+                )}
+              </Button>
+            </div>
 
             {/* Image Thumbnails - displayed inline below description */}
             {images.length > 0 && (

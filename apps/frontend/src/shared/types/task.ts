@@ -456,3 +456,16 @@ export interface TaskStartOptions {
   model?: string;
   baseBranch?: string; // Override base branch for worktree creation
 }
+
+/**
+ * Task refinement result returned by the AI service
+ * Used when expanding brief task descriptions into complete task details
+ */
+export interface TaskRefinementResult {
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  complexity: string;
+  impact: string;
+}
