@@ -33,6 +33,7 @@ import { FileAutocomplete } from './FileAutocomplete';
 import { createTask, saveDraft, loadDraft, clearDraft, isDraftEmpty } from '../stores/task-store';
 import { useProjectStore } from '../stores/project-store';
 import { cn } from '../lib/utils';
+import { toast } from '../hooks/useToast';
 import type { TaskCategory, TaskPriority, TaskComplexity, TaskImpact, TaskMetadata, ImageAttachment, TaskDraft, ModelType, ThinkingLevel, ReferencedFile } from '../../shared/types';
 import type { PhaseModelConfig, PhaseThinkingConfig } from '../../shared/types/settings';
 import {
@@ -693,11 +694,32 @@ export function TaskCreationWizard({
           setImpact(result.data.impact as TaskImpact);
           setShowAdvanced(true);
         }
+
+        // Show success toast
+        toast({
+          title: 'Task refined successfully',
+          description: 'Your task has been expanded with AI-generated details.',
+          variant: 'success',
+        });
       } else {
-        setError(result.error || 'Failed to refine task. Please try again.');
+        const errorMessage = result.error || 'Failed to refine task. Please try again.';
+        setError(errorMessage);
+        // Show error toast
+        toast({
+          title: 'Refinement failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to refine task');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to refine task';
+      setError(errorMessage);
+      // Show error toast
+      toast({
+        title: 'Refinement failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     } finally {
       setIsRefining(false);
     }
