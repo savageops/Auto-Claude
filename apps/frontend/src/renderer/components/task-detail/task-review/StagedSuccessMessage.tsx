@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GitMerge, ExternalLink, Copy, Check, Sparkles } from 'lucide-react';
+import { GitMerge, ExternalLink, Copy, Check, Sparkles } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 import type { Task } from '../../../../shared/types';

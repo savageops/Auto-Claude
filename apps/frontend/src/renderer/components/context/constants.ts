@@ -9,7 +9,7 @@ import {
   Lightbulb,
   FolderTree,
   AlertTriangle
-} from 'lucide-react';
+} from '@/lib/icons';
 
 // Service type icon mapping
 export const serviceTypeIcons: Record<string, React.ElementType> = {

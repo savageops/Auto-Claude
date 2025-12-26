@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ChevronDown, ChevronRight } from 'lucide-react';
+import { Activity, ChevronDown, ChevronRight } from '@/lib/icons';
 import {
   Collapsible,
   CollapsibleContent,

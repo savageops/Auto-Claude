@@ -2,7 +2,7 @@
  * Search input and state filter dropdown
  */
 
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter } from '@/lib/icons';
 import { Input } from '../../ui/input';
 import {
   Select,

@@ -1,4 +1,4 @@
-import { RefreshCw, Check } from 'lucide-react';
+import { RefreshCw, Check } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 import type { WizardStep } from './hooks/useChangelog';

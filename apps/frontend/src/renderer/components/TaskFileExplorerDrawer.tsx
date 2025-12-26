@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, FolderTree, RefreshCw } from 'lucide-react';
+import { X, FolderTree, RefreshCw } from '@/lib/icons';
 import { Button } from './ui/button';
 import { FileTree } from './FileTree';
 import { useFileExplorerStore } from '../stores/file-explorer-store';

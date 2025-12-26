@@ -1,4 +1,4 @@
-import { Lightbulb, Settings2, AlertCircle, Sparkles } from 'lucide-react';
+import { Lightbulb, Settings2, AlertCircle, Sparkles } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Switch } from '../ui/switch';

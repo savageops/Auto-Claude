@@ -1,4 +1,4 @@
-import { FolderX, Loader2 } from 'lucide-react';
+import { FolderX, Loader2 } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -8,7 +8,7 @@ import {
   Users,
   Play,
   AlertTriangle,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
 import { Progress } from '../../ui/progress';

@@ -12,6 +12,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite-plugin-svgr/client"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/renderer/*"],
@@ -19,7 +20,8 @@
       "@features/*": ["src/renderer/features/*"],
       "@components/*": ["src/renderer/shared/components/*"],
       "@hooks/*": ["src/renderer/shared/hooks/*"],
-      "@lib/*": ["src/renderer/shared/lib/*"]
+      "@lib/*": ["src/renderer/shared/lib/*"],
+      "@icons/*": ["src/renderer/assets/icons/*"]
     }
   },
   "include": ["src/**/*"],

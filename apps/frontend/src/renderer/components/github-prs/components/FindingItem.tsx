@@ -2,7 +2,7 @@
  * FindingItem - Individual finding display with checkbox and details
  */
 
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { Checkbox } from '../../ui/checkbox';
 import { cn } from '../../../lib/utils';

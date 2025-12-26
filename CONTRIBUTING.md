@@ -1,6 +1,6 @@
-# Contributing to Auto Claude
+# Contributing to Turret
 
-Thank you for your interest in contributing to Auto Claude! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to Turret! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -129,7 +129,7 @@ npm run package
 
 ## Running from Source
 
-If you want to run Auto Claude from source (for development or testing unreleased features), follow these steps:
+If you want to run Turret from source (for development or testing unreleased features), follow these steps:
 
 ### Step 1: Clone and Set Up
 
@@ -169,7 +169,7 @@ npm run build && npm run start
 <details>
 <summary><b>Windows users:</b> If installation fails with node-gyp errors, click here</summary>
 
-Auto Claude automatically downloads prebuilt binaries for Windows. If prebuilts aren't available for your Electron version yet, you'll need Visual Studio Build Tools:
+Turret automatically downloads prebuilt binaries for Windows. If prebuilts aren't available for your Electron version yet, you'll need Visual Studio Build Tools:
 
 1. Download [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 2. Select "Desktop development with C++" workload
@@ -654,7 +654,7 @@ When reporting a bug, include:
    - OS and version
    - Python version
    - Node.js version (for UI issues)
-   - Auto Claude version
+   - Turret version
 3. **Steps to reproduce** the issue
 4. **Expected behavior** vs **actual behavior**
 5. **Error messages** or logs (if applicable)
@@ -671,7 +671,7 @@ When requesting a feature:
 
 ## Architecture Overview
 
-Auto Claude consists of two main parts:
+Turret consists of two main parts:
 
 ### Python Backend (`apps/backend/`)
 
@@ -702,4 +702,4 @@ If you have questions about contributing, feel free to:
 1. Open a GitHub issue with the `question` label
 2. Review existing issues and discussions
 
-Thank you for contributing to Auto Claude!
+Thank you for contributing to Turret!

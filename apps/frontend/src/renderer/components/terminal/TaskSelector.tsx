@@ -1,4 +1,4 @@
-import { ListTodo, Plus, X, ChevronDown, Loader2 } from 'lucide-react';
+import { ListTodo, Plus, X, ChevronDown, Loader2 } from '@/lib/icons';
 import type { Task } from '../../../shared/types';
 import {
   DropdownMenu,

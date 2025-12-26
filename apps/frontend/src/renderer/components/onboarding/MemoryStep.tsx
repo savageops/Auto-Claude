@@ -8,7 +8,7 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -378,7 +378,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             Memory
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Auto Claude Memory helps remember context across your coding sessions
+            Turret Memory helps remember context across your coding sessions
           </p>
         </div>
 

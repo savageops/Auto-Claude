@@ -14,7 +14,7 @@ import {
   FolderSearch,
   PanelLeftClose,
   PanelLeft
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';

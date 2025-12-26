@@ -1,4 +1,4 @@
-import { AlertCircle, GitMerge, Loader2, Trash2, Check } from 'lucide-react';
+import { AlertCircle, GitMerge, Loader2, Check } from '@/lib/icons';
 import { useState } from 'react';
 import { Button } from '../../ui/button';
 import { persistTaskStatus } from '../../../stores/task-store';

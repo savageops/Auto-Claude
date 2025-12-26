@@ -308,7 +308,7 @@ export interface ProjectEnvConfig {
   enableFancyUi: boolean;
 }
 
-// Auto Claude Initialization Types
+// Turret Initialization Types
 export interface AutoBuildVersionInfo {
   isInitialized: boolean;
   updateAvailable: boolean; // Always false - .auto-claude only contains data, no code to update

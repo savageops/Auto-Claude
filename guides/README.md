@@ -1,6 +1,6 @@
-# Auto Claude Guides
+# Turret Guides
 
-Detailed documentation for Auto Claude setup and usage.
+Detailed documentation for Turret setup and usage.
 
 ## Available Guides
 

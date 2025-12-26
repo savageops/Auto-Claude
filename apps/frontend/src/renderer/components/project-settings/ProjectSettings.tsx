@@ -1,4 +1,4 @@
-import { Settings2, Save, Loader2 } from 'lucide-react';
+import { Settings2, Save, Loader2 } from '@/lib/icons';
 import { LinearTaskImportModal } from '../LinearTaskImportModal';
 import {
   Dialog,

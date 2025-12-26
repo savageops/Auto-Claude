@@ -401,7 +401,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
           <span>{formatRelativeTime(task.updatedAt)}</span>
         </div>
 
-        {/* Action buttons - monochromatic topographic design */}
+        {/* Action buttons */}
         {isStuck ? (
           <Button
             variant="ghost"
@@ -428,6 +428,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
             size="sm"
             className="h-7 px-2.5 bg-primary/80 hover:bg-primary/90 text-background"
             onClick={handleStartStop}
+            disabled={isRunning}
           >
             <Play className="mr-1.5 h-3 w-3" />
             {t('actions.resume')}
@@ -443,7 +444,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
             <Archive className="mr-1.5 h-3 w-3" />
             {t('actions.archive')}
           </Button>
-        ) : (task.status === 'backlog' || task.status === 'in_progress') && (
+        ) : (
           <Button
             variant="ghost"
             size="sm"
@@ -472,6 +473,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
     </>
   );
 
+  // Render: collapsible mode when isCollapsible is true, else standard card
   if (isCollapsible) {
     return (
       <Collapsible

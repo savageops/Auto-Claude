@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Server, ChevronDown, ChevronRight, HardDrive, Mail, CreditCard, Zap } from 'lucide-react';
+import { Server, ChevronDown, ChevronRight, HardDrive, Mail, CreditCard, Zap } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import {
   Collapsible,

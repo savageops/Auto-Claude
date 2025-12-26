@@ -1,4 +1,4 @@
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from '@/lib/icons';
 
 interface ConnectionStatusProps {
   isChecking: boolean;

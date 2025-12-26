@@ -4,7 +4,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';

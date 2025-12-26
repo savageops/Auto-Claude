@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Users, Sparkles, CheckCircle2, AlertCircle, Square } from 'lucide-react';
+import { Search, Users, Sparkles, CheckCircle2, AlertCircle, Square } from '@/lib/icons';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { cn } from '../lib/utils';

@@ -52,7 +52,7 @@ lerna-debug.log*
 .worktrees/
 
 # ===========================
-# Auto Claude Generated
+# Turret Generated
 # ===========================
 .auto-claude/
 .auto-build-security.json

@@ -1,4 +1,4 @@
-import { Globe, RefreshCw, TrendingUp, CheckCircle } from 'lucide-react';
+import { Globe, RefreshCw, TrendingUp, CheckCircle } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogContent,

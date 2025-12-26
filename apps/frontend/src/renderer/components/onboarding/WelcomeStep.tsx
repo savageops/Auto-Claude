@@ -1,4 +1,4 @@
-import { Sparkles, Zap, Brain, FileCode } from 'lucide-react';
+import { Sparkles, Zap, Brain, FileCode } from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';

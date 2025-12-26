@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -908,26 +908,6 @@ export function TaskCreationWizard({
               <p className="text-xs text-muted-foreground">
                 Files and images can be copy/pasted or dragged & dropped into the description.
               </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleRefineWithAI}
-                disabled={isCreating || isRefining || !description.trim()}
-                className="h-7 px-2 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
-              >
-                {isRefining ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Refining...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Refine with AI
-                  </>
-                )}
-              </Button>
             </div>
 
             {/* Image Thumbnails - displayed inline below description */}

@@ -10,7 +10,7 @@ import {
   Star,
   Settings,
   Users
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { cn } from '../../lib/utils';

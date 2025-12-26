@@ -282,7 +282,7 @@ describe('ProjectTabBar', () => {
     });
 
     it('should render Plus icon in add button', () => {
-      // Component uses Plus from lucide-react
+      // Component uses Plus from @/lib/icons
       const iconClass = 'h-4 w-4';
       expect(iconClass).toBe('h-4 w-4');
     });

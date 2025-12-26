@@ -120,6 +120,50 @@ export interface AppSettings {
   _migratedAgentProfileToAuto?: boolean;
   // Language preference for UI (i18n)
   language?: SupportedLanguage;
+  // Prompt configuration
+  promptConfig?: PromptConfig;
+  // Legacy: AI Merge configuration (deprecated - use promptConfig.merge)
+  mergeConfig?: MergePromptConfig;
+}
+
+// Prompt Configuration
+export interface PromptConfig {
+  // Merge prompts configuration
+  merge: MergePromptConfig;
+  // Task execution prompts
+  taskExecution: TaskExecutionPromptConfig;
+  // Global custom instructions appended to all prompts
+  globalInstructions?: string;
+}
+
+// AI Merge Configuration
+export interface MergePromptConfig {
+  // System prompt - overall behavior
+  systemPrompt: string;
+  // Critical rules - what to never do
+  preventDeletion: boolean;
+  preventFeatureReduction: boolean;
+  preserveAllImports: boolean;
+  preserveAllHooks: boolean;
+  preserveAllProps: boolean;
+  preserveAllState: boolean;
+  // Conflict resolution strategy
+  combineConflicts: boolean;  // Combine both approaches vs choose one
+  includeMoreWhenUncertain: boolean;
+  // Custom merge instructions
+  customInstructions?: string;
+}
+
+// Task Execution Prompts (Planner, Coder, QA)
+export interface TaskExecutionPromptConfig {
+  // Base prompts from .md files (editable via UI, saved back to files)
+  plannerBasePrompt?: string;
+  coderBasePrompt?: string;
+  qaBasePrompt?: string;
+  // Custom system prompt additions (appended to base)
+  plannerInstructions?: string;
+  coderInstructions?: string;
+  qaInstructions?: string;
 }
 
 // Auto-Claude Source Environment Configuration (for auto-claude repo .env)
@@ -139,7 +183,7 @@ export interface SourceEnvCheckResult {
   error?: string;
 }
 
-// Auto Claude Source Update Types
+// Turret Source Update Types
 export interface AutoBuildSourceUpdateCheck {
   updateAvailable: boolean;
   currentVersion: string;

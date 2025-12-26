@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GitBranch, Terminal, CheckCircle2, AlertCircle, Loader2, FolderGit2 } from 'lucide-react';
+import { GitBranch, Terminal, CheckCircle2, AlertCircle, Loader2, FolderGit2 } from '@/lib/icons';
 import { Button } from './ui/button';
 import {
   Dialog,

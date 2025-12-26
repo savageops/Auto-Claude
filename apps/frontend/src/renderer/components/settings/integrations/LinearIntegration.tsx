@@ -1,4 +1,4 @@
-import { Radio, Import, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Radio, Import, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';

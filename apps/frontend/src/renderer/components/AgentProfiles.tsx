@@ -1,4 +1,4 @@
-import { Brain, Scale, Zap, Check } from 'lucide-react';
+import { Brain, Scale, Zap, Check } from '@/lib/icons';
 import { cn } from '../lib/utils';
 import { DEFAULT_AGENT_PROFILES, AVAILABLE_MODELS, THINKING_LEVELS } from '../../shared/constants';
 import { useSettingsStore, saveSettings } from '../stores/settings-store';

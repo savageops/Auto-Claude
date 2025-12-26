@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { InfrastructureStatus } from './InfrastructureStatus';
 import { PasswordInput } from './PasswordInput';

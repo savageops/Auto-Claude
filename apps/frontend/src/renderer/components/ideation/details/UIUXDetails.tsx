@@ -3,7 +3,7 @@ import {
   CheckCircle2,
   Users,
   FileCode
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { UIUX_CATEGORY_LABELS } from '../../../../shared/constants';
 import type { UIUXImprovementIdea } from '../../../../shared/types';

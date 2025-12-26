@@ -13,7 +13,7 @@ import {
   ChevronRight,
   Check,
   X
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
@@ -189,7 +189,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
             Worktrees
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage isolated workspaces for your Auto Claude tasks
+            Manage isolated workspaces for your Turret tasks
           </p>
         </div>
         <Button
@@ -231,7 +231,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
           </div>
           <h3 className="text-lg font-semibold text-foreground">No Worktrees</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            Worktrees are created automatically when Auto Claude builds features.
+            Worktrees are created automatically when Turret builds features.
             They provide isolated workspaces for each task.
           </p>
         </div>

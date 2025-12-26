@@ -1,5 +1,5 @@
 """
-Authentication helpers for Auto Claude.
+Authentication helpers for Turret.
 
 Provides centralized authentication token resolution with fallback support
 for multiple environment variables, and SDK environment variable passthrough
@@ -13,7 +13,7 @@ import subprocess
 
 # Priority order for auth token resolution
 # NOTE: We intentionally do NOT fall back to ANTHROPIC_API_KEY.
-# Auto Claude is designed to use Claude Code OAuth tokens only.
+# Turret is designed to use Claude Code OAuth tokens only.
 # This prevents silent billing to user's API credits when OAuth fails.
 AUTH_TOKEN_ENV_VARS = [
     "CLAUDE_CODE_OAUTH_TOKEN",  # OAuth token from Claude Code CLI
@@ -138,7 +138,7 @@ def require_auth_token() -> str:
     if not token:
         error_msg = (
             "No OAuth token found.\n\n"
-            "Auto Claude requires Claude Code OAuth authentication.\n"
+            "Turret requires Claude Code OAuth authentication.\n"
             "Direct API keys (ANTHROPIC_API_KEY) are not supported.\n\n"
         )
         # Provide platform-specific guidance

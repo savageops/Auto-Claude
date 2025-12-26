@@ -1,4 +1,4 @@
-import { GitCommit } from 'lucide-react';
+import { GitCommit } from '@/lib/icons';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { cn } from '../../lib/utils';

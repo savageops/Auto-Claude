@@ -9,7 +9,7 @@ import {
   ExternalLink,
   Download,
   Sparkles
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
@@ -75,7 +75,7 @@ interface AdvancedSettingsProps {
 export function AdvancedSettings({ settings, onSettingsChange, section, version }: AdvancedSettingsProps) {
   const { t } = useTranslation('settings');
 
-  // Auto Claude source update state
+  // Turret source update state
   const [sourceUpdateCheck, setSourceUpdateCheck] = useState<AutoBuildSourceUpdateCheck | null>(null);
   const [isCheckingSourceUpdate, setIsCheckingSourceUpdate] = useState(false);
   const [isDownloadingUpdate, setIsDownloadingUpdate] = useState(false);

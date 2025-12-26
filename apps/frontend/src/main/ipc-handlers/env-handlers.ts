@@ -110,8 +110,8 @@ export function registerEnvHandlers(
     }
 
     // Generate content with sections
-    const content = `# Auto Claude Framework Environment Variables
-# Managed by Auto Claude UI
+    const content = `# Turret Framework Environment Variables
+# Managed by Turret UI
 
 # Claude Code OAuth Token (REQUIRED)
 CLAUDE_CODE_OAUTH_TOKEN=${existingVars['CLAUDE_CODE_OAUTH_TOKEN'] || ''}
@@ -138,7 +138,7 @@ ${existingVars['GITHUB_AUTO_SYNC'] !== undefined ? `GITHUB_AUTO_SYNC=${existingV
 # GIT/WORKTREE SETTINGS (OPTIONAL)
 # =============================================================================
 # Default base branch for worktree creation
-# If not set, Auto Claude will auto-detect main/master, or fall back to current branch
+# If not set, Turret will auto-detect main/master, or fall back to current branch
 ${existingVars['DEFAULT_BRANCH'] ? `DEFAULT_BRANCH=${existingVars['DEFAULT_BRANCH']}` : '# DEFAULT_BRANCH=main'}
 
 # =============================================================================

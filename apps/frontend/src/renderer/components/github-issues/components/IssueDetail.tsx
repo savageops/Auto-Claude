@@ -1,4 +1,4 @@
-import { ExternalLink, User, Clock, MessageCircle, Sparkles, CheckCircle2, Eye } from 'lucide-react';
+import { ExternalLink, User, Clock, MessageCircle, Sparkles, CheckCircle2, Eye } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';

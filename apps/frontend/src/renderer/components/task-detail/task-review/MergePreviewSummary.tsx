@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 import type { MergeConflict, MergeStats, GitConflictInfo } from '../../../../shared/types';

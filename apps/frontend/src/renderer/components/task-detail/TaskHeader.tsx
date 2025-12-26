@@ -1,4 +1,4 @@
-import { X, Pencil, AlertTriangle } from 'lucide-react';
+import { X, Pencil, AlertTriangle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';

@@ -1,4 +1,4 @@
-import { Play, Square, CheckCircle2, RotateCcw, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Play, Square, CheckCircle2, RotateCcw, Trash2, Loader2, AlertTriangle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import {
   AlertDialog,

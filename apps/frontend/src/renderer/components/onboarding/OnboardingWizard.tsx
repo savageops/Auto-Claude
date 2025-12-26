@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wand2 } from 'lucide-react';
+import { Wand2 } from '@/lib/icons';
 import {
   FullScreenDialog,
   FullScreenDialogContent,
@@ -38,7 +38,7 @@ const WIZARD_STEPS: { id: WizardStepId; labelKey: string }[] = [
 /**
  * Main onboarding wizard component.
  * Provides a full-screen, multi-step wizard experience for new users
- * to configure their Auto Claude environment.
+ * to configure their Turret environment.
  *
  * Features:
  * - Step progress indicator

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
-import { Upload, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, AlertCircle, Image as ImageIcon } from '@/lib/icons';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 import type { ImageAttachment } from '../../shared/types';

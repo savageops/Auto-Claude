@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { GitPullRequest, RefreshCw, ExternalLink, Settings } from 'lucide-react';
+import { GitPullRequest, RefreshCw, ExternalLink, Settings } from '@/lib/icons';
 import { useProjectStore } from '../../stores/project-store';
 import { useGitHubPRs } from './hooks';
 import { PRList, PRDetail } from './components';

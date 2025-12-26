@@ -11,7 +11,7 @@ import {
   GitBranch,
   ListChecks,
   Clock
-} from 'lucide-react';
+} from '@/lib/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Badge } from '../ui/badge';

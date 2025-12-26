@@ -17,7 +17,7 @@ import {
   Info,
   Brain,
   Cpu
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../ui/collapsible';
 import { cn } from '../../lib/utils';

@@ -1,4 +1,4 @@
-import { FileText } from 'lucide-react';
+import { FileText } from '@/lib/icons';
 import { TooltipProvider } from '../ui/tooltip';
 import { ChangelogHeader } from './ChangelogHeader';
 import { ChangelogFilters } from './ChangelogFilters';

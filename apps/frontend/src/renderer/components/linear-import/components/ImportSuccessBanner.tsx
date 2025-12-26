@@ -2,7 +2,7 @@
  * Success banner shown after successful import
  */
 
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import type { LinearImportResult } from '../types';
 

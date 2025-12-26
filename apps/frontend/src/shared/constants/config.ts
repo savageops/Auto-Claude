@@ -46,7 +46,28 @@ export const DEFAULT_APP_SETTINGS = {
   // Beta updates opt-in (receive pre-release versions)
   betaUpdates: false,
   // Language preference (default to English)
-  language: 'en' as const
+  language: 'en' as const,
+  // Prompt configuration (defaults match current backend prompts)
+  promptConfig: {
+    merge: {
+      systemPrompt: "You are an expert code merge assistant. Your primary goal is to preserve ALL functionality from ALL tasks being merged. Never remove features or reduce code quality. When in doubt, include more rather than less.",
+      preventDeletion: true,
+      preventFeatureReduction: true,
+      preserveAllImports: true,
+      preserveAllHooks: true,
+      preserveAllProps: true,
+      preserveAllState: true,
+      combineConflicts: true,
+      includeMoreWhenUncertain: true,
+      customInstructions: undefined
+    },
+    taskExecution: {
+      plannerInstructions: undefined,
+      coderInstructions: undefined,
+      qaInstructions: undefined
+    },
+    globalInstructions: undefined
+  }
 };
 
 // ============================================

@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle2, Circle, Loader2, XCircle } from '@/lib/icons';
 import type { IdeationTypeState } from '../../stores/ideation-store';
 
 interface TypeStateIconProps {

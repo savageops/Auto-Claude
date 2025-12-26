@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { FileText, Copy, Save, CheckCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { FileText, Copy, Save, CheckCircle, ImageIcon, Loader2 } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';

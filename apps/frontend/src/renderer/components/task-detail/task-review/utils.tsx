@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, AlertCircle } from '@/lib/icons';
 
 /**
  * Returns the appropriate icon component based on conflict severity level

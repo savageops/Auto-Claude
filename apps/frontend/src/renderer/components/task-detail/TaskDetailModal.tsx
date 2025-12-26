@@ -26,7 +26,7 @@ import {
   AlertTriangle,
   Pencil,
   X
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '../../lib/utils';
 import { calculateProgress } from '../../lib/utils';
 import { startTask, stopTask, submitReview, recoverStuckTask, deleteTask } from '../../stores/task-store';
@@ -413,6 +413,72 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                           />
                         </>
                       )}
+
+                      {/* Workspace Changes Section - for non-review tasks */}
+                      {!state.needsReview && state.worktreeStatus && (
+                        <>
+                          <Separator />
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="font-semibold text-sm mb-3">Workspace Changes</h3>
+                              {state.isLoadingWorktree ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Loading changes...
+                                </div>
+                              ) : state.worktreeDiff ? (
+                                <pre className="text-xs bg-muted p-3 rounded border border-border overflow-auto max-h-60">
+                                  {state.worktreeDiff}
+                                </pre>
+                              ) : (
+                                <p className="text-xs text-muted-foreground">No changes detected</p>
+                              )}
+                            </div>
+                            {state.workspaceError && (
+                              <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+                                {state.workspaceError}
+                              </div>
+                            )}
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={handleMerge}
+                                disabled={state.isMerging || !state.worktreeStatus}
+                              >
+                                {state.isMerging ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Merging...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="mr-2 h-4 w-4" />
+                                    Merge Changes
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => state.setShowDiscardDialog(true)}
+                                disabled={state.isDiscarding}
+                              >
+                                {state.isDiscarding ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Discarding...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Discard Changes
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </ScrollArea>
                 </TabsContent>
@@ -439,23 +505,92 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
               </Tabs>
             </div>
 
-            {/* Footer - Actions */}
-            <div className="flex items-center gap-3 px-5 py-3 border-t border-border shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                onClick={() => state.setShowDeleteDialog(true)}
-                disabled={state.isRunning && !state.isStuck}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Task
-              </Button>
-              <div className="flex-1" />
-              {renderPrimaryAction()}
-              <Button variant="outline" onClick={handleClose}>
-                Close
-              </Button>
+            {/* Footer with Actions */}
+            <div className="border-t border-border bg-card p-4 shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                {/* Primary Action */}
+                <div className="flex-1">
+                  {renderPrimaryAction()}
+                </div>
+
+                {/* Secondary Actions */}
+                <div className="flex items-center gap-2">
+                  <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => state.setShowDeleteDialog(true)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </Button>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this task? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      {state.deleteError && (
+                        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                          {state.deleteError}
+                        </div>
+                      )}
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          disabled={state.isDeleting}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {state.isDeleting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            'Delete'
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  {/* Discard Dialog for workspace changes */}
+                  <AlertDialog open={state.showDiscardDialog} onOpenChange={state.setShowDiscardDialog}>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Discard Changes</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to discard all changes in the worktree? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      {state.workspaceError && (
+                        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                          {state.workspaceError}
+                        </div>
+                      )}
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDiscard}
+                          disabled={state.isDiscarding}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {state.isDiscarding ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Discarding...
+                            </>
+                          ) : (
+                            'Discard'
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
@@ -463,8 +598,8 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
       {/* Edit Task Dialog */}
       <TaskEditDialog
-        task={task}
         open={state.isEditDialogOpen}
+        task={task}
         onOpenChange={state.setIsEditDialogOpen}
       />
 

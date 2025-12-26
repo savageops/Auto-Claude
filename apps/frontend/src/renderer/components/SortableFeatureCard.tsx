@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from './ui/tooltip';
-import { Play, ExternalLink, TrendingUp, Layers, ThumbsUp } from 'lucide-react';
+import { Play, ExternalLink, TrendingUp, Layers, ThumbsUp } from '@/lib/icons';
 import {
   ROADMAP_PRIORITY_COLORS,
   ROADMAP_PRIORITY_LABELS,

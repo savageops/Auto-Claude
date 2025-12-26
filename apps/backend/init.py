@@ -1,5 +1,5 @@
 """
-Auto Claude project initialization utilities.
+Turret project initialization utilities.
 
 Handles first-time setup of .auto-claude directory and ensures proper gitignore configuration.
 """
@@ -45,14 +45,14 @@ def ensure_gitignore_entry(project_dir: Path, entry: str = ".auto-claude/") -> b
             content += "\n"
 
         # Add a comment and the entry
-        content += "\n# Auto Claude data directory\n"
+        content += "\n# Turret data directory\n"
         content += entry + "\n"
 
         gitignore_path.write_text(content)
         return True
     else:
         # Create new .gitignore with the entry
-        content = "# Auto Claude data directory\n"
+        content = "# Turret data directory\n"
         content += entry + "\n"
 
         gitignore_path.write_text(content)

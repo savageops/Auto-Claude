@@ -1,4 +1,4 @@
-import { FileText, History, GitBranch, Tag, Calendar, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
+import { FileText, History, GitBranch, Tag, Calendar, RefreshCw, Loader2, AlertCircle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';

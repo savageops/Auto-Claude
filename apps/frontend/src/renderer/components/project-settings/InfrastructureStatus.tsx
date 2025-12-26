@@ -1,4 +1,4 @@
-import { Loader2, CheckCircle2, AlertCircle, Database } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, Database } from '@/lib/icons';
 import type { InfrastructureStatus as InfrastructureStatusType } from '../../../shared/types';
 
 interface InfrastructureStatusProps {

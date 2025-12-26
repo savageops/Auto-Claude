@@ -5,7 +5,7 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 
@@ -24,7 +24,7 @@ interface OllamaModelSelectorProps {
   className?: string;
 }
 
-// Recommended embedding models for Auto Claude Memory
+// Recommended embedding models for Turret Memory
 // embeddinggemma is first as the recommended default
 const RECOMMENDED_MODELS: OllamaModel[] = [
   {
@@ -438,7 +438,8 @@ export function OllamaModelSelector({
                        style={{ width: `${Math.max(0, Math.min(100, progress.percentage))}%` }}
                      />
                    </div>
-                   {/* Progress info: percentage, speed, time remaining */}
+
+                   {/* Speed and time remaining info */}
                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                      <span className="font-medium text-foreground">
                        {Math.round(progress.percentage)}%

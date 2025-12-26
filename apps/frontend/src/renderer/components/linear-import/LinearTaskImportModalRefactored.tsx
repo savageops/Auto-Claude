@@ -4,7 +4,7 @@
  * Uses extracted hooks and components for better maintainability
  */
 
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,

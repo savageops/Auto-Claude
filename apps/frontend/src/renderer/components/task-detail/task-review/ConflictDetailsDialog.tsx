@@ -1,4 +1,4 @@
-import { AlertTriangle, GitMerge } from 'lucide-react';
+import { AlertTriangle, GitMerge } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogAction,

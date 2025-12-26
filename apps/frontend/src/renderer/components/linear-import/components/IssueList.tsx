@@ -2,7 +2,7 @@
  * List of issues with loading/empty states
  */
 
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/lib/icons';
 import { ScrollArea } from '../../ui/scroll-area';
 import { IssueCard } from './IssueCard';
 import type { LinearIssue } from '../types';

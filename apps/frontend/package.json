@@ -2,7 +2,7 @@
   "name": "auto-claude-ui",
   "version": "2.7.2",
   "type": "module",
-  "description": "Desktop UI for Auto Claude autonomous coding framework",
+  "description": "Desktop UI for Turret autonomous coding framework",
   "homepage": "https://github.com/AndyMik90/Auto-Claude",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   },
   "main": "./out/main/index.js",
   "author": {
-    "name": "Auto Claude Team",
+    "name": "Turret Team",
     "email": "119136210+AndyMik90@users.noreply.github.com"
   },
   "license": "AGPL-3.0",
@@ -126,7 +126,7 @@
     "dmg-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.autoclaude.ui",
+    "appId": "com.ccturret.ui",
     "productName": "Auto-Claude",
     "artifactName": "${productName}-${version}-${platform}-${arch}.${ext}",
     "publish": [

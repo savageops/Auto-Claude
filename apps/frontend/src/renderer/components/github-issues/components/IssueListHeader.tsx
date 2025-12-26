@@ -1,4 +1,4 @@
-import { Github, RefreshCw, Search, Filter, Wand2, Loader2, Layers } from 'lucide-react';
+import { Github, RefreshCw, Search, Filter, Wand2, Loader2, Layers } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Loader2, CheckCircle2, MessageCircle } from 'lucide-react';
+import { Sparkles, Loader2, CheckCircle2, MessageCircle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Progress } from '../../ui/progress';
 import { Checkbox } from '../../ui/checkbox';

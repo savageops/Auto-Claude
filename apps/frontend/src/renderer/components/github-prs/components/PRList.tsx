@@ -1,4 +1,4 @@
-import { GitPullRequest, User, Clock, FileDiff, Loader2, CheckCircle2, AlertCircle, MessageSquare, RefreshCw } from 'lucide-react';
+import { GitPullRequest, FileDiff, User, Clock, Loader2, CheckCircle2, AlertCircle, MessageSquare, RefreshCw } from '@/lib/icons';
 import { ScrollArea } from '../../ui/scroll-area';
 import { Badge } from '../../ui/badge';
 import { cn } from '../../../lib/utils';

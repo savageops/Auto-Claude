@@ -2,7 +2,7 @@
  * Controls for selecting/deselecting all issues and refreshing
  */
 
-import { CheckSquare, Square, Minus, RefreshCw } from 'lucide-react';
+import { CheckSquare, Square, Minus, RefreshCw } from '@/lib/icons';
 
 interface SelectionControlsProps {
   isAllSelected: boolean;

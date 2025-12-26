@@ -352,7 +352,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
                 {archivedCount}
               </span>
             )}
-          </Label>
+</Label>
         </div>
       </div>
 

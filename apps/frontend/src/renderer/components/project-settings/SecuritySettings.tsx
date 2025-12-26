@@ -6,7 +6,7 @@ import {
   ChevronDown,
   ChevronUp,
   Globe
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';

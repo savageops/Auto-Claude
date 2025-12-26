@@ -1,5 +1,5 @@
 import { ipcMain, dialog, app, shell } from 'electron';
-import { existsSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, writeFileSync, mkdirSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import { is } from '@electron-toolkit/utils';
@@ -74,7 +74,7 @@ const detectAutoBuildSourcePath = (): string | null => {
     }
   }
 
-  console.warn('[detectAutoBuildSourcePath] Could not auto-detect Auto Claude source path. Please configure manually in settings.');
+  console.warn('[detectAutoBuildSourcePath] Could not auto-detect Turret source path. Please configure manually in settings.');
   console.warn('[detectAutoBuildSourcePath] Set DEBUG=1 environment variable for detailed path checking.');
   return null;
 };
@@ -297,6 +297,109 @@ export function registerSettingsHandlers(
     IPC_CHANNELS.SHELL_OPEN_EXTERNAL,
     async (_, url: string): Promise<void> => {
       await shell.openExternal(url);
+    }
+  );
+
+  // ============================================
+  // Prompt File Operations
+  // ============================================
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_READ_BASE,
+    async (_, promptType: 'planner' | 'coder' | 'qa'): Promise<IPCResult<string>> => {
+      try {
+        // Map prompt type to filename
+        const filenameMap = {
+          planner: 'planner.md',
+          coder: 'coder.md',
+          qa: 'qa_reviewer.md'
+        };
+
+        const filename = filenameMap[promptType];
+        if (!filename) {
+          return { success: false, error: `Unknown prompt type: ${promptType}` };
+        }
+
+        // Get the backend prompts directory
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+
+        if (!existsSync(promptFilePath)) {
+          return {
+            success: false,
+            error: `Prompt file not found: ${promptFilePath}`
+          };
+        }
+
+        const content = readFileSync(promptFilePath, 'utf-8');
+        return { success: true, data: content };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read prompt file'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_WRITE_BASE,
+    async (
+      _,
+      promptType: 'planner' | 'coder' | 'qa',
+      content: string
+    ): Promise<IPCResult> => {
+      try {
+        // Map prompt type to filename
+        const filenameMap = {
+          planner: 'planner.md',
+          coder: 'coder.md',
+          qa: 'qa_reviewer.md'
+        };
+
+        const filename = filenameMap[promptType];
+        if (!filename) {
+          return { success: false, error: `Unknown prompt type: ${promptType}` };
+        }
+
+        // Get the backend prompts directory
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+
+        // Ensure prompts directory exists
+        const promptsDir = path.dirname(promptFilePath);
+        if (!existsSync(promptsDir)) {
+          mkdirSync(promptsDir, { recursive: true });
+        }
+
+        writeFileSync(promptFilePath, content, 'utf-8');
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to write prompt file'
+        };
+      }
     }
   );
 }

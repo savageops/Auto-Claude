@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type DragEvent } from 'react';
-import { ChevronRight, ChevronDown, Folder, File, FileCode, FileJson, FileText, FileImage, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, File, FileCode, FileJson, FileText, FileImage, Loader2 } from '@/lib/icons';
 import { cn } from '../lib/utils';
 import type { FileNode } from '../../shared/types';
 

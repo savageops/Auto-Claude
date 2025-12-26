@@ -195,7 +195,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
     appendContent += '\n';
   }
 
-  appendContent += '\n# Auto Claude data directory\n';
+  appendContent += '\n# Turret data directory\n';
   for (const entry of entriesToAdd) {
     appendContent += entry + '\n';
   }
@@ -203,7 +203,7 @@ function ensureGitignoreEntries(projectPath: string, entries: string[]): void {
   if (existsSync(gitignorePath)) {
     appendFileSync(gitignorePath, appendContent);
   } else {
-    writeFileSync(gitignorePath, '# Auto Claude data directory\n' + entriesToAdd.join('\n') + '\n');
+    writeFileSync(gitignorePath, '# Turret data directory\n' + entriesToAdd.join('\n') + '\n');
   }
 
   debug('Added entries to .gitignore', { entries: entriesToAdd });
@@ -279,13 +279,13 @@ export function initializeProject(projectPath: string): InitializationResult {
     };
   }
 
-  // Check git status - Auto Claude requires git for worktree-based builds
+  // Check git status - Turret requires git for worktree-based builds
   const gitStatus = checkGitStatus(projectPath);
   if (!gitStatus.isGitRepo || !gitStatus.hasCommits) {
     debug('Git check failed', { gitStatus });
     return {
       success: false,
-      error: gitStatus.error || 'Git repository required. Auto Claude uses git worktrees for isolated builds.'
+      error: gitStatus.error || 'Git repository required. Turret uses git worktrees for isolated builds.'
     };
   }
 
@@ -366,7 +366,7 @@ export function ensureDataDirectories(projectPath: string): InitializationResult
  *
  * IMPORTANT: Only .auto-claude/ is considered a valid "installed" auto-claude.
  * The auto-claude/ folder (if it exists) is the SOURCE CODE being developed,
- * not an installation. This allows Auto Claude to be used to develop itself.
+ * not an installation. This allows Turret to be used to develop itself.
  */
 export function getAutoBuildPath(projectPath: string): string | null {
   const dotAutoBuildPath = path.join(projectPath, '.auto-claude');

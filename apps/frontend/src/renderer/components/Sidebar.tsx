@@ -17,8 +17,9 @@ import {
   FileText,
   Sparkles,
   GitBranch,
-  HelpCircle
-} from 'lucide-react';
+  HelpCircle,
+  Bot
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
@@ -48,6 +49,7 @@ import { useSettingsStore } from '../stores/settings-store';
 import { AddProjectModal } from './AddProjectModal';
 import { GitSetupModal } from './GitSetupModal';
 import { RateLimitIndicator } from './RateLimitIndicator';
+import { ProjectSelector } from './settings/ProjectSelector';
 import type { Project, AutoBuildVersionInfo, GitStatus } from '../../shared/types';
 
 export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'github-prs' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools';
@@ -70,6 +72,7 @@ const projectNavItems: NavItem[] = [
   { id: 'kanban', labelKey: 'navigation:items.kanban', icon: LayoutGrid, shortcut: 'K' },
   { id: 'terminals', labelKey: 'navigation:items.terminals', icon: Terminal, shortcut: 'A' },
   { id: 'insights', labelKey: 'navigation:items.insights', icon: Sparkles, shortcut: 'N' },
+  { id: 'agent-tools', labelKey: 'navigation:items.agentTools', icon: Bot, shortcut: 'T' },
   { id: 'roadmap', labelKey: 'navigation:items.roadmap', icon: Map, shortcut: 'D' },
   { id: 'ideation', labelKey: 'navigation:items.ideation', icon: Lightbulb, shortcut: 'I' },
   { id: 'changelog', labelKey: 'navigation:items.changelog', icon: FileText, shortcut: 'L' },
@@ -288,11 +291,23 @@ export function Sidebar({
       <div className="flex h-full w-64 flex-col bg-sidebar border-r border-border">
         {/* Header with drag area - extra top padding for macOS traffic lights */}
         <div className="electron-drag flex h-14 items-center px-4 pt-6">
-          <span className="electron-no-drag text-lg font-bold text-primary">Auto Claude</span>
+          <span className="electron-no-drag text-lg font-bold text-primary">Turret</span>
         </div>
 
         <Separator className="mt-2" />
 
+        {/* Project Selector */}
+        <div className="px-4 py-3">
+          <ProjectSelector
+            selectedProjectId={selectedProjectId}
+            onProjectChange={(projectId) => {
+              if (projectId) {
+                selectProject(projectId);
+              }
+            }}
+            onProjectAdded={handleProjectAdded}
+          />
+        </div>
 
         <Separator />
 
@@ -375,7 +390,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Initialize Auto Claude Dialog */}
+      {/* Initialize Turret Dialog */}
       <Dialog open={showInitDialog} onOpenChange={(open) => {
         // Only allow closing if user manually closes (not during initialization)
         if (!open && !isInitializing) {
@@ -439,7 +454,7 @@ export function Sidebar({
         </DialogContent>
       </Dialog>
 
-      {/* Update Auto Claude Dialog - Deprecated, updateAvailable is always false now */}
+      {/* Update Turret Dialog - Deprecated, updateAvailable is always false now */}
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
         <DialogContent>
           <DialogHeader>

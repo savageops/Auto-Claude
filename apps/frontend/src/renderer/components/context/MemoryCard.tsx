@@ -9,7 +9,7 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';

@@ -1,4 +1,4 @@
-import { AlertCircle, RotateCcw, Loader2 } from 'lucide-react';
+import { AlertCircle, RotateCcw, Loader2 } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 

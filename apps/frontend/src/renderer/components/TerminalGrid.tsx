@@ -13,7 +13,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, Loader2 } from 'lucide-react';
+import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, Loader2 } from '@/lib/icons';
 import { Terminal } from './Terminal';
 import { Button } from './ui/button';
 import {

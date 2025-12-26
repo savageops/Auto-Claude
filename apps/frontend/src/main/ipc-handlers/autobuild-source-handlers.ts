@@ -16,7 +16,7 @@ export function registerAutobuildSourceHandlers(
   getMainWindow: () => BrowserWindow | null
 ): void {
   // ============================================
-  // Auto Claude Source Update Operations
+  // Turret Source Update Operations
   // ============================================
 
   ipcMain.handle(
@@ -118,7 +118,7 @@ export function registerAutobuildSourceHandlers(
   );
 
   // ============================================
-  // Auto Claude Source Environment Operations
+  // Turret Source Environment Operations
   // ============================================
 
   /**

@@ -52,6 +52,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       tasks: state.tasks.map((t) => {
         if (t.id !== taskId && t.specId !== taskId) return t;
 
+        // CRITICAL: Don't overwrite 'done' status - user approval is final
+        // This prevents backend status updates from reverting user-approved tasks
+        if (t.status === 'done' && status !== 'done') {
+          console.log(`[TaskStore] Ignoring status update ${status} for task ${taskId} - already marked done by user`);
+          return t;
+        }
+
         // When status goes to backlog, reset execution progress to idle
         // This ensures the planning/coding animation stops when task is stopped
         const executionProgress = status === 'backlog'

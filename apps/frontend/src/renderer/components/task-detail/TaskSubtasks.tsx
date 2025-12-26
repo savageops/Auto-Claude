@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, XCircle, AlertCircle, ListChecks, FileCode } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, AlertCircle, ListChecks, FileCode } from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';

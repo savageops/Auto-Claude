@@ -1,11 +1,11 @@
 {
   "wizard": {
     "title": "Setup Wizard",
-    "description": "Configure your Auto Claude environment in a few simple steps",
+    "description": "Configure your Turret environment in a few simple steps",
     "helpText": "This wizard will help you set up your environment in just a few steps. You can configure your Claude OAuth token, set up memory features, and create your first task."
   },
   "welcome": {
-    "title": "Welcome to Auto Claude",
+    "title": "Welcome to Turret",
     "subtitle": "Build software autonomously with AI-powered agents",
     "getStarted": "Get Started",
     "skip": "Skip Setup",
@@ -16,7 +16,7 @@
       },
       "specDriven": {
         "title": "Spec-Driven Workflow",
-        "description": "Define tasks with clear specifications and let Auto Claude handle the implementation"
+        "description": "Define tasks with clear specifications and let Turret handle the implementation"
       },
       "memory": {
         "title": "Memory & Context",
@@ -36,17 +36,17 @@
   },
   "memory": {
     "title": "Memory",
-    "description": "Auto Claude Memory helps remember context across your coding sessions"
+    "description": "Turret Memory helps remember context across your coding sessions"
   },
   "completion": {
     "title": "You're All Set!",
-    "subtitle": "Auto Claude is ready to help you build amazing software",
+    "subtitle": "Turret is ready to help you build amazing software",
     "setupComplete": "Setup Complete",
     "setupCompleteDescription": "Your environment is configured and ready. You can start creating tasks immediately or explore the application at your own pace.",
     "whatsNext": "What's Next?",
     "createTask": {
       "title": "Create a Task",
-      "description": "Start by creating your first task to see Auto Claude in action.",
+      "description": "Start by creating your first task to see Turret in action.",
       "action": "Open Task Creator"
     },
     "customizeSettings": {

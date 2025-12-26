@@ -7,7 +7,7 @@
   "sections": {
     "appearance": {
       "title": "Apparence",
-      "description": "Personnalisez l'apparence de Auto Claude"
+      "description": "Personnalisez l'apparence de Turret"
     },
     "display": {
       "title": "Affichage",
@@ -31,7 +31,7 @@
     },
     "updates": {
       "title": "Mises à jour",
-      "description": "Mises à jour Auto Claude"
+      "description": "Mises à jour Turret"
     },
     "notifications": {
       "title": "Notifications",
@@ -57,7 +57,7 @@
     "otherAgentSettingsDescription": "Options de configuration supplémentaires de l'agent",
     "agentFramework": "Framework de l'agent",
     "agentFrameworkDescription": "Le framework de codage utilisé pour les tâches autonomes",
-    "agentFrameworkAutoClaude": "Auto Claude",
+    "agentFrameworkccTurret": "Turret",
     "aiTerminalNaming": "Nommage IA des terminaux",
     "aiTerminalNamingDescription": "Nommer automatiquement les terminaux en fonction des commandes (utilise Haiku)",
     "featureModelSettings": "Paramètres du modèle de fonctionnalité",
@@ -69,15 +69,15 @@
     "pythonPath": "Chemin Python",
     "pythonPathDescription": "Chemin vers l'exécutable Python (laisser vide pour la valeur par défaut)",
     "pythonPathPlaceholder": "python3 (par défaut)",
-    "autoClaudePath": "Chemin Auto Claude",
-    "autoClaudePathDescription": "Chemin relatif vers le répertoire auto-claude dans les projets",
-    "autoClaudePathPlaceholder": "auto-claude (par défaut)",
+    "ccTurretPath": "Chemin Turret",
+    "ccTurretPathDescription": "Chemin relatif vers le répertoire auto-claude dans les projets",
+    "ccTurretPathPlaceholder": "auto-claude (par défaut)",
     "autoNameTerminals": "Nommer automatiquement les terminaux",
     "autoNameTerminalsDescription": "Utiliser l'IA pour générer des noms descriptifs pour les onglets de terminal en fonction de leur activité"
   },
   "theme": {
     "title": "Apparence",
-    "description": "Personnalisez l'apparence de Auto Claude",
+    "description": "Personnalisez l'apparence de Turret",
     "mode": "Mode",
     "modeDescription": "Choisir entre les thèmes clair et sombre",
     "light": "Clair",
@@ -88,7 +88,7 @@
   },
   "updates": {
     "title": "Mises à jour",
-    "description": "Gérer les mises à jour de Auto Claude",
+    "description": "Gérer les mises à jour de Turret",
     "appUpdateReady": "Mise à jour de l'app prête",
     "newVersion": "Nouvelle version",
     "released": "Publiée le",
@@ -105,7 +105,7 @@
     "unableToCheck": "Impossible de vérifier les mises à jour",
     "checkForUpdates": "Vérifier les mises à jour",
     "autoUpdateProjects": "Mise à jour automatique des projets",
-    "autoUpdateProjectsDescription": "Mettre à jour automatiquement Auto Claude dans les projets quand une nouvelle version est disponible",
+    "autoUpdateProjectsDescription": "Mettre à jour automatiquement Turret dans les projets quand une nouvelle version est disponible",
     "betaUpdates": "Mises à jour bêta",
     "betaUpdatesDescription": "Recevoir les versions bêta pré-release avec de nouvelles fonctionnalités (peut être moins stable)"
   },

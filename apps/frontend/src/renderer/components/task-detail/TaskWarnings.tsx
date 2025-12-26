@@ -1,4 +1,4 @@
-import { AlertTriangle, Play, RotateCcw, Loader2 } from 'lucide-react';
+import { AlertTriangle, Play, RotateCcw, Loader2 } from '@/lib/icons';
 import { Button } from '../ui/button';
 
 interface TaskWarningsProps {

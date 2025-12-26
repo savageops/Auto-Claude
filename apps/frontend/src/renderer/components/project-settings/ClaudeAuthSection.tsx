@@ -1,4 +1,4 @@
-import { Key, ExternalLink, Loader2, Globe } from 'lucide-react';
+import { Key, ExternalLink, Loader2, Globe } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { StatusBadge } from './StatusBadge';
 import { PasswordInput } from './PasswordInput';

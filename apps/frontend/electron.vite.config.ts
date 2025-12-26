@@ -1,5 +1,6 @@
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 import { resolve } from 'path';
 
 export default defineConfig({
@@ -43,7 +44,34 @@ export default defineConfig({
         }
       }
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      svgr({
+        // Use ?react suffix for explicit SVG-as-component imports
+        include: '**/*.svg?react',
+        svgrOptions: {
+          // Add title element for accessibility
+          titleProp: true,
+          // Pass through SVG props like className, style, etc.
+          exportType: 'default',
+          ref: true,
+          svgo: true,
+          svgoConfig: {
+            plugins: [
+              {
+                name: 'preset-default',
+                params: {
+                  overrides: {
+                    // Preserve viewBox for scaling
+                    removeViewBox: false,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      }),
+    ],
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer'),
@@ -51,7 +79,8 @@ export default defineConfig({
         '@features': resolve(__dirname, 'src/renderer/features'),
         '@components': resolve(__dirname, 'src/renderer/shared/components'),
         '@hooks': resolve(__dirname, 'src/renderer/shared/hooks'),
-        '@lib': resolve(__dirname, 'src/renderer/shared/lib')
+        '@lib': resolve(__dirname, 'src/renderer/shared/lib'),
+        '@icons': resolve(__dirname, 'src/renderer/assets/icons')
       }
     },
     server: {

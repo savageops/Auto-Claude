@@ -25,7 +25,7 @@
  * ```
  */
 import { useState, useEffect, useCallback, useRef, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, Image as ImageIcon, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Loader2, Image as ImageIcon, ChevronDown, ChevronUp, X } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,

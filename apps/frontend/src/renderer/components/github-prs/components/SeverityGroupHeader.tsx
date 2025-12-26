@@ -2,7 +2,7 @@
  * SeverityGroupHeader - Collapsible header for a severity group with selection checkbox
  */
 
-import { ChevronDown, ChevronRight, CheckSquare, Square, MinusSquare } from 'lucide-react';
+import { MinusSquare, ChevronDown, ChevronRight, CheckSquare, Square } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { cn } from '../../../lib/utils';
 import type { SeverityGroup } from '../constants/severity-config';

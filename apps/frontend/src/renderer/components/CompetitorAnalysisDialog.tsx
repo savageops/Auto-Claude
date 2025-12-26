@@ -1,4 +1,4 @@
-import { Search, Globe, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Search, Globe, AlertTriangle, TrendingUp } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogContent,

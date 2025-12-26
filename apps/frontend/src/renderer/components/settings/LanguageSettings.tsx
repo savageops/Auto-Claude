@@ -1,4 +1,4 @@
-import { Globe } from 'lucide-react';
+import { Globe } from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import { Label } from '../ui/label';

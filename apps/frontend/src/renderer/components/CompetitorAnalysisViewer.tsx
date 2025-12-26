@@ -1,4 +1,4 @@
-import { TrendingUp, ExternalLink, AlertCircle } from 'lucide-react';
+import { TrendingUp, ExternalLink, AlertCircle } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,

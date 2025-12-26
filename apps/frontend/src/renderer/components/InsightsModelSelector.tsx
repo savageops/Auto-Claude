@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Brain, Scale, Zap, Sparkles, Sliders, Check } from 'lucide-react';
+import { Brain, Scale, Zap, Sparkles, Sliders, Check } from '@/lib/icons';
 import { Button } from './ui/button';
 import {
   DropdownMenu,

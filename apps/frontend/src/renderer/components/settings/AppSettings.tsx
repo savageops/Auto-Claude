@@ -16,8 +16,9 @@ import {
   Database,
   Sparkles,
   Monitor,
-  Globe
-} from 'lucide-react';
+  Globe,
+  MessageSquare
+} from '@/lib/icons';
 import {
   FullScreenDialog,
   FullScreenDialogContent,
@@ -37,6 +38,7 @@ import { LanguageSettings } from './LanguageSettings';
 import { GeneralSettings } from './GeneralSettings';
 import { IntegrationSettings } from './IntegrationSettings';
 import { AdvancedSettings } from './AdvancedSettings';
+import { PromptsSettings } from './PromptsSettings';
 import { ProjectSelector } from './ProjectSelector';
 import { ProjectSettingsContent, ProjectSettingsSection } from './ProjectSettingsContent';
 import { useProjectStore } from '../../stores/project-store';
@@ -51,7 +53,7 @@ interface AppSettingsDialogProps {
 }
 
 // App-level settings sections
-export type AppSection = 'appearance' | 'display' | 'language' | 'agent' | 'paths' | 'integrations' | 'updates' | 'notifications';
+export type AppSection = 'appearance' | 'display' | 'language' | 'agent' | 'paths' | 'integrations' | 'prompts' | 'updates' | 'notifications';
 
 interface NavItemConfig<T extends string> {
   id: T;
@@ -65,6 +67,7 @@ const appNavItemsConfig: NavItemConfig<AppSection>[] = [
   { id: 'agent', icon: Bot },
   { id: 'paths', icon: FolderOpen },
   { id: 'integrations', icon: Key },
+  { id: 'prompts', icon: MessageSquare },
   { id: 'updates', icon: Package },
   { id: 'notifications', icon: Bell }
 ];
@@ -143,6 +146,39 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
       }
     }
 
+    // Save base prompts back to .md files if they were modified
+    if (appSaveSuccess && settings.promptConfig?.taskExecution) {
+      const taskExecution = settings.promptConfig.taskExecution;
+
+      // Save base prompts back to .md files (only if they're defined)
+      const savePromises = [];
+
+      if (taskExecution.plannerBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('planner', taskExecution.plannerBasePrompt)
+        );
+      }
+      if (taskExecution.coderBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('coder', taskExecution.coderBasePrompt)
+        );
+      }
+      if (taskExecution.qaBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('qa', taskExecution.qaBasePrompt)
+        );
+      }
+
+      if (savePromises.length > 0) {
+        try {
+          await Promise.all(savePromises);
+        } catch (error) {
+          console.error('Failed to save base prompts:', error);
+          // Continue anyway - settings were saved
+        }
+      }
+    }
+
     if (appSaveSuccess) {
       // Commit the theme so future cancels won't revert to old values
       commitTheme();
@@ -173,6 +209,8 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
         return <GeneralSettings settings={settings} onSettingsChange={setSettings} section="paths" />;
       case 'integrations':
         return <IntegrationSettings settings={settings} onSettingsChange={setSettings} isOpen={open} />;
+      case 'prompts':
+        return <PromptsSettings settings={settings} onSettingsChange={setSettings} />;
       case 'updates':
         return <AdvancedSettings settings={settings} onSettingsChange={setSettings} section="updates" version={version} />;
       case 'notifications':

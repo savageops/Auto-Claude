@@ -1,4 +1,4 @@
-import { RefreshCw, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle2, AlertCircle, Loader2 } from '@/lib/icons';
 import { Button } from '../ui/button';
 import type { AutoBuildVersionInfo } from '../../../shared/types';
 

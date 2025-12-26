@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X } from '@/lib/icons';
 import { Button } from './ui/button';
 import { useRateLimitStore } from '../stores/rate-limit-store';
 

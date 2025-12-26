@@ -1,6 +1,6 @@
 import type { Task, ExecutionPhase } from '../../../shared/types';
 import type { TerminalStatus } from '../../stores/terminal-store';
-import { Circle, Search, Code2, Wrench, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Circle, Search, Code2, Wrench, CheckCircle2, AlertCircle } from '@/lib/icons';
 
 export interface TerminalProps {
   id: string;

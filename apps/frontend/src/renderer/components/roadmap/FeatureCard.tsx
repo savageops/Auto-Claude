@@ -1,4 +1,4 @@
-import { ExternalLink, Play, TrendingUp } from 'lucide-react';
+import { ExternalLink, Play, TrendingUp } from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';

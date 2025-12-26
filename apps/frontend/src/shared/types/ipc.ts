@@ -422,12 +422,12 @@ export interface ElectronAPI {
     callback: (projectId: string, ideationType: string) => void
   ) => () => void;
 
-  // Auto Claude source update operations
+  // Turret source update operations
   checkAutoBuildSourceUpdate: () => Promise<IPCResult<AutoBuildSourceUpdateCheck>>;
   downloadAutoBuildSourceUpdate: () => void;
   getAutoBuildSourceVersion: () => Promise<IPCResult<string>>;
 
-  // Auto Claude source update event listeners
+  // Turret source update event listeners
   onAutoBuildSourceUpdateProgress: (
     callback: (progress: AutoBuildSourceUpdateProgress) => void
   ) => () => void;
@@ -451,7 +451,7 @@ export interface ElectronAPI {
   // Shell operations
   openExternal: (url: string) => Promise<void>;
 
-  // Auto Claude source environment operations
+  // Turret source environment operations
   getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
   updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;

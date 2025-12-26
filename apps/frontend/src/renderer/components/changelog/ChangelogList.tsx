@@ -1,4 +1,4 @@
-import { FileText, GitCommit, Loader2, ArrowRight } from 'lucide-react';
+import { FileText, GitCommit, Loader2, ArrowRight } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';

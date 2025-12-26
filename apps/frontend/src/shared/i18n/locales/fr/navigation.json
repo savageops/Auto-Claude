@@ -26,6 +26,6 @@
     "help": "Aide & Feedback"
   },
   "messages": {
-    "initializeToCreateTasks": "Initialisez Auto Claude pour créer des tâches"
+    "initializeToCreateTasks": "Initialisez Turret pour créer des tâches"
   }
 }

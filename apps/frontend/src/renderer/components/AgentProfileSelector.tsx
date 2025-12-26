@@ -9,7 +9,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Brain, Scale, Zap, Sliders, Sparkles, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Brain, Scale, Zap, Sliders, Sparkles, ChevronDown, ChevronUp, Pencil } from '@/lib/icons';
 import { Label } from './ui/label';
 import {
   Select,

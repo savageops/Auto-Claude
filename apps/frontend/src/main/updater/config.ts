@@ -1,5 +1,5 @@
 /**
- * Configuration for Auto Claude updater
+ * Configuration for Turret updater
  */
 
 /**

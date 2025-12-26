@@ -1,4 +1,4 @@
-import { Eye, FileCode } from 'lucide-react';
+import { Eye, FileCode } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogCancel,

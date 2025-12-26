@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Github, RefreshCw, KeyRound, Info, CheckCircle2 } from 'lucide-react';
+import { Github, RefreshCw, KeyRound, Info, CheckCircle2 } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { StatusBadge } from './StatusBadge';
 import { PasswordInput } from './PasswordInput';

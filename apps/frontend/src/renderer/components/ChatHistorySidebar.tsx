@@ -8,7 +8,7 @@ import {
   X,
   MoreVertical,
   Loader2
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';

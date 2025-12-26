@@ -1,5 +1,5 @@
 /**
- * Auto Claude Source Updater
+ * Turret Source Updater
  *
  * Checks GitHub Releases for updates and downloads them.
  * GitHub Releases are the single source of truth for versioning.

@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
   arrayMove
 } from '@dnd-kit/sortable';
-import { Plus, Inbox, Eye, Calendar, Play, Check } from 'lucide-react';
+import { Plus, Inbox, Eye, Calendar, Play, Check } from '@/lib/icons';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';

@@ -13,7 +13,7 @@ import {
   CheckCircle,
   GitCommit,
   Terminal
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { cn } from '../../../lib/utils';

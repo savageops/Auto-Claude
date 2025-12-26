@@ -1,4 +1,4 @@
-import { X, Sparkles, TerminalSquare } from 'lucide-react';
+import { X, Sparkles, TerminalSquare } from '@/lib/icons';
 import type { Task } from '../../../shared/types';
 import type { TerminalStatus } from '../../stores/terminal-store';
 import { Button } from '../ui/button';

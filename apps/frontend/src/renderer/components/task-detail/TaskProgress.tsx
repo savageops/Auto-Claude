@@ -1,4 +1,4 @@
-import { Zap, Loader2 } from 'lucide-react';
+import { Zap, Loader2 } from '@/lib/icons';
 import { Progress } from '../ui/progress';
 import { cn, calculateProgress } from '../../lib/utils';
 import { EXECUTION_PHASE_BADGE_COLORS, EXECUTION_PHASE_LABELS } from '../../../shared/constants';

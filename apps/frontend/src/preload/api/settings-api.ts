@@ -19,6 +19,10 @@ export interface SettingsAPI {
   getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
   updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
+
+  // Prompt File Operations
+  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa') => Promise<IPCResult<string>>;
+  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa', content: string) => Promise<IPCResult>;
 }
 
 export const createSettingsAPI = (): SettingsAPI => ({
@@ -41,5 +45,12 @@ export const createSettingsAPI = (): SettingsAPI => ({
     ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_UPDATE, config),
 
   checkSourceToken: (): Promise<IPCResult<SourceEnvCheckResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN)
+    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN),
+
+  // Prompt File Operations
+  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa'): Promise<IPCResult<string>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.PROMPT_READ_BASE, promptType),
+
+  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa', content: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.PROMPT_WRITE_BASE, promptType, content)
 });
