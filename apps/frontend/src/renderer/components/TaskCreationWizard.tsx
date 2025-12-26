@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -68,6 +68,7 @@ export function TaskCreationWizard({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showFileExplorer, setShowFileExplorer] = useState(false);
@@ -598,6 +599,29 @@ export function TaskCreationWizard({
     return [...existingFiles, ...newFiles];
   }, []);
 
+  /**
+   * Handle refine with AI - placeholder for now
+   * TODO: Implement actual AI refinement API call
+   */
+  const handleRefineWithAI = useCallback(async () => {
+    if (!description.trim() || isRefining) return;
+
+    setIsRefining(true);
+    setError(null);
+
+    try {
+      // Placeholder: In the future, this will call an AI API to refine the description
+      // For now, just simulate a brief loading state
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // When implemented, the refined description would be set here
+      // setDescription(refinedDescription);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to refine description');
+    } finally {
+      setIsRefining(false);
+    }
+  }, [description, isRefining]);
+
   const handleCreate = async () => {
     if (!description.trim()) {
       setError('Please provide a description');
@@ -751,9 +775,26 @@ export function TaskCreationWizard({
         <div className="space-y-5 py-4">
           {/* Description (Primary - Required) */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium text-foreground">
-              Description <span className="text-destructive">*</span>
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                Description <span className="text-destructive">*</span>
+              </Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={handleRefineWithAI}
+                disabled={!description.trim() || isRefining || isCreating}
+                title="Refine with AI"
+              >
+                {isRefining ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </div>
             {/* Wrap textarea for file @mentions */}
             <div className="relative">
               {/* Syntax highlight overlay for @mentions */}
