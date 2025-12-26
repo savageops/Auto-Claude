@@ -36,7 +36,8 @@ import type {
   TaskRecoveryOptions,
   TaskMetadata,
   TaskLogs,
-  TaskLogStreamChunk
+  TaskLogStreamChunk,
+  TaskRefinementResult
 } from './task';
 import type {
   TerminalCreateOptions,
@@ -141,6 +142,7 @@ export interface ElectronAPI {
   updateTaskStatus: (taskId: string, status: TaskStatus) => Promise<IPCResult>;
   recoverStuckTask: (taskId: string, options?: TaskRecoveryOptions) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
+  refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
 
   // Workspace management (for human review)
   // Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
