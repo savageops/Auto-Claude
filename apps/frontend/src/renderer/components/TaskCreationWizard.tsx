@@ -783,7 +783,7 @@ export function TaskCreationWizard({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-6 w-6 text-muted-foreground hover:text-primary"
                 onClick={handleRefineWithAI}
                 disabled={!description.trim() || isRefining || isCreating}
                 title="Refine with AI"
