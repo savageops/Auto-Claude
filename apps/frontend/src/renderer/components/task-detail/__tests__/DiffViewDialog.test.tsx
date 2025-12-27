@@ -17,6 +17,7 @@ function createTestDiff(overrides: Partial<WorktreeDiff> = {}): WorktreeDiff {
       },
       {
         path: 'src/styles.css',
+        status: 'modified',
         additions: 100,
         deletions: 50
       },
