@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from '@/lib/icons';
+import { RefreshCw, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch, Sparkles } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -838,7 +838,7 @@ export function TaskCreationWizard({
                 title="Refine with AI"
               >
                 {isRefining ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Sparkles className="h-3.5 w-3.5" />
                 )}
@@ -1232,7 +1232,7 @@ export function TaskCreationWizard({
             <Button onClick={handleCreate} disabled={isCreating || !description.trim()}>
               {isCreating ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (

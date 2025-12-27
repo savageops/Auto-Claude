@@ -7,7 +7,7 @@ import {
   ExternalLink,
   GitMerge,
   FolderX,
-  Loader2,
+  RefreshCw,
   RotateCcw,
   AlertTriangle,
   CheckCircle,
@@ -199,7 +199,7 @@ export function WorkspaceStatus({
         {/* Loading indicator */}
         {isLoadingPreview && !mergePreview && (
           <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <RefreshCw className="h-4 w-4 animate-spin" />
             Checking for conflicts...
           </div>
         )}
@@ -272,7 +272,7 @@ export function WorkspaceStatus({
                 title="Refresh"
               >
                 {isLoadingPreview ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <RotateCcw className="h-3.5 w-3.5" />
                 )}
@@ -335,7 +335,7 @@ export function WorkspaceStatus({
           >
             {isMerging ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 {hasGitConflicts || isBranchBehind || hasPathMappedMerges ? 'Resolving...' : stageOnly ? 'Staging...' : 'Merging...'}
               </>
             ) : (

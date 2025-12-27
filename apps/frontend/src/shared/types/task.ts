@@ -400,13 +400,13 @@ export interface WorktreeDiscardResult {
 }
 
 /**
- * Result of discarding a single file from a worktree using git restore
- * Used by TASK_WORKTREE_DISCARD_FILE IPC handler
+ * Result of discarding a specific file's changes in the worktree
+ * Uses git restore to revert the file to its base branch state
  */
-export interface WorktreeFileDiscardResult {
+export interface WorktreeDiscardFileResult {
   success: boolean;
   message: string;
-  error?: string;
+  filePath: string;  // The file path that was discarded
 }
 
 /**

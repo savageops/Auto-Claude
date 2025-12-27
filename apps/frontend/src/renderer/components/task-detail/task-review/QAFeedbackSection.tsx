@@ -1,4 +1,4 @@
-import { AlertCircle, RotateCcw, Loader2 } from '@/lib/icons';
+import { AlertCircle, RotateCcw, RefreshCw } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 
@@ -42,7 +42,7 @@ export function QAFeedbackSection({
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
             Submitting...
           </>
         ) : (

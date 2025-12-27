@@ -1,4 +1,4 @@
-import { ListTodo, Plus, X, ChevronDown, Loader2 } from '@/lib/icons';
+import { ListTodo, Plus, X, ChevronDown, RefreshCw } from '@/lib/icons';
 import type { Task } from '../../../shared/types';
 import {
   DropdownMenu,
@@ -44,7 +44,7 @@ export function TaskSelector({
             onClick={(e) => e.stopPropagation()}
           >
             {executionPhase === 'planning' || executionPhase === 'coding' || executionPhase === 'qa_review' || executionPhase === 'qa_fixing' ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
+              <RefreshCw className="h-3 w-3 animate-spin" />
             ) : (
               <PhaseIcon className="h-3 w-3" />
             )}

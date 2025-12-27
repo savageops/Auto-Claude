@@ -24,8 +24,10 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
   const [isLoadingWorktree, setIsLoadingWorktree] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
+  const [isDiscardingFile, setIsDiscardingFile] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [discardFileSuccess, setDiscardFileSuccess] = useState<string | null>(null);
   const [showDiffDialog, setShowDiffDialog] = useState(false);
   const [stageOnly, setStageOnly] = useState(task.status === 'human_review');
   const [stagedSuccess, setStagedSuccess] = useState<string | null>(null);
@@ -277,8 +279,10 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     isLoadingWorktree,
     isMerging,
     isDiscarding,
+    isDiscardingFile,
     showDiscardDialog,
     workspaceError,
+    discardFileSuccess,
     showDiffDialog,
     stageOnly,
     stagedSuccess,
@@ -317,8 +321,10 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     setIsLoadingWorktree,
     setIsMerging,
     setIsDiscarding,
+    setIsDiscardingFile,
     setShowDiscardDialog,
     setWorkspaceError,
+    setDiscardFileSuccess,
     setShowDiffDialog,
     setStageOnly,
     setStagedSuccess,

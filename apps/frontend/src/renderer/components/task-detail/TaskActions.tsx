@@ -1,4 +1,4 @@
-import { Play, Square, CheckCircle2, RotateCcw, Trash2, Loader2, AlertTriangle } from '@/lib/icons';
+import { Play, Square, CheckCircle2, RotateCcw, Trash2, RefreshCw, AlertTriangle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import {
   AlertDialog,
@@ -53,7 +53,7 @@ export function TaskActions({
           >
             {isRecovering ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Recovering...
               </>
             ) : (
@@ -151,7 +151,7 @@ export function TaskActions({
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
                 </>
               ) : (

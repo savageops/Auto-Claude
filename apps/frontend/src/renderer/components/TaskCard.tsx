@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Square, Clock, Zap, Target, Shield, Gauge, Palette, FileCode, Bug, Wrench, Loader2, AlertTriangle, RotateCcw, Archive, ChevronDown } from 'lucide-react';
+import { Play, Square, Clock, Zap, Target, Shield, Gauge, Palette, FileCode, Bug, Wrench, RefreshCw, AlertTriangle, RotateCcw, Archive, ChevronDown } from '@/lib/icons';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -289,7 +289,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
               EXECUTION_PHASE_BADGE_COLORS[executionPhase]
             )}
           >
-            <Loader2 className="h-2.5 w-2.5 animate-spin" />
+            <RefreshCw className="h-2.5 w-2.5 animate-spin" />
             {EXECUTION_PHASE_LABELS[executionPhase]}
           </Badge>
         )}
@@ -412,7 +412,7 @@ export function TaskCard({ task, onClick, isCollapsible = false }: TaskCardProps
           >
             {isRecovering ? (
               <>
-                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                <RefreshCw className="mr-1.5 h-3 w-3 animate-spin" />
                 {t('labels.recovering')}
               </>
             ) : (

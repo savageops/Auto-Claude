@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Terminal,
-  Loader2,
+  RefreshCw,
   Pencil,
   FileCode,
   FlaskConical,
@@ -128,7 +128,7 @@ export function TaskLogs({
       <div className="p-4 space-y-2">
         {isLoadingLogs ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : phaseLogs ? (
           <>
@@ -192,7 +192,7 @@ function PhaseLogSection({ phase, phaseLog, isExpanded, onToggle, isTaskStuck, p
         }
         return (
           <Badge variant="outline" className="text-xs bg-info/10 text-info border-info/30 flex items-center gap-1">
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <RefreshCw className="h-3 w-3 animate-spin" />
             Running
           </Badge>
         );

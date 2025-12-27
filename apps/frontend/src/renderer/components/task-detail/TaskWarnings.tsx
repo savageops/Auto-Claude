@@ -1,4 +1,4 @@
-import { AlertTriangle, Play, RotateCcw, Loader2 } from '@/lib/icons';
+import { AlertTriangle, Play, RotateCcw, RefreshCw } from '@/lib/icons';
 import { Button } from '../ui/button';
 
 interface TaskWarningsProps {
@@ -44,7 +44,7 @@ export function TaskWarnings({
               >
                 {isRecovering ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Recovering...
                   </>
                 ) : (

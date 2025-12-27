@@ -11,7 +11,7 @@
       },
       "worktree_state": {
         "content": "{\n  \"sourceType\": \"manual\",\n  \"model\": \"opus\",\n  \"thinkingLevel\": \"ultrathink\"\n}",
-        "last_modified": "2025-12-27T03:02:59.951004"
+        "last_modified": "2025-12-27T03:44:44.835832"
       },
       "task_intent": {
         "title": "030-add-file-discard-to-review-workflow",

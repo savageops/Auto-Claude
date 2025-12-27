@@ -20,9 +20,11 @@ interface TaskReviewProps {
   isLoadingWorktree: boolean;
   isMerging: boolean;
   isDiscarding: boolean;
+  isDiscardingFile: boolean;
   showDiscardDialog: boolean;
   showDiffDialog: boolean;
   workspaceError: string | null;
+  discardFileSuccess: string | null;
   stageOnly: boolean;
   stagedSuccess: string | null;
   stagedProjectPath: string | undefined;
@@ -34,6 +36,7 @@ interface TaskReviewProps {
   onReject: () => void;
   onMerge: () => void;
   onDiscard: () => void;
+  onDiscardFile?: (filePath: string) => void;
   onShowDiscardDialog: (show: boolean) => void;
   onShowDiffDialog: (show: boolean) => void;
   onStageOnlyChange: (value: boolean) => void;
@@ -61,9 +64,11 @@ export function TaskReview({
   isLoadingWorktree,
   isMerging,
   isDiscarding,
+  isDiscardingFile,
   showDiscardDialog,
   showDiffDialog,
   workspaceError,
+  discardFileSuccess,
   stageOnly,
   stagedSuccess,
   stagedProjectPath,
@@ -75,6 +80,7 @@ export function TaskReview({
   onReject,
   onMerge,
   onDiscard,
+  onDiscardFile,
   onShowDiscardDialog,
   onShowDiffDialog,
   onStageOnlyChange,
@@ -154,6 +160,10 @@ export function TaskReview({
         taskId={task.id}
         onOpenChange={onShowDiffDialog}
         onRefreshDiff={onRefreshDiff}
+        onDiscardFile={onDiscardFile}
+        isDiscardingFile={isDiscardingFile}
+        discardFileError={workspaceError}
+        discardFileSuccess={discardFileSuccess}
       />
 
       {/* Conflict Details Dialog */}

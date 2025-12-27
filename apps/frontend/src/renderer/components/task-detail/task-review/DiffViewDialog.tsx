@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Eye, FileCode, Trash2, CheckCircle2, AlertCircle } from '@/lib/icons';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Eye, FileCode, Trash2, RefreshCw, AlertTriangle, CheckCircle2, AlertCircle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import {
   AlertDialog,
@@ -11,6 +11,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../ui/tooltip';
 import { Badge } from '../../ui/badge';
 import { cn } from '../../../lib/utils';
 import type { WorktreeDiff } from '../../../../shared/types';
@@ -18,9 +24,13 @@ import type { WorktreeDiff } from '../../../../shared/types';
 interface DiffViewDialogProps {
   open: boolean;
   worktreeDiff: WorktreeDiff | null;
-  taskId: string;
   onOpenChange: (open: boolean) => void;
-  onRefreshDiff: () => Promise<void>;
+  taskId?: string;
+  onDiscardFile?: (filePath: string) => void;
+  isDiscardingFile?: boolean;
+  discardFileError?: string | null;
+  discardFileSuccess?: string | null;
+  onRefreshDiff?: () => Promise<void>;
 }
 
 /**
@@ -29,58 +39,81 @@ interface DiffViewDialogProps {
 export function DiffViewDialog({
   open,
   worktreeDiff,
-  taskId,
   onOpenChange,
+  taskId,
+  onDiscardFile,
+  isDiscardingFile = false,
+  discardFileError,
+  discardFileSuccess,
   onRefreshDiff
 }: DiffViewDialogProps) {
-  // State for tracking which file is being considered for discard
   const [fileToDiscard, setFileToDiscard] = useState<string | null>(null);
-  // State for showing success feedback after file discard
-  const [discardSuccess, setDiscardSuccess] = useState<string | null>(null);
-  // State for tracking discard operation in progress (prevents race conditions)
-  const [isDiscarding, setIsDiscarding] = useState(false);
-  // State for showing error message after failed discard operation
-  const [discardError, setDiscardError] = useState<{ file: string; message: string } | null>(null);
+  const [localDiscardError, setLocalDiscardError] = useState<{ file: string; message: string } | null>(null);
+  const wasDiscardingRef = useRef(false);
+
+  // Track when discard operation completes and close confirmation dialog on success
+  useEffect(() => {
+    // If we were discarding and now we're not, the operation completed
+    if (wasDiscardingRef.current && !isDiscardingFile) {
+      // Only close the dialog if the operation was successful (no error)
+      if (!discardFileError && !localDiscardError) {
+        setFileToDiscard(null);
+      }
+    }
+    wasDiscardingRef.current = isDiscardingFile;
+  }, [isDiscardingFile, discardFileError, localDiscardError]);
 
   /**
    * Handles discarding changes to a single file via git restore.
-   * Calls IPC, shows success feedback, and refreshes the diff view.
+   * If onDiscardFile is provided, use it as callback. Otherwise, make direct IPC call.
    */
-  const handleDiscardFile = useCallback(async () => {
-    if (!fileToDiscard || isDiscarding) return;
+  const handleDiscardConfirm = useCallback(async () => {
+    if (!fileToDiscard) return;
 
     const filePath = fileToDiscard;
-    // Clear the confirmation dialog immediately
-    setFileToDiscard(null);
-    // Clear any previous error
-    setDiscardError(null);
-    // Set loading state to prevent race conditions
-    setIsDiscarding(true);
+
+    // If callback provided, use it (external state management)
+    if (onDiscardFile) {
+      onDiscardFile(filePath);
+      return;
+    }
+
+    // Otherwise, handle internally (for backward compatibility)
+    if (!taskId || !onRefreshDiff) return;
+
+    setLocalDiscardError(null);
 
     try {
       const result = await window.electronAPI.discardWorktreeFile(taskId, filePath);
 
       if (result.success && result.data?.success) {
-        // Show success feedback
-        setDiscardSuccess(filePath);
-        // Clear success message after 3 seconds
-        setTimeout(() => setDiscardSuccess(null), 3000);
+        // Close dialog on success
+        setFileToDiscard(null);
         // Refresh the diff view to show updated file list
         await onRefreshDiff();
       } else {
         // IPC call succeeded but git restore failed - show error
         const errorMessage = result.error || result.data?.error || 'Failed to discard file changes';
-        setDiscardError({ file: filePath, message: errorMessage });
+        setLocalDiscardError({ file: filePath, message: errorMessage });
       }
     } catch (error) {
       // Unexpected error (IPC failure, network error, etc.)
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setDiscardError({ file: filePath, message: errorMessage });
-    } finally {
-      // Always clear loading state
-      setIsDiscarding(false);
+      setLocalDiscardError({ file: filePath, message: errorMessage });
     }
-  }, [fileToDiscard, isDiscarding, taskId, onRefreshDiff]);
+  }, [fileToDiscard, onDiscardFile, taskId, onRefreshDiff]);
+
+  const handleDiscardClick = (filePath: string) => {
+    setFileToDiscard(filePath);
+  };
+
+  const handleDiscardCancel = () => {
+    setFileToDiscard(null);
+    setLocalDiscardError(null);
+  };
+
+  const hasDiscardHandler = !!onDiscardFile;
+  const currentDiscardError = discardFileError || (localDiscardError?.message ? `${localDiscardError.file}: ${localDiscardError.message}` : null);
 
   return (
     <>
@@ -95,15 +128,25 @@ export function DiffViewDialog({
               {worktreeDiff?.summary || 'No changes found'}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          {/* Success feedback after discarding a file */}
-          {discardSuccess && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 text-success text-sm">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span>
-                Discarded changes to <span className="font-mono">{discardSuccess}</span>
-              </span>
+
+          {/* Error feedback for discard operation */}
+          {currentDiscardError && (
+            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 mb-3">
+              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-destructive">{currentDiscardError}</p>
             </div>
           )}
+
+          {/* Success feedback for discard operation */}
+          {discardFileSuccess && (
+            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-success/10 border border-success/20 mb-3">
+              <CheckCircle2 className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-success">
+                Successfully discarded changes to <code className="font-mono bg-success/10 px-1 rounded">{discardFileSuccess}</code>
+              </p>
+            </div>
+          )}
+
           <div className="flex-1 overflow-auto min-h-0 -mx-6 px-6">
             {worktreeDiff?.files && worktreeDiff.files.length > 0 ? (
               <div className="space-y-2">
@@ -137,16 +180,33 @@ export function DiffViewDialog({
                       </Badge>
                       <span className="text-xs text-success">+{file.additions}</span>
                       <span className="text-xs text-destructive">-{file.deletions}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:pointer-events-none"
-                        title={`Discard changes to ${file.path}`}
-                        onClick={() => setFileToDiscard(file.path)}
-                        disabled={isDiscarding}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {hasDiscardHandler && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDiscardClick(file.path);
+                                }}
+                                disabled={isDiscardingFile}
+                                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                              >
+                                {isDiscardingFile ? (
+                                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{isDiscardingFile ? 'Discarding...' : "Discard this file's changes"}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -163,63 +223,54 @@ export function DiffViewDialog({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Confirmation dialog for discarding individual file */}
-      <AlertDialog
-        open={!!fileToDiscard}
-        onOpenChange={(isOpen) => !isOpen && setFileToDiscard(null)}
-      >
+      {/* Confirmation dialog for file discard */}
+      <AlertDialog open={fileToDiscard !== null} onOpenChange={(open) => !open && handleDiscardCancel()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard file changes?</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <span className="block">
-                This will permanently discard all changes to:
-              </span>
-              <span className="block font-mono text-sm bg-secondary/50 px-2 py-1 rounded">
-                {fileToDiscard}
-              </span>
-              <span className="block text-destructive font-medium">
-                This action cannot be undone.
-              </span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDiscardFile}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Discard Changes
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Error dialog when git restore fails */}
-      <AlertDialog
-        open={!!discardError}
-        onOpenChange={(isOpen) => !isOpen && setDiscardError(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5" />
-              Failed to Discard Changes
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Discard File Changes
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <span className="block">
-                Could not discard changes to:
-              </span>
-              <span className="block font-mono text-sm bg-secondary/50 px-2 py-1 rounded">
-                {discardError?.file}
-              </span>
-              <span className="block mt-2 text-destructive">
-                {discardError?.message}
-              </span>
+            <AlertDialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-3">
+                <p>
+                  Are you sure you want to discard changes to this file?
+                </p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <code className="text-sm font-mono text-foreground break-all">
+                    {fileToDiscard}
+                  </code>
+                </div>
+                <p className="text-destructive">
+                  This action cannot be undone. All changes to this file will be permanently lost.
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleDiscardCancel} disabled={isDiscardingFile}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDiscardConfirm();
+              }}
+              disabled={isDiscardingFile}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+            >
+              {isDiscardingFile ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Discarding...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard Changes
+                </>
+              )}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -22,7 +22,7 @@ import {
   CheckCircle2,
   RotateCcw,
   Trash2,
-  Loader2,
+  RefreshCw,
   AlertTriangle,
   Pencil,
   X
@@ -147,6 +147,46 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     state.setIsDiscarding(false);
   };
 
+  const handleDiscardFile = async (filePath: string) => {
+    state.setWorkspaceError(null);
+    state.setDiscardFileSuccess(null);
+    state.setIsDiscardingFile(true);
+
+    try {
+      const result = await window.electronAPI.discardWorktreeFile(task.id, filePath);
+      if (result.success && result.data?.success) {
+        // Show success feedback with the file path
+        state.setDiscardFileSuccess(filePath);
+
+        // Refresh the diff view to reflect the discarded file
+        const diffResult = await window.electronAPI.getWorktreeDiff(task.id);
+        if (diffResult.success && diffResult.data) {
+          state.setWorktreeDiff(diffResult.data);
+        }
+        // Also refresh the worktree status since file count may have changed
+        const statusResult = await window.electronAPI.getWorktreeStatus(task.id);
+        if (statusResult.success && statusResult.data) {
+          state.setWorktreeStatus(statusResult.data);
+        }
+        // Refresh merge preview if it was loaded
+        if (state.mergePreview) {
+          state.loadMergePreview();
+        }
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          state.setDiscardFileSuccess(null);
+        }, 3000);
+      } else {
+        state.setWorkspaceError(result.data?.message || result.error || 'Failed to discard file changes');
+      }
+    } catch (error) {
+      state.setWorkspaceError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      state.setIsDiscardingFile(false);
+    }
+  };
+
   const handleClose = () => {
     onOpenChange(false);
   };
@@ -163,7 +203,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
         >
           {state.isRecovering ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               Recovering...
             </>
           ) : (
@@ -281,7 +321,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                           </Badge>
                           {task.status === 'human_review' && task.reviewReason && (
                             <Badge
-                              variant={task.reviewReason === 'completed' ? 'success' : task.reviewReason === 'errors' ? 'destructive' : 'warning'}
+                              variant={task.reviewReason === 'completed' ? 'success' :task.reviewReason === 'errors' ? 'destructive' : 'warning'}
                               className="text-xs"
                             >
                               {task.reviewReason === 'completed' ? 'Completed' :
@@ -390,93 +430,72 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             isLoadingWorktree={state.isLoadingWorktree}
                             isMerging={state.isMerging}
                             isDiscarding={state.isDiscarding}
+                            isDiscardingFile={state.isDiscardingFile}
                             showDiscardDialog={state.showDiscardDialog}
                             showDiffDialog={state.showDiffDialog}
                             workspaceError={state.workspaceError}
+                            discardFileSuccess={state.discardFileSuccess}
                             stageOnly={state.stageOnly}
                             stagedSuccess={state.stagedSuccess}
                             stagedProjectPath={state.stagedProjectPath}
                             suggestedCommitMessage={state.suggestedCommitMessage}
                             mergePreview={state.mergePreview}
-                            isLoadingPreview={state.isLoadingPreview}
+                            isLoadingPreview={state.isMergePreviewLoading}
                             showConflictDialog={state.showConflictDialog}
                             onFeedbackChange={state.setFeedback}
                             onReject={handleReject}
                             onMerge={handleMerge}
                             onDiscard={handleDiscard}
+                            onDiscardFile={handleDiscardFile}
                             onShowDiscardDialog={state.setShowDiscardDialog}
                             onShowDiffDialog={state.setShowDiffDialog}
                             onStageOnlyChange={state.setStageOnly}
                             onShowConflictDialog={state.setShowConflictDialog}
                             onLoadMergePreview={state.loadMergePreview}
+                            onRefreshDiff={state.refreshDiff}
                             onClose={handleClose}
                           />
                         </>
                       )}
 
-                      {/* Workspace Changes Section - for non-review tasks */}
+                      {/* Workspace Changes (when not in review) */}
                       {!state.needsReview && state.worktreeStatus && (
                         <>
                           <Separator />
-                          <div className="space-y-4">
-                            <div>
-                              <h3 className="font-semibold text-sm mb-3">Workspace Changes</h3>
-                              {state.isLoadingWorktree ? (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  Loading changes...
-                                </div>
-                              ) : state.worktreeDiff ? (
-                                <pre className="text-xs bg-muted p-3 rounded border border-border overflow-auto max-h-60">
-                                  {state.worktreeDiff}
-                                </pre>
-                              ) : (
-                                <p className="text-xs text-muted-foreground">No changes detected</p>
-                              )}
-                            </div>
-                            {state.workspaceError && (
-                              <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
-                                {state.workspaceError}
-                              </div>
-                            )}
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={handleMerge}
-                                disabled={state.isMerging || !state.worktreeStatus}
-                              >
-                                {state.isMerging ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Merging...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Play className="mr-2 h-4 w-4" />
-                                    Merge Changes
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => state.setShowDiscardDialog(true)}
-                                disabled={state.isDiscarding}
-                              >
-                                {state.isDiscarding ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Discarding...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Discard Changes
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </div>
+                          <TaskReview
+                            task={task}
+                            feedback={state.feedback}
+                            isSubmitting={state.isSubmitting}
+                            worktreeStatus={state.worktreeStatus}
+                            worktreeDiff={state.worktreeDiff}
+                            isLoadingWorktree={state.isLoadingWorktree}
+                            isMerging={state.isMerging}
+                            isDiscarding={state.isDiscarding}
+                            isDiscardingFile={state.isDiscardingFile}
+                            showDiscardDialog={state.showDiscardDialog}
+                            showDiffDialog={state.showDiffDialog}
+                            workspaceError={state.workspaceError}
+                            discardFileSuccess={state.discardFileSuccess}
+                            stageOnly={state.stageOnly}
+                            stagedSuccess={state.stagedSuccess}
+                            stagedProjectPath={state.stagedProjectPath}
+                            suggestedCommitMessage={state.suggestedCommitMessage}
+                            mergePreview={state.mergePreview}
+                            isLoadingPreview={state.isMergePreviewLoading}
+                            showConflictDialog={state.showConflictDialog}
+                            onFeedbackChange={state.setFeedback}
+                            onReject={handleReject}
+                            onMerge={handleMerge}
+                            onDiscard={handleDiscard}
+                            onDiscardFile={handleDiscardFile}
+                            onShowDiscardDialog={state.setShowDiscardDialog}
+                            onShowDiffDialog={state.setShowDiffDialog}
+                            onStageOnlyChange={state.setStageOnly}
+                            onShowConflictDialog={state.setShowConflictDialog}
+                            onLoadMergePreview={state.loadMergePreview}
+                            onRefreshDiff={state.refreshDiff}
+                            onClose={handleClose}
+                          />
                         </>
                       )}
                     </div>
@@ -485,173 +504,80 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
                 {/* Subtasks Tab */}
                 <TabsContent value="subtasks" className="flex-1 min-h-0 overflow-hidden mt-0">
-                  <TaskSubtasks task={task} />
+                  <ScrollArea className="h-full">
+                    <div className="p-5">
+                      <TaskSubtasks subtasks={task.subtasks} />
+                    </div>
+                  </ScrollArea>
                 </TabsContent>
 
                 {/* Logs Tab */}
                 <TabsContent value="logs" className="flex-1 min-h-0 overflow-hidden mt-0">
-                  <TaskLogs
-                    task={task}
-                    phaseLogs={state.phaseLogs}
-                    isLoadingLogs={state.isLoadingLogs}
-                    expandedPhases={state.expandedPhases}
-                    isStuck={state.isStuck}
-                    logsEndRef={state.logsEndRef}
-                    logsContainerRef={state.logsContainerRef}
-                    onLogsScroll={state.handleLogsScroll}
-                    onTogglePhase={state.togglePhase}
-                  />
+                  <TaskLogs taskId={task.id} />
                 </TabsContent>
               </Tabs>
             </div>
 
-            {/* Footer with Actions */}
-            <div className="border-t border-border bg-card p-4 shrink-0">
-              <div className="flex items-center justify-between gap-3">
-                {/* Primary Action */}
-                <div className="flex-1">
-                  {renderPrimaryAction()}
-                </div>
+            {/* Footer with Action Buttons */}
+            <div className="shrink-0 border-t border-border px-5 py-4 flex items-center justify-between bg-card">
+              <div className="flex items-center gap-3 flex-1">
+                {state.isEditDialogOpen && (
+                  <TaskEditDialog
+                    task={task}
+                    open={state.isEditDialogOpen}
+                    onOpenChange={state.setIsEditDialogOpen}
+                  />
+                )}
 
-                {/* Secondary Actions */}
-                <div className="flex items-center gap-2">
-                  <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => state.setShowDeleteDialog(true)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </Button>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this task? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      {state.deleteError && (
-                        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                          {state.deleteError}
-                        </div>
-                      )}
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDelete}
-                          disabled={state.isDeleting}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          {state.isDeleting ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Deleting...
-                            </>
-                          ) : (
-                            'Delete'
-                          )}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                {/* Delete Button */}
+                <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => state.setShowDeleteDialog(true)}
+                    disabled={state.isDeleting}
+                  >
+                    {state.isDeleting ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Task
+                      </>
+                    )}
+                  </Button>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the task and its associated worktree.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
 
-                  {/* Discard Dialog for workspace changes */}
-                  <AlertDialog open={state.showDiscardDialog} onOpenChange={state.setShowDiscardDialog}>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Discard Changes</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to discard all changes in the worktree? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      {state.workspaceError && (
-                        <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                          {state.workspaceError}
-                        </div>
-                      )}
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDiscard}
-                          disabled={state.isDiscarding}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          {state.isDiscarding ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Discarding...
-                            </>
-                          ) : (
-                            'Discard'
-                          )}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                {state.deleteError && (
+                  <div className="text-sm text-destructive flex-1">{state.deleteError}</div>
+                )}
+              </div>
+
+              {/* Primary action button on the right */}
+              <div className="flex items-center gap-3 ml-auto">
+                {renderPrimaryAction()}
               </div>
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
-
-      {/* Edit Task Dialog */}
-      <TaskEditDialog
-        open={state.isEditDialogOpen}
-        task={task}
-        onOpenChange={state.setIsEditDialogOpen}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Task
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="text-sm text-muted-foreground space-y-3">
-                <p>
-                  Are you sure you want to delete <strong className="text-foreground">"{task.title}"</strong>?
-                </p>
-                <p className="text-destructive">
-                  This action cannot be undone. All task files, including the spec, implementation plan, and any generated code will be permanently deleted from the project.
-                </p>
-                {state.deleteError && (
-                  <p className="text-destructive bg-destructive/10 px-3 py-2 rounded-lg text-sm">
-                    {state.deleteError}
-                  </p>
-                )}
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={state.isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-              disabled={state.isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {state.isDeleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Permanently
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </TooltipProvider>
   );
 }

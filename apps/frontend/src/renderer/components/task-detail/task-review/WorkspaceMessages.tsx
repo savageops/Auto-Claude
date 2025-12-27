@@ -1,4 +1,4 @@
-import { AlertCircle, GitMerge, Loader2, Check } from '@/lib/icons';
+import { AlertCircle, GitMerge, RefreshCw, Check } from '@/lib/icons';
 import { useState } from 'react';
 import { Button } from '../../ui/button';
 import { persistTaskStatus } from '../../../stores/task-store';
@@ -15,7 +15,7 @@ export function LoadingMessage({ message = 'Loading workspace info...' }: Loadin
   return (
     <div className="rounded-xl border border-border bg-secondary/30 p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <RefreshCw className="h-4 w-4 animate-spin" />
         <span className="text-sm">{message}</span>
       </div>
     </div>
@@ -69,7 +69,7 @@ export function NoWorkspaceMessage({ task, onClose }: NoWorkspaceMessageProps) {
         >
           {isMarkingDone ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
               Updating...
             </>
           ) : (
@@ -155,7 +155,7 @@ export function StagedInProjectMessage({ task, projectPath, hasWorktree = false,
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Cleaning up...
                 </>
               ) : (
