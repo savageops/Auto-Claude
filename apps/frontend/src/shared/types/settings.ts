@@ -154,12 +154,17 @@ export interface MergePromptConfig {
   customInstructions?: string;
 }
 
-// Task Execution Prompts (Planner, Coder, QA)
+// Task Execution Prompts (Planner, Coder, QA, and supporting agents)
 export interface TaskExecutionPromptConfig {
   // Base prompts from .md files (editable via UI, saved back to files)
   plannerBasePrompt?: string;
   coderBasePrompt?: string;
   qaBasePrompt?: string;
+  followupPlannerBasePrompt?: string;
+  qaFixerBasePrompt?: string;
+  validationFixerBasePrompt?: string;
+  coderRecoveryBasePrompt?: string;
+  prFixerBasePrompt?: string;
   // Custom system prompt additions (appended to base)
   plannerInstructions?: string;
   coderInstructions?: string;
