@@ -91,6 +91,37 @@ When planning, consult these patterns and standards:
 3. What gotchas does memory/gotchas.md warn about?
 4. Does this align with documented architecture principles?
 
+### Project-Specific Rules (If Applicable)
+
+**If the project has a `CLAUDE.md` or `.docs/` directory, you MUST consult it first:**
+
+1. **Read Project Rules**: Check for `CLAUDE.md` or similar rule files in project root
+2. **Consult Reference Docs**: Many projects have `.docs/` with:
+   - `DIRECTORY_REFERENCE.md` - Where files belong
+   - `MECHANICS_REFERENCE.md` - Business logic rules
+   - `SCHEMA_REFERENCE.md` - Exact type definitions to use
+   - `ARCHITECTURE_REFERENCE.md` - System design principles
+   
+3. **Follow Naming Conventions**: Projects may specify:
+   - File naming (kebab-case, PascalCase, etc.)
+   - Export patterns
+   - Directory structure rules
+
+4. **Mandatory Documentation**: Plans must include updates to:
+   - Changelog files (`.docs/changelog/`)
+   - Technical summary (`technical_summary.md`)
+   - Todo/task tracking (`.docs/todo.md`)
+
+**When planning, include subtasks for documentation:**
+```json
+{
+  "id": "subtask-docs",
+  "description": "Update project documentation (changelog, technical_summary, reference docs)",
+  "files_to_modify": [".docs/changelog/NNN-feature-name.md", "technical_summary.md"],
+  "verification": { "type": "manual", "instructions": "Verify docs updated" }
+}
+```
+
 ---
 
 ## WHY SUBTASKS, NOT TESTS?

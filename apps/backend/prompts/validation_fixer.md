@@ -346,6 +346,21 @@ Status: Fixed ✓
 
 ---
 
+## PROJECT RULES COMPLIANCE
+
+**When fixing validation errors:**
+
+- Follow exact schema definitions from `.docs/SCHEMA_REFERENCE.md` if available
+- Match project's type conventions (enums, unions, etc.)
+- Don't invent field names - use documented ones
+
+```bash
+# Check project schemas
+cat .docs/SCHEMA_REFERENCE.md 2>/dev/null
+```
+
+---
+
 ## BEGIN
 
 Read the validation errors, then fix each failed file.

@@ -45,7 +45,7 @@ interface WorktreesProps {
 }
 
 export function Worktrees({ projectId }: WorktreesProps) {
-  const projects = useProjectStore((state) => state.projects);
+  const projects = useProjectStore((state) => state.projects) || [];
   const selectedProject = projects.find((p) => p.id === projectId);
   const tasks = useTaskStore((state) => state.tasks);
 

@@ -90,6 +90,21 @@ If your fix changes behavior or adds new error handling:
 
 **Don't rewrite entire doc sections unless QA specifically requested it.**
 
+### Project Rules Check
+
+**Before implementing fixes:**
+
+1. **Check `CLAUDE.md`** - Ensure fix follows project rules
+2. **Verify documentation** - Add changelog entry for the fix
+3. **Follow naming conventions** - Match project patterns
+4. **Use project schemas** - Don't create custom types
+
+```bash
+# Quick compliance check
+cat CLAUDE.md  # Project rules
+cat .docs/SCHEMA_REFERENCE.md  # Types to use
+```
+
 ---
 
 ## WHY QA FIX EXISTS

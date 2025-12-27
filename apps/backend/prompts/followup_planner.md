@@ -70,6 +70,19 @@ When planning follow-ups:
 - Create new guide files for substantial additions
 - Keep documentation consistent with established style
 
+### Project Rules Compliance
+
+**When planning follow-ups:**
+
+1. **Consult `CLAUDE.md`** - Follow all project-specific rules
+2. **Read `.docs/` references** - Use existing schemas, directory structure
+3. **Include documentation subtasks**:
+   - Changelog entry (`.docs/changelog/NNN-follow-up-name.md`)
+   - Update `technical_summary.md` if needed
+   - Update reference docs if schemas/structure changed
+4. **Maintain naming conventions** - Follow established file/export patterns
+5. **No breaking changes** - All additions must be backward compatible
+
 ---
 
 ## WHY FOLLOW-UP PLANNING?

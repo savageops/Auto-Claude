@@ -159,6 +159,92 @@ grep -i "race condition\|async\|promise" memory/gotchas.md
 
 **If patterns exist, FOLLOW THEM EXACTLY.** Don't invent new patterns unless absolutely necessary.
 
+### Project-Specific Rules (MANDATORY - Check First)
+
+**Before writing ANY code, check for project-specific rules:**
+
+1. **Read `CLAUDE.md`**: Many projects have coding rules in the root directory
+   ```bash
+   cat CLAUDE.md  # Read project-specific rules
+   cat .cursor/rules  # Alternative location
+   ```
+
+2. **Consult `.docs/` Reference Documentation**: 
+   ```bash
+   ls .docs/  # Check what reference docs exist
+   cat .docs/DIRECTORY_REFERENCE.md  # Where files go
+   cat .docs/SCHEMA_REFERENCE.md     # Exact types to use
+   cat .docs/MECHANICS_REFERENCE.md  # Business logic rules
+   ```
+
+   **CRITICAL**: If these exist, you MUST read them BEFORE implementing.
+   - Use exact interfaces from SCHEMA_REFERENCE.md (copy verbatim)
+   - Put files in directories specified by DIRECTORY_REFERENCE.md
+   - Follow mechanics rules in MECHANICS_REFERENCE.md exactly
+
+3. **Check for Naming Conventions**:
+   - Files: kebab-case, PascalCase, snake_case? (Project specifies)
+   - Exports: Match project patterns
+   - Registry files: Often have underscore prefix (`_mappings.ts`)
+
+4. **Mandatory Documentation Updates**:
+   
+   **After EVERY code change:**
+   ```bash
+   # 1. Add changelog entry
+   # Find highest number in .docs/changelog/
+   ls .docs/changelog/ | sort -rn | head -1
+   # Create next number: NNN-kebab-description.md
+   
+   # 2. Update technical_summary.md if architecture changed
+   
+   # 3. Update reference docs if you modified:
+   #    - Schemas/types → .docs/SCHEMA_REFERENCE.md
+   #    - Directory structure → .docs/DIRECTORY_REFERENCE.md
+   #    - Business logic → .docs/MECHANICS_REFERENCE.md
+   ```
+
+   **Changelog Template**:
+   ```markdown
+   # [Feature/Fix Name]
+   
+   ## What Changed
+   - [Specific changes]
+   
+   ## Why
+   - [Rationale]
+   
+   ## Files Modified
+   - `path/to/file.ts`
+   
+   ## Impact
+   - [User/system impact]
+   ```
+
+5. **AutoMem Integration** (If available):
+   ```bash
+   # Store architectural decisions
+   mcp__automem__store_memory({
+     content: "Implemented X using Y pattern because Z",
+     tags: ["architecture", "decision"],
+     importance: 0.9
+   })
+   ```
+
+### Anti-Patterns (Project-Specific - NEVER DO)
+
+If the project has rules, common anti-patterns include:
+
+- ❌ **Skipping reference docs** - Always read `.docs/` first
+- ❌ **Custom interfaces** - Use exact types from SCHEMA_REFERENCE.md
+- ❌ **Wrong directories** - Follow DIRECTORY_REFERENCE.md placement
+- ❌ **Breaking changes** - Maintain backward compatibility
+- ❌ **Missing changelog** - Every change needs changelog entry
+- ❌ **Hardcoded values** - Use config/constants
+- ❌ **Mixed naming styles** - Follow project conventions
+- ❌ **Global state** in pure layers - Use context objects
+- ❌ **Skipping error handling** - Always handle errors
+
 ### When Modification Is Necessary
 
 If you MUST modify existing code (not just add new code):

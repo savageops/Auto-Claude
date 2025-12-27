@@ -171,6 +171,31 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
           window.electronAPI.writeBasePrompt('qa', taskExecution.qaBasePrompt)
         );
       }
+      if (taskExecution.followupPlannerBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('followup_planner', taskExecution.followupPlannerBasePrompt)
+        );
+      }
+      if (taskExecution.qaFixerBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('qa_fixer', taskExecution.qaFixerBasePrompt)
+        );
+      }
+      if (taskExecution.validationFixerBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('validation_fixer', taskExecution.validationFixerBasePrompt)
+        );
+      }
+      if (taskExecution.coderRecoveryBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('coder_recovery', taskExecution.coderRecoveryBasePrompt)
+        );
+      }
+      if (taskExecution.prFixerBasePrompt !== undefined) {
+        savePromises.push(
+          window.electronAPI.writeBasePrompt('pr_fixer', taskExecution.prFixerBasePrompt)
+        );
+      }
 
       if (savePromises.length > 0) {
         try {

@@ -764,7 +764,6 @@ export function registerWorktreeHandlers(
                   success: false,
                   merged: false,
                   message: `Merge failed: ${errorMessage}`,
-                  hasConflicts,
                   projectPath: project.path
                 }
               });

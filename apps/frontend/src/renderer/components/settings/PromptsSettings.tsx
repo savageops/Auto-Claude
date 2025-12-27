@@ -49,6 +49,11 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
   const [showPlanner, setShowPlanner] = useState(false);
   const [showCoder, setShowCoder] = useState(false);
   const [showQA, setShowQA] = useState(false);
+  const [showFollowupPlanner, setShowFollowupPlanner] = useState(false);
+  const [showQAFixer, setShowQAFixer] = useState(false);
+  const [showValidationFixer, setShowValidationFixer] = useState(false);
+  const [showCoderRecovery, setShowCoderRecovery] = useState(false);
+  const [showPRFixer, setShowPRFixer] = useState(false);
 
   // Ideation prompts state
   const [ideationTypes, setIdeationTypes] = useState<Record<string, string>>({});
@@ -71,10 +76,24 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
       // Load base prompts from backend
       const loadBasePrompts = async () => {
         try {
-          const [plannerResult, coderResult, qaResult] = await Promise.all([
+          const [
+            plannerResult,
+            coderResult,
+            qaResult,
+            followupPlannerResult,
+            qaFixerResult,
+            validationFixerResult,
+            coderRecoveryResult,
+            prFixerResult
+          ] = await Promise.all([
             window.electronAPI.readBasePrompt('planner'),
             window.electronAPI.readBasePrompt('coder'),
-            window.electronAPI.readBasePrompt('qa')
+            window.electronAPI.readBasePrompt('qa'),
+            window.electronAPI.readBasePrompt('followup_planner'),
+            window.electronAPI.readBasePrompt('qa_fixer'),
+            window.electronAPI.readBasePrompt('validation_fixer'),
+            window.electronAPI.readBasePrompt('coder_recovery'),
+            window.electronAPI.readBasePrompt('pr_fixer')
           ]);
 
           const updates: Partial<TaskExecutionPromptConfig> = {};
@@ -86,6 +105,21 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
           }
           if (qaResult.success && qaResult.data) {
             updates.qaBasePrompt = qaResult.data;
+          }
+          if (followupPlannerResult.success && followupPlannerResult.data) {
+            updates.followupPlannerBasePrompt = followupPlannerResult.data;
+          }
+          if (qaFixerResult.success && qaFixerResult.data) {
+            updates.qaFixerBasePrompt = qaFixerResult.data;
+          }
+          if (validationFixerResult.success && validationFixerResult.data) {
+            updates.validationFixerBasePrompt = validationFixerResult.data;
+          }
+          if (coderRecoveryResult.success && coderRecoveryResult.data) {
+            updates.coderRecoveryBasePrompt = coderRecoveryResult.data;
+          }
+          if (prFixerResult.success && prFixerResult.data) {
+            updates.prFixerBasePrompt = prFixerResult.data;
           }
 
           // Update the settings if we loaded any prompts
@@ -618,7 +652,7 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
               </div>
 
               {/* QA Sub-Section */}
-              <div>
+              <div className="border-b border-border">
                 <button
                   onClick={() => setShowQA(!showQA)}
                   className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
@@ -674,6 +708,211 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
                         onChange={(e) => handleTaskExecutionChange({ qaInstructions: e.target.value || undefined })}
                         className="min-h-[80px] font-mono text-xs"
                         placeholder={t('prompts.taskExecution.qa.placeholder')}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Follow-up Planner Sub-Section */}
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setShowFollowupPlanner(!showFollowupPlanner)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">Follow-up Planner</h4>
+                      <p className="text-xs text-muted-foreground">Plans additional features on completed specs</p>
+                    </div>
+                  </div>
+                  {showFollowupPlanner ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showFollowupPlanner && (
+                  <div className="px-8 pb-4 space-y-4 bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="followupPlannerBasePrompt" className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Base Prompt
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Defines how the follow-up planner extends existing implementations
+                      </p>
+                      <Textarea
+                        id="followupPlannerBasePrompt"
+                        value={taskExecutionConfig.followupPlannerBasePrompt || ''}
+                        onChange={(e) => handleTaskExecutionChange({ followupPlannerBasePrompt: e.target.value || undefined })}
+                        className="min-h-[200px] font-mono text-xs"
+                        placeholder="Edit the follow-up planner base prompt..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* QA Fixer Sub-Section */}
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setShowQAFixer(!showQAFixer)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <CheckSquare className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">QA Fixer</h4>
+                      <p className="text-xs text-muted-foreground">Fixes issues found by QA reviewer</p>
+                    </div>
+                  </div>
+                  {showQAFixer ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showQAFixer && (
+                  <div className="px-8 pb-4 space-y-4 bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="qaFixerBasePrompt" className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Base Prompt
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Defines how QA-identified issues are resolved
+                      </p>
+                      <Textarea
+                        id="qaFixerBasePrompt"
+                        value={taskExecutionConfig.qaFixerBasePrompt || ''}
+                        onChange={(e) => handleTaskExecutionChange({ qaFixerBasePrompt: e.target.value || undefined })}
+                        className="min-h-[200px] font-mono text-xs"
+                        placeholder="Edit the QA fixer base prompt..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Validation Fixer Sub-Section */}
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setShowValidationFixer(!showValidationFixer)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <CheckSquare className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">Validation Fixer</h4>
+                      <p className="text-xs text-muted-foreground">Fixes spec validation errors</p>
+                    </div>
+                  </div>
+                  {showValidationFixer ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showValidationFixer && (
+                  <div className="px-8 pb-4 space-y-4 bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="validationFixerBasePrompt" className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Base Prompt
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Defines how spec validation errors are corrected
+                      </p>
+                      <Textarea
+                        id="validationFixerBasePrompt"
+                        value={taskExecutionConfig.validationFixerBasePrompt || ''}
+                        onChange={(e) => handleTaskExecutionChange({ validationFixerBasePrompt: e.target.value || undefined })}
+                        className="min-h-[200px] font-mono text-xs"
+                        placeholder="Edit the validation fixer base prompt..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Coder Recovery Sub-Section */}
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setShowCoderRecovery(!showCoderRecovery)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Code className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">Coder Recovery</h4>
+                      <p className="text-xs text-muted-foreground">Recovery context for retry attempts</p>
+                    </div>
+                  </div>
+                  {showCoderRecovery ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showCoderRecovery && (
+                  <div className="px-8 pb-4 space-y-4 bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="coderRecoveryBasePrompt" className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Base Prompt
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Defines how subtasks are retried with different approaches
+                      </p>
+                      <Textarea
+                        id="coderRecoveryBasePrompt"
+                        value={taskExecutionConfig.coderRecoveryBasePrompt || ''}
+                        onChange={(e) => handleTaskExecutionChange({ coderRecoveryBasePrompt: e.target.value || undefined })}
+                        className="min-h-[200px] font-mono text-xs"
+                        placeholder="Edit the coder recovery base prompt..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* PR Fixer Sub-Section */}
+              <div>
+                <button
+                  onClick={() => setShowPRFixer(!showPRFixer)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <GitMerge className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">PR Fixer</h4>
+                      <p className="text-xs text-muted-foreground">Fixes issues in pull requests</p>
+                    </div>
+                  </div>
+                  {showPRFixer ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showPRFixer && (
+                  <div className="px-8 pb-4 space-y-4 bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="prFixerBasePrompt" className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                        Base Prompt
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Defines how PR review findings are addressed
+                      </p>
+                      <Textarea
+                        id="prFixerBasePrompt"
+                        value={taskExecutionConfig.prFixerBasePrompt || ''}
+                        onChange={(e) => handleTaskExecutionChange({ prFixerBasePrompt: e.target.value || undefined })}
+                        className="min-h-[200px] font-mono text-xs"
+                        placeholder="Edit the PR fixer base prompt..."
                       />
                     </div>
                   </div>
