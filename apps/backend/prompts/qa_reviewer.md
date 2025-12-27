@@ -295,7 +295,118 @@ cat context.json | jq '.files_to_reference'
 # [Read and compare files]
 ```
 
-### 6.3: Document Findings
+### 6.3: Deletion Verification
+
+**CRITICAL: Verify that all file deletions and dependency removals were intentional.**
+
+This prevents accidental code loss by comparing actual deletions against declared intentions.
+
+#### Step 1: Extract Declared Deletions
+
+Read the implementation plan to get all expected deletions:
+
+```bash
+# Get all files_to_delete from completed subtasks
+cat implementation_plan.json | jq -r '
+  .phases[].subtasks[]
+  | select(.status == "completed")
+  | .files_to_delete[]?
+  | select(. != null)
+' | sort -u > expected_file_deletions.txt
+
+# Get all dependencies_to_remove from completed subtasks
+cat implementation_plan.json | jq -r '
+  .phases[].subtasks[]
+  | select(.status == "completed")
+  | .dependencies_to_remove[]?
+  | select(. != null)
+' | sort -u > expected_dependency_removals.txt
+```
+
+#### Step 2: Identify Actual Deletions
+
+Check git diff to find what was actually deleted:
+
+```bash
+# Find deleted files
+git diff --name-status HEAD~1 HEAD | grep "^D" | cut -f2 | sort > actual_file_deletions.txt
+
+# Find removed dependencies (check package.json/requirements.txt diffs)
+git diff HEAD~1 HEAD -- package.json requirements.txt | grep "^-" | grep -v "^---" > dependency_changes.txt
+```
+
+#### Step 3: Compare Expected vs Actual
+
+```bash
+# Files deleted but NOT declared (CRITICAL ERROR)
+comm -13 expected_file_deletions.txt actual_file_deletions.txt > unexpected_deletions.txt
+
+# Files declared but NOT deleted (WARNING)
+comm -23 expected_file_deletions.txt actual_file_deletions.txt > missing_deletions.txt
+
+# Show results
+if [ -s unexpected_deletions.txt ]; then
+  echo "❌ UNEXPECTED DELETIONS FOUND:"
+  cat unexpected_deletions.txt
+fi
+
+if [ -s missing_deletions.txt ]; then
+  echo "⚠️ EXPECTED DELETIONS MISSING:"
+  cat missing_deletions.txt
+fi
+```
+
+#### Step 4: Check for Code Block Deletions
+
+Verify no code was removed from `files_to_modify` without explicit mention:
+
+```bash
+# For each file in files_to_modify, check for major deletions
+cat implementation_plan.json | jq -r '
+  .phases[].subtasks[]
+  | select(.status == "completed")
+  | .files_to_modify[]?
+' | while read file; do
+  lines_removed=$(git diff HEAD~1 HEAD -- "$file" | grep "^-" | grep -v "^---" | wc -l)
+  lines_added=$(git diff HEAD~1 HEAD -- "$file" | grep "^+" | grep -v "^+++" | wc -l)
+
+  # Flag if more than 50 lines removed (or >30% of changes are deletions)
+  if [ "$lines_removed" -gt 50 ] || [ "$lines_removed" -gt "$((lines_added / 2))" ]; then
+    echo "⚠️ Large deletion in modified file: $file ($lines_removed lines removed)"
+    git diff HEAD~1 HEAD -- "$file" --stat
+  fi
+done
+```
+
+#### Step 5: Document Findings
+
+```
+DELETION VERIFICATION:
+Expected file deletions: [count from expected_file_deletions.txt]
+  - [list files from expected_file_deletions.txt]
+
+Actual file deletions: [count from actual_file_deletions.txt]
+  - [list files from actual_file_deletions.txt]
+
+✅ Expected deletions occurred: [list or "None"]
+❌ Unexpected deletions detected: [list from unexpected_deletions.txt or "None"]
+⚠️ Missing expected deletions: [list from missing_deletions.txt or "None"]
+⚠️ Large code block removals: [list files with significant deletions or "None"]
+
+Expected dependency removals: [count]
+  - [list from expected_dependency_removals.txt]
+
+Actual dependency changes: [summary from dependency_changes.txt]
+
+VERDICT: PASS/FAIL
+  - FAIL if any unexpected deletions detected
+  - FAIL if large code blocks removed without declaration
+  - WARNING if expected deletions missing
+```
+
+**If FAIL**: Add deletion violations to QA issues list with HIGH PRIORITY.
+
+### 6.4: Document Findings
 
 ```
 CODE REVIEW:

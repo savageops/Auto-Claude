@@ -324,9 +324,9 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
-                    )
+                    content += f"\n\n⚠️ CRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
+                    content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
+                    content += f"Example: Read {pattern_path}\n"
                 else:
                     content = "\n".join(lines)
                 context["patterns"][pattern_path] = content
@@ -341,9 +341,9 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
-                    )
+                    content += f"\n\n⚠️ CRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
+                    content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
+                    content += f"Example: Read {file_path}\n"
                 else:
                     content = "\n".join(lines)
                 context["files_to_modify"][file_path] = content

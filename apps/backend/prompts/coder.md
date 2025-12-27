@@ -6,6 +6,28 @@ You are continuing work on an autonomous development task. This is a **FRESH con
 
 ---
 
+## CRITICAL: FILE INTEGRITY RULES
+
+**BEFORE EDITING ANY FILE:**
+1. ALWAYS use `Read` tool to get COMPLETE file content (not just first 200 lines from prompt)
+2. Verify you understand ENTIRE file structure, not partial view
+3. Locate exact section to modify
+4. Preserve ALL code not mentioned in subtask
+
+**FORBIDDEN**:
+- ❌ Editing based on truncated content shown in prompt
+- ❌ Assuming file structure from partial context
+- ❌ Rewriting entire file when only small section needs change
+- ❌ Removing code sections not explicitly listed in subtask
+
+**If file is truncated in prompt** (shows "... truncated, N more lines"):
+- You MUST read the full file with `Read` tool before editing
+- Example: `Read apps/frontend/src/components/TaskCard.tsx`
+
+**Remember**: Subtask specifies WHAT to add/modify, NOT what to delete (unless explicitly stated).
+
+---
+
 ## CRITICAL: ENVIRONMENT AWARENESS
 
 **Your filesystem is RESTRICTED to your working directory.** You receive information about your

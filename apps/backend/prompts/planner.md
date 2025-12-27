@@ -236,6 +236,8 @@ Based on the workflow type and services involved, create the implementation plan
           "service": "backend",
           "files_to_modify": ["src/models/user.py"],
           "files_to_create": ["src/models/analytics.py"],
+          "files_to_delete": [],
+          "dependencies_to_remove": [],
           "patterns_from": ["src/models/existing_model.py"],
           "verification": {
             "type": "command",
@@ -250,6 +252,8 @@ Based on the workflow type and services involved, create the implementation plan
           "service": "backend",
           "files_to_modify": ["src/routes/api.py"],
           "files_to_create": ["src/routes/analytics.py"],
+          "files_to_delete": [],
+          "dependencies_to_remove": [],
           "patterns_from": ["src/routes/users.py"],
           "verification": {
             "type": "api",
@@ -276,6 +280,8 @@ Based on the workflow type and services involved, create the implementation plan
           "service": "worker",
           "files_to_modify": ["worker/tasks.py"],
           "files_to_create": [],
+          "files_to_delete": [],
+          "dependencies_to_remove": [],
           "patterns_from": ["worker/existing_task.py"],
           "verification": {
             "type": "command",
@@ -300,6 +306,8 @@ Based on the workflow type and services involved, create the implementation plan
           "service": "frontend",
           "files_to_modify": [],
           "files_to_create": ["src/components/Dashboard.tsx"],
+          "files_to_delete": [],
+          "dependencies_to_remove": [],
           "patterns_from": ["src/components/ExistingPage.tsx"],
           "verification": {
             "type": "browser",
@@ -324,6 +332,8 @@ Based on the workflow type and services involved, create the implementation plan
           "all_services": true,
           "files_to_modify": [],
           "files_to_create": [],
+          "files_to_delete": [],
+          "dependencies_to_remove": [],
           "patterns_from": [],
           "verification": {
             "type": "e2e",
@@ -363,6 +373,60 @@ Use ONLY these values for the `type` field in phases:
 3. **Clear verification** - Every subtask must have a way to verify it works
 4. **Explicit dependencies** - Phases block until dependencies complete
 
+### Deletion Tracking
+
+**CRITICAL: Declare all intended deletions explicitly** to prevent accidental code loss during QA validation.
+
+Each subtask MUST include:
+- `files_to_delete` - Files to completely remove (if any)
+- `dependencies_to_remove` - npm/pip packages to uninstall (if any)
+
+**When to use `files_to_delete`:**
+- Removing deprecated/obsolete files
+- Deleting temporary scaffolding files
+- Removing old implementations after replacement
+
+**When to use `dependencies_to_remove`:**
+- Replacing library (e.g., lucide-react → Hugeicons)
+- Removing unused dependencies
+- Cleaning up after refactor
+
+**Example - Library Replacement:**
+```json
+{
+  "id": "subtask-icon-migration",
+  "description": "Replace lucide-react with Hugeicons library",
+  "service": "frontend",
+  "files_to_modify": ["package.json", "src/lib/icons.ts"],
+  "files_to_create": ["src/components/Icon.tsx"],
+  "files_to_delete": ["src/lib/old-icons.ts"],
+  "dependencies_to_remove": ["lucide-react"],
+  "verification": {
+    "type": "command",
+    "command": "npm ls lucide-react",
+    "expected": "not found"
+  }
+}
+```
+
+**Example - Code Extraction (NO deletion):**
+```json
+{
+  "id": "subtask-extract-utils",
+  "description": "Extract 237 lines of utils into separate module",
+  "service": "backend",
+  "files_to_modify": ["src/core/main.py"],
+  "files_to_create": ["src/utils/helpers.py"],
+  "files_to_delete": [],
+  "dependencies_to_remove": [],
+  "notes": "Code is MOVED to new file, not deleted from main.py - both files will exist"
+}
+```
+
+**Default to empty arrays** unless the subtask explicitly requires deletions. QA will verify:
+- ✅ Expected deletions occurred (files_to_delete list)
+- ❌ Unexpected deletions detected (code removed without declaration)
+
 ### Verification Types
 
 | Type | When to Use | Format |
@@ -383,6 +447,9 @@ Use ONLY these values for the `type` field in phases:
   "description": "Identify root cause of memory leak",
   "expected_output": "Document with: (1) Root cause, (2) Evidence, (3) Proposed fix",
   "files_to_modify": [],
+  "files_to_create": [],
+  "files_to_delete": [],
+  "dependencies_to_remove": [],
   "verification": {
     "type": "manual",
     "instructions": "Review INVESTIGATION.md for root cause identification"
@@ -398,6 +465,8 @@ Use ONLY these values for the `type` field in phases:
   "description": "Add new auth system alongside old",
   "files_to_modify": ["src/auth/index.ts"],
   "files_to_create": ["src/auth/new_auth.ts"],
+  "files_to_delete": [],
+  "dependencies_to_remove": [],
   "verification": {
     "type": "command",
     "command": "npm test -- --grep 'auth'",

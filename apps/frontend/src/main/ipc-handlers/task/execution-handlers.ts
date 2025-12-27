@@ -534,17 +534,37 @@ export function registerTaskExecutionHandlers(
           });
 
           if (cleanResult.status === 0) {
-            console.log('[TASK_REVIEW] Cleaned untracked files in main');
+            console.log('[TASK_REVIEW] Cleaned untracked files in main (excluding .turret and .worktrees)');
           }
+
+          console.log('[TASK_REVIEW] Main branch restored to pre-merge state');
         }
 
-        // Update task status to backlog
+        // Write feedback for QA fixer - write to WORKTREE spec dir if it exists
+        // The QA process runs in the worktree where the build and implementation_plan.json are
+        const targetSpecDir = hasWorktree ? worktreeSpecDir : specDir;
+        const fixRequestPath = path.join(targetSpecDir, 'QA_FIX_REQUEST.md');
+
+        console.warn('[TASK_REVIEW] Writing QA fix request to:', fixRequestPath);
+        console.warn('[TASK_REVIEW] hasWorktree:', hasWorktree, 'worktreePath:', worktreePath);
+
+        writeFileSync(
+          fixRequestPath,
+          `# QA Fix Request\n\nStatus: REJECTED\n\n## Feedback\n\n${feedback || 'No feedback provided'}\n\nCreated at: ${new Date().toISOString()}\n`
+        );
+
+        // Restart QA process - use worktree path if it exists, otherwise main project
+        // The QA process needs to run where the implementation_plan.json with completed subtasks is
+        const qaProjectPath = hasWorktree ? worktreePath : project.path;
+        console.warn('[TASK_REVIEW] Starting QA process with projectPath:', qaProjectPath);
+        agentManager.startQAProcess(taskId, qaProjectPath, task.specId);
+
         const mainWindow = getMainWindow();
         if (mainWindow) {
           mainWindow.webContents.send(
             IPC_CHANNELS.TASK_STATUS_CHANGE,
             taskId,
-            'backlog'
+            'in_progress'
           );
         }
       }
@@ -569,6 +589,241 @@ export function registerTaskExecutionHandlers(
         success: true,
         data: task.status as TaskStatus
       };
+    }
+  );
+
+  /**
+   * Update task status manually
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_UPDATE_STATUS,
+    async (
+      _,
+      taskId: string,
+      status: TaskStatus
+    ): Promise<IPCResult> => {
+      // Find task and project first (needed for worktree check)
+      const { task, project } = findTaskAndProject(taskId);
+
+      if (!task || !project) {
+        return { success: false, error: 'Task not found' };
+      }
+
+      // Validate status transition - 'done' can only be set through merge handler
+      // UNLESS there's no worktree (limbo state - already merged/discarded or failed)
+      if (status === 'done') {
+        // Check if worktree exists
+        const worktreePath = path.join(project.path, '.worktrees', taskId);
+        const hasWorktree = existsSync(worktreePath);
+
+        if (hasWorktree) {
+          // Worktree exists - must use merge workflow
+          console.warn(`[TASK_UPDATE_STATUS] Blocked attempt to set status 'done' directly for task ${taskId}. Use merge workflow instead.`);
+          return {
+            success: false,
+            error: "Cannot set status to 'done' directly. Complete the human review and merge the worktree changes instead."
+          };
+        } else {
+          // No worktree - allow marking as done (limbo state recovery)
+          console.log(`[TASK_UPDATE_STATUS] Allowing status 'done' for task ${taskId} (no worktree found - limbo state)`);
+        }
+      }
+
+      // Validate status transition - 'human_review' requires actual work to have been done
+      // This prevents tasks from being incorrectly marked as ready for review when execution failed
+      if (status === 'human_review') {
+        const specsBaseDirForValidation = getSpecsDir(project.autoBuildPath);
+        const specDirForValidation = path.join(
+          project.path,
+          specsBaseDirForValidation,
+          task.specId
+        );
+        const specFilePath = path.join(specDirForValidation, AUTO_BUILD_PATHS.SPEC_FILE);
+
+        // Check if spec.md exists and has meaningful content (at least 100 chars)
+        const MIN_SPEC_CONTENT_LENGTH = 100;
+        let specContent = '';
+        try {
+          if (existsSync(specFilePath)) {
+            specContent = readFileSync(specFilePath, 'utf-8');
+          }
+        } catch {
+          // Ignore read errors - treat as empty spec
+        }
+
+        if (!specContent || specContent.length < MIN_SPEC_CONTENT_LENGTH) {
+          console.warn(`[TASK_UPDATE_STATUS] Blocked attempt to set status 'human_review' for task ${taskId}. No spec has been created yet.`);
+          return {
+            success: false,
+            error: "Cannot move to human review - no spec has been created yet. The task must complete processing before review."
+          };
+        }
+      }
+
+      // Get the spec directory
+      const specsBaseDir = getSpecsDir(project.autoBuildPath);
+      const specDir = path.join(
+        project.path,
+        specsBaseDir,
+        task.specId
+      );
+
+      // Update implementation_plan.json if it exists
+      const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+
+      try {
+        if (existsSync(planPath)) {
+          const planContent = readFileSync(planPath, 'utf-8');
+          const plan = JSON.parse(planContent);
+
+          // Store the exact UI status - project-store.ts will map it back
+          plan.status = status;
+          // Also store mapped version for Python compatibility
+          plan.planStatus = status === 'in_progress' ? 'in_progress'
+            : status === 'ai_review' ? 'review'
+            : status === 'human_review' ? 'review'
+            : status === 'done' ? 'completed'
+            : 'pending';
+          plan.updated_at = new Date().toISOString();
+
+          writeFileSync(planPath, JSON.stringify(plan, null, 2));
+        } else {
+          // If no implementation plan exists yet, create a basic one
+          const plan = {
+            feature: task.title,
+            description: task.description || '',
+            created_at: task.createdAt.toISOString(),
+            updated_at: new Date().toISOString(),
+            status: status, // Store exact UI status for persistence
+            planStatus: status === 'in_progress' ? 'in_progress'
+              : status === 'ai_review' ? 'review'
+              : status === 'human_review' ? 'review'
+              : status === 'done' ? 'completed'
+              : 'pending',
+            phases: []
+          };
+
+          // Ensure spec directory exists
+          if (!existsSync(specDir)) {
+            mkdirSync(specDir, { recursive: true });
+          }
+
+          writeFileSync(planPath, JSON.stringify(plan, null, 2));
+        }
+
+        // Auto-stop task when status changes AWAY from 'in_progress' and process IS running
+        // This handles the case where user drags a running task back to Planning/backlog
+        if (status !== 'in_progress' && agentManager.isRunning(taskId)) {
+          console.warn('[TASK_UPDATE_STATUS] Stopping task due to status change away from in_progress:', taskId);
+          agentManager.killTask(taskId);
+        }
+
+        // Auto-start task when status changes to 'in_progress' and no process is running
+        if (status === 'in_progress' && !agentManager.isRunning(taskId)) {
+          const mainWindow = getMainWindow();
+
+          // Check git status before auto-starting
+          const gitStatusCheck = checkGitStatus(project.path);
+          if (!gitStatusCheck.isGitRepo || !gitStatusCheck.hasCommits) {
+            console.warn('[TASK_UPDATE_STATUS] Git check failed, cannot auto-start task');
+            if (mainWindow) {
+              mainWindow.webContents.send(
+                IPC_CHANNELS.TASK_ERROR,
+                taskId,
+                gitStatusCheck.error || 'Git repository with commits required to run tasks.'
+              );
+            }
+            return { success: false, error: gitStatusCheck.error || 'Git repository required' };
+          }
+
+          // Check authentication before auto-starting
+          const profileManager = getClaudeProfileManager();
+          if (!profileManager.hasValidAuth()) {
+            console.warn('[TASK_UPDATE_STATUS] No valid authentication for active profile');
+            if (mainWindow) {
+              mainWindow.webContents.send(
+                IPC_CHANNELS.TASK_ERROR,
+                taskId,
+                'Claude authentication required. Please go to Settings > Claude Profiles and authenticate your account, or set an OAuth token.'
+              );
+            }
+            return { success: false, error: 'Claude authentication required' };
+          }
+
+          console.warn('[TASK_UPDATE_STATUS] Auto-starting task:', taskId);
+
+          // Start file watcher for this task
+          fileWatcher.watch(taskId, specDir);
+
+          // Check if spec.md exists
+          const specFilePath = path.join(specDir, AUTO_BUILD_PATHS.SPEC_FILE);
+          const hasSpec = existsSync(specFilePath);
+          const needsSpecCreation = !hasSpec;
+          const needsImplementation = hasSpec && task.subtasks.length === 0;
+
+          console.warn('[TASK_UPDATE_STATUS] hasSpec:', hasSpec, 'needsSpecCreation:', needsSpecCreation, 'needsImplementation:', needsImplementation);
+
+          if (needsSpecCreation) {
+            // No spec file - need to run spec_runner.py to create the spec
+            const taskDescription = task.description || task.title;
+            console.warn('[TASK_UPDATE_STATUS] Starting spec creation for:', task.specId);
+            agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDir, task.metadata);
+          } else if (needsImplementation) {
+            // Spec exists but no subtasks - run run.py to create implementation plan and execute
+            console.warn('[TASK_UPDATE_STATUS] Starting task execution (no subtasks) for:', task.specId);
+            agentManager.startTaskExecution(
+              taskId,
+              project.path,
+              task.specId,
+              {
+                parallel: false,
+                workers: 1
+              }
+            );
+          } else {
+            // Task has subtasks, start normal execution
+            // Note: Parallel execution is handled internally by the agent
+            console.warn('[TASK_UPDATE_STATUS] Starting task execution (has subtasks) for:', task.specId);
+            agentManager.startTaskExecution(
+              taskId,
+              project.path,
+              task.specId,
+              {
+                parallel: false,
+                workers: 1
+              }
+            );
+          }
+
+          // Notify renderer about status change
+          if (mainWindow) {
+            mainWindow.webContents.send(
+              IPC_CHANNELS.TASK_STATUS_CHANGE,
+              taskId,
+              'in_progress'
+            );
+          }
+        }
+
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to update task status:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to update task status'
+        };
+      }
+    }
+  );
+
+  /**
+   * Check if a task is actually running (has active process)
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_CHECK_RUNNING,
+    async (_, taskId: string): Promise<IPCResult<boolean>> => {
+      const isRunning = agentManager.isRunning(taskId);
+      return { success: true, data: isRunning };
     }
   );
 

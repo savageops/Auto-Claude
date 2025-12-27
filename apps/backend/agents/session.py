@@ -9,6 +9,7 @@ memory updates, recovery tracking, and Linear integration.
 import logging
 from pathlib import Path
 
+from agents.file_tracker import FileAccessTracker
 from claude_agent_sdk import ClaudeSDKClient
 from debug import debug, debug_detailed, debug_error, debug_section, debug_success
 from insight_extractor import extract_session_insights
@@ -350,6 +351,10 @@ async def run_agent_session(
     message_count = 0
     tool_count = 0
 
+    # Initialize file access tracker
+    tracker = FileAccessTracker()
+    debug("session", "FileAccessTracker initialized")
+
     try:
         # Send the query
         debug("session", "Sending query to Claude SDK...")
@@ -407,6 +412,22 @@ async def run_agent_session(
                                     tool_input = cmd
                                 elif "path" in inp:
                                     tool_input = inp["path"]
+
+                                # Track file access operations
+                                if tool_name == "Read" and "file_path" in inp:
+                                    # Check if full file or partial (offset means partial)
+                                    is_full = inp.get("offset") is None
+                                    tracker.record_read(inp["file_path"], full_content=is_full)
+                                    debug_detailed(
+                                        "session",
+                                        f"Tracked Read: {inp['file_path']} (full={is_full})",
+                                    )
+                                elif tool_name in ["Write", "Edit"] and "file_path" in inp:
+                                    tracker.record_write(inp["file_path"])
+                                    debug_detailed(
+                                        "session",
+                                        f"Tracked {tool_name}: {inp['file_path']}",
+                                    )
 
                         debug(
                             "session",
@@ -515,6 +536,30 @@ async def run_agent_session(
                         current_tool = None
 
         print("\n" + "-" * 70 + "\n")
+
+        # Report file access violations
+        violations = tracker.get_violations()
+        if violations:
+            debug_error("session", "File access violations detected", count=len(violations))
+            print("\n" + "=" * 70)
+            print("⚠️  FILE ACCESS VIOLATIONS DETECTED")
+            print("=" * 70)
+            for violation in violations:
+                print(f"  {violation}")
+            print("=" * 70 + "\n")
+
+            # Log violations for debugging
+            summary = tracker.get_summary()
+            debug(
+                "session",
+                "File access summary",
+                total_reads=summary["total_reads"],
+                total_writes=summary["total_writes"],
+                full_reads=summary["full_reads"],
+                violations_count=summary["violations_count"],
+            )
+        else:
+            debug_success("session", "No file access violations detected")
 
         # Check if build is complete
         if is_build_complete(spec_dir):
