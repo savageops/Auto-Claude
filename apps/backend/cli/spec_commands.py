@@ -25,7 +25,7 @@ def list_specs(project_dir: Path, dev_mode: bool = False) -> list[dict]:
 
     Args:
         project_dir: Project root directory
-        dev_mode: If True, use dev/auto-claude/specs/
+        dev_mode: If True, use dev/turret/specs/
 
     Returns:
         List of spec info dicts with keys: number, name, path, status, progress
@@ -100,7 +100,7 @@ def print_specs_list(
 
     Args:
         project_dir: Project root directory
-        dev_mode: If True, use dev/auto-claude/specs/
+        dev_mode: If True, use dev/turret/specs/
         auto_create: If True and no specs exist, automatically launch spec creation
     """
     import subprocess
@@ -190,6 +190,6 @@ def print_specs_list(
 
     print("-" * 70)
     print("\nTo run a spec:")
-    print("  python auto-claude/run.py --spec 001")
-    print("  python auto-claude/run.py --spec 001-feature-name")
+    print("  python turret/run.py --spec 001")
+    print("  python turret/run.py --spec 001-feature-name")
     print()

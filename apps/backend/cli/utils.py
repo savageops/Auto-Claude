@@ -37,15 +37,15 @@ def setup_environment() -> Path:
     Set up the environment and return the script directory.
 
     Returns:
-        Path to the auto-claude directory
+        Path to the turret directory
     """
-    # Add auto-claude directory to path for imports
+    # Add turret directory to path for imports
     script_dir = Path(__file__).parent.parent.resolve()
     sys.path.insert(0, str(script_dir))
 
-    # Load .env file - check both auto-claude/ and dev/auto-claude/ locations
+    # Load .env file - check both turret/ and dev/turret/ locations
     env_file = script_dir / ".env"
-    dev_env_file = script_dir.parent / "dev" / "auto-claude" / ".env"
+    dev_env_file = script_dir.parent / "dev" / "turret" / ".env"
     if env_file.exists():
         load_dotenv(env_file)
     elif dev_env_file.exists():
@@ -63,7 +63,7 @@ def find_spec(
     Args:
         project_dir: Project root directory
         spec_identifier: Either "001" or "001-feature-name"
-        dev_mode: If True, use dev/auto-claude/specs/
+        dev_mode: If True, use dev/turret/specs/
 
     Returns:
         Path to spec folder, or None if not found
@@ -89,7 +89,7 @@ def find_spec(
     if worktree_base.exists():
         # Try exact match in worktree
         worktree_spec = (
-            worktree_base / spec_identifier / ".auto-claude" / "specs" / spec_identifier
+            worktree_base / spec_identifier / ".turret" / "specs" / spec_identifier
         )
         if worktree_spec.exists() and (worktree_spec / "spec.md").exists():
             return worktree_spec
@@ -100,7 +100,7 @@ def find_spec(
                 spec_identifier + "-"
             ):
                 spec_in_worktree = (
-                    worktree_dir / ".auto-claude" / "specs" / worktree_dir.name
+                    worktree_dir / ".turret" / "specs" / worktree_dir.name
                 )
                 if (
                     spec_in_worktree.exists()
@@ -151,7 +151,7 @@ def validate_environment(spec_dir: Path) -> bool:
         # Show Linear project status if initialized
         project_dir = (
             spec_dir.parent.parent
-        )  # auto-claude/specs/001-name -> project root
+        )  # turret/specs/001-name -> project root
         linear_manager = LinearManager(spec_dir, project_dir)
         if linear_manager.is_initialized:
             summary = linear_manager.get_progress_summary()

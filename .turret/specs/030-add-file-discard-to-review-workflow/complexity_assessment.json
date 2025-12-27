@@ -1,0 +1,123 @@
+{
+  "complexity": "simple",
+  "workflow_type": "feature",
+  "confidence": 0.98,
+  "reasoning": "The file discard functionality described in the requirements is already fully implemented. DiffViewDialog.tsx contains per-file discard buttons (Trash2 icons), confirmation dialogs, success/error feedback, and loading states. The backend (worktree-handlers.ts) handles TASK_WORKTREE_DISCARD_FILE using 'git checkout <baseBranch> -- <filePath>'. Comprehensive tests exist. This is a verification-only task with no code changes needed.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 0,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "All required files already exist and contain full implementation: DiffViewDialog.tsx (UI), worktree-handlers.ts (IPC handler), task-api.ts (preload), ipc.ts (constants), task.ts (types), and DiffViewDialog.test.tsx (tests)."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Uses existing git commands (git checkout baseBranch -- filepath) - already implemented in worktree-handlers.ts at lines 653-732."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "No infrastructure changes needed - feature uses existing git worktree architecture."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "All patterns already established. The IPC channel TASK_WORKTREE_DISCARD_FILE is fully wired from UI → preload → main → git."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [],
+      "notes": "Feature is complete with proper error handling, confirmation dialogs, loading states, and comprehensive test coverage."
+    }
+  },
+
+  "existing_implementation": {
+    "status": "complete",
+    "components": {
+      "frontend_ui": {
+        "file": "apps/frontend/src/renderer/components/task-detail/task-review/DiffViewDialog.tsx",
+        "lines": "1-228",
+        "features": [
+          "Per-file discard button (Trash2 icon) on each file row (line 140-149)",
+          "Confirmation dialog before discarding (lines 167-196)",
+          "Success feedback message with auto-dismiss after 3 seconds (lines 99-106)",
+          "Error dialog for failed operations (lines 199-225)",
+          "Loading state (isDiscarding) to prevent race conditions (lines 41, 58, 81, 146)"
+        ]
+      },
+      "ipc_constants": {
+        "file": "apps/frontend/src/shared/constants/ipc.ts",
+        "line": 40,
+        "value": "TASK_WORKTREE_DISCARD_FILE: 'task:worktreeDiscardFile'"
+      },
+      "ipc_handler": {
+        "file": "apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts",
+        "lines": "653-732",
+        "channel": "TASK_WORKTREE_DISCARD_FILE",
+        "implementation": "Uses git checkout <baseBranch> -- <filePath> to restore individual files in worktree"
+      },
+      "preload_api": {
+        "file": "apps/frontend/src/preload/api/task-api.ts",
+        "lines": "145-146",
+        "function": "discardWorktreeFile(taskId, filePath)"
+      },
+      "types": {
+        "file": "apps/frontend/src/shared/types/task.ts",
+        "interface": "WorktreeFileDiscardResult",
+        "properties": ["success", "discarded", "file", "message", "projectPath"]
+      },
+      "type_declarations": {
+        "file": "apps/frontend/src/shared/types/ipc.ts",
+        "line": 155,
+        "declaration": "discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<WorktreeFileDiscardResult>>"
+      },
+      "tests": {
+        "file": "apps/frontend/src/renderer/components/task-detail/task-review/__tests__/DiffViewDialog.test.tsx",
+        "lines": "1-639",
+        "test_suites": [
+          "Confirmation Dialog Cancel Behavior",
+          "Confirmation Dialog State Management",
+          "Discard Button Behavior",
+          "Confirm Discard Behavior",
+          "File List Rendering",
+          "Edge Case: Discard Last File"
+        ]
+      }
+    }
+  },
+
+  "recommended_phases": [
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false,
+    "feature_already_exists": true
+  },
+
+  "validation_recommendations": {
+    "risk_level": "trivial",
+    "skip_validation": true,
+    "minimal_mode": true,
+    "test_types_required": [],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Feature is already fully implemented with comprehensive tests (639 lines). Existing tests cover: cancel behavior, confirm behavior, state management, file rendering, and edge cases (last file discard). No new code changes required."
+  },
+
+  "recommendation": "This task is ALREADY COMPLETE. The implementation includes: (1) Trash2 discard button on each file in DiffViewDialog, (2) Confirmation dialog before destructive action, (3) IPC handler using git checkout to restore files, (4) Success/error feedback, (5) Comprehensive test coverage. Recommend closing this task as already implemented, or clarifying what additional functionality is needed beyond the existing implementation.",
+
+  "verification_commands": [
+    "npm run test -- apps/frontend/src/renderer/components/task-detail/task-review/__tests__/DiffViewDialog.test.tsx",
+    "Manual: Open a task with a worktree, click 'View Diff', click trash icon on a file, confirm discard"
+  ],
+
+  "created_at": "2025-06-27T12:30:00.000Z"
+}

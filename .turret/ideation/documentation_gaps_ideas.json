@@ -1,0 +1,104 @@
+{
+  "documentation_gaps": [
+    {
+      "id": "doc-001",
+      "type": "documentation_gaps",
+      "title": "Add API documentation for agent modules",
+      "description": "The apps/backend/agents/ module exports key classes (Planner, Coder, AgentSession) with minimal docstrings. Functions like run_agent_session(), create_client() and the agent lifecycle methods lack comprehensive documentation including parameters, return values, exceptions, and usage examples.",
+      "rationale": "The agents/ module is the core of Turret's autonomous coding capability. Contributors need to understand agent lifecycle, session management, and how to extend agents. Currently developers must read source code to understand the API.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "apps/backend/agents/session.py",
+        "apps/backend/agents/coder.py",
+        "apps/backend/agents/planner.py",
+        "apps/backend/core/client.py"
+      ],
+      "currentDocumentation": "Module-level docstrings exist but function-level documentation is sparse. Only run_followup_planner() has comprehensive docstrings.",
+      "proposedContent": "Add Google-style docstrings for all public functions including: parameters with types and descriptions, return types and meaning, exceptions raised, and usage examples. Create agents/README.md with architecture overview.",
+      "priority": "high",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-002",
+      "type": "documentation_gaps",
+      "title": "Create architecture diagrams for data flow",
+      "description": "The project lacks visual architecture documentation showing how data flows between components: Frontend (Electron) → IPC → Backend (Python) → Claude Agent SDK → Memory/Graphiti. The CLAUDE.md has text-based structure but no diagrams.",
+      "rationale": "New contributors struggle to understand the overall system architecture. Visual diagrams would accelerate onboarding and help developers understand where their changes fit in the broader system.",
+      "category": "architecture",
+      "targetAudience": "contributors",
+      "affectedAreas": [
+        "CLAUDE.md",
+        "apps/backend/README.md",
+        "apps/frontend/README.md"
+      ],
+      "currentDocumentation": "CLAUDE.md has text descriptions and folder structure. No visual diagrams exist for component interactions, data flow, or agent lifecycle.",
+      "proposedContent": "Create Mermaid diagrams for: 1) High-level system architecture, 2) Agent execution pipeline (spec → plan → code → QA), 3) IPC communication between Electron and Python, 4) Memory/Graphiti integration flow. Add to CLAUDE.md or new docs/ARCHITECTURE.md.",
+      "priority": "high",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-003",
+      "type": "documentation_gaps",
+      "title": "Add Graphiti memory integration guide",
+      "description": "The Graphiti/LadybugDB memory system in apps/backend/integrations/graphiti/ lacks user-facing documentation. Configuration options (GRAPHITI_ENABLED, provider selection), usage patterns, and troubleshooting are undocumented.",
+      "rationale": "Memory Layer is a key feature listed in README but users don't know how to enable, configure, or troubleshoot it. The env.example mentions it but lacks context on provider options (OpenAI, Anthropic, Azure, Ollama, Google AI).",
+      "category": "examples",
+      "targetAudience": "users",
+      "affectedAreas": [
+        "apps/backend/integrations/graphiti/",
+        "apps/backend/.env.example",
+        "guides/CLI-USAGE.md"
+      ],
+      "currentDocumentation": "Only CLAUDE.md mentions Graphiti configuration briefly. No end-user guide for setup, provider configuration, or memory inspection.",
+      "proposedContent": "Create guides/MEMORY-LAYER.md covering: 1) What the Memory Layer does, 2) Provider configuration (with examples for each), 3) Environment variables explained, 4) How agents use memory, 5) Viewing/clearing memory data, 6) Troubleshooting common issues.",
+      "priority": "medium",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-004",
+      "type": "documentation_gaps",
+      "title": "Document frontend IPC handler API",
+      "description": "The apps/frontend/src/main/ipc-handlers/ directory contains 20+ handler modules that define the Electron-to-Python communication API. These handlers have minimal JSDoc comments and no centralized API reference.",
+      "rationale": "Frontend developers adding new features need to understand available IPC channels and their payloads. Currently they must search through handler files to discover available operations.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "apps/frontend/src/main/ipc-handlers/index.ts",
+        "apps/frontend/src/main/ipc-handlers/task/",
+        "apps/frontend/src/main/ipc-handlers/github/",
+        "apps/frontend/src/main/ipc-handlers/ideation/"
+      ],
+      "currentDocumentation": "Individual README files exist in some subdirectories (github/, task/) but lack consistent API documentation. No unified reference for all IPC channels.",
+      "proposedContent": "Add JSDoc to each handler function with @param, @returns, and @example. Create apps/frontend/src/main/ipc-handlers/API.md documenting all IPC channels, payloads, and response formats in a searchable table.",
+      "priority": "medium",
+      "estimatedEffort": "high"
+    },
+    {
+      "id": "doc-005",
+      "type": "documentation_gaps",
+      "title": "Add troubleshooting guide for common agent failures",
+      "description": "The README has basic troubleshooting for installation issues, but lacks documentation for runtime agent failures: rate limits, stuck subtasks, QA loop failures, memory errors, and worktree conflicts.",
+      "rationale": "Users encounter agent runtime issues but have no guidance on diagnosing or resolving them. Discord support shows recurring questions about rate limits, failed builds, and stuck QA loops that could be addressed by documentation.",
+      "category": "troubleshooting",
+      "targetAudience": "users",
+      "affectedAreas": [
+        "README.md",
+        "guides/CLI-USAGE.md"
+      ],
+      "currentDocumentation": "README troubleshooting covers installation only. No runtime debugging guidance exists.",
+      "proposedContent": "Create guides/TROUBLESHOOTING.md with sections: 1) Rate limit handling and auto-recovery, 2) Debugging stuck subtasks (PAUSE file, HUMAN_INPUT.md), 3) QA loop not approving (common criteria issues), 4) Worktree conflicts resolution, 5) Memory/Graphiti connection issues, 6) Reading debug logs (DEBUG=true DEBUG_LEVEL=2).",
+      "priority": "high",
+      "estimatedEffort": "low"
+    }
+  ],
+  "metadata": {
+    "filesAnalyzed": 156,
+    "documentedFunctions": 45,
+    "undocumentedFunctions": 120,
+    "readmeLastUpdated": "2024-12-26",
+    "existingDocFiles": 78,
+    "docCoverageEstimate": "38%",
+    "generatedAt": "2025-12-26T19:11:17.000Z"
+  }
+}

@@ -74,7 +74,7 @@ interface MemoryConfig {
 export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
   const { settings, updateSettings } = useSettingsStore();
   const [config, setConfig] = useState<MemoryConfig>({
-    database: 'auto_claude_memory',
+    database: 'turret_memory',
     embeddingProvider: 'ollama',
     openaiApiKey: settings.globalOpenAIApiKey || '',
     azureOpenaiApiKey: '',
@@ -455,7 +455,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
                   Memory Database
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Stored in ~/.auto-claude/memories/
+                  Stored in ~/.turret/memories/
                 </p>
               </div>
               {kuzuAvailable && (

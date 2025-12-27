@@ -30,7 +30,7 @@ export async function extractTarball(tarballPath: string, destPath: string): Pro
         const psScript = `
           $tarball = "${tarballPath.replace(/\\/g, '\\\\')}"
           $dest = "${destPath.replace(/\\/g, '\\\\')}"
-          $tempTar = Join-Path $env:TEMP "auto-claude-update.tar"
+          $tempTar = Join-Path $env:TEMP "turret-update.tar"
 
           # Decompress gzip
           $gzipStream = [System.IO.File]::OpenRead($tarball)

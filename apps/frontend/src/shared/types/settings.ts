@@ -7,7 +7,7 @@ import type { ChangelogFormat, ChangelogAudience, ChangelogEmojiLevel } from './
 import type { SupportedLanguage } from '../constants/i18n';
 
 // Color theme types for multi-theme support
-export type ColorTheme = 'default' | 'dusk' | 'lime' | 'ocean' | 'retro' | 'neo' | 'forest' | 'pastel' | 'subtle' | 'mono' | 'midnight' | 'warm' | 'cherry' | 'amber' | 'mint' | 'lavender' | 'slate' | 'sunset';
+export type ColorTheme = 'default' | 'dusk' | 'steel' | 'ocean' | 'stone' | 'moss' | 'frost' | 'ash' | 'subtle' | 'mono' | 'midnight' | 'sand' | 'slate' | 'charcoal' | 'sage' | 'ink' | 'pearl' | 'graphite';
 
 export interface ThemePreviewColors {
   bg: string;
@@ -166,7 +166,7 @@ export interface TaskExecutionPromptConfig {
   qaInstructions?: string;
 }
 
-// Auto-Claude Source Environment Configuration (for auto-claude repo .env)
+// Turret Source Environment Configuration (for turret repo .env)
 export interface SourceEnvConfig {
   // Claude Authentication (required for ideation, roadmap generation, etc.)
   hasClaudeToken: boolean;

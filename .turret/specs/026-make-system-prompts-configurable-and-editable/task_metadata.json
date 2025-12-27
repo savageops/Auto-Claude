@@ -1,0 +1,11 @@
+{
+  "sourceType": "insights",
+  "category": "infrastructure",
+  "complexity": "complex",
+  "impact": "critical",
+  "priority": "high",
+  "model": "opus",
+  "thinkingLevel": "ultrathink",
+  "isAutoProfile": false,
+  "requireReviewBeforeCoding": true
+}

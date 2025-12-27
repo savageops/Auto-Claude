@@ -1,0 +1,79 @@
+{
+  "spec_name": "move-refine-with-ai-button-to-icon",
+  "workflow_type": "simple",
+  "total_phases": 1,
+  "recommended_workers": 1,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Implementation",
+      "description": "Move Refine with AI button to icon-only next to Description label",
+      "depends_on": [],
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Relocate Refine with AI button: remove from below textarea, add as icon-only button next to Description label, update styling to ghost/minimal",
+          "service": "frontend",
+          "status": "completed",
+          "files_to_create": [],
+          "files_to_modify": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+          ],
+          "patterns_from": [],
+          "verification": {
+            "type": "manual",
+            "run": "Open task creation dialog and verify Sparkles icon appears next to Description label, triggers AI refinement on click"
+          },
+          "notes": "Added Refine with AI icon-only button next to Description label. Button uses ghost variant, shows Sparkles icon, and displays loading spinner when refining. Includes placeholder handler for future API integration.",
+          "updated_at": "2025-12-26T18:31:50.622515+00:00"
+        }
+      ]
+    }
+  ],
+  "qa_signoff": {
+    "status": "approved",
+    "qa_session": 0,
+    "issues_found": [
+      {
+        "description": "None - all requirements met"
+      }
+    ],
+    "tests_passed": {},
+    "timestamp": "2025-12-26T18:37:30.158744+00:00",
+    "ready_for_qa_revalidation": false
+  },
+  "metadata": {
+    "created_at": "2025-01-06T10:00:00Z",
+    "complexity": "simple",
+    "estimated_sessions": 1
+  },
+  "status": "done",
+  "planStatus": "completed",
+  "updated_at": "2025-12-26T19:36:06.940Z",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-26T18:26:29.386Z",
+  "last_updated": "2025-12-26T18:37:30.158744+00:00",
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-26T18:37:44.162959+00:00",
+      "issues": [],
+      "duration_seconds": 408.94
+    },
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-26T18:37:59.254427+00:00",
+      "issues": [],
+      "duration_seconds": 327.44
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 2,
+    "last_iteration": 1,
+    "last_status": "approved",
+    "issues_by_type": {}
+  },
+  "stagedAt": "2025-12-26T18:38:06.589Z",
+  "stagedInMainProject": true
+}

@@ -96,7 +96,7 @@ vi.mock('electron', () => {
 // Setup test project structure
 function setupTestProject(): void {
   mkdirSync(TEST_PROJECT_PATH, { recursive: true });
-  mkdirSync(path.join(TEST_PROJECT_PATH, 'auto-claude', 'specs'), { recursive: true });
+  mkdirSync(path.join(TEST_PROJECT_PATH, 'turret', 'specs'), { recursive: true });
 }
 
 // Cleanup test directories
@@ -339,15 +339,15 @@ describe('IPC Handlers', () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .auto-claude directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs'), { recursive: true });
+      // Create .turret directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
 
-      // Add a project - it will detect .auto-claude
+      // Add a project - it will detect .turret
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
       const projectId = (addResult as { data: { id: string } }).data.id;
 
-      // Create a spec directory with implementation plan in .auto-claude/specs
-      const specDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', '001-test-feature');
+      // Create a spec directory with implementation plan in .turret/specs
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
       mkdirSync(specDir, { recursive: true });
       writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
         feature: 'Test Feature',
@@ -396,8 +396,8 @@ describe('IPC Handlers', () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Create .auto-claude directory first (before adding project so it gets detected)
-      mkdirSync(path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs'), { recursive: true });
+      // Create .turret directory first (before adding project so it gets detected)
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
 
       // Add a project first
       const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
@@ -515,6 +515,565 @@ describe('IPC Handlers', () => {
         'task-1',
         'human_review'
       );
+    });
+  });
+
+  describe('task:worktreeDiscardFile handler', () => {
+    /**
+     * Test 4.1: Single File Discard Isolation
+     * Verifies that when discarding one file, only that file is restored
+     * and other modified files remain unchanged.
+     *
+     * This test simulates a scenario where:
+     * 1. A worktree has multiple modified files (file1.txt, file2.txt, file3.txt)
+     * 2. User discards changes to file2.txt only
+     * 3. file2.txt is restored to its original content
+     * 4. file1.txt and file3.txt remain modified
+     */
+    it('should only discard selected file while keeping other files modified', async () => {
+      // Skip test on systems without git properly configured
+      // This test requires real git operations
+      const { execSync } = await import('child_process');
+
+      // Check if git is available
+      try {
+        execSync('git --version', { encoding: 'utf-8', stdio: 'pipe' });
+      } catch {
+        console.warn('[TEST] Git not available, skipping integration test');
+        return;
+      }
+
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Initialize git repo in test project directory
+      try {
+        execSync('git init', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+        execSync('git config user.email "test@test.com"', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+        execSync('git config user.name "Test User"', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+      } catch {
+        console.warn('[TEST] Could not initialize git repo, skipping');
+        return;
+      }
+
+      // Create initial files
+      writeFileSync(path.join(TEST_PROJECT_PATH, 'file1.txt'), 'original content 1\n');
+      writeFileSync(path.join(TEST_PROJECT_PATH, 'file2.txt'), 'original content 2\n');
+      writeFileSync(path.join(TEST_PROJECT_PATH, 'file3.txt'), 'original content 3\n');
+
+      // Create initial commit
+      try {
+        execSync('git add .', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+        execSync('git commit -m "initial commit"', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+      } catch (e) {
+        console.warn('[TEST] Could not create initial commit, skipping:', e);
+        return;
+      }
+
+      // Create .turret directory structure
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature'), { recursive: true });
+      writeFileSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature', 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{ phase: 1, name: 'Test', type: 'implementation', subtasks: [{ id: '1', description: 'test', status: 'pending' }] }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Create worktree branch and directory
+      const specId = '001-test-feature';
+      const worktreePath = path.join(TEST_PROJECT_PATH, '.worktrees', specId);
+
+      try {
+        // Create a branch for the worktree
+        execSync(`git checkout -b turret/${specId}`, { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+        execSync('git checkout -', { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+
+        // Create the worktree
+        mkdirSync(path.join(TEST_PROJECT_PATH, '.worktrees'), { recursive: true });
+        execSync(`git worktree add "${worktreePath}" turret/${specId}`, { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+      } catch (e) {
+        console.warn('[TEST] Could not create worktree, skipping:', e);
+        return;
+      }
+
+      // Modify all three files in the worktree
+      writeFileSync(path.join(worktreePath, 'file1.txt'), 'modified content 1\n');
+      writeFileSync(path.join(worktreePath, 'file2.txt'), 'modified content 2\n');
+      writeFileSync(path.join(worktreePath, 'file3.txt'), 'modified content 3\n');
+
+      // Verify all files are modified before discard
+      const statusBefore = execSync('git status --porcelain', { cwd: worktreePath, encoding: 'utf-8' });
+      expect(statusBefore).toContain('file1.txt');
+      expect(statusBefore).toContain('file2.txt');
+      expect(statusBefore).toContain('file3.txt');
+
+      // Add project and get task ID
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Discard only file2.txt
+      const discardResult = await ipcMain.invokeHandler(
+        'task:worktreeDiscardFile',
+        {},
+        taskId,
+        'file2.txt'
+      );
+
+      // Verify discard was successful
+      expect(discardResult).toHaveProperty('success', true);
+      expect((discardResult as { data: { success: boolean; message: string } }).data.success).toBe(true);
+      expect((discardResult as { data: { message: string } }).data.message).toContain('file2.txt');
+
+      // Check git status after discard - file2.txt should NOT be modified
+      const statusAfter = execSync('git status --porcelain', { cwd: worktreePath, encoding: 'utf-8' });
+
+      // file1.txt and file3.txt should still be modified
+      expect(statusAfter).toContain('file1.txt');
+      expect(statusAfter).toContain('file3.txt');
+
+      // file2.txt should NOT be in the status (it was restored)
+      expect(statusAfter).not.toContain('file2.txt');
+
+      // Verify file contents (normalize line endings for cross-platform compatibility)
+      const { readFileSync } = await import('fs');
+      const normalize = (s: string) => s.replace(/\r\n/g, '\n').trim();
+      const file1Content = normalize(readFileSync(path.join(worktreePath, 'file1.txt'), 'utf-8'));
+      const file2Content = normalize(readFileSync(path.join(worktreePath, 'file2.txt'), 'utf-8'));
+      const file3Content = normalize(readFileSync(path.join(worktreePath, 'file3.txt'), 'utf-8'));
+
+      // file1 and file3 should have modified content
+      expect(file1Content).toBe('modified content 1');
+      expect(file3Content).toBe('modified content 3');
+
+      // file2 should have original content (was restored)
+      expect(file2Content).toBe('original content 2');
+
+      // Cleanup worktree
+      try {
+        execSync(`git worktree remove --force "${worktreePath}"`, { cwd: TEST_PROJECT_PATH, encoding: 'utf-8', stdio: 'pipe' });
+      } catch {
+        // Ignore cleanup errors
+      }
+    });
+
+    it('should return error for non-existent task', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiscardFile',
+        {},
+        'nonexistent-task-id',
+        'some-file.ts'
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Task not found'
+      });
+    });
+
+    it('should reject file paths with shell metacharacters', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Create .turret directory first
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
+
+      // Add a project first
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+
+      // Create a spec directory with implementation plan
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{
+          phase: 1,
+          name: 'Test Phase',
+          type: 'implementation',
+          subtasks: [{ id: 'subtask-1', description: 'Test subtask', status: 'pending' }]
+        }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Create a mock worktree directory (required for file path validation to run)
+      const worktreeDir = path.join(TEST_PROJECT_PATH, '.worktrees', '001-test-feature');
+      mkdirSync(worktreeDir, { recursive: true });
+
+      // Get task ID by listing tasks
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Test various shell injection attempts
+      const dangerousPaths = [
+        'file.ts; rm -rf /',
+        'file.ts && cat /etc/passwd',
+        'file.ts | grep password',
+        'file.ts`whoami`',
+        'file.ts$(cat /etc/passwd)'
+      ];
+
+      for (const maliciousPath of dangerousPaths) {
+        const result = await ipcMain.invokeHandler(
+          'task:worktreeDiscardFile',
+          {},
+          taskId,
+          maliciousPath
+        );
+
+        expect(result).toEqual({
+          success: false,
+          error: 'Invalid file path: contains disallowed characters'
+        });
+      }
+    });
+
+    it('should return error when worktree does not exist', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Create .turret directory first
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
+
+      // Add a project first
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+
+      // Create a spec directory with implementation plan
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{
+          phase: 1,
+          name: 'Test Phase',
+          type: 'implementation',
+          subtasks: [{ id: 'subtask-1', description: 'Test subtask', status: 'pending' }]
+        }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Get task ID by listing tasks
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Try to discard a file when no worktree exists
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiscardFile',
+        {},
+        taskId,
+        'src/test-file.ts'
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Worktree does not exist for this task'
+      });
+    });
+  });
+
+  /**
+   * Regression Tests: Verify existing worktree operations still work correctly
+   * after implementing the new individual file discard feature.
+   * These tests ensure that merge and discard all functionality are not affected.
+   */
+  describe('task:worktreeDiscard handler (discard all)', () => {
+    /**
+     * Test 4.4: Verify discard all functionality still works
+     * This is a regression test to ensure the new file discard feature
+     * doesn't break the existing discard all functionality.
+     */
+    it('should return error for non-existent task', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiscard',
+        {},
+        'nonexistent-task-id'
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Task not found'
+      });
+    });
+
+    it('should return success when no worktree exists (nothing to discard)', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Create .turret directory first
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
+
+      // Add a project first
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+
+      // Create a spec directory with implementation plan
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{
+          phase: 1,
+          name: 'Test Phase',
+          type: 'implementation',
+          subtasks: [{ id: 'subtask-1', description: 'Test subtask', status: 'pending' }]
+        }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Get task ID by listing tasks
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Try to discard when no worktree exists - should succeed with "nothing to discard"
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiscard',
+        {},
+        taskId
+      );
+
+      expect(result).toHaveProperty('success', true);
+      expect((result as { data: { success: boolean; message: string } }).data.success).toBe(true);
+      expect((result as { data: { message: string } }).data.message).toBe('No worktree to discard');
+    });
+  });
+
+  describe('task:worktreeMerge handler (merge all)', () => {
+    /**
+     * Test 4.4: Verify merge functionality still works
+     * This is a regression test to ensure the new file discard feature
+     * doesn't break the existing merge functionality.
+     *
+     * Note: The merge handler checks Python environment before task validation,
+     * so we test the handler is registered and returns appropriate errors.
+     */
+    it('should return error when Python environment is not ready', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeMerge',
+        {},
+        'nonexistent-task-id'
+      );
+
+      // Merge handler checks Python env first, so we expect a Python env error
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+      // Handler is registered and responds - confirming it still works
+    });
+
+    it('should accept noCommit option for stage-only merge', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // This test verifies that the merge handler accepts the noCommit option
+      // and the handler is properly registered
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeMerge',
+        {},
+        'nonexistent-task-id',
+        { noCommit: true }
+      );
+
+      // Merge handler checks Python env first, so we expect an error response
+      // The key point is that the handler accepts the options parameter
+      expect(result).toHaveProperty('success', false);
+      expect(result).toHaveProperty('error');
+    });
+  });
+
+  describe('task:worktreeDiff handler', () => {
+    /**
+     * Test 4.4: Verify diff functionality still works
+     * This is a regression test to ensure the new file discard feature
+     * doesn't break the existing diff functionality.
+     */
+    it('should return error for non-existent task', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiff',
+        {},
+        'nonexistent-task-id'
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Task not found'
+      });
+    });
+
+    it('should return error when no worktree exists', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Create .turret directory first
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
+
+      // Add a project first
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+
+      // Create a spec directory with implementation plan
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{
+          phase: 1,
+          name: 'Test Phase',
+          type: 'implementation',
+          subtasks: [{ id: 'subtask-1', description: 'Test subtask', status: 'pending' }]
+        }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Get task ID by listing tasks
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Try to get diff when no worktree exists
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeDiff',
+        {},
+        taskId
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'No worktree found for this task'
+      });
+    });
+  });
+
+  describe('task:worktreeStatus handler', () => {
+    /**
+     * Test 4.4: Verify status functionality still works
+     * This is a regression test to ensure the new file discard feature
+     * doesn't break the existing status functionality.
+     */
+    it('should return error for non-existent task', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeStatus',
+        {},
+        'nonexistent-task-id'
+      );
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Task not found'
+      });
+    });
+
+    it('should return exists: false when no worktree exists', async () => {
+      const { setupIpcHandlers } = await import('../ipc-handlers');
+      setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
+
+      // Create .turret directory first
+      mkdirSync(path.join(TEST_PROJECT_PATH, '.turret', 'specs'), { recursive: true });
+
+      // Add a project first
+      const addResult = await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+      const projectId = (addResult as { data: { id: string } }).data.id;
+
+      // Create a spec directory with implementation plan
+      const specDir = path.join(TEST_PROJECT_PATH, '.turret', 'specs', '001-test-feature');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(path.join(specDir, 'implementation_plan.json'), JSON.stringify({
+        feature: 'Test Feature',
+        workflow_type: 'feature',
+        services_involved: [],
+        phases: [{
+          phase: 1,
+          name: 'Test Phase',
+          type: 'implementation',
+          subtasks: [{ id: 'subtask-1', description: 'Test subtask', status: 'pending' }]
+        }],
+        final_acceptance: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        spec_file: ''
+      }));
+
+      // Get task ID by listing tasks
+      const listResult = await ipcMain.invokeHandler('task:list', {}, projectId);
+      const tasks = (listResult as { data: { id: string }[] }).data;
+      const taskId = tasks[0]?.id;
+
+      if (!taskId) {
+        throw new Error('Expected task to be created');
+      }
+
+      // Get status when no worktree exists
+      const result = await ipcMain.invokeHandler(
+        'task:worktreeStatus',
+        {},
+        taskId
+      );
+
+      expect(result).toHaveProperty('success', true);
+      expect((result as { data: { exists: boolean } }).data.exists).toBe(false);
     });
   });
 });

@@ -49,7 +49,7 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto-claude">{t('general.agentFrameworkccTurret')}</SelectItem>
+                  <SelectItem value="turret">{t('general.agentFrameworkTurret')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -169,11 +169,11 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
           />
         </div>
         <div className="space-y-3">
-          <Label htmlFor="autoBuildPath" className="text-sm font-medium text-foreground">{t('general.ccTurretPath')}</Label>
-          <p className="text-sm text-muted-foreground">{t('general.ccTurretPathDescription')}</p>
+          <Label htmlFor="autoBuildPath" className="text-sm font-medium text-foreground">{t('general.turretPath')}</Label>
+          <p className="text-sm text-muted-foreground">{t('general.turretPathDescription')}</p>
           <Input
             id="autoBuildPath"
-            placeholder={t('general.ccTurretPathPlaceholder')}
+            placeholder={t('general.turretPathPlaceholder')}
             className="w-full max-w-lg"
             value={settings.autoBuildPath || ''}
             onChange={(e) => onSettingsChange({ ...settings, autoBuildPath: e.target.value })}

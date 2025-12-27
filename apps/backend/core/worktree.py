@@ -5,7 +5,7 @@ Git Worktree Manager - Per-Spec Architecture
 
 Each spec gets its own worktree:
 - Worktree path: .worktrees/{spec-name}/
-- Branch name: auto-claude/{spec-name}
+- Branch name: turret/{spec-name}
 
 This allows:
 1. Multiple specs to be worked on simultaneously
@@ -49,7 +49,7 @@ class WorktreeManager:
     Manages per-spec Git worktrees.
 
     Each spec gets its own worktree in .worktrees/{spec-name}/ with
-    a corresponding branch auto-claude/{spec-name}.
+    a corresponding branch turret/{spec-name}.
     """
 
     def __init__(self, project_dir: Path, base_branch: str | None = None):
@@ -139,10 +139,10 @@ class WorktreeManager:
     def _unstage_gitignored_files(self) -> None:
         """
         Unstage any staged files that are gitignored in the current branch,
-        plus any files in the .auto-claude directory which should never be merged.
+        plus any files in the .turret directory which should never be merged.
 
         This is needed after a --no-commit merge because files that exist in the
-        source branch (like spec files in .auto-claude/specs/) get staged even if
+        source branch (like spec files in .turret/specs/) get staged even if
         they're gitignored in the target branch.
         """
         # Get list of staged files
@@ -152,7 +152,7 @@ class WorktreeManager:
 
         staged_files = result.stdout.strip().split("\n")
 
-        # Files to unstage: gitignored files + .auto-claude directory files
+        # Files to unstage: gitignored files + .turret directory files
         files_to_unstage = set()
 
         # 1. Check which staged files are gitignored
@@ -172,21 +172,21 @@ class WorktreeManager:
                 if file.strip():
                     files_to_unstage.add(file.strip())
 
-        # 2. Always unstage .auto-claude directory files - these are project-specific
+        # 2. Always unstage .turret directory files - these are project-specific
         # and should never be merged from the worktree branch
-        auto_claude_patterns = [".auto-claude/", "auto-claude/specs/"]
+        turret_patterns = [".turret/", "turret/specs/"]
         for file in staged_files:
             file = file.strip()
             if not file:
                 continue
-            for pattern in auto_claude_patterns:
+            for pattern in turret_patterns:
                 if file.startswith(pattern) or f"/{pattern}" in file:
                     files_to_unstage.add(file)
                     break
 
         if files_to_unstage:
             print(
-                f"Unstaging {len(files_to_unstage)} auto-claude/gitignored file(s)..."
+                f"Unstaging {len(files_to_unstage)} turret/gitignored file(s)..."
             )
             # Unstage each file
             for file in files_to_unstage:
@@ -204,7 +204,7 @@ class WorktreeManager:
 
     def get_branch_name(self, spec_name: str) -> str:
         """Get the branch name for a spec."""
-        return f"auto-claude/{spec_name}"
+        return f"turret/{spec_name}"
 
     def worktree_exists(self, spec_name: str) -> bool:
         """Check if a worktree exists for a spec."""
@@ -237,19 +237,19 @@ class WorktreeManager:
 
     def _check_branch_namespace_conflict(self) -> str | None:
         """
-        Check if a branch named 'auto-claude' exists, which would block creating
-        branches in the 'auto-claude/*' namespace.
+        Check if a branch named 'turret' exists, which would block creating
+        branches in the 'turret/*' namespace.
 
         Git stores branch refs as files under .git/refs/heads/, so a branch named
-        'auto-claude' creates a file that prevents creating the 'auto-claude/'
-        directory needed for 'auto-claude/{spec-name}' branches.
+        'turret' creates a file that prevents creating the 'turret/'
+        directory needed for 'turret/{spec-name}' branches.
 
         Returns:
             The conflicting branch name if found, None otherwise.
         """
-        result = self._run_git(["rev-parse", "--verify", "auto-claude"])
+        result = self._run_git(["rev-parse", "--verify", "turret"])
         if result.returncode == 0:
-            return "auto-claude"
+            return "turret"
         return None
 
     def _get_worktree_stats(self, spec_name: str) -> dict:
@@ -307,14 +307,14 @@ class WorktreeManager:
         worktree_path = self.get_worktree_path(spec_name)
         branch_name = self.get_branch_name(spec_name)
 
-        # Check for branch namespace conflict (e.g., 'auto-claude' blocking 'auto-claude/*')
+        # Check for branch namespace conflict (e.g., 'turret' blocking 'turret/*')
         conflicting_branch = self._check_branch_namespace_conflict()
         if conflicting_branch:
             raise WorktreeError(
                 f"Branch '{conflicting_branch}' exists and blocks creating '{branch_name}'.\n"
                 f"\n"
-                f"Git branch names work like file paths - a branch named 'auto-claude' prevents\n"
-                f"creating branches under 'auto-claude/' (like 'auto-claude/{spec_name}').\n"
+                f"Git branch names work like file paths - a branch named 'turret' prevents\n"
+                f"creating branches under 'turret/' (like 'turret/{spec_name}').\n"
                 f"\n"
                 f"Fix: Rename the conflicting branch:\n"
                 f"  git branch -m {conflicting_branch} {conflicting_branch}-backup"
@@ -429,7 +429,7 @@ class WorktreeManager:
             # --no-commit stages the merge but doesn't create the commit
             merge_args.append("--no-commit")
         else:
-            merge_args.extend(["-m", f"auto-claude: Merge {info.branch}"])
+            merge_args.extend(["-m", f"turret: Merge {info.branch}"])
 
         result = self._run_git(merge_args)
 
@@ -490,8 +490,8 @@ class WorktreeManager:
         return worktrees
 
     def list_all_spec_branches(self) -> list[str]:
-        """List all auto-claude branches (even if worktree removed)."""
-        result = self._run_git(["branch", "--list", "auto-claude/*"])
+        """List all turret branches (even if worktree removed)."""
+        result = self._run_git(["branch", "--list", "turret/*"])
         if result.returncode != 0:
             return []
 
@@ -664,4 +664,4 @@ class WorktreeManager:
 
 
 # Keep STAGING_WORKTREE_NAME for backward compatibility in imports
-STAGING_WORKTREE_NAME = "auto-claude"
+STAGING_WORKTREE_NAME = "turret"

@@ -109,7 +109,7 @@ if (process.platform === 'darwin') {
 // Initialize the application
 app.whenReady().then(() => {
   // Set app user model id for Windows
-  electronApp.setAppUserModelId('com.ccturret.ui');
+  electronApp.setAppUserModelId('com.turret.ui');
 
   // Set dock icon on macOS
   if (process.platform === 'darwin') {
@@ -133,7 +133,7 @@ app.whenReady().then(() => {
   // Initialize agent manager
   agentManager = new AgentManager();
 
-  // Load settings and configure agent manager with Python and auto-claude paths
+  // Load settings and configure agent manager with Python and turret paths
   try {
     const settingsPath = join(app.getPath('userData'), 'settings.json');
     if (existsSync(settingsPath)) {

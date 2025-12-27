@@ -37,7 +37,7 @@ function debug(...args: unknown[]): void {
 }
 
 /**
- * Get the auto-claude source path (detects automatically)
+ * Get the turret source path (detects automatically)
  */
 function getAutoBuildSourcePath(): string | null {
   const possiblePaths = [
@@ -56,7 +56,7 @@ function getAutoBuildSourcePath(): string | null {
 }
 
 /**
- * Load environment variables from auto-claude .env file
+ * Load environment variables from turret .env file
  */
 function loadAutoBuildEnv(): Record<string, string> {
   const autoBuildSource = getAutoBuildSourcePath();
@@ -154,7 +154,7 @@ export function registerTaskRefinementHandlers(): void {
 
       const autoBuildSource = getAutoBuildSourcePath();
       if (!autoBuildSource) {
-        console.error('[TaskRefinement] Auto-claude source path not found');
+        console.error('[TaskRefinement] Turret source path not found');
         return {
           success: false,
           error: 'AI refinement service not available'

@@ -31,7 +31,7 @@ export function getEffectiveVersion(): string {
   if (app.isPackaged) {
     // Production: check userData override path
     metadataPaths.push(
-      path.join(app.getPath('userData'), 'auto-claude-source', '.update-metadata.json')
+      path.join(app.getPath('userData'), 'turret-source', '.update-metadata.json')
     );
   } else {
     // Development: check the actual source paths where updates are written

@@ -1,0 +1,5 @@
+feat(kanban): add accordion functionality to done column
+
+Add collapsible accordion behavior to tasks in the done column. Tasks are
+collapsed by default, showing only essential information to reduce visual
+clutter and improve board readability.

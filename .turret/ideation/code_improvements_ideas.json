@@ -1,0 +1,113 @@
+{
+  "code_improvements": [
+    {
+      "id": "ci-001",
+      "type": "code_improvements",
+      "title": "Add Search to PR List",
+      "description": "Add search and filter functionality to the GitHub Pull Requests list, allowing users to quickly find PRs by title, author, or branch name.",
+      "rationale": "The GitHub Issues list has comprehensive search/filter functionality (IssueListHeader with searchQuery, onSearchChange, filterState). The PRList component lacks this feature entirely despite handling similar list data. The useIssueFiltering hook pattern already exists and can be adapted for PRs.",
+      "builds_upon": ["GitHub Issues search (IssueListHeader.tsx)", "useIssueFiltering hook pattern"],
+      "estimated_effort": "trivial",
+      "affected_files": [
+        "apps/frontend/src/renderer/components/github-prs/components/PRList.tsx",
+        "apps/frontend/src/renderer/components/github-prs/hooks/useGitHubPRs.ts"
+      ],
+      "existing_patterns": [
+        "IssueListHeader.tsx search input implementation",
+        "useIssueFiltering.ts hook structure",
+        "filterIssuesBySearch utility pattern"
+      ],
+      "implementation_approach": "1. Create usePRFiltering hook based on existing useIssueFiltering pattern. 2. Add PRListHeader component mirroring IssueListHeader structure with search input. 3. Wire up filtering to PRList component. The search should filter by PR title, author.login, and headRefName fields.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:15:00.000Z"
+    },
+    {
+      "id": "ci-002",
+      "type": "code_improvements",
+      "title": "Consolidate Filtering Hooks into Generic useFiltering",
+      "description": "Create a generic useFiltering hook that can be used across GitHub Issues, Linear Issues, PRs, and other list components, reducing code duplication.",
+      "rationale": "Two nearly identical useIssueFiltering hooks exist - one in github-issues/hooks and one in linear-import/hooks. Both implement similar search/filter logic that could be abstracted into a shared generic hook.",
+      "builds_upon": ["github-issues/hooks/useIssueFiltering.ts", "linear-import/hooks/useIssueFiltering.ts"],
+      "estimated_effort": "small",
+      "affected_files": [
+        "apps/frontend/src/renderer/hooks/useFiltering.ts (new)",
+        "apps/frontend/src/renderer/hooks/index.ts",
+        "apps/frontend/src/renderer/components/github-issues/hooks/useIssueFiltering.ts",
+        "apps/frontend/src/renderer/components/linear-import/hooks/useIssueFiltering.ts"
+      ],
+      "existing_patterns": [
+        "useIssueFiltering pattern with useMemo",
+        "Generics pattern used in types/common.ts"
+      ],
+      "implementation_approach": "1. Create generic useFiltering<T> hook in renderer/hooks/ that accepts items, searchQuery, and a searchFn predicate. 2. Refactor both useIssueFiltering hooks to use the new generic hook with domain-specific search predicates. 3. Export from hooks/index.ts for shared access.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:15:00.000Z"
+    },
+    {
+      "id": "ci-003",
+      "type": "code_improvements",
+      "title": "Add Keyboard Shortcuts to Ideation Panel",
+      "description": "Add keyboard shortcuts for common ideation actions: dismiss (D), convert to task (C), archive (A), select all (Ctrl+A), and refresh (R).",
+      "rationale": "Keyboard shortcuts pattern exists in TaskEditDialog.tsx (Ctrl+Enter for submit) and App.tsx. The Ideation panel has frequent user actions (dismiss, convert, archive) that would benefit from keyboard acceleration. The store already has all the action methods.",
+      "builds_upon": ["TaskEditDialog keyboard handling", "ideation-store actions (dismissIdea, archiveIdea)"],
+      "estimated_effort": "small",
+      "affected_files": [
+        "apps/frontend/src/renderer/components/ideation/Ideation.tsx",
+        "apps/frontend/src/renderer/components/ideation/IdeaCard.tsx"
+      ],
+      "existing_patterns": [
+        "onKeyDown event handling in TaskEditDialog",
+        "Keyboard shortcut registration pattern in App.tsx"
+      ],
+      "implementation_approach": "1. Add useEffect with keydown listener in Ideation.tsx for global shortcuts (R to refresh). 2. Add onKeyDown to IdeaCard for item-level shortcuts when focused (D to dismiss, C to convert, A to archive). 3. Show shortcuts in tooltips using existing Tooltip component pattern.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:15:00.000Z"
+    },
+    {
+      "id": "ci-004",
+      "type": "code_improvements",
+      "title": "Create Shared GenericEmptyState Component",
+      "description": "Extract the EmptyState pattern from github-issues into a shared, reusable component that other features can use for consistent empty state UI.",
+      "rationale": "EmptyState component in github-issues/components/EmptyStates.tsx is well-designed with props for icon, message, and searchQuery handling. IdeationEmptyState and RoadmapEmptyState implement similar patterns separately. A shared component would ensure consistency and reduce duplication.",
+      "builds_upon": ["github-issues EmptyStates.tsx pattern", "IdeationEmptyState.tsx", "RoadmapEmptyState.tsx"],
+      "estimated_effort": "small",
+      "affected_files": [
+        "apps/frontend/src/renderer/components/ui/empty-state.tsx (new)",
+        "apps/frontend/src/renderer/components/github-issues/components/EmptyStates.tsx",
+        "apps/frontend/src/renderer/components/ideation/IdeationEmptyState.tsx",
+        "apps/frontend/src/renderer/components/roadmap/RoadmapEmptyState.tsx"
+      ],
+      "existing_patterns": [
+        "EmptyState component structure with icon, message props",
+        "UI component pattern in components/ui/"
+      ],
+      "implementation_approach": "1. Create GenericEmptyState in components/ui/empty-state.tsx with props: icon, title, description, searchQuery, actionButton. 2. Migrate github-issues EmptyState to use this shared component. 3. Refactor IdeationEmptyState and RoadmapEmptyState to use GenericEmptyState, passing domain-specific content.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:15:00.000Z"
+    },
+    {
+      "id": "ci-005",
+      "type": "code_improvements",
+      "title": "Add Export to Markdown for Changelog Entries",
+      "description": "Add ability to export changelog entries to a CHANGELOG.md file in the project root, formatted according to Keep a Changelog standard.",
+      "rationale": "The changelog system has comprehensive formatter (formatter.ts), parser (parser.ts), and generator infrastructure but no export-to-file capability. The formatter already produces markdown-compatible output. This builds on existing changelog patterns to complete the workflow.",
+      "builds_upon": ["changelog/formatter.ts", "changelog/generator.ts", "changelog-service.ts"],
+      "estimated_effort": "medium",
+      "affected_files": [
+        "apps/frontend/src/main/changelog/exporter.ts (new)",
+        "apps/frontend/src/main/changelog/index.ts",
+        "apps/frontend/src/main/ipc-handlers/changelog-handlers.ts",
+        "apps/frontend/src/renderer/components/changelog/ChangelogHeader.tsx",
+        "apps/frontend/src/preload/api/index.ts"
+      ],
+      "existing_patterns": [
+        "changelog/formatter.ts formatting functions",
+        "fs-utils.ts file writing patterns",
+        "IPC handler registration pattern"
+      ],
+      "implementation_approach": "1. Create exporter.ts with exportToMarkdown(entries, projectPath) function using existing formatter. 2. Add exportChangelog IPC handler in changelog-handlers.ts. 3. Add export button to ChangelogHeader.tsx using existing Button component. 4. Write to {projectPath}/CHANGELOG.md with proper header and formatted entries.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:15:00.000Z"
+    }
+  ]
+}

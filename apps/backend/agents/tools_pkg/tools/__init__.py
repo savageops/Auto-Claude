@@ -1,5 +1,5 @@
 """
-Auto-Claude MCP Tools
+Turret MCP Tools
 =====================
 
 Individual tool implementations organized by functionality.

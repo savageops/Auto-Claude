@@ -2,7 +2,7 @@
 Tool Models and Constants
 ==========================
 
-Defines tool name constants and configuration for auto-claude MCP tools.
+Defines tool name constants and configuration for turret MCP tools.
 """
 
 import os
@@ -11,13 +11,13 @@ import os
 # Tool Name Constants
 # =============================================================================
 
-# Auto-Claude MCP tool names (prefixed with mcp__auto-claude__)
-TOOL_UPDATE_SUBTASK_STATUS = "mcp__auto-claude__update_subtask_status"
-TOOL_GET_BUILD_PROGRESS = "mcp__auto-claude__get_build_progress"
-TOOL_RECORD_DISCOVERY = "mcp__auto-claude__record_discovery"
-TOOL_RECORD_GOTCHA = "mcp__auto-claude__record_gotcha"
-TOOL_GET_SESSION_CONTEXT = "mcp__auto-claude__get_session_context"
-TOOL_UPDATE_QA_STATUS = "mcp__auto-claude__update_qa_status"
+# Turret MCP tool names (prefixed with mcp__turret__)
+TOOL_UPDATE_SUBTASK_STATUS = "mcp__turret__update_subtask_status"
+TOOL_GET_BUILD_PROGRESS = "mcp__turret__get_build_progress"
+TOOL_RECORD_DISCOVERY = "mcp__turret__record_discovery"
+TOOL_RECORD_GOTCHA = "mcp__turret__record_gotcha"
+TOOL_GET_SESSION_CONTEXT = "mcp__turret__get_session_context"
+TOOL_UPDATE_QA_STATUS = "mcp__turret__update_qa_status"
 
 # Puppeteer MCP tools for web browser automation
 # Used for web frontend validation (non-Electron web apps)

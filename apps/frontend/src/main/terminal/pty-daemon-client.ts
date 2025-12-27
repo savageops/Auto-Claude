@@ -12,8 +12,8 @@ import { app } from 'electron';
 
 const SOCKET_PATH =
   process.platform === 'win32'
-    ? `\\\\.\\pipe\\auto-claude-pty-${process.getuid?.() || 'default'}`
-    : `/tmp/auto-claude-pty-${process.getuid?.() || 'default'}.sock`;
+    ? `\\\\.\\pipe\\turret-pty-${process.getuid?.() || 'default'}`
+    : `/tmp/turret-pty-${process.getuid?.() || 'default'}.sock`;
 
 interface DaemonResponseData {
   exitCode?: number;

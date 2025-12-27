@@ -83,7 +83,7 @@ async def run_autonomous_agent(
 
     Args:
         project_dir: Root directory for the project
-        spec_dir: Directory containing the spec (auto-claude/specs/001-name/)
+        spec_dir: Directory containing the spec (turret/specs/001-name/)
         model: Claude model to use
         max_iterations: Maximum number of iterations (None for unlimited)
         verbose: Whether to show detailed output
@@ -203,7 +203,7 @@ async def run_autonomous_agent(
             print("\nTo resume, delete the PAUSE file:")
             print(f"  rm {pause_file}")
             print("\nThen run again:")
-            print(f"  python auto-claude/run.py --spec {spec_dir.name}")
+            print(f"  python turret/run.py --spec {spec_dir.name}")
             return
 
         # Check max iterations
@@ -469,14 +469,14 @@ async def run_autonomous_agent(
             bold(f"{icon(Icons.PLAY)} NEXT STEPS"),
             "",
             f"{total - completed} subtasks remaining.",
-            f"Run again: {highlight(f'python auto-claude/run.py --spec {spec_dir.name}')}",
+            f"Run again: {highlight(f'python turret/run.py --spec {spec_dir.name}')}",
         ]
     else:
         content = [
             bold(f"{icon(Icons.SUCCESS)} NEXT STEPS"),
             "",
             "All subtasks completed!",
-            "  1. Review the auto-claude/* branch",
+            "  1. Review the turret/* branch",
             "  2. Run manual tests",
             "  3. Merge to main",
         ]

@@ -252,7 +252,7 @@ export interface Task {
   updatedAt: Date;
 }
 
-// Implementation Plan (from auto-claude)
+// Implementation Plan (from turret)
 export interface ImplementationPlan {
   feature?: string;  // Some plans use 'feature', some use 'title'
   title?: string;    // Alternative to 'feature' for task name
@@ -397,6 +397,16 @@ export interface WorktreeMergeResult {
 export interface WorktreeDiscardResult {
   success: boolean;
   message: string;
+}
+
+/**
+ * Result of discarding a single file from a worktree using git restore
+ * Used by TASK_WORKTREE_DISCARD_FILE IPC handler
+ */
+export interface WorktreeFileDiscardResult {
+  success: boolean;
+  message: string;
+  error?: string;
 }
 
 /**

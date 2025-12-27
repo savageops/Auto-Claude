@@ -5,7 +5,7 @@ import type { IPCResult } from '../../shared/types';
 import path from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { AutoBuildSourceUpdateProgress, SourceEnvConfig, SourceEnvCheckResult } from '../../shared/types';
-import { checkForUpdates as checkSourceUpdates, downloadAndApplyUpdate, getBundledVersion, getEffectiveVersion, getEffectiveSourcePath } from '../auto-claude-updater';
+import { checkForUpdates as checkSourceUpdates, downloadAndApplyUpdate, getBundledVersion, getEffectiveVersion, getEffectiveSourcePath } from '../turret-updater';
 import { debugLog } from '../../shared/utils/debug-logger';
 
 
@@ -205,7 +205,7 @@ export function registerAutobuildSourceHandlers(
         if (!sourcePath) {
           return {
             success: false,
-            error: 'Auto-Claude source path not found. Please configure it in App Settings.'
+            error: 'Turret source path not found. Please configure it in App Settings.'
           };
         }
 
@@ -281,7 +281,7 @@ export function registerAutobuildSourceHandlers(
             data: {
               hasToken: false,
               sourcePath: undefined,
-              error: 'Auto-Claude source path not found'
+              error: 'Turret source path not found'
             }
           };
         }

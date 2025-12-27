@@ -971,7 +971,7 @@ ${issue.description || 'No description provided.'}
       headers: {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': `Bearer ${token}`,
-        'User-Agent': 'Auto-Claude-UI',
+        'User-Agent': 'Turret-UI',
         ...options.headers
       }
     });

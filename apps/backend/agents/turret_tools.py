@@ -1,11 +1,11 @@
 """
-Custom MCP Tools for Auto-Claude Agents
+Custom MCP Tools for Turret Agents
 ========================================
 
 DEPRECATED: This module is now a compatibility shim.
 Please import from the tools_pkg package instead:
 
-    from agents.tools_pkg import create_auto_claude_mcp_server, get_allowed_tools
+    from agents.tools_pkg import create_turret_mcp_server, get_allowed_tools
 
 This file remains for backward compatibility with existing imports.
 All functionality has been moved to the tools_pkg package for better
@@ -23,7 +23,7 @@ try:
         TOOL_RECORD_GOTCHA,
         TOOL_UPDATE_QA_STATUS,
         TOOL_UPDATE_SUBTASK_STATUS,
-        create_auto_claude_mcp_server,
+        create_turret_mcp_server,
         get_allowed_tools,
         is_electron_mcp_enabled,
         is_tools_available,
@@ -38,7 +38,7 @@ except ImportError:
         TOOL_RECORD_GOTCHA,
         TOOL_UPDATE_QA_STATUS,
         TOOL_UPDATE_SUBTASK_STATUS,
-        create_auto_claude_mcp_server,
+        create_turret_mcp_server,
         get_allowed_tools,
         is_electron_mcp_enabled,
         is_tools_available,
@@ -46,7 +46,7 @@ except ImportError:
 
 __all__ = [
     # Main API
-    "create_auto_claude_mcp_server",
+    "create_turret_mcp_server",
     "get_allowed_tools",
     "is_tools_available",
     # Tool name constants

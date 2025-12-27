@@ -2,7 +2,7 @@
 /**
  * SVG Icon Preprocessing Script
  *
- * This script processes Hugeicons Duotone SVG files for use in the Auto-Claude frontend:
+ * This script processes Hugeicons Duotone SVG files for use in the Turret frontend:
  * - Reads SVGs from the source directory (.refs/icons/hugeicons/Duotone/)
  * - Replaces hardcoded colors with CSS variables for theme compatibility
  * - Flattens category directories into a single output directory
@@ -28,7 +28,7 @@ const path = require('path');
 
 // Configuration
 // Path from apps/frontend/scripts/ to main repo's .refs/icons/hugeicons/Duotone/
-// Worktree structure: Auto-Claude/.worktrees/005-replace.../apps/frontend/scripts/
+// Worktree structure: Turret/.worktrees/005-replace.../apps/frontend/scripts/
 const SOURCE_DIR = path.resolve(__dirname, '../../../../../.refs/icons/hugeicons/Duotone');
 const DEST_DIR = path.resolve(__dirname, '../src/renderer/assets/icons');
 const DEFAULT_MAPPING_FILE = path.resolve(__dirname, 'icon-mapping.json');

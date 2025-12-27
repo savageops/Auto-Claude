@@ -112,7 +112,7 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
   const { settings, updateSettings } = useSettingsStore();
   const [config, setConfig] = useState<GraphitiConfig>({
     enabled: false,
-    database: 'auto_claude_memory',
+    database: 'turret_memory',
     dbPath: '',
     llmProvider: 'openai',
     embeddingProvider: 'openai',
@@ -243,7 +243,7 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
 
       const result = await window.electronAPI.testGraphitiConnection({
         dbPath: config.dbPath || undefined,
-        database: config.database || 'auto_claude_memory',
+        database: config.database || 'turret_memory',
         llmProvider: config.llmProvider,
         apiKey: apiKey.trim()
       });
@@ -914,12 +914,12 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
                           setConfig(prev => ({ ...prev, database: e.target.value }));
                           setValidationStatus(prev => ({ ...prev, database: null }));
                         }}
-                        placeholder="auto_claude_memory"
+                        placeholder="turret_memory"
                         className="font-mono text-sm"
                         disabled={isSaving || isValidating}
                       />
                       <p className="text-xs text-muted-foreground">
-                        Stored in ~/.auto-claude/graphs/
+                        Stored in ~/.turret/graphs/
                       </p>
                     </div>
 

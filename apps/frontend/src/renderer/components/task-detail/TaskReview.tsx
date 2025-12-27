@@ -39,6 +39,7 @@ interface TaskReviewProps {
   onStageOnlyChange: (value: boolean) => void;
   onShowConflictDialog: (show: boolean) => void;
   onLoadMergePreview: () => void;
+  onRefreshDiff: () => Promise<void>;
   onClose?: () => void;
 }
 
@@ -79,6 +80,7 @@ export function TaskReview({
   onStageOnlyChange,
   onShowConflictDialog,
   onLoadMergePreview,
+  onRefreshDiff,
   onClose
 }: TaskReviewProps) {
   return (
@@ -149,7 +151,9 @@ export function TaskReview({
       <DiffViewDialog
         open={showDiffDialog}
         worktreeDiff={worktreeDiff}
+        taskId={task.id}
         onOpenChange={onShowDiffDialog}
+        onRefreshDiff={onRefreshDiff}
       />
 
       {/* Conflict Details Dialog */}

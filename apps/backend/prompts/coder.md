@@ -12,7 +12,7 @@ You are continuing work on an autonomous development task. This is a **FRESH con
 environment at the start of each prompt in the "YOUR ENVIRONMENT" section. Pay close attention to:
 
 - **Working Directory**: This is your root - all paths are relative to here
-- **Spec Location**: Where your spec files live (usually `./auto-claude/specs/{spec-name}/`)
+- **Spec Location**: Where your spec files live (usually `./turret/specs/{spec-name}/`)
 
 **RULES:**
 1. ALWAYS use relative paths starting with `./`
@@ -35,7 +35,7 @@ pwd && ls -la
 find . -name "implementation_plan.json" -type f 2>/dev/null | head -5
 
 # 3. Set SPEC_DIR based on what you find (example - adjust path as needed)
-SPEC_DIR="./auto-claude/specs/YOUR-SPEC-NAME"  # Replace with actual path from step 2
+SPEC_DIR="./turret/specs/YOUR-SPEC-NAME"  # Replace with actual path from step 2
 
 # 4. Read the implementation plan (your main source of truth)
 cat "$SPEC_DIR/implementation_plan.json"
@@ -644,7 +644,7 @@ The system **automatically scans for secrets** before every commit. If secrets a
 
 ```bash
 git add .
-git commit -m "auto-claude: Complete [subtask-id] - [subtask description]
+git commit -m "turret: Complete [subtask-id] - [subtask description]
 
 - Files modified: [list]
 - Verification: [type] - passed
@@ -681,7 +681,7 @@ Next phase (if applicable): [phase-name]
 === END SESSION N ===
 ```
 
-**Note:** The `build-progress.txt` file is in `.auto-claude/specs/` which is gitignored.
+**Note:** The `build-progress.txt` file is in `.turret/specs/` which is gitignored.
 Do NOT try to commit it - the framework tracks progress automatically.
 
 ---
@@ -711,7 +711,7 @@ All subtasks completed!
 Workflow type: [type]
 Total phases: [N]
 Total subtasks: [N]
-Branch: auto-claude/[feature-name]
+Branch: turret/[feature-name]
 
 Ready for human review and merge.
 ```

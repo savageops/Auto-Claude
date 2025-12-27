@@ -61,7 +61,7 @@ class SpecOrchestrator:
         thinking_level: str = "medium",  # Thinking level for extended thinking
         complexity_override: str | None = None,  # Force a specific complexity
         use_ai_assessment: bool = True,  # Use AI for complexity assessment (vs heuristics)
-        dev_mode: bool = False,  # Dev mode: specs in gitignored folder, code changes to auto-claude/
+        dev_mode: bool = False,  # Dev mode: specs in gitignored folder, code changes to turret/
     ):
         """Initialize the spec orchestrator.
 
@@ -198,7 +198,7 @@ class SpecOrchestrator:
         This ensures QA agents receive accurate project capability information
         for dynamic MCP tool injection.
         """
-        index_file = self.project_dir / ".auto-claude" / "project_index.json"
+        index_file = self.project_dir / ".turret" / "project_index.json"
 
         if should_refresh_project_index(self.project_dir):
             if index_file.exists():
@@ -581,7 +581,7 @@ class SpecOrchestrator:
             The complexity assessment
         """
         project_index = {}
-        auto_build_index = self.project_dir / "auto-claude" / "project_index.json"
+        auto_build_index = self.project_dir / "turret" / "project_index.json"
         if auto_build_index.exists():
             with open(auto_build_index) as f:
                 project_index = json.load(f)

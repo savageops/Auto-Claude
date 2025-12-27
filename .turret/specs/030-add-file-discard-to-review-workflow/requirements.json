@@ -1,0 +1,4 @@
+{
+  "task_description": "Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.",
+  "workflow_type": "feature"
+}

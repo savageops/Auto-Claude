@@ -183,10 +183,10 @@ def handle_workspace_choice(
         print(muted("-" * 60))
         print()
         print("When you're done testing:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
         print("To discard (if you don't like it):")
-        print(muted(f"  python auto-claude/run.py --spec {spec_name} --discard"))
+        print(muted(f"  python turret/run.py --spec {spec_name} --discard"))
         print()
 
     elif choice == WorkspaceChoice.MERGE:
@@ -221,7 +221,7 @@ def handle_workspace_choice(
             print(highlight(f"  cd {staging_path}"))
         print()
         print("To add these changes to your project:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
 
     else:  # LATER
@@ -235,10 +235,10 @@ def handle_workspace_choice(
             print(highlight(f"  cd {project_dir}/.worktrees/{spec_name}"))
         print()
         print("When you're ready to add it:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
         print("To see what was built:")
-        print(muted(f"  python auto-claude/run.py --spec {spec_name} --review"))
+        print(muted(f"  python turret/run.py --spec {spec_name} --review"))
         print()
 
 
@@ -246,7 +246,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
     """
     Show what an existing build contains.
 
-    Called when user runs: python auto-claude/run.py --spec X --review
+    Called when user runs: python turret/run.py --spec X --review
 
     Args:
         project_dir: The project directory
@@ -262,7 +262,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
         print_status(f"No existing build found for '{spec_name}'.", "warning")
         print()
         print("To start a new build:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name}"))
+        print(highlight(f"  python turret/run.py --spec {spec_name}"))
         return False
 
     content = [
@@ -284,7 +284,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
     print(highlight(f"  cd {worktree_path}"))
     print()
     print("To add these changes to your project:")
-    print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+    print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
     print()
     print("To see full diff:")
     if worktree_info:
@@ -298,7 +298,7 @@ def discard_existing_build(project_dir: Path, spec_name: str) -> bool:
     """
     Discard an existing build (with confirmation).
 
-    Called when user runs: python auto-claude/run.py --spec X --discard
+    Called when user runs: python turret/run.py --spec X --discard
 
     Requires typing "delete" to confirm - prevents accidents.
 

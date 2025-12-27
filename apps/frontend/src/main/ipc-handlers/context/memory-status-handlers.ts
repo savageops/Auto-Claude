@@ -69,7 +69,7 @@ export function buildMemoryStatus(
     return {
       enabled: true,
       available: true,
-      database: memoryState.database || 'auto_claude_memory',
+      database: memoryState.database || 'turret_memory',
       dbPath: dbDetails.dbPath
     };
   }

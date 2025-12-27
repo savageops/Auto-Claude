@@ -1,0 +1,13 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-004",
+  "rationale": "Currently, when tasks or projects are loading, users see either blank content or a flash of empty state. Skeleton screens reduce perceived loading time and prevent layout shifts, creating a smoother experience.",
+  "category": "ui_ux",
+  "uiuxCategory": "performance",
+  "affectedFiles": [
+    "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+    "apps/frontend/src/renderer/components/WelcomeScreen.tsx"
+  ],
+  "problemSolved": "KanbanBoard shows empty column states immediately while tasks may still be loading. WelcomeScreen shows recent projects list without any loading indication when switching between views or on initial load."
+}

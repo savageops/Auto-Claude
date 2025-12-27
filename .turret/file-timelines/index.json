@@ -1,0 +1,13 @@
+{
+  "files": [
+    "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+    "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts",
+    "apps/frontend/src/shared/types/ipc.ts",
+    "apps/frontend/src/shared/constants/ipc.ts",
+    "apps/frontend/src/preload/api/task-api.ts",
+    "apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts",
+    "apps/frontend/src/renderer/components/task-detail/task-review/DiffViewDialog.tsx",
+    "apps/frontend/src/shared/types/task.ts"
+  ],
+  "last_updated": "2025-12-27T02:43:29.263381"
+}

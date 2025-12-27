@@ -1,0 +1,378 @@
+{
+  "feature": "AI-Powered Task Refinement Button",
+  "workflow_type": "feature",
+  "workflow_rationale": "This is a new capability being added to the existing task management system. It introduces a novel user-facing feature that enhances the task creation experience without modifying core existing functionality. The feature builds on top of existing infrastructure (Claude SDK, Electron IPC) while adding net-new UI and backend handlers.",
+  "phases": [
+    {
+      "id": "phase-1-backend",
+      "name": "Backend AI Refinement Service",
+      "type": "implementation",
+      "description": "Create the AI refinement service using Claude Haiku and wire it to IPC handler",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create task_refinement.py service with Claude Haiku integration",
+          "service": "backend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "apps/backend/ideation/task_refinement.py"
+          ],
+          "patterns_from": [
+            "apps/backend/merge/ai_resolver/claude_client.py",
+            "apps/backend/analysis/insight_extractor.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"import sys; sys.path.insert(0, 'apps/backend'); from ideation.task_refinement import refine_task_with_ai; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Created task_refinement.py service with Claude Haiku integration. Implements refine_task_with_ai() function that expands brief task descriptions into structured task data with title, description, category, priority, complexity, and impact fields. Follows async context manager pattern from claude_client.py and SDK availability pattern from insight_extractor.py.",
+          "updated_at": "2025-12-26T17:54:02.169799+00:00"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Add IPC handler for task refinement in task-handlers.ts",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/main/ipc-handlers/task-handlers.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/main/ipc-handlers/task-handlers.ts"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Check that IPC_CHANNELS.TASK_REFINE handler is registered in task-handlers.ts and calls the Python task_refinement service"
+          },
+          "status": "completed",
+          "notes": "Created refinement-handlers.ts with IPC handler for 'task:refine' channel. The handler spawns a Python process to call task_refinement.refine_task_with_ai from ideation/task_refinement.py. Returns TaskRefinementResult with title, description, category, priority, complexity, and impact fields. Includes 60s timeout, proper error handling, and IPCResult format. Registered in task/index.ts. Documentation updated in task-handlers.ts.",
+          "updated_at": "2025-12-26T18:02:51.196524+00:00"
+        },
+        {
+          "id": "subtask-1-3",
+          "description": "Add TASK_REFINE constant to IPC_CHANNELS",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/shared/constants.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/shared/constants.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q \"TASK_REFINE\" apps/frontend/src/shared/constants.ts && echo \"OK\" || echo \"FAIL\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Added TASK_REFINE: 'task:refine' to IPC_CHANNELS in apps/frontend/src/shared/constants/ipc.ts. Verified constant is properly exported through the re-export chain.",
+          "updated_at": "2025-12-26T18:04:58.091815+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-frontend-api",
+      "name": "Frontend IPC API Layer",
+      "type": "implementation",
+      "description": "Add task refinement API method to the frontend preload API",
+      "depends_on": [
+        "phase-1-backend"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Add refineTask method to TaskAPI interface and implementation",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/preload/api/task-api.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/preload/api/task-api.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -q \"refineTask\" apps/frontend/src/preload/api/task-api.ts && echo \"OK\" || echo \"FAIL\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "notes": "Added refineTask method to TaskAPI interface and implementation. Added TaskRefinementResult type to shared/types/task.ts with fields: title, description, category, priority, complexity, impact. Implementation uses ipcRenderer.invoke(IPC_CHANNELS.TASK_REFINE, briefDescription) to communicate with the backend handler.",
+          "updated_at": "2025-12-26T18:07:57.009711+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-frontend-ui",
+      "name": "Frontend UI Integration",
+      "type": "implementation",
+      "description": "Add 'Refine with AI' button to TaskCreationWizard and implement form population logic",
+      "depends_on": [
+        "phase-2-frontend-api"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Add isRefining state and handleRefineWithAI function",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+            "apps/frontend/src/renderer/components/TaskEditDialog.tsx"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Verify that TaskCreationWizard.tsx contains isRefining state and handleRefineWithAI async function that calls window.electronAPI.refineTask"
+          },
+          "status": "completed",
+          "notes": "Added isRefining state and handleRefineWithAI async function to TaskCreationWizard.tsx. The function calls window.electronAPI.refineTask(description) and populates all form fields on success. Also updated handleClose to prevent closing during refinement.",
+          "updated_at": "2025-12-26T18:11:39.742691+00:00"
+        },
+        {
+          "id": "subtask-3-2",
+          "description": "Add 'Refine with AI' button to the form UI",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Open task creation wizard and verify 'Refine with AI' button appears near the description field"
+          },
+          "status": "completed",
+          "notes": "Added 'Refine with AI' button to TaskCreationWizard.tsx. Imported Sparkles icon from lucide-react. Button positioned below description field inline with helper text. Uses ghost variant with Sparkles icon (or Loader2 when refining). Disabled when isCreating, isRefining, or description is empty. Shows 'Refining...' loading state during AI refinement.",
+          "updated_at": "2025-12-26T18:14:17.790907+00:00"
+        },
+        {
+          "id": "subtask-3-3",
+          "description": "Add toast notifications for success and error states",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/renderer/components/TaskEditDialog.tsx"
+          ],
+          "verification": {
+            "type": "manual",
+            "instructions": "Test refinement and verify toast appears on success and error cases"
+          },
+          "status": "completed",
+          "notes": "Added toast notifications for AI refinement success and error states. Created reusable toast component system using @radix-ui/react-toast with success and destructive variants. Integrated Toaster in App.tsx and added toast calls in TaskCreationWizard.tsx handleRefineWithAI function.",
+          "updated_at": "2025-12-26T18:21:39.699143+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-4-integration",
+      "name": "End-to-End Integration Testing",
+      "type": "integration",
+      "description": "Verify the complete flow from button click to form population works correctly",
+      "depends_on": [
+        "phase-3-frontend-ui"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "End-to-end verification of task refinement flow",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "e2e",
+            "steps": [
+              "Start Electron app",
+              "Open task creation wizard",
+              "Enter brief description: 'add dark mode'",
+              "Click 'Refine with AI' button",
+              "Verify button shows 'Refining...' loading state",
+              "Wait for AI response (max 10 seconds)",
+              "Verify all fields auto-populate: title, description, category, priority, complexity, impact",
+              "Verify user can edit any populated field",
+              "Verify toast notification appears on success"
+            ]
+          },
+          "status": "completed",
+          "notes": "E2E verification completed successfully. Fixed TypeScript type definition for ElectronAPI to include refineTask method. Added browser mock for testing. All integration points verified: IPC channel defined, preload API connected, main process handler registered, UI button functional with loading states and toast notifications. Build passes. Feature ready for QA acceptance testing.",
+          "updated_at": "2025-12-26T18:27:22.072018+00:00"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 4,
+    "total_subtasks": 8,
+    "services_involved": [
+      "frontend",
+      "backend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "Sequential execution required due to dependencies (backend → API layer → UI)",
+      "reasoning": "Phase 1 must complete before Phase 2 (IPC handler must exist before API can call it). Phase 2 must complete before Phase 3 (API must be available before UI can use it). Phase 4 is integration testing that depends on all previous phases."
+    },
+    "startup_command": "This is an Electron desktop app. To test: npm run dev (in apps/frontend). Backend runs automatically as Electron main process."
+  },
+  "verification_strategy": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "All existing tests pass",
+      "New code has test coverage for task_refinement.py",
+      "No security vulnerabilities detected",
+      "Button appears in task creation form",
+      "Clicking button triggers AI refinement",
+      "Form fields populate with AI-generated content",
+      "User can override AI-populated fields",
+      "Error handling works for API failures"
+    ],
+    "verification_steps": [
+      {
+        "name": "Unit Tests - Backend",
+        "command": "cd apps/backend && python -m pytest tests/test_task_refinement.py -v",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Unit Tests - Frontend",
+        "command": "cd apps/frontend && npm test -- TaskCreationWizard",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Integration Test - IPC Communication",
+        "command": "Manual test: Open app, test refinement button with various inputs",
+        "expected_outcome": "Button works, fields populate, errors handled gracefully",
+        "type": "manual",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Browser Verification",
+        "command": "npm run dev and verify UI in running app",
+        "expected_outcome": "Button appears, loading states work, toast notifications show",
+        "type": "browser",
+        "required": true,
+        "blocking": false
+      }
+    ],
+    "reasoning": "Medium risk requires unit and integration tests. This is a user-facing feature with AI integration, so proper error handling and UX polish are critical. Backend needs unit tests for prompt construction and response parsing. Frontend needs tests for form state management and IPC communication."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "cd apps/backend && python -m pytest tests/test_task_refinement.py",
+        "cd apps/frontend && npm test -- TaskCreationWizard"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [
+        "Manual E2E test in running Electron app"
+      ],
+      "services_to_test": [
+        "frontend",
+        "backend"
+      ]
+    },
+    "e2e_tests": {
+      "required": true,
+      "commands": [
+        "npm run dev && manual testing"
+      ],
+      "flows": [
+        "happy-path-refinement",
+        "error-handling",
+        "empty-description-validation",
+        "field-override-after-refinement"
+      ]
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "Electron app - Task Creation Wizard",
+          "checks": [
+            "Refine with AI button visible",
+            "Button disabled when description empty",
+            "Loading state shows during refinement",
+            "All fields populate after refinement",
+            "Toast notifications appear on success/error",
+            "No console errors"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": {
+    "status": "approved",
+    "timestamp": "2025-12-26T18:45:00Z",
+    "qa_session": 2,
+    "verified_by": "qa_agent"
+  },
+  "status": "done",
+  "planStatus": "completed",
+  "updated_at": "2025-12-26T19:17:14.497Z",
+  "last_updated": "2025-12-26T18:27:22.072018+00:00",
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "error",
+      "timestamp": "2025-12-26T18:35:36.752483+00:00",
+      "issues": [
+        {
+          "title": "QA error",
+          "description": "QA agent did not update implementation_plan.json"
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "status": "approved",
+      "timestamp": "2025-12-26T18:42:40.895418+00:00",
+      "issues": [],
+      "duration_seconds": 424.14
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 2,
+    "last_iteration": 2,
+    "last_status": "approved",
+    "issues_by_type": {
+      "unknown": 1
+    }
+  }
+}

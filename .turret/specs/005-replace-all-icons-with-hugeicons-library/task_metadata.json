@@ -1,0 +1,23 @@
+{
+  "sourceType": "manual",
+  "category": "ui_ux",
+  "priority": "urgent",
+  "complexity": "complex",
+  "impact": "low",
+  "model": "opus",
+  "thinkingLevel": "high",
+  "isAutoProfile": true,
+  "phaseModels": {
+    "spec": "opus",
+    "planning": "opus",
+    "coding": "opus",
+    "qa": "opus"
+  },
+  "phaseThinking": {
+    "spec": "ultrathink",
+    "planning": "high",
+    "coding": "low",
+    "qa": "low"
+  },
+  "archivedAt": "2025-12-26T20:39:02.124Z"
+}

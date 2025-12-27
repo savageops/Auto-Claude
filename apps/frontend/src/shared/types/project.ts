@@ -218,8 +218,8 @@ export interface GraphitiProviderConfig {
   ollamaEmbeddingDim?: number;
 
   // LadybugDB settings (embedded database - no Docker required)
-  database?: string;  // Database name (default: auto_claude_memory)
-  dbPath?: string;    // Database storage path (default: ~/.auto-claude/memories)
+  database?: string;  // Database name (default: turret_memory)
+  dbPath?: string;    // Database storage path (default: ~/.turret/memories)
 }
 
 export interface GraphitiProviderInfo {
@@ -311,7 +311,7 @@ export interface ProjectEnvConfig {
 // Turret Initialization Types
 export interface AutoBuildVersionInfo {
   isInitialized: boolean;
-  updateAvailable: boolean; // Always false - .auto-claude only contains data, no code to update
+  updateAvailable: boolean; // Always false - .turret only contains data, no code to update
 }
 
 export interface InitializationResult {

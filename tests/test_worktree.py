@@ -82,7 +82,7 @@ class TestWorktreeCreation:
         info = manager.create_worktree("test-spec")
 
         assert info.path.exists()
-        assert info.branch == "auto-claude/test-spec"
+        assert info.branch == "turret/test-spec"
         assert info.is_active is True
         assert (info.path / "README.md").exists()
 
@@ -93,7 +93,7 @@ class TestWorktreeCreation:
 
         info = manager.create_worktree("my-feature-spec")
 
-        assert info.branch == "auto-claude/my-feature-spec"
+        assert info.branch == "turret/my-feature-spec"
 
     def test_get_or_create_replaces_existing_worktree(self, temp_git_repo: Path):
         """get_or_create_worktree returns existing worktree."""
@@ -125,7 +125,7 @@ class TestStagingWorktree:
         assert info.path.exists()
         # Staging is now per-spec, worktree is named after spec
         assert info.path.name == "test-spec"
-        assert "auto-claude/test-spec" in info.branch
+        assert "turret/test-spec" in info.branch
 
     def test_get_or_create_staging_returns_existing(self, temp_git_repo: Path):
         """Returns existing staging worktree without recreating."""
@@ -375,7 +375,7 @@ class TestWorktreeUtilities:
         info = manager.get_worktree_info("test-spec")
 
         assert info is not None
-        assert info.branch == "auto-claude/test-spec"
+        assert info.branch == "turret/test-spec"
 
     def test_get_worktree_path(self, temp_git_repo: Path):
         """get_worktree_path returns correct path."""

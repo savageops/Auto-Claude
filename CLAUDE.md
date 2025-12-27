@@ -190,7 +190,7 @@ See [RELEASE.md](RELEASE.md) for detailed release process documentation.
 **Workspace & Security:**
 - **cli/worktree.py** - Git worktree isolation for safe feature development
 - **context/project_analyzer.py** - Project stack detection for dynamic tooling
-- **auto_claude_tools.py** - Custom MCP tools integration
+- **turret_tools.py** - Custom MCP tools integration
 
 **Integrations:**
 - **linear_updater.py** - Optional Linear integration for progress tracking
@@ -217,7 +217,7 @@ See [RELEASE.md](RELEASE.md) for detailed release process documentation.
 
 ### Spec Directory Structure
 
-Each spec in `.auto-claude/specs/XXX-name/` contains:
+Each spec in `.turret/specs/XXX-name/` contains:
 - `spec.md` - Feature specification
 - `requirements.json` - Structured user requirements
 - `context.json` - Discovered codebase context
@@ -231,11 +231,11 @@ Turret uses git worktrees for isolated builds. All branches stay LOCAL until use
 
 ```
 main (user's branch)
-└── auto-claude/{spec-name}  ← spec branch (isolated worktree)
+└── turret/{spec-name}  ← spec branch (isolated worktree)
 ```
 
 **Key principles:**
-- ONE branch per spec (`auto-claude/{spec-name}`)
+- ONE branch per spec (`turret/{spec-name}`)
 - Parallel work uses subagents (agent decides when to spawn)
 - NO automatic pushes to GitHub - user controls when to push
 - User reviews in spec worktree (`.worktrees/{spec-name}/`)
@@ -255,7 +255,7 @@ Three-layer defense:
 2. **Filesystem Permissions** - Operations restricted to project directory
 3. **Command Allowlist** - Dynamic allowlist from project analysis (security.py + project_analyzer.py)
 
-Security profile cached in `.auto-claude-security.json`.
+Security profile cached in `.turret-security.json`.
 
 ### Claude Agent SDK Integration
 
@@ -324,7 +324,7 @@ Turret uses Graphiti as its primary memory system with embedded LadybugDB (no Do
 **Configuration:**
 - Set provider credentials in `apps/backend/.env` (see `.env.example`)
 - Required env vars: `GRAPHITI_ENABLED=true`, `ANTHROPIC_API_KEY` or other provider keys
-- Memory data stored in `.auto-claude/specs/XXX/graphiti/`
+- Memory data stored in `.turret/specs/XXX/graphiti/`
 
 **Usage in agents:**
 ```python
@@ -478,4 +478,4 @@ npm run dev      # Run in development mode (includes --remote-debugging-port=922
 4. QA agents will automatically interact with the running app for testing
 
 **Project data storage:**
-- `.auto-claude/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored
+- `.turret/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored

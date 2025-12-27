@@ -14,7 +14,7 @@ export interface PythonEnvStatus {
 }
 
 /**
- * Manages the Python virtual environment for the auto-claude backend.
+ * Manages the Python virtual environment for the turret backend.
  * Automatically creates venv and installs dependencies if needed.
  *
  * On packaged apps (especially Linux AppImages), the bundled source is read-only,

@@ -75,7 +75,7 @@ export class InsightsExecutor extends EventEmitter {
 
     const runnerPath = path.join(autoBuildSource, 'runners', 'insights_runner.py');
     if (!existsSync(runnerPath)) {
-      throw new Error('insights_runner.py not found in auto-claude directory');
+      throw new Error('insights_runner.py not found in turret directory');
     }
 
     // Emit thinking status

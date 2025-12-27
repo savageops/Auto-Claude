@@ -1,0 +1,162 @@
+{
+  "id": "session-1766773267916",
+  "projectId": "c09e4f52-3d72-49ac-a3ba-bc2687a3f054",
+  "title": "kanban boards seem to be losing their state (when ...",
+  "messages": [
+    {
+      "id": "msg-1766773341387",
+      "role": "user",
+      "content": "kanban boards seem to be losing their state (when i mark as done, and change window or do some action, they jump back to their previous board. (human review in this case)\n\nhere is chat with another agent:\n i just revieed everything under human review it went to done, now its back at \nreview? is this normal? \n  ⎿ UserPromptSubmit says: Plugin hook error: 'python' is not recognized as an internal  \n    or external command,\n    operable program or batch file.\n\n● No, that's not normal - that's another sync bug! When you approve a review, the task should move to done and stay there.\n\n  Let me investigate the review submission flow:\n\n● Search(pattern: \"submitReview|onApprove|handleApprove\", path:\n        \"D:\\Workspaces\\01_Projects\\01_Github\\Turret\\apps\\frontend\\src\\renderer\",    \n        output_mode: \"content\")\n  ⎿ PreToolUse:Grep says: Plugin hook error: 'python' is not recognized as an internal or\n     external command,\n    operable program or batch file.\n  ⎿  Found 177 lines (ctrl+o to expand)\n  ⎿  Running PostToolUse hook…\n  ⎿ PostToolUse:Grep says: Plugin hook error: 'python' is not recognized as an internal  \n    or external command,\n    operable program or batch file.\n\n● Found it! There's a status conflict between the review submission and the task update logic. Look at this:\n\n  task-store.ts:237-247 - submitReview() sets status to done when approved\n  task-store.ts:63-117 - updateTaskFromPlan() recalculates status based on subtasks      \n\n  The bug: After you approve a task, if any IPC event triggers updateTaskFromPlan() (like a progress update), it recalculates the status based on subtasks. If not all subtasks are marked \"completed\", it reverts to human_review.\n\n  Let me check the logic:\n\n● Read(D:\\Workspaces\\01_Projects\\01_Github\\Turret\\apps\\frontend\\src\\renderer\\stores\\\n      task-store.ts)\n  ⎿ PreToolUse:Read says: Plugin hook error: 'python' is not recognized as an internal or\n     external command,\n    operable program or batch file.\n  ⎿  Read 60 lines\n  ⎿  Running PostToolUse hook…\n  ⎿ PostToolUse:Read says: Plugin hook error: 'python' is not recognized as an internal  \n    or external command,\n    operable program or batch file.\n\n● Found the bug! Line 89-108 in updateTaskFromPlan() - it always recalculates status from subtasks, ignoring manual approvals.\n\n  Here's what happens:\n  1. You approve → status set to done ✅\n  2. Backend sends plan update IPC event\n  3. updateTaskFromPlan() runs → recalculates status from subtasks ❌\n  4. Subtasks incomplete → status reverts to human_review 😡\n\n  The fix: Don't recalculate status if the task is already in done state (user already approved it):\n\n● Update(D:\\Workspaces\\01_Projects\\01_Github\\Turret\\apps\\frontend\\src\\renderer\\store\n        s\\task-store.ts)\n  ⎿ PreToolUse:Edit says: Plugin hook error: 'python' is not recognized as an internal or\n     external command,\n    operable program or batch file.\n  ⎿  Added 18 lines, removed 14 lines\n       89          let status: TaskStatus = t.status;\n       90          let reviewReason: ReviewReason | undefined = t.reviewReason;\n       91 \n       92 -        if (allCompleted) {                                                   \n       93 -          // Manual tasks skip AI review and go directly to human revie       \n          -w                                                                             \n       94 -          status = t.metadata?.sourceType === 'manual' ? 'human_review'       \n          - : 'ai_review';                                                               \n       95 -          if (t.metadata?.sourceType === 'manual') {                          \n       96 -            reviewReason = 'completed';                                       \n       97 -          } else {                                                            \n       92 +        // CRITICAL: Don't recalculate status if user already approved/       \n          +completed the task                                                            \n       93 +        // This prevents reverting from 'done' back to 'human_review' w       \n          +hen plan updates arrive                                                       \n       94 +        if (t.status !== 'done') {                                            \n       95 +          if (allCompleted) {                                                 \n       96 +            // Manual tasks skip AI review and go directly to human rev       \n          +iew                                                                           \n       97 +            status = t.metadata?.sourceType === 'manual' ? 'human_revie       \n          +w' : 'ai_review';                                                             \n       98 +            if (t.metadata?.sourceType === 'manual') {                        \n       99 +              reviewReason = 'completed';                                     \n      100 +            } else {                                                          \n      101 +              reviewReason = undefined;                                       \n      102 +            }                                                                 \n      103 +          } else if (anyFailed) {                                             \n      104 +            // Some subtasks failed - needs human attention                   \n      105 +            status = 'human_review';                                          \n      106 +            reviewReason = 'errors';                                          \n      107 +          } else if (anyInProgress || anyCompleted) {                         \n      108 +            // Work in progress                                               \n      109 +            status = 'in_progress';                                           \n      110              reviewReason = undefined;\n      111            }\n      100 -        } else if (anyFailed) {                                               \n      101 -          // Some subtasks failed - needs human attention                     \n      102 -          status = 'human_review';                                            \n      103 -          reviewReason = 'errors';                                            \n      104 -        } else if (anyInProgress || anyCompleted) {                           \n      105 -          // Work in progress                                                 \n      106 -          status = 'in_progress';                                             \n      107 -          reviewReason = undefined;                                           \n      112          }\n      113 \n      114          return {\n  ⎿  Running PostToolUse hook…\n  ⎿ PostToolUse:Edit says: Plugin hook error: 'python' is not recognized as an internal  \n    or external command,\n    operable program or batch file.\n\n● Perfect! Fixed. Now approved tasks will stay approved and won't revert back to human_review when progress updates arrive.\n\n  Summary of All Fixes:\n\n  1. Race Condition on Project Switch (App.tsx)\n\n  - ❌ Before: clearTasks() → empty UI flash → loadTasks() → items pop in\n  - ✅ After: loadTasks() atomically replaces tasks, smooth transition\n\n  2. Cross-Project IPC Pollution (useIpc.ts)\n\n  - ❌ Before: Task updates from Project A leak into Project B\n  - ✅ After: IPC listeners filter by isTaskInCurrentProject(), isolated views\n\n  3. Approved Tasks Reverting (task-store.ts) ⭐ Just Fixed\n\n  - ❌ Before: Approve task → done → plan update arrives → recalculates status → human_review 😡\n  - ✅ After: Skip status recalculation for tasks already in done state, approvals \n\nbut its not resolved",
+      "timestamp": "2025-12-26T18:22:21.387Z"
+    },
+    {
+      "id": "msg-1766773501165",
+      "role": "assistant",
+      "content": "I can see the issue - the previous agent made fixes but they didn't fully resolve the problem. Let me investigate the current state of the kanban board synchronization.\r\nLet me search for the main process IPC handlers to understand the backend flow:\r\nNow let me look at how tasks are updated from the implementation plan:\r\nLet me check how the task status is determined from the plan:\r\nPerfect! Now I can see the root cause. Let me check one more thing about how the status is persisted:\r\nPerfect! Now I understand the complete picture. Let me analyze the bug:\r\n## Root Cause Analysis\r\nI've identified the issue! The problem occurs because of a **race condition** between:\r\n1. **`submitReview()` in task-store.ts (line 251)** - Sets local state to `'done'` immediately\r\n2. **`TASK_REVIEW` IPC handler** (execution-handlers.ts line 228-242) - Sends `TASK_STATUS_CHANGE` event with `'done'` status  \r\n3. **`onTaskStatusChange` listener** (useIpc.ts line 53-60) - Updates the task status when received\r\n4. **`updateTaskFromPlan()` listener** (useIpc.ts line 25-32) - Gets called when backend sends plan updates\r\nThe bug happens because:\r\n1. You approve a task → `submitReview()` updates local state to `'done'` \r\n2. The backend writes the QA report and sends `TASK_STATUS_CHANGE` event\r\n3. **BUT**, the backend approval handler **does NOT update the `implementation_plan.json` file** with `status: 'done'`\r\n4. Later, when the backend sends any `TASK_PROGRESS` event (plan update), the frontend's `updateTaskFromPlan()` runs\r\n5. This recalculates the status based on subtasks (lines 92-112 in task-store.ts) because there's no `done` status in the file\r\n6. Even though line 94 checks `if (t.status !== 'done')`, the **backend file still doesn't have `status: 'done'`**, so when the file is re-loaded, it reverts back\r\nThe previous fix only prevented recalculation **while the task is in memory**, but doesn't prevent it from reverting when tasks are **reloaded from disk** (e.g., on project switch or refresh).\r\n## The Solution\r\nThe `TASK_REVIEW` handler needs to persist the `'done'` status to the `implementation_plan.json` file when approved, just like how `TASK_UPDATE_STATUS` does it.\r\nLet me create the fix:\r\nNow I'll fix the bug by making the TASK_REVIEW handler persist the 'done' status to the implementation_plan.json file:\r\nI found the root cause! The issue is that when you approve a task in human review, the **`TASK_REVIEW` IPC handler doesn't persist the `'done'` status to the `implementation_plan.json` file**.\r\nHere's what happens:\r\n1. ✅ You mark task as done → Frontend sets local state to `'done'`\r\n2. ✅ Backend writes QA approval and sends `TASK_STATUS_CHANGE` event\r\n3. ❌ **BUT** backend doesn't update `implementation_plan.json` with `status: 'done'`\r\n4. ❌ Later, when any plan update arrives (or tasks reload), the status is recalculated from the file\r\n5. ❌ Since the file still shows subtasks-based status, it reverts back to `'human_review'`\r\nThe previous fix (checking `if (t.status !== 'done')` in task-store.ts line 94) only prevents recalculation **while the task is in memory**, but doesn't help when tasks are **reloaded from disk**.\r\n## The Fix\r\nThe `TASK_REVIEW` handler needs to persist the `'done'` status to `implementation_plan.json`, just like the `TASK_UPDATE_STATUS` handler does (line 400 in execution-handlers.ts).\r\nI need to add this code to the approval block (after line 234):\r\n```typescript\r\n// CRITICAL: Persist 'done' status to implementation_plan.json\r\n// This prevents the task from reverting to human_review when plan updates arrive\r\nconst planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);\r\nif (existsSync(planPath)) {\r\n  try {\r\n    const planContent = readFileSync(planPath, 'utf-8');\r\n    const plan = JSON.parse(planContent);\r\n    plan.status = 'done';\r\n    plan.planStatus = 'completed';\r\n    plan.updated_at = new Date().toISOString();\r\n    writeFileSync(planPath, JSON.stringify(plan, null, 2));\r\n    console.log('[TASK_REVIEW] Persisted done status to implementation_plan.json');\r\n  } catch (error) {\r\n    console.error('[TASK_REVIEW] Failed to update implementation_plan.json:', error);\r\n  }\r\n}\r\n```\r\nWould you like me to create a task for this fix? This is a critical bug that causes approved tasks to lose their state.",
+      "timestamp": "2025-12-26T18:25:01.165Z",
+      "suggestedTask": {
+        "title": "Fix kanban board state persistence - approved tasks reverting to human review",
+        "description": "## Problem\nWhen users approve tasks in human review and mark them as done, the tasks revert back to human_review status after window changes or other actions. This happens because the TASK_REVIEW IPC handler doesn't persist the 'done' status to the implementation_plan.json file.\n\n## Root Cause\n1. submitReview() sets local state to 'done' ✅\n2. Backend writes QA approval and sends TASK_STATUS_CHANGE event ✅  \n3. Backend does NOT update implementation_plan.json with status: 'done' ❌\n4. When plan updates arrive or tasks reload, status is recalculated from file ❌\n5. File still shows subtasks-based status, reverts to 'human_review' ❌\n\nThe previous fix (line 94 in task-store.ts checking `if (t.status !== 'done')`) only prevents recalculation in memory, not when reloading from disk.\n\n## Solution\nUpdate the TASK_REVIEW handler in execution-handlers.ts (line 228-243) to persist the 'done' status to implementation_plan.json when a task is approved, matching the pattern used in TASK_UPDATE_STATUS handler (line 400).\n\n## Files to Modify\n- apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts (line 228-243)\n\n## Implementation\nAdd code after writing QA report (line 234) to:\n1. Read implementation_plan.json\n2. Set plan.status = 'done' and plan.planStatus = 'completed'\n3. Write back to file\n4. Add error handling and logging",
+        "metadata": {
+          "category": "bug_fix",
+          "complexity": "small",
+          "impact": "high"
+        }
+      },
+      "toolsUsed": [
+        {
+          "name": "Read",
+          "input": "...apps\\frontend\\src\\renderer\\stores\\task-store.ts",
+          "timestamp": "2025-12-26T18:22:28.699Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: submitReview|onApprove|handleReview",
+          "timestamp": "2025-12-26T18:22:30.280Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: status.*done|setStatus|updateTask",
+          "timestamp": "2025-12-26T18:22:31.261Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/KanbanBoard*.tsx",
+          "timestamp": "2025-12-26T18:22:36.770Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: task:plan-update|task:progress|task:status",
+          "timestamp": "2025-12-26T18:22:38.971Z"
+        },
+        {
+          "name": "Read",
+          "input": "...rontend\\src\\renderer\\components\\KanbanBoard.tsx",
+          "timestamp": "2025-12-26T18:22:45.025Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: onTaskPlanUpdate|onTaskProgress|onTaskStatus",
+          "timestamp": "2025-12-26T18:22:45.778Z"
+        },
+        {
+          "name": "Read",
+          "input": "...aude\\apps\\frontend\\src\\renderer\\hooks\\useIpc.ts",
+          "timestamp": "2025-12-26T18:22:52.768Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: updateTaskStatus|submitReview",
+          "timestamp": "2025-12-26T18:22:54.040Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/project-store.ts",
+          "timestamp": "2025-12-26T18:22:58.596Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: submitReview|updateTaskStatus",
+          "timestamp": "2025-12-26T18:22:59.792Z"
+        },
+        {
+          "name": "Read",
+          "input": "...laude\\apps\\frontend\\src\\preload\\api\\task-api.ts",
+          "timestamp": "2025-12-26T18:23:16.952Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/ipc-handlers.ts",
+          "timestamp": "2025-12-26T18:23:17.854Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/ipc.ts",
+          "timestamp": "2025-12-26T18:23:23.310Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/main/**/*.ts",
+          "timestamp": "2025-12-26T18:23:31.825Z"
+        },
+        {
+          "name": "Read",
+          "input": "...end\\src\\main\\ipc-handlers\\task\\crud-handlers.ts",
+          "timestamp": "2025-12-26T18:23:36.532Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: TASK_REVIEW|submitReview",
+          "timestamp": "2025-12-26T18:23:37.874Z"
+        },
+        {
+          "name": "Read",
+          "input": "...rc\\main\\ipc-handlers\\task\\execution-handlers.ts",
+          "timestamp": "2025-12-26T18:23:43.034Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/project-store.ts",
+          "timestamp": "2025-12-26T18:23:43.985Z"
+        },
+        {
+          "name": "Read",
+          "input": "...-Claude\\apps\\frontend\\src\\main\\project-store.ts",
+          "timestamp": "2025-12-26T18:23:49.441Z"
+        },
+        {
+          "name": "Read",
+          "input": "...-Claude\\apps\\frontend\\src\\main\\project-store.ts",
+          "timestamp": "2025-12-26T18:23:55.153Z"
+        },
+        {
+          "name": "Read",
+          "input": "...-Claude\\apps\\frontend\\src\\main\\project-store.ts",
+          "timestamp": "2025-12-26T18:24:00.601Z"
+        },
+        {
+          "name": "Read",
+          "input": "...rc\\main\\ipc-handlers\\task\\execution-handlers.ts",
+          "timestamp": "2025-12-26T18:24:07.302Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: plan\\.status.*=|writeFileSync.*implementation_plan",
+          "timestamp": "2025-12-26T18:24:09.030Z"
+        },
+        {
+          "name": "Read",
+          "input": "...rc\\main\\ipc-handlers\\task\\execution-handlers.ts",
+          "timestamp": "2025-12-26T18:24:27.672Z"
+        },
+        {
+          "name": "Edit",
+          "input": "...rc\\main\\ipc-handlers\\task\\execution-handlers.ts",
+          "timestamp": "2025-12-26T18:24:40.197Z"
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-12-26T18:21:07.916Z",
+  "updatedAt": "2025-12-26T18:25:01.165Z"
+}

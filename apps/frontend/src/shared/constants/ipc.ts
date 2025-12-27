@@ -37,6 +37,7 @@ export const IPC_CHANNELS = {
   TASK_WORKTREE_MERGE: 'task:worktreeMerge',
   TASK_WORKTREE_MERGE_PREVIEW: 'task:worktreeMergePreview',  // Preview merge conflicts before merging
   TASK_WORKTREE_DISCARD: 'task:worktreeDiscard',
+  TASK_WORKTREE_DISCARD_FILE: 'task:worktreeDiscardFile',
   TASK_LIST_WORKTREES: 'task:listWorktrees',
   TASK_ARCHIVE: 'task:archive',
   TASK_UNARCHIVE: 'task:unarchive',
@@ -111,6 +112,19 @@ export const IPC_CHANNELS = {
   // Prompt file operations (read/write base prompts from backend .md files)
   PROMPT_READ_BASE: 'prompt:readBase',
   PROMPT_WRITE_BASE: 'prompt:writeBase',
+
+  // Ideation prompts (dynamic from backend dict)
+  PROMPT_LIST_IDEATION: 'prompt:listIdeation',
+  PROMPT_READ_IDEATION: 'prompt:readIdeation',
+  PROMPT_WRITE_IDEATION: 'prompt:writeIdeation',
+
+  // Roadmap prompts
+  PROMPT_READ_ROADMAP: 'prompt:readRoadmap',
+  PROMPT_WRITE_ROADMAP: 'prompt:writeRoadmap',
+
+  // Insights prompt
+  PROMPT_READ_INSIGHTS: 'prompt:readInsights',
+  PROMPT_WRITE_INSIGHTS: 'prompt:writeInsights',
 
   // Dialogs
   DIALOG_SELECT_DIRECTORY: 'dialog:selectDirectory',
@@ -275,7 +289,7 @@ export const IPC_CHANNELS = {
   // Memory Infrastructure status (LadybugDB - no Docker required)
   MEMORY_STATUS: 'memory:status',
   MEMORY_LIST_DATABASES: 'memory:listDatabases',
-  MEMORY_TEST_CONNECTION: 'memory:testConnection',
+  MEMORY_TEST_CONNECTION:'memory:testConnection',
 
   // Graphiti validation
   GRAPHITI_VALIDATE_LLM: 'graphiti:validateLlm',
@@ -366,5 +380,5 @@ export const IPC_CHANNELS = {
   RELEASE_GET_VERSIONS: 'release:getVersions',
 
   // Release events (main -> renderer)
-  RELEASE_PROGRESS: 'release:progress'
+  RELEASE_PROGRESS: 'release:progress',
 } as const;

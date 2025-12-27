@@ -54,7 +54,7 @@ export class InsightsService extends EventEmitter {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     this.config.configure(pythonPath, autoBuildSourcePath);
@@ -121,7 +121,7 @@ export class InsightsService extends EventEmitter {
     // Cancel any existing session
     this.executor.cancelSession(projectId);
 
-    // Validate auto-claude source
+    // Validate turret source
     const autoBuildSource = this.config.getAutoBuildSourcePath();
     if (!autoBuildSource) {
       this.emit('error', projectId, 'Turret source not found');

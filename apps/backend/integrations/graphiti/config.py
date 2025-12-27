@@ -18,8 +18,8 @@ Environment Variables:
     GRAPHITI_EMBEDDER_PROVIDER: openai|voyage|azure_openai|ollama|google (default: openai)
 
     # Database
-    GRAPHITI_DATABASE: Graph database name (default: auto_claude_memory)
-    GRAPHITI_DB_PATH: Database storage path (default: ~/.auto-claude/memories)
+    GRAPHITI_DATABASE: Graph database name (default: turret_memory)
+    GRAPHITI_DB_PATH: Database storage path (default: ~/.turret/memories)
 
     # OpenAI
     OPENAI_API_KEY: Required for OpenAI provider
@@ -64,8 +64,8 @@ from pathlib import Path
 from typing import Optional
 
 # Default configuration values
-DEFAULT_DATABASE = "auto_claude_memory"
-DEFAULT_DB_PATH = "~/.auto-claude/memories"
+DEFAULT_DATABASE = "turret_memory"
+DEFAULT_DB_PATH = "~/.turret/memories"
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434"
 
 # Graphiti state marker file (stores connection info and status)
@@ -440,7 +440,7 @@ class GraphitiConfig:
             base_name: Base database name (default: from config)
 
         Returns:
-            Database name with provider signature (e.g., "auto_claude_memory_ollama_768")
+            Database name with provider signature (e.g., "turret_memory_ollama_768")
         """
         if base_name is None:
             base_name = self.database
@@ -464,7 +464,7 @@ class GraphitiConfig:
 
 @dataclass
 class GraphitiState:
-    """State of Graphiti integration for an auto-claude spec."""
+    """State of Graphiti integration for an turret spec."""
 
     initialized: bool = False
     database: str | None = None

@@ -102,11 +102,11 @@ class BuildStatus:
 
 
 class StatusManager:
-    """Manages the .auto-claude-status file for ccstatusline integration."""
+    """Manages the .turret-status file for ccstatusline integration."""
 
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir)
-        self.status_file = self.project_dir / ".auto-claude-status"
+        self.status_file = self.project_dir / ".turret-status"
         self._status = BuildStatus()
 
     def read(self) -> BuildStatus:

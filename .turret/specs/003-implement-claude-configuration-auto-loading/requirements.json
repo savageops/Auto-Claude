@@ -1,0 +1,4 @@
+{
+  "task_description": ".claude\n.claude\\commands\n.claude\\output-styles\n.claude\\rules\n.claude\\settings.local.json\n\nFeature to get these as context and to always use them.",
+  "workflow_type": "feature"
+}

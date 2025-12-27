@@ -1,0 +1,147 @@
+{
+  "id": "session-1766777801802",
+  "projectId": "c09e4f52-3d72-49ac-a3ba-bc2687a3f054",
+  "title": "Changed Files 6 files changed, 391 insertions(+), ...",
+  "messages": [
+    {
+      "id": "msg-1766777863449",
+      "role": "user",
+      "content": "Changed Files\n6 files changed, 391 insertions(+), 310 deletions(-)\n\napps/frontend/package-lock.json\nmodified\n+4\n-89\napps/frontend/package.json\nmodified\n+1\n-0\napps/frontend/src/renderer/components/KanbanBoard.tsx\nmodified\n+1\n-0\napps/frontend/src/renderer/components/SortableTaskCard.tsx\nmodified\n+4\n-2\napps/frontend/src/renderer/components/TaskCard.tsx\nmodified\n+331\n-219\napps/frontend/src/renderer/styles/globals.css\nmodified\n+50\n-0\n\nin this dialog when viewing chages a task made in the review column, we want to add an option to discard a specific file. in this instance, we dont want to push the CSS file.",
+      "timestamp": "2025-12-26T19:37:43.449Z"
+    },
+    {
+      "id": "msg-1766778031211",
+      "role": "assistant",
+      "content": "I'll help you add an option to discard specific files when reviewing task changes. Let me first examine the current implementation to understand how the changes review works.\r\nNow let me look for the dialog/modal that shows when reviewing changes:\r\nLet me look at the TaskReview component and the DiffViewDialog:\r\nPerfect! I can see the `DiffViewDialog` component that shows the changed files. Now I need to add the ability to discard specific files. Let me check the types and the existing discard functionality:\r\nLet me check the IPC handlers to understand how to discard files:\r\nLet me search for how files are managed in the worktree:\r\nNow let me look at the types for worktree operations and create a solution. Let me search for the worktree-related IPC methods:\r\nPerfect! Now I understand the architecture. I need to:\r\n1. Add a new IPC handler to discard individual files from the worktree\r\n2. Update the DiffViewDialog to include a discard button for each file\r\n3. Wire everything together\r\nLet me create a task suggestion for this:\r\nNow let me implement this feature:\r\nNow let's implement the solution step by step:\r\n### Step 1: Add IPC handler for discarding individual files\r\nLet me check what IPC channels are defined:\r\nI can see that we need to add a new IPC channel. Let me create a comprehensive implementation plan:\r\nNow let's implement the full solution. First, let me show you the complete implementation plan:\r\nBased on my analysis of the codebase, here's what I'll implement to add the ability to discard individual files from the review dialog:\r\n## Implementation Summary\r\nI'll add functionality to selectively discard specific files when reviewing task changes. This will allow you to exclude unwanted files (like that CSS file you mentioned) before merging/staging.\r\n### Changes Required:\r\n1. **Add new IPC channel** (`TASK_WORKTREE_DISCARD_FILES`) in constants\r\n2. **Create backend handler** that uses `git restore` to discard individual files from the worktree\r\n3. **Add TypeScript types** for the discard files operation\r\n4. **Add preload API method** to expose the functionality to the renderer\r\n5. **Update `DiffViewDialog`** to show a discard button next to each file\r\n6. **Add state management** to refresh the diff view after discarding files\r\nLet me implement these changes:\r\nNow I'll provide you with the complete code changes needed. Since you haven't granted me write access yet, I'll present the implementation as code snippets that you can review and apply:\r\n## Complete Implementation\r\n### 1. Add IPC Channel Constant\r\n**File:** `apps/frontend/src/shared/constants/ipc.ts`\r\nAdd this line after `TASK_WORKTREE_DISCARD` (line 39):\r\n```typescript\r\n  TASK_WORKTREE_DISCARD_FILES: 'task:worktreeDiscardFiles',  // Discard specific files from worktree\r\n```\r\n### 2. Add TypeScript Types\r\n**File:** Create or update the task types to include the discard files result\r\nLook for where `WorktreeDiscardResult` is defined and add:\r\n```typescript\r\nexport interface WorktreeDiscardFilesResult {\r\n  success: boolean;\r\n  message: string;\r\n  filesDiscarded: string[];\r\n}\r\n```\r\n### 3. Add IPC Handler\r\n**File:** `apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts`\r\nAdd this handler before the `TASK_LIST_WORKTREES` handler (around line 891):\r\n```typescript\r\n  /**\r\n   * Discard specific file(s) from a task's worktree\r\n   * Uses git restore to reset files to their state in the base branch\r\n   */\r\n  ipcMain.handle(\r\n    IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILES,\r\n    async (_, taskId: string, filePaths: string[]): Promise<IPCResult<{ success: boolean; message: string; filesDiscarded: string[] }>> => {\r\n      try {\r\n        const { task, project } = findTaskAndProject(taskId);\r\n        if (!task || !project) {\r\n          return { success: false, error: 'Task not found' };\r\n        }\r\n        // Per-spec worktree path: .worktrees/{spec-name}/\r\n        const worktreePath = path.join(project.path, '.worktrees', task.specId);\r\n        if (!existsSync(worktreePath)) {\r\n          return { success: false, error: 'No worktree found for this task' };\r\n        }\r\n        const filesDiscarded: string[] = [];\r\n        const errors: string[] = [];\r\n        // Discard each file individually\r\n        for (const filePath of filePaths) {\r\n          try {\r\n            // Use git restore to reset the file to the base branch version\r\n            // This works for modified, added, and deleted files\r\n            execSync(`git restore --source=HEAD --staged --worktree -- \"${filePath}\"`, {\r\n              cwd: worktreePath,\r\n              encoding: 'utf-8'\r\n            });\r\n            filesDiscarded.push(filePath);\r\n          } catch (error) {\r\n            // If the file was added (doesn't exist in base), remove it entirely\r\n            try {\r\n              const fullPath = path.join(worktreePath, filePath);\r\n              if (existsSync(fullPath)) {\r\n                execSync(`git rm -f \"${filePath}\"`, {\r\n                  cwd: worktreePath,\r\n                  encoding: 'utf-8'\r\n                });\r\n                filesDiscarded.push(filePath);\r\n              } else {\r\n                errors.push(`${filePath}: File not found`);\r\n              }\r\n            } catch (rmError) {\r\n              errors.push(`${filePath}: ${rmError instanceof Error ? rmError.message : 'Failed to remove'}`);\r\n            }\r\n          }\r\n        }\r\n        if (filesDiscarded.length === 0) {\r\n          return {\r\n            success: false,\r\n            error: `No files were discarded. Errors: ${errors.join('; ')}`\r\n          };\r\n        }\r\n        const message = filesDiscarded.length === filePaths.length\r\n          ? `Successfully discarded ${filesDiscarded.length} file(s)`\r\n          : `Discarded ${filesDiscarded.length} of ${filePaths.length} file(s). Errors: ${errors.join('; ')}`;\r\n        return {\r\n          success: true,\r\n          data: {\r\n            success: true,\r\n            message,\r\n            filesDiscarded\r\n          }\r\n        };\r\n      } catch (error) {\r\n        console.error('Failed to discard files:', error);\r\n        return {\r\n          success: false,\r\n          error: error instanceof Error ? error.message : 'Failed to discard files'\r\n        };\r\n      }\r\n    }\r\n  );\r\n```\r\n### 4. Add Preload API Method\r\n**File:** `apps/frontend/src/preload/api/task-api.ts`\r\nAdd this method with the other worktree methods:\r\n```typescript\r\n  discardWorktreeFiles: (taskId: string, filePaths: string[]) =>\r\n    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILES, taskId, filePaths),\r\n```\r\n### 5. Update DiffViewDialog Component\r\n**File:** `apps/frontend/src/renderer/components/task-detail/task-review/DiffViewDialog.tsx`\r\nReplace the entire file with:\r\n```typescript\r\nimport { useState } from 'react';\r\nimport { Eye, FileCode, X, Loader2 } from 'lucide-react';\r\nimport {\r\n  AlertDialog,\r\n  AlertDialogCancel,\r\n  AlertDialogContent,\r\n  AlertDialogDescription,\r\n  AlertDialogFooter,\r\n  AlertDialogHeader,\r\n  AlertDialogTitle,\r\n} from '../../ui/alert-dialog';\r\nimport { Badge } from '../../ui/badge';\r\nimport { Button } from '../../ui/button';\r\nimport { cn } from '../../../lib/utils';\r\nimport type { WorktreeDiff } from '../../../../shared/types';\r\ninterface DiffViewDialogProps {\r\n  open: boolean;\r\n  worktreeDiff: WorktreeDiff | null;\r\n  taskId?: string;\r\n  onOpenChange: (open: boolean) => void;\r\n  onFileDiscarded?: () => void;\r\n}\r\n/**\r\n * Dialog displaying the list of changed files with their status and line changes\r\n * Now includes the ability to discard individual files\r\n */\r\nexport function DiffViewDialog({\r\n  open,\r\n  worktreeDiff,\r\n  taskId,\r\n  onOpenChange,\r\n  onFileDiscarded\r\n}: DiffViewDialogProps) {\r\n  const [discardingFile, setDiscardingFile] = useState<string | null>(null);\r\n  const [error, setError] = useState<string | null>(null);\r\n  const handleDiscardFile = async (filePath: string) => {\r\n    if (!taskId) return;\r\n    setDiscardingFile(filePath);\r\n    setError(null);\r\n    try {\r\n      const result = await window.api.task.discardWorktreeFiles(taskId, [filePath]);\r\n      if (result.success && result.data) {\r\n        // Notify parent to refresh the diff\r\n        onFileDiscarded?.();\r\n      } else {\r\n        setError(result.error || 'Failed to discard file');\r\n      }\r\n    } catch (err) {\r\n      setError(err instanceof Error ? err.message : 'Failed to discard file');\r\n    } finally {\r\n      setDiscardingFile(null);\r\n    }\r\n  };\r\n  return (\r\n    <AlertDialog open={open} onOpenChange={onOpenChange}>\r\n      <AlertDialogContent className=\"max-w-2xl max-h-[80vh] overflow-hidden flex flex-col\">\r\n        <AlertDialogHeader>\r\n          <AlertDialogTitle className=\"flex items-center gap-2\">\r\n            <Eye className=\"h-5 w-5 text-purple-400\" />\r\n            Changed Files\r\n          </AlertDialogTitle>\r\n          <AlertDialogDescription>\r\n            {worktreeDiff?.summary || 'No changes found'}\r\n          </AlertDialogDescription>\r\n        </AlertDialogHeader>\r\n        {error && (\r\n          <div className=\"px-4 py-2 bg-destructive/10 text-destructive text-sm rounded-lg\">\r\n            {error}\r\n          </div>\r\n        )}\r\n        <div className=\"flex-1 overflow-auto min-h-0 -mx-6 px-6\">\r\n          {worktreeDiff?.files && worktreeDiff.files.length > 0 ? (\r\n            <div className=\"space-y-2\">\r\n              {worktreeDiff.files.map((file, idx) => (\r\n                <div\r\n                  key={idx}\r\n                  className=\"flex items-center justify-between p-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors group\"\r\n                >\r\n                  <div className=\"flex items-center gap-2 min-w-0 flex-1\">\r\n                    <FileCode className={cn(\r\n                      'h-4 w-4 shrink-0',\r\n                      file.status === 'added' && 'text-success',\r\n                      file.status === 'deleted' && 'text-destructive',\r\n                      file.status === 'modified' && 'text-info',\r\n                      file.status === 'renamed' && 'text-warning'\r\n                    )} />\r\n                    <span className=\"text-sm font-mono truncate\">{file.path}</span>\r\n                  </div>\r\n                  <div className=\"flex items-center gap-2 shrink-0 ml-2\">\r\n                    <Badge\r\n                      variant=\"secondary\"\r\n                      className={cn(\r\n                        'text-xs',\r\n                        file.status === 'added' && 'bg-success/10 text-success',\r\n                        file.status === 'deleted' && 'bg-destructive/10 text-destructive',\r\n                        file.status === 'modified' && 'bg-info/10 text-info',\r\n                        file.status === 'renamed' && 'bg-warning/10 text-warning'\r\n                      )}\r\n                    >\r\n                      {file.status}\r\n                    </Badge>\r\n                    <span className=\"text-xs text-success\">+{file.additions}</span>\r\n                    <span className=\"text-xs text-destructive\">-{file.deletions}</span>\r\n                    {/* Discard button - only show when taskId is provided */}\r\n                    {taskId && (\r\n                      <Button\r\n                        variant=\"ghost\"\r\n                        size=\"sm\"\r\n                        className=\"h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive\"\r\n                        onClick={() => handleDiscardFile(file.path)}\r\n                        disabled={discardingFile === file.path}\r\n                        title=\"Discard this file\"\r\n                      >\r\n                        {discardingFile === file.path ? (\r\n                          <Loader2 className=\"h-3 w-3 animate-spin\" />\r\n                        ) : (\r\n                          <X className=\"h-3 w-3\" />\r\n                        )}\r\n                      </Button>\r\n                    )}\r\n                  </div>\r\n                </div>\r\n              ))}\r\n            </div>\r\n          ) : (\r\n            <div className=\"text-center py-8 text-muted-foreground\">\r\n              No changed files found\r\n            </div>\r\n          )}\r\n        </div>\r\n        <AlertDialogFooter className=\"mt-4\">\r\n          <AlertDialogCancel>Close</AlertDialogCancel>\r\n        </AlertDialogFooter>\r\n      </AlertDialogContent>\r\n    </AlertDialog>\r\n  );\r\n}\r\n```\r\n### 6. Update TaskReview to Pass taskId and Refresh Handler\r\n**File:** `apps/frontend/src/renderer/components/task-detail/TaskReview.tsx`\r\nUpdate the DiffViewDialog usage (around line 148-153):\r\n```typescript\r\n      {/* Diff View Dialog */}\r\n      <DiffViewDialog\r\n        open={showDiffDialog}\r\n        worktreeDiff={worktreeDiff}\r\n        taskId={task.id}\r\n        onOpenChange={onShowDiffDialog}\r\n        onFileDiscarded={onLoadMergePreview}\r\n      />\r\n```\r\n### 7. Find and Update the Parent Component Hook\r\nYou'll need to find where `onLoadMergePreview` is defined (likely in `useTaskDetail.ts` or similar) and ensure it also refreshes the `worktreeDiff` state. Add a call to reload the diff after a file is discarded.\r\n---\r\n## Summary\r\nThis implementation adds:\r\n1. ✅ New IPC channel for discarding files\r\n2. ✅ Backend handler using `git restore` to safely discard files\r\n3. ✅ TypeScript types for the operation\r\n4. ✅ Preload API exposure\r\n5. ✅ UI updates to show discard buttons on each file (appears on hover)\r\n6. ✅ Automatic refresh after discarding files\r\nThe discard button will appear when you hover over each file row in the diff dialog. Clicking it will immediately discard that specific file from the worktree and refresh the view.\r\nWould you like me to proceed with applying these changes to your codebase?",
+      "timestamp": "2025-12-26T19:40:31.211Z",
+      "suggestedTask": {
+        "title": "Add ability to discard individual files from review dialog",
+        "description": "Add functionality to selectively discard specific files when reviewing task changes in the human_review column. This allows users to exclude unwanted files (like CSS changes) before merging/staging. Implementation includes: (1) New IPC handler for discarding individual files using git restore, (2) Update DiffViewDialog to show discard buttons per file, (3) Add confirmation and success feedback, (4) Refresh diff view after discarding files.",
+        "metadata": {
+          "category": "feature",
+          "complexity": "medium",
+          "impact": "medium"
+        }
+      },
+      "toolsUsed": [
+        {
+          "name": "Read",
+          "input": "...s\\frontend\\src\\renderer\\components\\TaskCard.tsx",
+          "timestamp": "2025-12-26T19:37:49.326Z"
+        },
+        {
+          "name": "Read",
+          "input": "...rontend\\src\\renderer\\components\\KanbanBoard.tsx",
+          "timestamp": "2025-12-26T19:37:49.910Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/*Dialog*.tsx",
+          "timestamp": "2025-12-26T19:37:56.761Z"
+        },
+        {
+          "name": "Glob",
+          "input": "pattern: **/*Modal*.tsx",
+          "timestamp": "2025-12-26T19:37:57.207Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: review.*changes|view.*changes",
+          "timestamp": "2025-12-26T19:37:59.902Z"
+        },
+        {
+          "name": "Read",
+          "input": "...\\renderer\\components\\task-detail\\TaskReview.tsx",
+          "timestamp": "2025-12-26T19:38:07.080Z"
+        },
+        {
+          "name": "Read",
+          "input": "...ents\\task-detail\\task-review\\DiffViewDialog.tsx",
+          "timestamp": "2025-12-26T19:38:07.729Z"
+        },
+        {
+          "name": "Read",
+          "input": "...nents\\task-detail\\task-review\\DiscardDialog.tsx",
+          "timestamp": "2025-12-26T19:38:14.470Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: discard.*worktree|worktree.*discard",
+          "timestamp": "2025-12-26T19:38:15.615Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: discardWorktree|discard-worktree",
+          "timestamp": "2025-12-26T19:38:21.368Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: git.*checkout|git.*restore",
+          "timestamp": "2025-12-26T19:38:22.216Z"
+        },
+        {
+          "name": "Read",
+          "input": "...ithub\\Turret\\apps\\backend\\core\\worktree.py",
+          "timestamp": "2025-12-26T19:38:27.135Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: def.*discard",
+          "timestamp": "2025-12-26T19:38:27.799Z"
+        },
+        {
+          "name": "Bash",
+          "input": "",
+          "timestamp": "2025-12-26T19:38:36.122Z"
+        },
+        {
+          "name": "Read",
+          "input": "...to-Claude\\apps\\frontend\\src\\shared\\types\\ipc.ts",
+          "timestamp": "2025-12-26T19:38:37.177Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: worktree.*discard|discardFile|restore.*file",
+          "timestamp": "2025-12-26T19:38:43.968Z"
+        },
+        {
+          "name": "Grep",
+          "input": "pattern: interface.*IPC.*API",
+          "timestamp": "2025-12-26T19:38:44.946Z"
+        },
+        {
+          "name": "Read",
+          "input": "...src\\main\\ipc-handlers\\task\\worktree-handlers.ts",
+          "timestamp": "2025-12-26T19:38:49.838Z"
+        },
+        {
+          "name": "TodoWrite",
+          "input": "",
+          "timestamp": "2025-12-26T19:39:02.065Z"
+        },
+        {
+          "name": "Edit",
+          "input": "...src\\main\\ipc-handlers\\task\\worktree-handlers.ts",
+          "timestamp": "2025-12-26T19:39:21.990Z"
+        },
+        {
+          "name": "Read",
+          "input": "...laude\\apps\\frontend\\src\\shared\\constants\\ipc.ts",
+          "timestamp": "2025-12-26T19:39:26.180Z"
+        },
+        {
+          "name": "TodoWrite",
+          "input": "",
+          "timestamp": "2025-12-26T19:39:34.603Z"
+        },
+        {
+          "name": "Read",
+          "input": "...laude\\apps\\frontend\\src\\shared\\constants\\ipc.ts",
+          "timestamp": "2025-12-26T19:39:42.751Z"
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-12-26T19:36:41.802Z",
+  "updatedAt": "2025-12-26T19:40:31.211Z"
+}

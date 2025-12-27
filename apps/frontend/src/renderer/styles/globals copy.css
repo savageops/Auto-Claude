@@ -1,0 +1,3075 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Auto-Build UI Design System - Oscura Midnight Theme */
+/* A modern, professional design system with deep dark mode and warm yellow accents */
+
+/* Define custom theme colors for Tailwind CSS v4 */
+@theme {
+  /* Font families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+
+  /* Colors - using CSS variables for theme switching */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Semantic colors */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Border radius - from design system */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
+  --radius-full: 9999px;
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.25s cubic-bezier(0, 0, 0.2, 1);
+  --animate-slide-up: slide-up 0.25s cubic-bezier(0, 0, 0.2, 1);
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0, 0, 0.2, 1);
+
+  @keyframes accordion-down {
+    from { height: 0 }
+    to { height: var(--radix-accordion-content-height) }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height) }
+    to { height: 0 }
+  }
+  @keyframes fade-in {
+    from { opacity: 0 }
+    to { opacity: 1 }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(8px); opacity: 0 }
+    to { transform: translateY(0); opacity: 1 }
+  }
+  @keyframes scale-in {
+    from { transform: scale(0.95); opacity: 0 }
+    to { transform: scale(1); opacity: 1 }
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(71, 159, 250, 0.4); }
+    50% { opacity: 0.95; box-shadow: 0 0 0 4px rgba(71, 159, 250, 0.1); }
+  }
+}
+
+/* Animation utility classes (outside @theme for Tailwind v4 compatibility) */
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* CSS variables for light mode (secondary consideration per design system) */
+:root {
+  /* Light Mode - Warm off-white tones */
+  --background: #F2F2ED;
+  --foreground: #0B0B0F;
+
+  --card: #FFFFFF;
+  --card-foreground: #0B0B0F;
+
+  /* Accent - Muted olive/yellow for light mode */
+  --primary: #A5A66A;
+  --primary-foreground: #0B0B0F;
+
+  --secondary: #E8E8E3;
+  --secondary-foreground: #0B0B0F;
+
+  --muted: #EDEDE8;
+  --muted-foreground: #5C6974;
+
+  --accent: #EFEFE0;
+  --accent-foreground: #A5A66A;
+
+  --destructive: #D84F68;
+  --destructive-foreground: #FFFFFF;
+
+  --border: transparent;
+  --input: transparent;
+  --ring: #A5A66A;
+
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0B0B0F;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #0B0B0F;
+
+  /* Semantic colors */
+  --success: #4EBE96;
+  --success-foreground: #FFFFFF;
+  --success-light: #E0F5ED;
+  --warning: #D2D714;
+  --warning-foreground: #0B0B0F;
+  --warning-light: #F5F5D0;
+  --info: #479FFA;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8F4FF;
+  --error: #D84F68;
+  --error-light: #FCE8EC;
+
+  /* Shadows - soft and diffused for light mode */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+
+  /* Border radius */
+  --radius: 12px;
+}
+
+/* Dark Mode - Oscura Midnight (Default/Primary theme per design system) */
+.dark {
+  /* Near-black backgrounds - OLED optimized */
+  --background: #0B0B0F;
+  --foreground: #E6E6E6;
+
+  /* Card surfaces - subtle elevation */
+  --card: #121216;
+  --card-foreground: #E6E6E6;
+
+  /* Accent - Saturated yellow for vibrant contrast */
+  --primary: #D6D876;
+  --primary-foreground: #0B0B0F;
+
+  --secondary: #1A1A1F;
+  --secondary-foreground: #E6E6E6;
+
+  --muted: #1A1A1F;
+  --muted-foreground: #868F97;
+
+  --accent: #2A2A1F;
+  --accent-foreground: #D6D876;
+
+  --destructive: #FF5C5C;
+  --destructive-foreground: #0B0B0F;
+
+  /* Subtle dark borders for card definition */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D6D876;
+
+  --sidebar: #0E0E12;
+  --sidebar-foreground: #E6E6E6;
+
+  --popover: #1A1A1F;
+  --popover-foreground: #E6E6E6;
+
+  /* Semantic colors - muted for dark mode */
+  --success: #4EBE96;
+  --success-foreground: #0B0B0F;
+  --success-light: #1A2924;
+  --warning: #D2D714;
+  --warning-foreground: #0B0B0F;
+  --warning-light: #262618;
+  --info: #479FFA;
+  --info-foreground: #0B0B0F;
+  --info-light: #1A2230;
+  --error: #FF5C5C;
+  --error-light: #2A1A1A;
+
+  /* Shadows - deeper for dark mode, but cards use borders primarily */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   DUSK THEME (Light)
+   Warm, muted palette inspired by Fey/Oscura
+   ============================================ */
+[data-theme="dusk"] {
+  /* Backgrounds */
+  --background: #F5F5F0;
+  --foreground: #131419;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #131419;
+
+  /* Primary accent - muted olive/yellow */
+  --primary: #B8B978;
+  --primary-foreground: #131419;
+
+  /* Secondary */
+  --secondary: #EAEAE5;
+  --secondary-foreground: #131419;
+
+  /* Muted */
+  --muted: #F0F0EB;
+  --muted-foreground: #5C6974;
+
+  /* Accent */
+  --accent: #F0F0E0;
+  --accent-foreground: #B8B978;
+
+  /* Destructive */
+  --destructive: #D84F68;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #B8B978;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #131419;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #131419;
+
+  /* Semantic colors */
+  --success: #4EBE96;
+  --success-foreground: #FFFFFF;
+  --success-light: #E0F5ED;
+  --warning: #D2D714;
+  --warning-foreground: #131419;
+  --warning-light: #F5F5D0;
+  --info: #479FFA;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8F4FF;
+  --error: #D84F68;
+  --error-light: #FCE8EC;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   DUSK THEME (Dark)
+   Fey-inspired dark theme
+   ============================================ */
+[data-theme="dusk"].dark {
+  /* Backgrounds */
+  --background: #131419;
+  --foreground: #E6E6E6;
+
+  /* Card surfaces */
+  --card: #1A1B21;
+  --card-foreground: #E6E6E6;
+
+  /* Primary accent - pale yellow */
+  --primary: #E6E7A3;
+  --primary-foreground: #131419;
+
+  /* Secondary */
+  --secondary: #222329;
+  --secondary-foreground: #E6E6E6;
+
+  /* Muted */
+  --muted: #16171D;
+  --muted-foreground: #868F97;
+
+  /* Accent */
+  --accent: #2A2B1F;
+  --accent-foreground: #E6E7A3;
+
+  /* Destructive */
+  --destructive: #D84F68;
+  --destructive-foreground: #131419;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #E6E7A3;
+
+  /* Sidebar */
+  --sidebar: #16171D;
+  --sidebar-foreground: #E6E6E6;
+
+  /* Popover */
+  --popover: #222329;
+  --popover-foreground: #E6E6E6;
+
+  /* Semantic colors */
+  --success: #4EBE96;
+  --success-foreground: #131419;
+  --success-light: #1A2E28;
+  --warning: #D2D714;
+  --warning-foreground: #131419;
+  --warning-light: #2A2B1A;
+  --info: #479FFA;
+  --info-foreground: #131419;
+  --info-light: #1A2433;
+  --error: #D84F68;
+  --error-light: #2E1A1F;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   LIME THEME (Light)
+   Fresh, energetic lime/chartreuse theme
+   ============================================ */
+[data-theme="lime"] {
+  /* Backgrounds */
+  --background: #E8F5A3;
+  --foreground: #1A1A2E;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #1A1A2E;
+
+  /* Primary accent - purple for contrast against lime */
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #F5F9E8;
+  --secondary-foreground: #1A1A2E;
+
+  /* Muted */
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;
+
+  /* Accent */
+  --accent: #EDE9FE;
+  --accent-foreground: #7C3AED;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #7C3AED;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1A2E;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A2E;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEF3C7;
+  --info: #2563EB;
+  --info-foreground: #FFFFFF;
+  --info-light: #DBEAFE;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   LIME THEME (Dark)
+   Fresh lime theme with deep purple undertones
+   ============================================ */
+[data-theme="lime"].dark {
+  /* Backgrounds */
+  --background: #0F0F1A;
+  --foreground: #F8FAFC;
+
+  /* Card surfaces */
+  --card: #1E1E2E;
+  --card-foreground: #F8FAFC;
+
+  /* Primary accent - bright purple for dark mode */
+  --primary: #8B5CF6;
+  --primary-foreground: #0F0F1A;
+
+  /* Secondary */
+  --secondary: #1A1A2E;
+  --secondary-foreground: #F8FAFC;
+
+  /* Muted */
+  --muted: #13131F;
+  --muted-foreground: #A1A1B5;
+
+  /* Accent */
+  --accent: #2E2350;
+  --accent-foreground: #8B5CF6;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #0F0F1A;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #8B5CF6;
+
+  /* Sidebar */
+  --sidebar: #13131F;
+  --sidebar-foreground: #F8FAFC;
+
+  /* Popover */
+  --popover: #262638;
+  --popover-foreground: #F8FAFC;
+
+  /* Semantic colors */
+  --success: #34D399;
+  --success-foreground: #0F0F1A;
+  --success-light: #134E4A;
+  --warning: #FBBF24;
+  --warning-foreground: #0F0F1A;
+  --warning-light: #451A03;
+  --info: #60A5FA;
+  --info-foreground: #0F0F1A;
+  --info-light: #1E3A8A;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   OCEAN THEME (Light)
+   Calm, professional blue tones
+   ============================================ */
+[data-theme="ocean"] {
+  /* Backgrounds */
+  --background: #E0F2FE;
+  --foreground: #0C4A6E;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #0C4A6E;
+
+  /* Primary accent - sky blue */
+  --primary: #0284C7;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #F0F9FF;
+  --secondary-foreground: #0C4A6E;
+
+  /* Muted */
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;
+
+  /* Accent */
+  --accent: #E0F2FE;
+  --accent-foreground: #0284C7;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #0284C7;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0C4A6E;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #0C4A6E;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEF3C7;
+  --info: #2563EB;
+  --info-foreground: #FFFFFF;
+  --info-light: #DBEAFE;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   OCEAN THEME (Dark)
+   Deep ocean blue tones
+   ============================================ */
+[data-theme="ocean"].dark {
+  /* Backgrounds */
+  --background: #082F49;
+  --foreground: #F0F9FF;
+
+  /* Card surfaces */
+  --card: #164E63;
+  --card-foreground: #F0F9FF;
+
+  /* Primary accent - bright sky blue */
+  --primary: #38BDF8;
+  --primary-foreground: #082F49;
+
+  /* Secondary */
+  --secondary: #0C4A6E;
+  --secondary-foreground: #F0F9FF;
+
+  /* Muted */
+  --muted: #0A3D5C;
+  --muted-foreground: #7DD3FC;
+
+  /* Accent */
+  --accent: #0C4A6E;
+  --accent-foreground: #38BDF8;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #082F49;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #38BDF8;
+
+  /* Sidebar */
+  --sidebar: #0A3D5C;
+  --sidebar-foreground: #F0F9FF;
+
+  /* Popover */
+  --popover: #1E6B8A;
+  --popover-foreground: #F0F9FF;
+
+  /* Semantic colors */
+  --success: #34D399;
+  --success-foreground: #082F49;
+  --success-light: #134E4A;
+  --warning: #FBBF24;
+  --warning-foreground: #082F49;
+  --warning-light: #451A03;
+  --info: #60A5FA;
+  --info-foreground: #082F49;
+  --info-light: #1E3A8A;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   RETRO THEME (Light)
+   Warm, nostalgic amber/orange vibes
+   ============================================ */
+[data-theme="retro"] {
+  /* Backgrounds */
+  --background: #FEF3C7;
+  --foreground: #78350F;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #78350F;
+
+  /* Primary accent - warm amber/orange */
+  --primary: #D97706;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #FFFBEB;
+  --secondary-foreground: #78350F;
+
+  /* Muted */
+  --muted: #FEFCE8;
+  --muted-foreground: #92400E;
+
+  /* Accent */
+  --accent: #FEF3C7;
+  --accent-foreground: #D97706;
+
+  /* Destructive */
+  --destructive: #B91C1C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D97706;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #78350F;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #78350F;
+
+  /* Semantic colors */
+  --success: #15803D;
+  --success-foreground: #FFFFFF;
+  --success-light: #DCFCE7;
+  --warning: #CA8A04;
+  --warning-foreground: #78350F;
+  --warning-light: #FEF9C3;
+  --info: #1D4ED8;
+  --info-foreground: #FFFFFF;
+  --info-light: #DBEAFE;
+  --error: #B91C1C;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   RETRO THEME (Dark)
+   Warm stone/brown tones with golden accents
+   ============================================ */
+[data-theme="retro"].dark {
+  /* Backgrounds */
+  --background: #1C1917;
+  --foreground: #FEFCE8;
+
+  /* Card surfaces */
+  --card: #44403C;
+  --card-foreground: #FEFCE8;
+
+  /* Primary accent - bright amber/gold */
+  --primary: #FBBF24;
+  --primary-foreground: #1C1917;
+
+  /* Secondary */
+  --secondary: #292524;
+  --secondary-foreground: #FEFCE8;
+
+  /* Muted */
+  --muted: #1C1917;
+  --muted-foreground: #FDE68A;
+
+  /* Accent */
+  --accent: #451A03;
+  --accent-foreground: #FBBF24;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #1C1917;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #FBBF24;
+
+  /* Sidebar */
+  --sidebar: #1C1917;
+  --sidebar-foreground: #FEFCE8;
+
+  /* Popover */
+  --popover: #57534E;
+  --popover-foreground: #FEFCE8;
+
+  /* Semantic colors */
+  --success: #4ADE80;
+  --success-foreground: #1C1917;
+  --success-light: #14532D;
+  --warning: #FACC15;
+  --warning-foreground: #1C1917;
+  --warning-light: #422006;
+  --info: #60A5FA;
+  --info-foreground: #1C1917;
+  --info-light: #1E3A8A;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   NEO THEME (Light)
+   Modern, cyberpunk-inspired pink/purple palette
+   ============================================ */
+[data-theme="neo"] {
+  /* Backgrounds */
+  --background: #FDF4FF;
+  --foreground: #581C87;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #581C87;
+
+  /* Primary accent - fuchsia/magenta */
+  --primary: #D946EF;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #FAF5FF;
+  --secondary-foreground: #581C87;
+
+  /* Muted */
+  --muted: #F5F3FF;
+  --muted-foreground: #7C3AED;
+
+  /* Accent */
+  --accent: #FAE8FF;
+  --accent-foreground: #D946EF;
+
+  /* Destructive */
+  --destructive: #E11D48;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D946EF;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #581C87;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #581C87;
+
+  /* Semantic colors */
+  --success: #06B6D4;
+  --success-foreground: #FFFFFF;
+  --success-light: #CFFAFE;
+  --warning: #F59E0B;
+  --warning-foreground: #581C87;
+  --warning-light: #FEF3C7;
+  --info: #8B5CF6;
+  --info-foreground: #FFFFFF;
+  --info-light: #EDE9FE;
+  --error: #E11D48;
+  --error-light: #FFE4E6;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   NEO THEME (Dark)
+   Cyberpunk dark mode with neon pink/purple glow
+   ============================================ */
+[data-theme="neo"].dark {
+  /* Backgrounds */
+  --background: #0F0720;
+  --foreground: #FAF5FF;
+
+  /* Card surfaces */
+  --card: #2D1B4E;
+  --card-foreground: #FAF5FF;
+
+  /* Primary accent - bright pink/fuchsia */
+  --primary: #F0ABFC;
+  --primary-foreground: #0F0720;
+
+  /* Secondary */
+  --secondary: #1A0A30;
+  --secondary-foreground: #FAF5FF;
+
+  /* Muted */
+  --muted: #150825;
+  --muted-foreground: #E879F9;
+
+  /* Accent */
+  --accent: #581C87;
+  --accent-foreground: #F0ABFC;
+
+  /* Destructive */
+  --destructive: #FB7185;
+  --destructive-foreground: #0F0720;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #F0ABFC;
+
+  /* Sidebar */
+  --sidebar: #150825;
+  --sidebar-foreground: #FAF5FF;
+
+  /* Popover */
+  --popover: #3D2563;
+  --popover-foreground: #FAF5FF;
+
+  /* Semantic colors */
+  --success: #22D3EE;
+  --success-foreground: #0F0720;
+  --success-light: #164E63;
+  --warning: #FBBF24;
+  --warning-foreground: #0F0720;
+  --warning-light: #451A03;
+  --info: #A78BFA;
+  --info-foreground: #0F0720;
+  --info-light: #4C1D95;
+  --error: #FB7185;
+  --error-light: #4C0519;
+
+  /* Shadows - with subtle neon glow effect */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   FOREST THEME (Light)
+   Natural, earthy green tones
+   ============================================ */
+[data-theme="forest"] {
+  /* Backgrounds */
+  --background: #DCFCE7;
+  --foreground: #14532D;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #14532D;
+
+  /* Primary accent - natural green */
+  --primary: #16A34A;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #F0FDF4;
+  --secondary-foreground: #14532D;
+
+  /* Muted */
+  --muted: #ECFDF5;
+  --muted-foreground: #166534;
+
+  /* Accent */
+  --accent: #DCFCE7;
+  --accent-foreground: #16A34A;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #16A34A;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #14532D;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #14532D;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #CA8A04;
+  --warning-foreground: #14532D;
+  --warning-light: #FEF9C3;
+  --info: #0284C7;
+  --info-foreground: #FFFFFF;
+  --info-light: #E0F2FE;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   FOREST THEME (Dark)
+   Deep forest green tones with bright green accents
+   ============================================ */
+[data-theme="forest"].dark {
+  /* Backgrounds */
+  --background: #052E16;
+  --foreground: #F0FDF4;
+
+  /* Card surfaces */
+  --card: #166534;
+  --card-foreground: #F0FDF4;
+
+  /* Primary accent - bright green for dark mode */
+  --primary: #4ADE80;
+  --primary-foreground: #052E16;
+
+  /* Secondary */
+  --secondary: #14532D;
+  --secondary-foreground: #F0FDF4;
+
+  /* Muted */
+  --muted: #0A3D1F;
+  --muted-foreground: #86EFAC;
+
+  /* Accent */
+  --accent: #14532D;
+  --accent-foreground: #4ADE80;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #052E16;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #4ADE80;
+
+  /* Sidebar */
+  --sidebar: #0A3D1F;
+  --sidebar-foreground: #F0FDF4;
+
+  /* Popover */
+  --popover: #15803D;
+  --popover-foreground: #F0FDF4;
+
+  /* Semantic colors */
+  --success: #34D399;
+  --success-foreground: #052E16;
+  --success-light: #064E3B;
+  --warning: #FBBF24;
+  --warning-foreground: #052E16;
+  --warning-light: #451A03;
+  --info: #38BDF8;
+  --info-foreground: #052E16;
+  --info-light: #0C4A6E;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Pastel Theme
+   ============================================ */
+
+[data-theme="pastel"] {
+  /* Backgrounds */
+  --background: #FFF5F7;
+  --foreground: #331A24;
+
+  /* Card surfaces */
+  --card: #FFF8FA;
+  --card-foreground: #331A24;
+
+  /* Primary accent */
+  --primary: #E8B4C8;
+  --primary-foreground: #1A0C12;
+
+  /* Secondary */
+  --secondary: #F5D4E0;
+  --secondary-foreground: #331A24;
+
+  /* Muted */
+  --muted: #F5E6EA;
+  --muted-foreground: #8B5669;
+
+  /* Accent */
+  --accent: #E8B4C8;
+  --accent-foreground: #26131B;
+
+  /* Destructive */
+  --destructive: #DC788C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #E8B4C880;
+
+  /* Sidebar */
+  --sidebar: #FFF8FA;
+  --sidebar-foreground: #331A24;
+
+  /* Popover */
+  --popover: #FFFBFC;
+  --popover-foreground: #331A24;
+
+  /* Semantic colors */
+  --success: #B4DCC0;
+  --success-foreground: #331A24;
+  --success-light: #EAF5ED;
+  --warning: #F0C88C;
+  --warning-foreground: #331A24;
+  --warning-light: #FCF3E4;
+  --info: #B4C8E8;
+  --info-foreground: #331A24;
+  --info-light: #E8EEF7;
+  --error: #DC788C;
+  --error-light: #FAEBEE;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="pastel"].dark {
+  /* Backgrounds */
+  --background: #1A1523;
+  --foreground: #E5CCDB;
+
+  /* Card surfaces */
+  --card: #241F2D;
+  --card-foreground: #E5CCDB;
+
+  /* Primary accent */
+  --primary: #C795B8;
+  --primary-foreground: #F2E6ED;
+
+  /* Secondary */
+  --secondary: #2E293D;
+  --secondary-foreground: #E5CCDB;
+
+  /* Muted */
+  --muted: #2E2937;
+  --muted-foreground: #D6B3C7;
+
+  /* Accent */
+  --accent: #C795B8;
+  --accent-foreground: #EDDEE6;
+
+  /* Destructive */
+  --destructive: #C86478;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #C795B866;
+
+  /* Sidebar */
+  --sidebar: #2E2937;
+  --sidebar-foreground: #E5CCDB;
+
+  /* Popover */
+  --popover: #2E2A3C;
+  --popover-foreground: #E5CCDB;
+
+  /* Semantic colors */
+  --success: #8CC88C;
+  --success-foreground: #1A1523;
+  --success-light: #2E293D;
+  --warning: #DCA64C;
+  --warning-foreground: #1A1523;
+  --warning-light: #2E293D;
+  --info: #8CB4DC;
+  --info-foreground: #1A1523;
+  --info-light: #2E293D;
+  --error: #C86478;
+  --error-light: #2E293D;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Subtle Theme
+   ============================================ */
+
+[data-theme="subtle"] {
+  /* Backgrounds */
+  --background: #FAFAF8;
+  --foreground: #232325;
+
+  /* Card surfaces */
+  --card: #FDFDFB;
+  --card-foreground: #232325;
+
+  /* Primary accent */
+  --primary: #6B6B70;
+  --primary-foreground: #121213;
+
+  /* Secondary */
+  --secondary: #A8A8AD;
+  --secondary-foreground: #232325;
+
+  /* Muted */
+  --muted: #F0F0EE;
+  --muted-foreground: #4B4B4E;
+
+  /* Accent */
+  --accent: #6B6B70;
+  --accent-foreground: #151516;
+
+  /* Destructive */
+  --destructive: #BE4646;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #6B6B7080;
+
+  /* Sidebar */
+  --sidebar: #FDFDFB;
+  --sidebar-foreground: #232325;
+
+  /* Popover */
+  --popover: #FFFFFD;
+  --popover-foreground: #232325;
+
+  /* Semantic colors */
+  --success: #46B446;
+  --success-foreground: #232325;
+  --success-light: #F5FAF5;
+  --warning: #C8AA46;
+  --warning-foreground: #232325;
+  --warning-light: #FAF8F0;
+  --info: #4682C8;
+  --info-foreground: #232325;
+  --info-light: #F0F6FA;
+  --error: #BE4646;
+  --error-light: #FAF0F0;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="subtle"].dark {
+  /* Backgrounds */
+  --background: #0A0A0B;
+  --foreground: #D2D2D4;
+
+  /* Card surfaces */
+  --card: #19191A;
+  --card-foreground: #D2D2D4;
+
+  /* Primary accent */
+  --primary: #9A9AA0;
+  --primary-foreground: #E6E6E8;
+
+  /* Secondary */
+  --secondary: #28282A;
+  --secondary-foreground: #D2D2D4;
+
+  /* Muted */
+  --muted: #282829;
+  --muted-foreground: #AEAEB2;
+
+  /* Accent */
+  --accent: #9A9AA0;
+  --accent-foreground: #DCDCDE;
+
+  /* Destructive */
+  --destructive: #B43C3C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #9A9AA066;
+
+  /* Sidebar */
+  --sidebar: #282829;
+  --sidebar-foreground: #D2D2D4;
+
+  /* Popover */
+  --popover: #23232A;
+  --popover-foreground: #D2D2D4;
+
+  /* Semantic colors */
+  --success: #3CAA3C;
+  --success-foreground: #0A0A0B;
+  --success-light: #28282A;
+  --warning: #BEA03C;
+  --warning-foreground: #0A0A0B;
+  --warning-light: #28282A;
+  --info: #3C78BE;
+  --info-foreground: #0A0A0B;
+  --info-light: #28282A;
+  --error: #B43C3C;
+  --error-light: #28282A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Mono Theme
+   ============================================ */
+
+[data-theme="mono"] {
+  /* Backgrounds */
+  --background: #F8F8F8;
+  --foreground: #222222;
+
+  /* Card surfaces */
+  --card: #FBFBFB;
+  --card-foreground: #222222;
+
+  /* Primary accent */
+  --primary: #666666;
+  --primary-foreground: #111111;
+
+  /* Secondary */
+  --secondary: #A3A3A3;
+  --secondary-foreground: #222222;
+
+  /* Muted */
+  --muted: #EEEEEE;
+  --muted-foreground: #474747;
+
+  /* Accent */
+  --accent: #666666;
+  --accent-foreground: #141414;
+
+  /* Destructive */
+  --destructive: #AA4646;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #66666680;
+
+  /* Sidebar */
+  --sidebar: #FBFBFB;
+  --sidebar-foreground: #222222;
+
+  /* Popover */
+  --popover: #FDFDFD;
+  --popover-foreground: #222222;
+
+  /* Semantic colors */
+  --success: #46AA46;
+  --success-foreground: #222222;
+  --success-light: #F5F5F5;
+  --warning: #BEAA46;
+  --warning-foreground: #222222;
+  --warning-light: #F8F8F8;
+  --info: #467BBE;
+  --info-foreground: #222222;
+  --info-light: #F5F8FA;
+  --error: #AA4646;
+  --error-light: #FAF0F0;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="mono"].dark {
+  /* Backgrounds */
+  --background: #0D0D0D;
+  --foreground: #CCCCCC;
+
+  /* Card surfaces */
+  --card: #1C1C1C;
+  --card-foreground: #CCCCCC;
+
+  /* Primary accent */
+  --primary: #AAAAAA;
+  --primary-foreground: #E1E1E1;
+
+  /* Secondary */
+  --secondary: #2A2A2A;
+  --secondary-foreground: #CCCCCC;
+
+  /* Muted */
+  --muted: #2B2B2B;
+  --muted-foreground: #BBBBBB;
+
+  /* Accent */
+  --accent: #AAAAAA;
+  --accent-foreground: #D5D5D5;
+
+  /* Destructive */
+  --destructive: #A03C3C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #AAAAAA66;
+
+  /* Sidebar */
+  --sidebar: #2B2B2B;
+  --sidebar-foreground: #CCCCCC;
+
+  /* Popover */
+  --popover: #262626;
+  --popover-foreground: #CCCCCC;
+
+  /* Semantic colors */
+  --success: #3CA03C;
+  --success-foreground: #0D0D0D;
+  --success-light: #2A2A2A;
+  --warning: #B4963C;
+  --warning-foreground: #0D0D0D;
+  --warning-light: #2A2A2A;
+  --info: #3C6EB4;
+  --info-foreground: #0D0D0D;
+  --info-light: #2A2A2A;
+  --error: #A03C3C;
+  --error-light: #2A2A2A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Midnight Theme
+   ============================================ */
+
+[data-theme="midnight"] {
+  /* Backgrounds */
+  --background: #EFF6FF;
+  --foreground: #123159;
+
+  /* Card surfaces */
+  --card: #F4F9FF;
+  --card-foreground: #123159;
+
+  /* Primary accent */
+  --primary: #3B82F6;
+  --primary-foreground: #09182C;
+
+  /* Secondary */
+  --secondary: #93B8ED;
+  --secondary-foreground: #123159;
+
+  /* Muted */
+  --muted: #E5F1FF;
+  --muted-foreground: #295BAC;
+
+  /* Accent */
+  --accent: #3B82F6;
+  --accent-foreground: #0C203B;
+
+  /* Destructive */
+  --destructive: #DC5064;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #3B82F680;
+
+  /* Sidebar */
+  --sidebar: #F4F9FF;
+  --sidebar-foreground: #123159;
+
+  /* Popover */
+  --popover: #F8FBFF;
+  --popover-foreground: #123159;
+
+  /* Semantic colors */
+  --success: #50C878;
+  --success-foreground: #123159;
+  --success-light: #F0FAF4;
+  --warning: #E6B450;
+  --warning-foreground: #123159;
+  --warning-light: #FBF8F0;
+  --info: #3B82F6;
+  --info-foreground: #123159;
+  --info-light: #EFF6FF;
+  --error: #DC5064;
+  --error-light: #FAF0F2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="midnight"].dark {
+  /* Backgrounds */
+  --background: #0A1628;
+  --foreground: #BDDCFA;
+
+  /* Card surfaces */
+  --card: #142032;
+  --card-foreground: #BDDCFA;
+
+  /* Primary accent */
+  --primary: #60A5FA;
+  --primary-foreground: #E0EFFC;
+
+  /* Secondary */
+  --secondary: #1E2A3C;
+  --secondary-foreground: #BDDCFA;
+
+  /* Muted */
+  --muted: #283446;
+  --muted-foreground: #7EB9FB;
+
+  /* Accent */
+  --accent: #60A5FA;
+  --accent-foreground: #CFE5FB;
+
+  /* Destructive */
+  --destructive: #C8465A;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #60A5FA66;
+
+  /* Sidebar */
+  --sidebar: #283446;
+  --sidebar-foreground: #BDDCFA;
+
+  /* Popover */
+  --popover: #1E2A3C;
+  --popover-foreground: #BDDCFA;
+
+  /* Semantic colors */
+  --success: #46BE6E;
+  --success-foreground: #0A1628;
+  --success-light: #1E2A3C;
+  --warning: #D2AA46;
+  --warning-foreground: #0A1628;
+  --warning-light: #1E2A3C;
+  --info: #60A5FA;
+  --info-foreground: #0A1628;
+  --info-light: #1E2A3C;
+  --error: #C8465A;
+  --error-light: #1E2A3C;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Warm Theme
+   ============================================ */
+
+[data-theme="warm"] {
+  /* Backgrounds */
+  --background: #FBF8F3;
+  --foreground: #362A1E;
+
+  /* Card surfaces */
+  --card: #FDFBF6;
+  --card-foreground: #362A1E;
+
+  /* Primary accent */
+  --primary: #D4A574;
+  --primary-foreground: #1B150F;
+
+  /* Secondary */
+  --secondary: #E8D2B8;
+  --secondary-foreground: #362A1E;
+
+  /* Muted */
+  --muted: #F1EEE9;
+  --muted-foreground: #947451;
+
+  /* Accent */
+  --accent: #D4A574;
+  --accent-foreground: #241C14;
+
+  /* Destructive */
+  --destructive: #C85A50;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D4A57480;
+
+  /* Sidebar */
+  --sidebar: #FDFBF6;
+  --sidebar-foreground: #362A1E;
+
+  /* Popover */
+  --popover: #FFFDF9;
+  --popover-foreground: #362A1E;
+
+  /* Semantic colors */
+  --success: #8CBE64;
+  --success-foreground: #362A1E;
+  --success-light: #F5FAF0;
+  --warning: #DCB45A;
+  --warning-foreground: #362A1E;
+  --warning-light: #FBF8F0;
+  --info: #8CAAD2;
+  --info-foreground: #362A1E;
+  --info-light: #F0F5FA;
+  --error: #C85A50;
+  --error-light: #FAF0EE;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="warm"].dark {
+  /* Backgrounds */
+  --background: #1C0F0A;
+  --foreground: #E5CEBA;
+
+  /* Card surfaces */
+  --card: #261914;
+  --card-foreground: #E5CEBA;
+
+  /* Primary accent */
+  --primary: #D4A574;
+  --primary-foreground: #F2E7DC;
+
+  /* Secondary */
+  --secondary: #302D28;
+  --secondary-foreground: #E5CEBA;
+
+  /* Muted */
+  --muted: #3A2D28;
+  --muted-foreground: #DDBA97;
+
+  /* Accent */
+  --accent: #D4A574;
+  --accent-foreground: #ECDBCB;
+
+  /* Destructive */
+  --destructive: #BE5046;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D4A57466;
+
+  /* Sidebar */
+  --sidebar: #3A2D28;
+  --sidebar-foreground: #E5CEBA;
+
+  /* Popover */
+  --popover: #30231E;
+  --popover-foreground: #E5CEBA;
+
+  /* Semantic colors */
+  --success: #82B45A;
+  --success-foreground: #1C0F0A;
+  --success-light: #302D28;
+  --warning: #D2AA50;
+  --warning-foreground: #1C0F0A;
+  --warning-light: #302D28;
+  --info: #82A0C8;
+  --info-foreground: #1C0F0A;
+  --info-light: #302D28;
+  --error: #BE5046;
+  --error-light: #302D28;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Cherry Theme - Vibrant pink and red tones
+   ============================================ */
+
+[data-theme="cherry"] {
+  /* Base colors */
+  --background: #FFF1F2;
+  --foreground: #881337;
+  --card: #FFF5F7;
+  --card-foreground: #881337;
+  --popover: #FFF1F2;
+  --popover-foreground: #881337;
+
+  /* Primary colors (accent) */
+  --primary: #E11D48;
+  --primary-foreground: #450A1E;
+
+  /* Secondary colors */
+  --secondary: #FFE4E6;
+  --secondary-foreground: #881337;
+
+  /* Accent colors */
+  --accent: #E11D48;
+  --accent-foreground: #450A1E;
+
+  /* Muted colors */
+  --muted: #FCE7F3;
+  --muted-foreground: #9F1239;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #E11D48;
+
+  /* Chart colors */
+  --chart-1: #E11D48;
+  --chart-2: #FB7185;
+  --chart-3: #FDA4AF;
+  --chart-4: #FCA5A5;
+  --chart-5: #F87171;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #450A1E;
+  --success-light: #FFE4E6;
+  --warning: #F59E0B;
+  --warning-foreground: #450A1E;
+  --warning-light: #FFE4E6;
+  --info: #3B82F6;
+  --info-foreground: #450A1E;
+  --info-light: #FFE4E6;
+  --error: #DC2626;
+  --error-light: #FFE4E6;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="cherry"].dark {
+  /* Base colors */
+  --background: #1A0509;
+  --foreground: #FCA5A5;
+  --card: #25070C;
+  --card-foreground: #FCA5A5;
+  --popover: #1A0509;
+  --popover-foreground: #FCA5A5;
+
+  /* Primary colors (accent) */
+  --primary: #FB7185;
+  --primary-foreground: #FFF1F2;
+
+  /* Secondary colors */
+  --secondary: #300A12;
+  --secondary-foreground: #FDA4AF;
+
+  /* Accent colors */
+  --accent: #FB7185;
+  --accent-foreground: #FFF1F2;
+
+  /* Muted colors */
+  --muted: #350E18;
+  --muted-foreground: #F9A8D4;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #FB7185;
+
+  /* Chart colors */
+  --chart-1: #FB7185;
+  --chart-2: #FDA4AF;
+  --chart-3: #E11D48;
+  --chart-4: #F87171;
+  --chart-5: #FCA5A5;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #1A0509;
+  --success-light: #25070C;
+  --warning: #FCD34D;
+  --warning-foreground: #1A0509;
+  --warning-light: #25070C;
+  --info: #60A5FA;
+  --info-foreground: #1A0509;
+  --info-light: #25070C;
+  --error: #F87171;
+  --error-light: #25070C;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Amber Theme - Warm golden and honey tones
+   ============================================ */
+
+[data-theme="amber"] {
+  /* Base colors */
+  --background: #FFFBEB;
+  --foreground: #78350F;
+  --card: #FEFCF3;
+  --card-foreground: #78350F;
+  --popover: #FFFBEB;
+  --popover-foreground: #78350F;
+
+  /* Primary colors (accent) */
+  --primary: #F59E0B;
+  --primary-foreground: #451A03;
+
+  /* Secondary colors */
+  --secondary: #FEF3C7;
+  --secondary-foreground: #78350F;
+
+  /* Accent colors */
+  --accent: #F59E0B;
+  --accent-foreground: #451A03;
+
+  /* Muted colors */
+  --muted: #FDE68A;
+  --muted-foreground: #92400E;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #F59E0B;
+
+  /* Chart colors */
+  --chart-1: #F59E0B;
+  --chart-2: #FCD34D;
+  --chart-3: #FBBF24;
+  --chart-4: #FDE047;
+  --chart-5: #FEF08A;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #451A03;
+  --success-light: #FEF3C7;
+  --warning: #F59E0B;
+  --warning-foreground: #451A03;
+  --warning-light: #FEF3C7;
+  --info: #3B82F6;
+  --info-foreground: #451A03;
+  --info-light: #FEF3C7;
+  --error: #DC2626;
+  --error-light: #FEF3C7;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="amber"].dark {
+  /* Base colors */
+  --background: #1C1508;
+  --foreground: #FDE68A;
+  --card: #2B1F0B;
+  --card-foreground: #FDE68A;
+  --popover: #1C1508;
+  --popover-foreground: #FDE68A;
+
+  /* Primary colors (accent) */
+  --primary: #FCD34D;
+  --primary-foreground: #FFFBEB;
+
+  /* Secondary colors */
+  --secondary: #362A10;
+  --secondary-foreground: #FDE68A;
+
+  /* Accent colors */
+  --accent: #FCD34D;
+  --accent-foreground: #FFFBEB;
+
+  /* Muted colors */
+  --muted: #453418;
+  --muted-foreground: #FEF08A;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #FCD34D;
+
+  /* Chart colors */
+  --chart-1: #FCD34D;
+  --chart-2: #FDE68A;
+  --chart-3: #F59E0B;
+  --chart-4: #FBBF24;
+  --chart-5: #FEF08A;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #1C1508;
+  --success-light: #2B1F0B;
+  --warning: #FCD34D;
+  --warning-foreground: #1C1508;
+  --warning-light: #2B1F0B;
+  --info: #60A5FA;
+  --info-foreground: #1C1508;
+  --info-light: #2B1F0B;
+  --error: #F87171;
+  --error-light: #2B1F0B;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Mint Theme - Fresh cool green with teal accents
+   ============================================ */
+
+[data-theme="mint"] {
+  /* Base colors */
+  --background: #ECFDF5;
+  --foreground: #065F46;
+  --card: #F0FDF4;
+  --card-foreground: #065F46;
+  --popover: #ECFDF5;
+  --popover-foreground: #065F46;
+
+  /* Primary colors (accent) */
+  --primary: #10B981;
+  --primary-foreground: #022C22;
+
+  /* Secondary colors */
+  --secondary: #D1FAE5;
+  --secondary-foreground: #065F46;
+
+  /* Accent colors */
+  --accent: #10B981;
+  --accent-foreground: #022C22;
+
+  /* Muted colors */
+  --muted: #A7F3D0;
+  --muted-foreground: #047857;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #10B981;
+
+  /* Chart colors */
+  --chart-1: #10B981;
+  --chart-2: #6EE7B7;
+  --chart-3: #34D399;
+  --chart-4: #A7F3D0;
+  --chart-5: #6EE7B7;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #022C22;
+  --success-light: #D1FAE5;
+  --warning: #F59E0B;
+  --warning-foreground: #022C22;
+  --warning-light: #D1FAE5;
+  --info: #3B82F6;
+  --info-foreground: #022C22;
+  --info-light: #D1FAE5;
+  --error: #DC2626;
+  --error-light: #D1FAE5;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="mint"].dark {
+  /* Base colors */
+  --background: #052E1C;
+  --foreground: #A7F3D0;
+  --card: #073D27;
+  --card-foreground: #A7F3D0;
+  --popover: #052E1C;
+  --popover-foreground: #A7F3D0;
+
+  /* Primary colors (accent) */
+  --primary: #6EE7B7;
+  --primary-foreground: #ECFDF5;
+
+  /* Secondary colors */
+  --secondary: #0A5336;
+  --secondary-foreground: #A7F3D0;
+
+  /* Accent colors */
+  --accent: #6EE7B7;
+  --accent-foreground: #ECFDF5;
+
+  /* Muted colors */
+  --muted: #0F6B45;
+  --muted-foreground: #D1FAE5;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #6EE7B7;
+
+  /* Chart colors */
+  --chart-1: #6EE7B7;
+  --chart-2: #A7F3D0;
+  --chart-3: #10B981;
+  --chart-4: #34D399;
+  --chart-5: #6EE7B7;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #052E1C;
+  --success-light: #073D27;
+  --warning: #FCD34D;
+  --warning-foreground: #052E1C;
+  --warning-light: #073D27;
+  --info: #60A5FA;
+  --info-foreground: #052E1C;
+  --info-light: #073D27;
+  --error: #F87171;
+  --error-light: #073D27;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Lavender Theme - Soft purple and lilac tones
+   ============================================ */
+
+[data-theme="lavender"] {
+  /* Base colors */
+  --background: #F5F3FF;
+  --foreground: #5B21B6;
+  --card: #FAF8FF;
+  --card-foreground: #5B21B6;
+  --popover: #F5F3FF;
+  --popover-foreground: #5B21B6;
+
+  /* Primary colors (accent) */
+  --primary: #8B5CF6;
+  --primary-foreground: #2E1065;
+
+  /* Secondary colors */
+  --secondary: #EDE9FE;
+  --secondary-foreground: #5B21B6;
+
+  /* Accent colors */
+  --accent: #8B5CF6;
+  --accent-foreground: #2E1065;
+
+  /* Muted colors */
+  --muted: #DDD6FE;
+  --muted-foreground: #6D28D9;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #8B5CF6;
+
+  /* Chart colors */
+  --chart-1: #8B5CF6;
+  --chart-2: #A78BFA;
+  --chart-3: #C4B5FD;
+  --chart-4: #DDD6FE;
+  --chart-5: #A78BFA;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #2E1065;
+  --success-light: #EDE9FE;
+  --warning: #F59E0B;
+  --warning-foreground: #2E1065;
+  --warning-light: #EDE9FE;
+  --info: #3B82F6;
+  --info-foreground: #2E1065;
+  --info-light: #EDE9FE;
+  --error: #DC2626;
+  --error-light: #EDE9FE;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="lavender"].dark {
+  /* Base colors */
+  --background: #1A0F2E;
+  --foreground: #DDD6FE;
+  --card: #271847;
+  --card-foreground: #DDD6FE;
+  --popover: #1A0F2E;
+  --popover-foreground: #DDD6FE;
+
+  /* Primary colors (accent) */
+  --primary: #A78BFA;
+  --primary-foreground: #F5F3FF;
+
+  /* Secondary colors */
+  --secondary: #3B2264;
+  --secondary-foreground: #DDD6FE;
+
+  /* Accent colors */
+  --accent: #A78BFA;
+  --accent-foreground: #F5F3FF;
+
+  /* Muted colors */
+  --muted: #4C1D95;
+  --muted-foreground: #EDE9FE;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #A78BFA;
+
+  /* Chart colors */
+  --chart-1: #A78BFA;
+  --chart-2: #DDD6FE;
+  --chart-3: #8B5CF6;
+  --chart-4: #C4B5FD;
+  --chart-5: #A78BFA;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #1A0F2E;
+  --success-light: #271847;
+  --warning: #FCD34D;
+  --warning-foreground: #1A0F2E;
+  --warning-light: #271847;
+  --info: #60A5FA;
+  --info-foreground: #1A0F2E;
+  --info-light: #271847;
+  --error: #F87171;
+  --error-light: #271847;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Slate Theme - Professional cool gray tones
+   ============================================ */
+
+[data-theme="slate"] {
+  /* Base colors */
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  --card: #FCFDFE;
+  --card-foreground: #1E293B;
+  --popover: #F8FAFC;
+  --popover-foreground: #1E293B;
+
+  /* Primary colors (accent) */
+  --primary: #475569;
+  --primary-foreground: #0F172A;
+
+  /* Secondary colors */
+  --secondary: #E2E8F0;
+  --secondary-foreground: #1E293B;
+
+  /* Accent colors */
+  --accent: #475569;
+  --accent-foreground: #0F172A;
+
+  /* Muted colors */
+  --muted: #CBD5E1;
+  --muted-foreground: #334155;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #475569;
+
+  /* Chart colors */
+  --chart-1: #475569;
+  --chart-2: #94A3B8;
+  --chart-3: #64748B;
+  --chart-4: #CBD5E1;
+  --chart-5: #94A3B8;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #0F172A;
+  --success-light: #E2E8F0;
+  --warning: #F59E0B;
+  --warning-foreground: #0F172A;
+  --warning-light: #E2E8F0;
+  --info: #3B82F6;
+  --info-foreground: #0F172A;
+  --info-light: #E2E8F0;
+  --error: #DC2626;
+  --error-light: #E2E8F0;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="slate"].dark {
+  /* Base colors */
+  --background: #0F172A;
+  --foreground: #CBD5E1;
+  --card: #1E293B;
+  --card-foreground: #CBD5E1;
+  --popover: #0F172A;
+  --popover-foreground: #CBD5E1;
+
+  /* Primary colors (accent) */
+  --primary: #94A3B8;
+  --primary-foreground: #F8FAFC;
+
+  /* Secondary colors */
+  --secondary: #334155;
+  --secondary-foreground: #CBD5E1;
+
+  /* Accent colors */
+  --accent: #94A3B8;
+  --accent-foreground: #F8FAFC;
+
+  /* Muted colors */
+  --muted: #475569;
+  --muted-foreground: #E2E8F0;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #94A3B8;
+
+  /* Chart colors */
+  --chart-1: #94A3B8;
+  --chart-2: #CBD5E1;
+  --chart-3: #475569;
+  --chart-4: #64748B;
+  --chart-5: #94A3B8;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #0F172A;
+  --success-light: #1E293B;
+  --warning: #FCD34D;
+  --warning-foreground: #0F172A;
+  --warning-light: #1E293B;
+  --info: #60A5FA;
+  --info-foreground: #0F172A;
+  --info-light: #1E293B;
+  --error: #F87171;
+  --error-light: #1E293B;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Sunset Theme - Warm orange and coral tones
+   ============================================ */
+
+[data-theme="sunset"] {
+  /* Base colors */
+  --background: #FFF7ED;
+  --foreground: #7C2D12;
+  --card: #FFFBF5;
+  --card-foreground: #7C2D12;
+  --popover: #FFF7ED;
+  --popover-foreground: #7C2D12;
+
+  /* Primary colors (accent) */
+  --primary: #EA580C;
+  --primary-foreground: #431407;
+
+  /* Secondary colors */
+  --secondary: #FFEDD5;
+  --secondary-foreground: #7C2D12;
+
+  /* Accent colors */
+  --accent: #EA580C;
+  --accent-foreground: #431407;
+
+  /* Muted colors */
+  --muted: #FED7AA;
+  --muted-foreground: #9A3412;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #EA580C;
+
+  /* Chart colors */
+  --chart-1: #EA580C;
+  --chart-2: #FB923C;
+  --chart-3: #FDBA74;
+  --chart-4: #FED7AA;
+  --chart-5: #FB923C;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Semantic colors */
+  --success: #10B981;
+  --success-foreground: #431407;
+  --success-light: #FFEDD5;
+  --warning: #F59E0B;
+  --warning-foreground: #431407;
+  --warning-light: #FFEDD5;
+  --info: #3B82F6;
+  --info-foreground: #431407;
+  --info-light: #FFEDD5;
+  --error: #DC2626;
+  --error-light: #FFEDD5;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="sunset"].dark {
+  /* Base colors */
+  --background: #1C0A05;
+  --foreground: #FED7AA;
+  --card: #2B1008;
+  --card-foreground: #FED7AA;
+  --popover: #1C0A05;
+  --popover-foreground: #FED7AA;
+
+  /* Primary colors (accent) */
+  --primary: #FB923C;
+  --primary-foreground: #FFF7ED;
+
+  /* Secondary colors */
+  --secondary: #3B1810;
+  --secondary-foreground: #FED7AA;
+
+  /* Accent colors */
+  --accent: #FB923C;
+  --accent-foreground: #FFF7ED;
+
+  /* Muted colors */
+  --muted: #4F2418;
+  --muted-foreground: #FFEDD5;
+
+  /* Destructive colors */
+  --destructive: #DC2626;
+  --destructive-foreground: #FAFAFA;
+
+  /* Border and input */
+  --border: transparent;
+  --input: transparent;
+  --ring: #FB923C;
+
+  /* Chart colors */
+  --chart-1: #FB923C;
+  --chart-2: #FED7AA;
+  --chart-3: #EA580C;
+  --chart-4: #FDBA74;
+  --chart-5: #FB923C;
+
+  /* Semantic colors */
+  --success: #6EE7B7;
+  --success-foreground: #1C0A05;
+  --success-light: #2B1008;
+  --warning: #FCD34D;
+  --warning-foreground: #1C0A05;
+  --warning-light: #2B1008;
+  --info: #60A5FA;
+  --info-foreground: #1C0A05;
+  --info-light: #2B1008;
+  --error: #F87171;
+  --error-light: #2B1008;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* Base styles */
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography utilities */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Card styles - following design system card-based modularity */
+.card-surface {
+  background-color: var(--card);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+.dark .card-surface {
+  /* In dark mode, cards use borders instead of shadows */
+  box-shadow: none;
+}
+
+:root .card-surface {
+  /* Light mode can use subtle shadows */
+  box-shadow: none;
+}
+
+/* Interactive card hover state */
+.card-interactive {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-interactive:hover {
+  opacity: 0.9;
+}
+
+/* Surface elevated - for dropdowns, popovers */
+.surface-elevated {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.dark .surface-elevated {
+  background-color: #1A1A1F;
+}
+
+/* Custom scrollbar - following design system */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  opacity: 0.3;
+  border-radius: var(--radius-full);
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.5;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(134, 143, 151, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(134, 143, 151, 0.5);
+}
+
+/* Electron window dragging area */
+.electron-drag {
+  -webkit-app-region: drag;
+}
+
+.electron-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Focus visible styles - following accessibility guidelines */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Column status colors for Kanban */
+.column-backlog {
+  border-top-color: var(--muted-foreground);
+}
+
+.column-in-progress {
+  border-top-color: var(--info);
+}
+
+.column-ai-review {
+  border-top-color: var(--warning);
+}
+
+.column-human-review {
+  border-top-color: #A855F7;
+}
+
+.column-done {
+  border-top-color: var(--success);
+}
+
+/* Progress bar working animation - subtle glow sweep */
+@keyframes progress-glow-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.progress-working {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-working::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(214, 216, 118, 0.2);
+  animation: progress-glow-sweep 2s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Light mode variant */
+:root .progress-working::after {
+  background: rgba(165, 166, 106, 0.2);
+}
+
+/* ============================================
+   Task Card Enhanced Styles
+   ============================================ */
+
+/* Task card hover glow effect */
+.task-card-glow {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-card-glow:hover {
+  box-shadow: 0 0 0 1px var(--primary), 0 4px 12px -2px rgba(214, 216, 118, 0.15);
+}
+
+:root .task-card-glow:hover {
+  box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg);
+}
+
+/* Progress bar working animation */
+.progress-working {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-working::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  animation: progress-sweep 2s ease-in-out infinite;
+}
+
+@keyframes progress-sweep {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(200%); }
+}
+
+/* Status badge pulse for running tasks */
+.status-running {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Drag overlay shadow */
+.drag-overlay-shadow {
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.25),
+    0 10px 10px -5px rgba(0, 0, 0, 0.15),
+    0 0 0 1px var(--primary);
+}
+
+/* Drop zone highlight */
+.drop-zone-active {
+  background: rgba(214, 216, 118, 0.08);
+  border-color: var(--primary);
+}
+
+/* Column empty state animation */
+.empty-state-bounce {
+  animation: empty-bounce 3s ease-in-out infinite;
+}
+
+@keyframes empty-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Badge overflow indicator */
+.badge-overflow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+/* Subtask indicator dot with tooltip support */
+.subtask-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  transition: transform 0.15s ease;
+  cursor: help;
+}
+
+.subtask-dot:hover {
+  transform: scale(1.5);
+}
+
+/* Task title truncation with fade */
+.title-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Section divider with label */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   Enhanced Task Card Styling
+   ============================================ */
+
+/* Task card enhanced hover effect */
+.task-card-enhanced {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-card-enhanced:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Progress bar animated shimmer for active state */
+.progress-animated-fill {
+  background: var(--primary);
+  animation: progress-shimmer 2s linear infinite;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Subtask status dot styling */
+.subtask-dot {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.subtask-dot:hover {
+  transform: scale(1.5);
+}
+
+.subtask-dot-active {
+  animation: subtask-dot-pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes subtask-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Empty column drop zone state */
+.empty-column-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.empty-column-dropzone:hover,
+.empty-column-dropzone.active {
+  border-color: rgba(214, 216, 118, 0.4);
+  background-color: rgba(214, 216, 118, 0.05);
+}
+
+/* Drag overlay card styling */
+.drag-overlay-card {
+  opacity: 0.95;
+  transform: rotate(2deg) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  cursor: grabbing;
+}
+
+.dark .drag-overlay-card {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+/* Dragging source placeholder effect */
+.dragging-placeholder {
+  opacity: 0.4;
+  transform: scale(0.98);
+  border-style: dashed;
+}
+
+/* Drop zone highlight when dragging over */
+.drop-zone-highlight {
+  border-color: var(--primary) !important;
+  background-color: rgba(214, 216, 118, 0.08) !important;
+}
+
+/* Column count badge styling */
+.column-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.375rem;
+  border-radius: var(--radius-full);
+  background: var(--secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  transition: all 0.2s ease;
+}
+
+/* Phase progress indicator bar */
+.phase-indicator {
+  display: flex;
+  gap: 2px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.phase-indicator-segment {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.phase-indicator-segment.active {
+  filter: brightness(1.2);
+}
+
+/* Badge priority ordering */
+.badge-priority-urgent {
+  order: -3;
+}
+
+.badge-priority-high {
+  order: -2;
+}
+
+.badge-priority-medium {
+  order: -1;
+}
+
+/* Review section styling */
+.review-section-highlight {
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.05);
+  border-radius: var(--radius-xl);
+  padding: 1rem;
+}
+
+/* Success completion state */
+.completion-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--success);
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(78, 190, 150, 0.1);
+}
+
+/* Section divider with gradient */
+.section-divider-gradient {
+  height: 1px;
+  background: var(--border);
+  opacity: 0.15;
+  margin: 1rem 0;
+}
+
+/* Section divider with icon label */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+:root .section-divider {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Status badge running animation */
+.status-running {
+  animation: status-running-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-running-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Metadata list styling */
+.metadata-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metadata-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Tooltip enhanced styling */
+.tooltip-enhanced {
+  max-width: 250px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dark .tooltip-enhanced {
+  background: #1A1A1F;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   Full Screen Dialog Animations
+   ============================================ */
+
+/* Zoom in/out animations for full-screen dialogs */
+@keyframes zoom-in-98 {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoom-out-98 {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* Apply animations via data attributes (Radix UI pattern) */
+[data-state="open"].animate-in.zoom-in-98 {
+  animation: zoom-in-98 0.2s ease-out;
+}
+
+[data-state="closed"].animate-out.zoom-out-98 {
+  animation: zoom-out-98 0.2s ease-in;
+}
+
+/* ============================================
+   UI Scale System (75% - 200%)
+   ============================================ */
+
+/* Explicit base font size */
+:root {
+  font-size: 16px;
+  transition: font-size 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scale levels via data-ui-scale attribute */
+[data-ui-scale="75"] { font-size: 12px; }
+[data-ui-scale="80"] { font-size: 12.8px; }
+[data-ui-scale="85"] { font-size: 13.6px; }
+[data-ui-scale="90"] { font-size: 14.4px; }
+[data-ui-scale="95"] { font-size: 15.2px; }
+[data-ui-scale="100"] { font-size: 16px; }
+[data-ui-scale="105"] { font-size: 16.8px; }
+[data-ui-scale="110"] { font-size: 17.6px; }
+[data-ui-scale="115"] { font-size: 18.4px; }
+[data-ui-scale="120"] { font-size: 19.2px; }
+[data-ui-scale="125"] { font-size: 20px; }
+[data-ui-scale="130"] { font-size: 20.8px; }
+[data-ui-scale="135"] { font-size: 21.6px; }
+[data-ui-scale="140"] { font-size: 22.4px; }
+[data-ui-scale="145"] { font-size: 23.2px; }
+[data-ui-scale="150"] { font-size: 24px; }
+[data-ui-scale="155"] { font-size: 24.8px; }
+[data-ui-scale="160"] { font-size: 25.6px; }
+[data-ui-scale="165"] { font-size: 26.4px; }
+[data-ui-scale="170"] { font-size: 27.2px; }
+[data-ui-scale="175"] { font-size: 28px; }
+[data-ui-scale="180"] { font-size: 28.8px; }
+[data-ui-scale="185"] { font-size: 29.6px; }
+[data-ui-scale="190"] { font-size: 30.4px; }
+[data-ui-scale="195"] { font-size: 31.2px; }
+[data-ui-scale="200"] { font-size: 32px; }

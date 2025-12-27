@@ -210,6 +210,7 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
                     onStageOnlyChange={state.setStageOnly}
                     onShowConflictDialog={state.setShowConflictDialog}
                     onLoadMergePreview={state.loadMergePreview}
+                    onRefreshDiff={state.refreshDiff}
                   />
                 )}
               </div>

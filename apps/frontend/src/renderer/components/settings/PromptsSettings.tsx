@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, Info, RotateCcw, ChevronDown, ChevronUp, GitMerge, Code, CheckSquare, FileText } from '@/lib/icons';
+import { MessageSquare, Info, RotateCcw, ChevronDown, ChevronUp, GitMerge, Code, CheckSquare, FileText, Lightbulb, Map, Sparkles } from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
@@ -10,17 +10,25 @@ import { cn } from '../../lib/utils';
 import { DEFAULT_APP_SETTINGS } from '../../../shared/constants';
 import type { AppSettings, PromptConfig, MergePromptConfig, TaskExecutionPromptConfig } from '../../../shared/types';
 
+export interface AdditionalPromptsData {
+  ideationPrompts: Record<string, string>;
+  roadmapDiscovery: string;
+  roadmapFeatures: string;
+  insightsPrompt: string;
+}
+
 interface PromptsSettingsProps {
   settings: AppSettings;
   onSettingsChange: (settings: AppSettings) => void;
+  onAdditionalPromptsReady?: (data: AdditionalPromptsData | null) => void;
 }
 
 /**
  * Prompts Configuration settings
  * Controls all AI prompts used throughout the application
- * Organized into collapsible sections: Merge, Task Execution, Global
+ * Organized into collapsible sections: Merge, Task Execution, Ideation, Roadmap, Insights, Global
  */
-export function PromptsSettings({ settings, onSettingsChange }: PromptsSettingsProps) {
+export function PromptsSettings({ settings, onSettingsChange, onAdditionalPromptsReady }: PromptsSettingsProps) {
   const { t } = useTranslation('settings');
 
   // Get prompt config (with fallback to defaults)
@@ -32,12 +40,29 @@ export function PromptsSettings({ settings, onSettingsChange }: PromptsSettingsP
   // Section expansion state
   const [showMerge, setShowMerge] = useState(true);
   const [showTaskExecution, setShowTaskExecution] = useState(false);
+  const [showIdeation, setShowIdeation] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
   const [showGlobal, setShowGlobal] = useState(false);
 
   // Task execution sub-section expansion
   const [showPlanner, setShowPlanner] = useState(false);
   const [showCoder, setShowCoder] = useState(false);
   const [showQA, setShowQA] = useState(false);
+
+  // Ideation prompts state
+  const [ideationTypes, setIdeationTypes] = useState<Record<string, string>>({});
+  const [ideationPrompts, setIdeationPrompts] = useState<Record<string, string>>({});
+  const [ideationExpanded, setIdeationExpanded] = useState<Record<string, boolean>>({});
+
+  // Roadmap prompts state
+  const [roadmapDiscovery, setRoadmapDiscovery] = useState('');
+  const [roadmapFeatures, setRoadmapFeatures] = useState('');
+  const [showRoadmapDiscovery, setShowRoadmapDiscovery] = useState(false);
+  const [showRoadmapFeatures, setShowRoadmapFeatures] = useState(false);
+
+  // Insights prompt state
+  const [insightsPrompt, setInsightsPrompt] = useState('');
 
   // Load base prompts from .md files when task execution is first opened
   const [basePromptsLoaded, setBasePromptsLoaded] = useState(false);
@@ -81,6 +106,96 @@ export function PromptsSettings({ settings, onSettingsChange }: PromptsSettingsP
       loadBasePrompts();
     }
   }, [showTaskExecution, basePromptsLoaded, promptConfig, taskExecutionConfig, settings, onSettingsChange]);
+
+  // Load ideation types and prompts when ideation section is first opened
+  const [ideationLoaded, setIdeationLoaded] = useState(false);
+  useEffect(() => {
+    if (showIdeation && !ideationLoaded) {
+      const loadIdeation = async () => {
+        try {
+          // First get the list of available ideation types
+          const typesResult = await window.electronAPI.listIdeationPrompts();
+          if (typesResult.success && typesResult.data) {
+            setIdeationTypes(typesResult.data);
+
+            // Then load all the prompts
+            const types = Object.keys(typesResult.data);
+            const prompts: Record<string, string> = {};
+            for (const type of types) {
+              const result = await window.electronAPI.readIdeationPrompt(type);
+              if (result.success && result.data) {
+                prompts[type] = result.data;
+              }
+            }
+            setIdeationPrompts(prompts);
+          }
+          setIdeationLoaded(true);
+        } catch (error) {
+          console.error('Failed to load ideation prompts:', error);
+          setIdeationLoaded(true);
+        }
+      };
+      loadIdeation();
+    }
+  }, [showIdeation, ideationLoaded]);
+
+  // Load roadmap prompts when roadmap section is first opened
+  const [roadmapLoaded, setRoadmapLoaded] = useState(false);
+  useEffect(() => {
+    if (showRoadmap && !roadmapLoaded) {
+      const loadRoadmap = async () => {
+        try {
+          const [discoveryResult, featuresResult] = await Promise.all([
+            window.electronAPI.readRoadmapPrompt('discovery'),
+            window.electronAPI.readRoadmapPrompt('features')
+          ]);
+          if (discoveryResult.success && discoveryResult.data) {
+            setRoadmapDiscovery(discoveryResult.data);
+          }
+          if (featuresResult.success && featuresResult.data) {
+            setRoadmapFeatures(featuresResult.data);
+          }
+          setRoadmapLoaded(true);
+        } catch (error) {
+          console.error('Failed to load roadmap prompts:', error);
+          setRoadmapLoaded(true);
+        }
+      };
+      loadRoadmap();
+    }
+  }, [showRoadmap, roadmapLoaded]);
+
+  // Load insights prompt when insights section is first opened
+  const [insightsLoaded, setInsightsLoaded] = useState(false);
+  useEffect(() => {
+    if (showInsights && !insightsLoaded) {
+      const loadInsights = async () => {
+        try {
+          const result = await window.electronAPI.readInsightsPrompt();
+          if (result.success && result.data) {
+            setInsightsPrompt(result.data);
+          }
+          setInsightsLoaded(true);
+        } catch (error) {
+          console.error('Failed to load insights prompt:', error);
+          setInsightsLoaded(true);
+        }
+      };
+      loadInsights();
+    }
+  }, [showInsights, insightsLoaded]);
+
+  // Notify parent when additional prompts data changes
+  useEffect(() => {
+    if (onAdditionalPromptsReady) {
+      onAdditionalPromptsReady({
+        ideationPrompts,
+        roadmapDiscovery,
+        roadmapFeatures,
+        insightsPrompt
+      });
+    }
+  }, [ideationPrompts, roadmapDiscovery, roadmapFeatures, insightsPrompt, onAdditionalPromptsReady]);
 
   // Handler for merge config changes
   const handleMergeConfigChange = (updates: Partial<MergePromptConfig>) => {
@@ -568,7 +683,201 @@ export function PromptsSettings({ settings, onSettingsChange }: PromptsSettingsP
           )}
         </div>
 
-        {/* SECTION 3: Global Instructions */}
+        {/* SECTION 3: Ideation Prompts */}
+        <div className="rounded-lg border border-border bg-card">
+          <button
+            onClick={() => setShowIdeation(!showIdeation)}
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t('prompts.ideation.title')}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('prompts.ideation.sectionDescription')}
+                </p>
+              </div>
+            </div>
+            {showIdeation ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {showIdeation && (
+            <div className="border-t border-border">
+              {Object.entries(ideationTypes).map(([type, label]) => (
+                <div key={type} className="border-b border-border last:border-b-0">
+                  <button
+                    onClick={() => setIdeationExpanded(prev => ({ ...prev, [type]: !prev[type] }))}
+                    className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Lightbulb className="h-4 w-4 text-primary/80" />
+                      <div className="text-left">
+                        <h4 className="text-sm font-medium text-foreground">{label}</h4>
+                      </div>
+                    </div>
+                    {ideationExpanded[type] ? (
+                      <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </button>
+
+                  {ideationExpanded[type] && (
+                    <div className="px-8 pb-4 space-y-2 bg-muted/20">
+                      <Textarea
+                        value={ideationPrompts[type] || ''}
+                        onChange={(e) => {
+                          setIdeationPrompts(prev => ({ ...prev, [type]: e.target.value }));
+                        }}
+                        className="min-h-[150px] font-mono text-xs"
+                        placeholder={`Loading ${label.toLowerCase()} prompt...`}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 4: Roadmap Prompts */}
+        <div className="rounded-lg border border-border bg-card">
+          <button
+            onClick={() => setShowRoadmap(!showRoadmap)}
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Map className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t('prompts.roadmap.title')}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('prompts.roadmap.sectionDescription')}
+                </p>
+              </div>
+            </div>
+            {showRoadmap ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {showRoadmap && (
+            <div className="border-t border-border">
+              {/* Discovery Sub-Section */}
+              <div className="border-b border-border">
+                <button
+                  onClick={() => setShowRoadmapDiscovery(!showRoadmapDiscovery)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Map className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">
+                        {t('prompts.roadmap.discovery')}
+                      </h4>
+                    </div>
+                  </div>
+                  {showRoadmapDiscovery ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showRoadmapDiscovery && (
+                  <div className="px-8 pb-4 space-y-2 bg-muted/20">
+                    <Textarea
+                      value={roadmapDiscovery}
+                      onChange={(e) => setRoadmapDiscovery(e.target.value)}
+                      className="min-h-[150px] font-mono text-xs"
+                      placeholder="Loading discovery roadmap prompt..."
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Features Sub-Section */}
+              <div>
+                <button
+                  onClick={() => setShowRoadmapFeatures(!showRoadmapFeatures)}
+                  className="w-full flex items-center justify-between p-4 pl-8 hover:bg-accent/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Map className="h-4 w-4 text-primary/80" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-medium text-foreground">
+                        {t('prompts.roadmap.features')}
+                      </h4>
+                    </div>
+                  </div>
+                  {showRoadmapFeatures ? (
+                    <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+
+                {showRoadmapFeatures && (
+                  <div className="px-8 pb-4 space-y-2 bg-muted/20">
+                    <Textarea
+                      value={roadmapFeatures}
+                      onChange={(e) => setRoadmapFeatures(e.target.value)}
+                      className="min-h-[150px] font-mono text-xs"
+                      placeholder="Loading features roadmap prompt..."
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 5: Insights Prompt */}
+        <div className="rounded-lg border border-border bg-card">
+          <button
+            onClick={() => setShowInsights(!showInsights)}
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {t('prompts.insights.title')}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('prompts.insights.sectionDescription')}
+                </p>
+              </div>
+            </div>
+            {showInsights ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {showInsights && (
+            <div className="px-4 pb-4 space-y-2 border-t border-border pt-4">
+              <Textarea
+                value={insightsPrompt}
+                onChange={(e) => setInsightsPrompt(e.target.value)}
+                className="min-h-[150px] font-mono text-xs"
+                placeholder="Loading insights prompt..."
+              />
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 6: Global Instructions */}
         <div className="rounded-lg border border-border bg-card">
           <button
             onClick={() => setShowGlobal(!showGlobal)}

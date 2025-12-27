@@ -1,0 +1,6 @@
+{
+  "task_description": "Implement collapsible accordion-style behavior for tasks in the 'done' column of the kanban board. Tasks should be collapsed by default showing only essential info (title, badges), and smoothly expand when clicked to show full details. Use the existing Radix UI Collapsible component with CSS transitions for smooth animations.",
+  "workflow_type": "feature",
+  "services_involved": [],
+  "created_at": "2025-12-26T19:27:40.988258"
+}

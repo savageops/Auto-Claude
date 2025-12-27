@@ -130,11 +130,11 @@ export interface GraphitiDatabaseDetails {
 export function getGraphitiDatabaseDetails(projectEnvVars: EnvironmentVars): GraphitiDatabaseDetails {
   const dbPath = projectEnvVars['GRAPHITI_DB_PATH'] ||
                  process.env.GRAPHITI_DB_PATH ||
-                 require('path').join(require('os').homedir(), '.auto-claude', 'memories');
+                 require('path').join(require('os').homedir(), '.turret', 'memories');
 
   const database = projectEnvVars['GRAPHITI_DATABASE'] ||
                    process.env.GRAPHITI_DATABASE ||
-                   'auto_claude_memory';
+                   'turret_memory';
 
   return { dbPath, database };
 }

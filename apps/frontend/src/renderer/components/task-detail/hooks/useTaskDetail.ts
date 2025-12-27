@@ -195,6 +195,14 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     });
   }, []);
 
+  // Refresh worktree diff (used after discarding individual files)
+  const refreshDiff = useCallback(async () => {
+    const diffResult = await window.electronAPI.getWorktreeDiff(task.id);
+    if (diffResult.success && diffResult.data) {
+      setWorktreeDiff(diffResult.data);
+    }
+  }, [task.id]);
+
   // Clear merge preview cache when task changes to ensure fresh data is fetched
   // This invalidates any stale cached data (e.g., old uncommitted changes status)
   useEffect(() => {
@@ -327,5 +335,6 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     handleLogsScroll,
     togglePhase,
     loadMergePreview,
+    refreshDiff,
   };
 }

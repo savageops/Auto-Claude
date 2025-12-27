@@ -31,7 +31,7 @@ export class TitleGenerator extends EventEmitter {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     if (pythonPath) {
@@ -43,7 +43,7 @@ export class TitleGenerator extends EventEmitter {
   }
 
   /**
-   * Get the auto-claude source path (detects automatically if not configured)
+   * Get the turret source path (detects automatically if not configured)
    */
   private getAutoBuildSourcePath(): string | null {
     if (this.autoBuildSourcePath && existsSync(this.autoBuildSourcePath)) {
@@ -66,7 +66,7 @@ export class TitleGenerator extends EventEmitter {
   }
 
   /**
-   * Load environment variables from auto-claude .env file
+   * Load environment variables from turret .env file
    */
   private loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();
@@ -113,7 +113,7 @@ export class TitleGenerator extends EventEmitter {
     const autoBuildSource = this.getAutoBuildSourcePath();
 
     if (!autoBuildSource) {
-      debug('Auto-claude source path not found');
+      debug('Turret source path not found');
       return null;
     }
 

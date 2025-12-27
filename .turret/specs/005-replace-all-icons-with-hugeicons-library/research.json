@@ -1,0 +1,227 @@
+{
+  "integrations_researched": [
+    {
+      "name": "Hugeicons (Community Package)",
+      "type": "library",
+      "verified_package": {
+        "name": "hugeicons-react",
+        "install_command": "npm install hugeicons-react",
+        "version": "latest (free community package)",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { Home01Icon, MarketingIcon, UserIcon } from 'hugeicons-react'",
+          "import { HugeiconsProps, HugeiconsIcon } from 'hugeicons-react'"
+        ],
+        "initialization": "Direct import, no initialization required",
+        "key_functions": [
+          "<Home01Icon size={24} color=\"currentColor\" strokeWidth={1.5} />",
+          "<Home01Icon size={32} color=\"#4A90E2\" />",
+          "size prop: number or string (e.g., 24, '2rem')",
+          "color prop: string (hex, rgb, CSS variable, 'currentColor')",
+          "strokeWidth prop: number (default 1.5)"
+        ],
+        "verified_against": "Context7 MCP: /hugeicons/hugeicons-react"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["react"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_database": null
+      },
+      "gotchas": [
+        "This is the FREE community package - may NOT include Duotone style icons",
+        "Icons are stroke-based by default, not the Duotone style with filled backgrounds",
+        "Icon names follow pattern: Home01Icon, MarketingIcon, UserIcon, NotificationIcon",
+        "Default stroke width is 1.5",
+        "Supports TypeScript with HugeiconsProps type"
+      ],
+      "research_sources": [
+        "Context7 MCP: /hugeicons/hugeicons-react",
+        "https://github.com/hugeicons/hugeicons-react"
+      ]
+    },
+    {
+      "name": "Hugeicons (Official Pro - Duotone Style)",
+      "type": "library",
+      "verified_package": {
+        "name": "@hugeicons/react + @hugeicons-pro/core-duotone-rounded",
+        "install_command": "npm install @hugeicons/react @hugeicons-pro/core-duotone-rounded",
+        "version": "latest (Pro license required)",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { HugeiconsIcon } from '@hugeicons/react'",
+          "import { SearchIcon } from '@hugeicons-pro/core-duotone-rounded'"
+        ],
+        "initialization": "Direct import via HugeiconsIcon wrapper component",
+        "key_functions": [
+          "<HugeiconsIcon icon={SearchIcon} size={24} color=\"currentColor\" strokeWidth={1.5} />",
+          "icon prop: The imported icon component",
+          "size prop: number (e.g., 24)",
+          "color prop: string (defaults to 'currentColor')",
+          "altIcon prop: Alternative icon for state switching",
+          "showAlt prop: boolean to toggle between icon and altIcon"
+        ],
+        "verified_against": "Context7 MCP: /websites/hugeicons + /websites/docs_hugeicons_com"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["react", "@hugeicons/react"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_database": null
+      },
+      "gotchas": [
+        "REQUIRES PRO LICENSE for @hugeicons-pro packages",
+        "Duotone icons have two-color layers (fill and stroke)",
+        "Different API pattern: uses HugeiconsIcon wrapper component, not direct import",
+        "Pro packages may require npm registry authentication"
+      ],
+      "research_sources": [
+        "Context7 MCP: /websites/hugeicons",
+        "Context7 MCP: /websites/docs_hugeicons_com",
+        "https://hugeicons.com/docs"
+      ]
+    },
+    {
+      "name": "Local Hugeicons SVG Files (Duotone)",
+      "type": "local_assets",
+      "verified_package": {
+        "name": "Local SVG files at .refs/icons/hugeicons/Duotone/",
+        "install_command": "N/A - Already present in repository",
+        "version": "N/A",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "Option A: import { ReactComponent as HomeIcon } from '@refs/icons/hugeicons/Duotone/Home/home-01.svg'",
+          "Option B: Use SVGR to build React components from SVGs"
+        ],
+        "initialization": "Requires build configuration (Vite plugin or SVGR)",
+        "key_functions": [
+          "SVG icons are 24x24 pixels",
+          "Duotone structure: filled background layer + stroked foreground",
+          "Colors: fill='#D4D7E0' (light gray), stroke='#141B34' (dark)"
+        ],
+        "verified_against": "Direct file inspection of local SVG files"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": ["vite.config.ts (requires svgr plugin)"],
+        "dependencies": ["vite-plugin-svgr or @svgr/webpack"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_database": null
+      },
+      "gotchas": [
+        "SVGs have HARDCODED colors - not theme-aware!",
+        "fill='#D4D7E0' (light gray background) and stroke='#141B34' (dark stroke)",
+        "Will NOT adapt to dark/light theme automatically",
+        "Need to process SVGs to replace hardcoded colors with 'currentColor' or CSS variables",
+        "3670 SVG files across 60+ categories - large asset bundle",
+        "File naming: kebab-case (e.g., home-01.svg, alert-circle.svg)",
+        "Categories include: Home, Files Folders, Check Validation, Alert Notification, etc."
+      ],
+      "research_sources": [
+        "Direct file inspection: .refs/icons/hugeicons/Duotone/"
+      ]
+    },
+    {
+      "name": "lucide-react (Current Icon Library)",
+      "type": "library",
+      "verified_package": {
+        "name": "lucide-react",
+        "install_command": "npm install lucide-react",
+        "version": "0.560.0 (currently installed)",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { AlertCircle, Check, X } from 'lucide-react'",
+          "import { IconName } from '@/lib/icons' (centralized re-exports)"
+        ],
+        "initialization": "Direct import, no initialization",
+        "key_functions": [
+          "<AlertCircle size={24} color='currentColor' strokeWidth={2} />",
+          "Approximately 130 icons currently used in codebase",
+          "Icons centralized in apps/frontend/src/renderer/lib/icons.ts"
+        ],
+        "verified_against": "package.json and codebase inspection"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["react"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_database": null
+      },
+      "gotchas": [
+        "TO BE REPLACED - This is the current library being migrated away from",
+        "Centralized icon exports file exists at apps/frontend/src/renderer/lib/icons.ts",
+        "~130 icons currently in use across the codebase",
+        "Some components import directly from lucide-react, others from @/lib/icons"
+      ],
+      "research_sources": [
+        "package.json at apps/frontend/",
+        "apps/frontend/src/renderer/lib/icons.ts"
+      ]
+    }
+  ],
+  "unverified_claims": [
+    {
+      "claim": "hugeicons-react community package includes Duotone style icons",
+      "reason": "Documentation shows stroke-based icons. Duotone may require Pro license or local SVGs.",
+      "risk_level": "high"
+    },
+    {
+      "claim": "Pro package licensing requirements",
+      "reason": "Could not verify if @hugeicons-pro packages require paid license or npm registry auth",
+      "risk_level": "medium"
+    }
+  ],
+  "recommendations": [
+    "CRITICAL: The local Duotone SVG files have HARDCODED colors (#D4D7E0, #141B34) - they will NOT adapt to dark/light themes",
+    "Option 1 (Recommended): Use hugeicons-react community package for simplicity, but icons will be STROKE style not DUOTONE",
+    "Option 2: Process local SVG files to replace hardcoded colors with CSS variables for theme support, requires SVGR build step",
+    "Option 3: If Duotone is strictly required AND theme-aware, investigate Pro license for @hugeicons-pro/core-duotone-rounded",
+    "Create icon mapping file: Map current Lucide icon names to equivalent Hugeicons names",
+    "Update centralized icons.ts file to re-export Hugeicons instead of Lucide",
+    "Test icon sizing compatibility - Hugeicons default to 24px like Lucide"
+  ],
+  "icon_mapping_strategy": {
+    "current_library": "lucide-react",
+    "target_library": "hugeicons-react OR local SVGs",
+    "current_icon_count": 130,
+    "available_hugeicons": 3670,
+    "centralized_export_file": "apps/frontend/src/renderer/lib/icons.ts",
+    "naming_convention_difference": {
+      "lucide": "PascalCase (e.g., AlertCircle, ChevronDown)",
+      "hugeicons_npm": "PascalCase with suffix (e.g., AlertCircleIcon, Home01Icon)",
+      "hugeicons_svg": "kebab-case (e.g., alert-circle.svg, home-01.svg)"
+    }
+  },
+  "duotone_style_analysis": {
+    "structure": "Two-layer icons with filled background and stroked foreground",
+    "background_color": "#D4D7E0 (light gray fill)",
+    "foreground_color": "#141B34 (dark stroke)",
+    "theme_compatibility": "NOT THEME-AWARE - requires color replacement",
+    "recommended_fix": "Replace fill='#D4D7E0' with fill='var(--icon-bg)' and stroke='#141B34' with stroke='currentColor'"
+  },
+  "context7_libraries_used": [
+    "/hugeicons/hugeicons-react",
+    "/websites/hugeicons",
+    "/websites/docs_hugeicons_com"
+  ],
+  "created_at": "2024-12-26T12:00:00Z"
+}

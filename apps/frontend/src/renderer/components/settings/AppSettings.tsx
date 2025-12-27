@@ -38,7 +38,7 @@ import { LanguageSettings } from './LanguageSettings';
 import { GeneralSettings } from './GeneralSettings';
 import { IntegrationSettings } from './IntegrationSettings';
 import { AdvancedSettings } from './AdvancedSettings';
-import { PromptsSettings } from './PromptsSettings';
+import { PromptsSettings, type AdditionalPromptsData } from './PromptsSettings';
 import { ProjectSelector } from './ProjectSelector';
 import { ProjectSettingsContent, ProjectSettingsSection } from './ProjectSettingsContent';
 import { useProjectStore } from '../../stores/project-store';
@@ -117,6 +117,9 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
   const [projectSettingsHook, setProjectSettingsHook] = useState<UseProjectSettingsReturn | null>(null);
   const [projectError, setProjectError] = useState<string | null>(null);
 
+  // Additional prompts data (from PromptsSettings)
+  const [additionalPromptsData, setAdditionalPromptsData] = useState<AdditionalPromptsData | null>(null);
+
   // Load app version on mount
   useEffect(() => {
     window.electronAPI.getAppVersion().then(setVersion);
@@ -179,6 +182,48 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
       }
     }
 
+    // Save additional prompts (ideation, roadmap, insights) if they were modified
+    if (appSaveSuccess && additionalPromptsData) {
+      const savePromises = [];
+
+      // Save ideation prompts
+      for (const [type, content] of Object.entries(additionalPromptsData.ideationPrompts)) {
+        if (content) {
+          savePromises.push(
+            window.electronAPI.writeIdeationPrompt(type, content)
+          );
+        }
+      }
+
+      // Save roadmap prompts
+      if (additionalPromptsData.roadmapDiscovery) {
+        savePromises.push(
+          window.electronAPI.writeRoadmapPrompt('discovery', additionalPromptsData.roadmapDiscovery)
+        );
+      }
+      if (additionalPromptsData.roadmapFeatures) {
+        savePromises.push(
+          window.electronAPI.writeRoadmapPrompt('features', additionalPromptsData.roadmapFeatures)
+        );
+      }
+
+      // Save insights prompt
+      if (additionalPromptsData.insightsPrompt) {
+        savePromises.push(
+          window.electronAPI.writeInsightsPrompt(additionalPromptsData.insightsPrompt)
+        );
+      }
+
+      if (savePromises.length > 0) {
+        try {
+          await Promise.all(savePromises);
+        } catch (error) {
+          console.error('Failed to save additional prompts:', error);
+          // Continue anyway - settings were saved
+        }
+      }
+    }
+
     if (appSaveSuccess) {
       // Commit the theme so future cancels won't revert to old values
       commitTheme();
@@ -210,7 +255,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
       case 'integrations':
         return <IntegrationSettings settings={settings} onSettingsChange={setSettings} isOpen={open} />;
       case 'prompts':
-        return <PromptsSettings settings={settings} onSettingsChange={setSettings} />;
+        return <PromptsSettings settings={settings} onSettingsChange={setSettings} onAdditionalPromptsReady={setAdditionalPromptsData} />;
       case 'updates':
         return <AdvancedSettings settings={settings} onSettingsChange={setSettings} section="updates" version={version} />;
       case 'notifications':

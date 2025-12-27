@@ -34,7 +34,7 @@ export class SpecNumberLock {
 
   constructor(projectDir: string) {
     this.projectDir = projectDir;
-    this.lockDir = path.join(projectDir, '.auto-claude', '.locks');
+    this.lockDir = path.join(projectDir, '.turret', '.locks');
     this.lockFile = path.join(this.lockDir, 'spec-numbering.lock');
   }
 
@@ -147,7 +147,7 @@ export class SpecNumberLock {
     let maxNumber = 0;
 
     // Determine specs directory base path
-    const specsBase = autoBuildPath || '.auto-claude';
+    const specsBase = autoBuildPath || '.turret';
 
     // 1. Scan main project specs
     const mainSpecsDir = path.join(this.projectDir, specsBase, 'specs');

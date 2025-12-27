@@ -49,11 +49,11 @@ def get_allowed_tools(
     Returns:
         List of allowed tool names
     """
-    # Auto-claude tool mappings by agent type
+    # Turret tool mappings by agent type
     tool_mappings = {
         "planner": {
             "base": BASE_READ_TOOLS + BASE_WRITE_TOOLS,
-            "auto_claude": [
+            "turret": [
                 TOOL_GET_BUILD_PROGRESS,
                 TOOL_GET_SESSION_CONTEXT,
                 TOOL_RECORD_DISCOVERY,
@@ -61,7 +61,7 @@ def get_allowed_tools(
         },
         "coder": {
             "base": BASE_READ_TOOLS + BASE_WRITE_TOOLS,
-            "auto_claude": [
+            "turret": [
                 TOOL_UPDATE_SUBTASK_STATUS,
                 TOOL_GET_BUILD_PROGRESS,
                 TOOL_RECORD_DISCOVERY,
@@ -71,7 +71,7 @@ def get_allowed_tools(
         },
         "qa_reviewer": {
             "base": BASE_READ_TOOLS + ["Bash"],  # Can run tests but not edit
-            "auto_claude": [
+            "turret": [
                 TOOL_GET_BUILD_PROGRESS,
                 TOOL_UPDATE_QA_STATUS,
                 TOOL_GET_SESSION_CONTEXT,
@@ -81,11 +81,11 @@ def get_allowed_tools(
             # PR reviewers can ONLY read - no bash, no edits, no writes
             # This prevents the agent from switching branches or making changes
             "base": BASE_READ_TOOLS,
-            "auto_claude": [],  # No auto-claude tools needed for PR review
+            "turret": [],  # No turret tools needed for PR review
         },
         "qa_fixer": {
             "base": BASE_READ_TOOLS + BASE_WRITE_TOOLS,
-            "auto_claude": [
+            "turret": [
                 TOOL_UPDATE_SUBTASK_STATUS,
                 TOOL_GET_BUILD_PROGRESS,
                 TOOL_UPDATE_QA_STATUS,
@@ -99,7 +99,7 @@ def get_allowed_tools(
         agent_type = "coder"
 
     mapping = tool_mappings[agent_type]
-    tools = mapping["base"] + mapping["auto_claude"]
+    tools = mapping["base"] + mapping["turret"]
 
     # Add MCP tools for QA agents only, based on project capabilities
     if agent_type in ("qa_reviewer", "qa_fixer"):

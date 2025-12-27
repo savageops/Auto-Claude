@@ -1,0 +1,3 @@
+chore(icons): migrate to hugeicons duotone library
+
+Replace Lucide React icons with Hugeicons Duotone across the entire frontend codebase to standardize the visual language. Updates icon imports in 274 files, adds new icon SVG assets, and adjusts build configuration.

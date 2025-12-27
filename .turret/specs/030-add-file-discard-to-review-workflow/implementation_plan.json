@@ -1,0 +1,67 @@
+{
+  "feature": "Add file discard to review workflow",
+  "workflow_type": "feature",
+  "description": "Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.",
+  "created_at": "2025-12-27T00:12:18.777Z",
+  "updated_at": "2025-12-27T00:43:27.900Z",
+  "status": "in_progress",
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Add discard UI to DiffViewDialog",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "description": "Add discard button/action to each file entry in the diff view",
+          "status": "completed",
+          "notes": "Added discard button UI to DiffViewDialog. Implementation includes: optional onDiscardFile callback prop, Trash2 icon button with tooltip, ghost variant with destructive hover styling, stopPropagation for event handling. Button only renders when callback is provided.",
+          "updated_at": "2025-12-27T00:29:40.430457+00:00"
+        },
+        {
+          "id": "1.2",
+          "description": "Add confirmation dialog for destructive discard action",
+          "status": "completed",
+          "notes": "Added confirmation dialog for destructive discard action. Implementation includes: useState hook to track file pending discard (fileToDiscard), separate AlertDialog for confirmation with destructive styling, file path display in confirmation dialog with clear warning message, AlertDialogAction with destructive variant styling, follows existing DiscardDialog pattern for consistency.",
+          "updated_at": "2025-12-27T00:37:24.718607+00:00"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Implement git restore logic",
+      "subtasks": [
+        {
+          "id": "2.1",
+          "description": "Implement git restore command execution for selective file reversion",
+          "status": "completed",
+          "notes": "Implemented git restore command execution for selective file reversion. Added handleDiscardFile function in TaskDetailPanel.tsx that calls discardWorktreeFile API, wired up through TaskReview to DiffViewDialog. On success, refreshes diff view, worktree status, and merge preview. Error handling displays workspace error on failure.",
+          "updated_at": "2025-12-27T00:48:01.890925+00:00"
+        },
+        {
+          "id": "2.2",
+          "description": "Add error handling and user feedback for restore operation",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Integration and testing",
+      "subtasks": [
+        {
+          "id": "3.1",
+          "description": "Update diff view state after file discard to reflect changes",
+          "status": "pending"
+        },
+        {
+          "id": "3.2",
+          "description": "Test discard workflow with merge/stage/reject operations",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "planStatus": "in_progress",
+  "last_updated": "2025-12-27T00:48:01.890925+00:00",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-27T00:43:27.900Z"
+}

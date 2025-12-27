@@ -13,11 +13,11 @@ import json
 import os
 from pathlib import Path
 
-from auto_claude_tools import (
-    create_auto_claude_mcp_server,
+from turret_tools import (
+    create_turret_mcp_server,
     is_tools_available,
 )
-from auto_claude_tools import (
+from turret_tools import (
     get_allowed_tools as get_agent_allowed_tools,
 )
 from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient
@@ -148,7 +148,7 @@ def create_client(
         spec_dir: Directory containing the spec (for settings file)
         model: Claude model to use
         agent_type: Type of agent - 'planner', 'coder', 'qa_reviewer', or 'qa_fixer'
-                   This determines which custom auto-claude tools are available.
+                   This determines which custom turret tools are available.
         max_thinking_tokens: Token budget for extended thinking (None = disabled)
                             - ultrathink: 16000 (spec creation)
                             - high: 10000 (QA review)
@@ -176,8 +176,8 @@ def create_client(
     linear_enabled = is_linear_enabled()
     linear_api_key = os.environ.get("LINEAR_API_KEY", "")
 
-    # Check if custom auto-claude tools are available
-    auto_claude_tools_enabled = is_tools_available()
+    # Check if custom turret tools are available
+    turret_tools_enabled = is_tools_available()
 
     # Load project capabilities for dynamic MCP tool selection
     # This enables context-aware tool injection based on project type
@@ -185,9 +185,9 @@ def create_client(
     project_capabilities = detect_project_capabilities(project_index)
 
     # Build the list of allowed tools
-    # Start with agent-specific tools (includes base tools + auto-claude tools)
+    # Start with agent-specific tools (includes base tools + turret tools)
     # Pass project capabilities for dynamic MCP tool filtering
-    if auto_claude_tools_enabled:
+    if turret_tools_enabled:
         allowed_tools_list = get_agent_allowed_tools(agent_type, project_capabilities)
     else:
         allowed_tools_list = [*BUILTIN_TOOLS]
@@ -279,8 +279,8 @@ def create_client(
         mcp_servers_list.append("linear (project management)")
     if graphiti_mcp_enabled:
         mcp_servers_list.append("graphiti-memory (knowledge graph)")
-    if auto_claude_tools_enabled:
-        mcp_servers_list.append(f"auto-claude ({agent_type} tools)")
+    if turret_tools_enabled:
+        mcp_servers_list.append(f"turret ({agent_type} tools)")
     print(f"   - MCP servers: {', '.join(mcp_servers_list)}")
 
     # Show detected project capabilities for QA agents
@@ -332,12 +332,12 @@ def create_client(
             "url": get_graphiti_mcp_url(),
         }
 
-    # Add custom auto-claude MCP server if available
-    auto_claude_mcp_server = None
-    if auto_claude_tools_enabled:
-        auto_claude_mcp_server = create_auto_claude_mcp_server(spec_dir, project_dir)
-        if auto_claude_mcp_server:
-            mcp_servers["auto-claude"] = auto_claude_mcp_server
+    # Add custom turret MCP server if available
+    turret_mcp_server = None
+    if turret_tools_enabled:
+        turret_mcp_server = create_turret_mcp_server(spec_dir, project_dir)
+        if turret_mcp_server:
+            mcp_servers["turret"] = turret_mcp_server
 
     return ClaudeSDKClient(
         options=ClaudeAgentOptions(

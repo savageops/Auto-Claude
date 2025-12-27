@@ -1,0 +1,151 @@
+{
+  "code_quality": [
+    {
+      "id": "cq-001",
+      "type": "code_quality",
+      "title": "Split oversized TaskCreationWizard component into smaller focused components",
+      "description": "The TaskCreationWizard.tsx component at 1166 lines is significantly over the recommended 400-500 line limit for React components. It handles multiple concerns: form state management, image attachments, file autocomplete, branch selection, model configuration, and draft persistence.",
+      "rationale": "Large monolithic components are difficult to test, maintain, and reason about. Splitting into smaller, focused components improves reusability, testability, and makes code reviews easier. Each sub-component can be developed and tested independently.",
+      "category": "large_files",
+      "severity": "major",
+      "affectedFiles": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+      ],
+      "currentState": "Single 1166-line component handling: form state (title, description, metadata), image attachments with drag-drop, file autocomplete with @ mentions, Git branch selection, model/thinking configuration, and draft auto-save",
+      "proposedChange": "Extract into focused sub-components:\n- TaskWizardForm.tsx (basic form fields)\n- TaskImageAttachments.tsx (image upload/paste/drag-drop)\n- TaskFileReferences.tsx (@ autocomplete and file explorer)\n- TaskGitOptions.tsx (branch selection)\n- TaskModelConfig.tsx (model and thinking level selection)\n- useTaskDraft.ts (hook for draft persistence)\n- useTaskForm.ts (hook for form state management)",
+      "codeExample": "// Current (1166 lines in one file):\nexport function TaskCreationWizard({ projectId, open, onOpenChange }) {\n  const [title, setTitle] = useState('');\n  const [description, setDescription] = useState('');\n  const [images, setImages] = useState([]);\n  // ... 50+ more state variables and handlers\n}\n\n// Proposed:\nimport { TaskImageAttachments } from './task-wizard/TaskImageAttachments';\nimport { TaskFileReferences } from './task-wizard/TaskFileReferences';\nimport { useTaskDraft } from './task-wizard/useTaskDraft';\n\nexport function TaskCreationWizard({ projectId, open, onOpenChange }) {\n  const { draft, saveDraft } = useTaskDraft(projectId);\n  return (\n    <Dialog>\n      <TaskWizardForm />\n      <TaskImageAttachments />\n      <TaskFileReferences />\n    </Dialog>\n  );\n}",
+      "bestPractice": "Single Responsibility Principle - React components should do one thing well. Complex forms should be composed of smaller, reusable sub-components.",
+      "metrics": {
+        "lineCount": 1166,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure component has integration tests before refactoring"]
+    },
+    {
+      "id": "cq-002",
+      "type": "code_quality",
+      "title": "Consolidate large IPC handler files by extracting shared utilities",
+      "description": "Several IPC handler files exceed 600-1000 lines: pr-handlers.ts (1133), worktree-handlers.ts (1003), autofix-handlers.ts (926), oauth-handlers.ts (832), execution-handlers.ts (816). These files contain similar patterns for subprocess execution, error handling, and IPC response formatting.",
+      "rationale": "Large handler files with repeated patterns increase maintenance burden and risk of inconsistent error handling. Extracting common patterns into shared utilities reduces code duplication and ensures consistent behavior across all handlers.",
+      "category": "duplication",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/github/autofix-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/github/oauth-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts"
+      ],
+      "currentState": "Each handler file independently implements subprocess execution, progress callbacks, error formatting, and cleanup logic. The github/utils/ folder has some shared utilities but they're not consistently used.",
+      "proposedChange": "Extend the shared utilities pattern:\n1. Create a createIPCHandler() factory that standardizes error handling and logging\n2. Extract common subprocess execution patterns into subprocess-utils.ts\n3. Create a progress-reporter.ts utility for consistent progress callbacks\n4. Use a response-builder.ts for consistent IPC response formatting",
+      "codeExample": "// Current pattern (repeated in 5+ files):\nipcMain.handle('github:review-pr', async (_, args) => {\n  try {\n    const result = await runPythonSubprocess(...);\n    return { success: true, data: result };\n  } catch (error) {\n    console.error('[PR Review] Error:', error);\n    return { success: false, error: error.message };\n  }\n});\n\n// Proposed:\nimport { createIPCHandler, runWithProgress } from '../utils/ipc-helpers';\n\nconst reviewPR = createIPCHandler('github:review-pr', async (args, ctx) => {\n  return runWithProgress(ctx, {\n    command: 'review',\n    args,\n    phases: ['analyzing', 'reviewing', 'complete']\n  });\n});",
+      "bestPractice": "DRY (Don't Repeat Yourself) - Extract common patterns into reusable utilities",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": 200,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-003",
+      "type": "code_quality",
+      "title": "Increase test coverage for renderer components",
+      "description": "The frontend has only 18 test files covering the renderer, while there are 50+ component files. Critical components like TaskCreationWizard, KanbanBoard, App.tsx, and most store files lack dedicated test coverage. The existing tests are concentrated in main process and integration tests.",
+      "rationale": "Low test coverage increases the risk of regressions when refactoring or adding features. Component tests enable confident refactoring and serve as documentation for expected behavior. The complex state management in stores like ideation-store.ts (757 lines) and task-store.ts (568 lines) would particularly benefit from unit tests.",
+      "category": "testing",
+      "severity": "major",
+      "affectedFiles": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/App.tsx",
+        "apps/frontend/src/renderer/stores/ideation-store.ts",
+        "apps/frontend/src/renderer/stores/task-store.ts",
+        "apps/frontend/src/renderer/stores/changelog-store.ts"
+      ],
+      "currentState": "18 test files for frontend, mostly covering main process handlers and integration tests. Renderer components and Zustand stores have minimal coverage.",
+      "proposedChange": "Add test coverage for critical paths:\n1. Store tests: Test state transitions, actions, and edge cases for ideation-store, task-store, changelog-store\n2. Component tests: Add React Testing Library tests for TaskCreationWizard form validation, KanbanBoard drag-drop, App route switching\n3. Hook tests: Test custom hooks like useVirtualizedTree (already has test) pattern for other hooks",
+      "codeExample": "// Example: ideation-store.test.ts\nimport { useIdeationStore } from '../ideation-store';\nimport { act, renderHook } from '@testing-library/react';\n\ndescribe('IdeationStore', () => {\n  beforeEach(() => {\n    const { result } = renderHook(() => useIdeationStore());\n    act(() => result.current.clearSession());\n  });\n\n  it('should initialize type states when generation starts', () => {\n    const { result } = renderHook(() => useIdeationStore());\n    act(() => result.current.initializeTypeStates(['code_quality', 'security']));\n    expect(result.current.typeStates.code_quality).toBe('pending');\n  });\n\n  it('should update idea status correctly', () => {\n    // ... test updateIdeaStatus action\n  });\n});",
+      "bestPractice": "Test Pyramid - Unit tests should form the base, covering critical business logic in stores and complex component behavior",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": 30
+      },
+      "estimatedEffort": "large",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-004",
+      "type": "code_quality",
+      "title": "Remove dead backup file and add git hooks to prevent future occurrences",
+      "description": "A backup file changelog-handlers.ts.bk exists in the IPC handlers directory. Backup files should not be committed to version control and indicate a workflow issue. This type of file clutters the codebase and can cause confusion about which version is active.",
+      "rationale": "Dead code and backup files in the repository increase cognitive load, can cause confusion during code reviews, and may accidentally be modified or imported. Git hooks can prevent these files from being committed.",
+      "category": "dead_code",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/frontend/src/main/ipc-handlers/changelog-handlers.ts.bk"
+      ],
+      "currentState": "Backup file (9125 bytes) exists alongside the main changelog-handlers.ts. The project uses Husky for git hooks but doesn't prevent .bk files.",
+      "proposedChange": "1. Delete the backup file: rm apps/frontend/src/main/ipc-handlers/changelog-handlers.ts.bk\n2. Add to .gitignore: *.bk, *.backup, *.orig, *.old\n3. Optionally add a pre-commit hook to warn about these patterns",
+      "codeExample": "# .gitignore additions:\n*.bk\n*.backup\n*.orig\n*.old\n*~\n\n# Optional: .husky/pre-commit addition:\n#!/bin/sh\nif git diff --cached --name-only | grep -E '\\.(bk|backup|orig|old)$'; then\n  echo \"Error: Attempting to commit backup files. Please remove them.\"\n  exit 1\nfi",
+      "bestPractice": "Clean Repository - Version control should only contain production-ready code, not temporary or backup files",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "small",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-005",
+      "type": "code_quality",
+      "title": "Split core/workspace.py into domain-specific modules to complete the refactoring",
+      "description": "The workspace.py file at 1564 lines acknowledges it was 'refactored for better maintainability' with modules extracted to workspace/, but the main file still contains 'complex merge operations' that could be further extracted. The file has extensive import aliasing with underscores (_apply_path_mapping, _is_lock_file, etc.) indicating an incomplete refactoring.",
+      "rationale": "The current state is a partial refactoring - models, utilities, and display functions were extracted but the core merge logic remains monolithic. Completing the refactoring would improve testability and make the merge system easier to maintain and extend.",
+      "category": "large_files",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/backend/core/workspace.py",
+        "apps/backend/core/workspace/git_utils.py",
+        "apps/backend/core/workspace/models.py",
+        "apps/backend/core/workspace/setup.py",
+        "apps/backend/core/workspace/display.py",
+        "apps/backend/core/workspace/finalization.py"
+      ],
+      "currentState": "1564-line file with merge operations that 'reference each other' including: merge_existing_build, _try_smart_merge, _resolve_git_conflicts_with_ai, _run_parallel_merges, _merge_file_with_ai, _heuristic_merge. The file imports functions with underscore prefixes from its submodules.",
+      "proposedChange": "Complete the refactoring by extracting the merge logic:\n1. Create core/workspace/merge_operations.py for the merge_existing_build and related functions\n2. Create core/workspace/ai_merge.py for AI-powered merge resolution (_merge_file_with_ai_async, _async_ai_call)\n3. Create core/workspace/conflict_resolver.py for conflict detection and resolution\n4. Update workspace/__init__.py to expose the clean public API\n5. Remove the underscore-prefixed import aliasing",
+      "codeExample": "# Current imports (showing incomplete refactoring):\nfrom core.workspace.git_utils import (\n    apply_path_mapping as _apply_path_mapping,\n    detect_file_renames as _detect_file_renames,\n    get_file_content_from_ref as _get_file_content_from_ref,\n    is_lock_file as _is_lock_file,\n)\n\n# Proposed: Complete the extraction\n# core/workspace/merge_operations.py\nfrom .git_utils import apply_path_mapping, detect_file_renames\nfrom .ai_merge import merge_file_with_ai\nfrom .conflict_resolver import resolve_git_conflicts\n\ndef merge_existing_build(project_dir: Path, spec_name: str, ...) -> bool:\n    \"\"\"Main entry point for merging builds.\"\"\"\n    ...",
+      "bestPractice": "Single Responsibility Principle - Each module should have one clear purpose. Complete refactorings rather than leaving them half-done.",
+      "metrics": {
+        "lineCount": 1564,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure existing tests pass before refactoring", "Document the current merge behavior"]
+    }
+  ],
+  "metadata": {
+    "filesAnalyzed": 250,
+    "largeFilesFound": 12,
+    "duplicateBlocksFound": 5,
+    "lintingConfigured": true,
+    "testsPresent": true,
+    "generatedAt": "2024-12-26T19:15:00Z"
+  }
+}

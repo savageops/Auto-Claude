@@ -10,14 +10,14 @@ import type {
 } from '../../shared/types';
 import { AgentManager } from '../agent';
 import type { BrowserWindow } from 'electron';
-import { getEffectiveVersion } from '../auto-claude-updater';
+import { getEffectiveVersion } from '../turret-updater';
 import { setUpdateChannel } from '../app-updater';
 import { getSettingsPath, readSettingsFile } from '../settings-utils';
 
 const settingsPath = getSettingsPath();
 
 /**
- * Auto-detect the auto-claude source path relative to the app location.
+ * Auto-detect the turret source path relative to the app location.
  * Works across platforms (macOS, Windows, Linux) in both dev and production modes.
  */
 const detectAutoBuildSourcePath = (): string | null => {
@@ -60,7 +60,7 @@ const detectAutoBuildSourcePath = (): string | null => {
 
   for (const p of possiblePaths) {
     // Use runners/spec_runner.py as marker - this is the file actually needed for task execution
-    // This prevents matching legacy 'auto-claude/' directories that don't have the runners
+    // This prevents matching legacy 'turret/' directories that don't have the runners
     const markerPath = path.join(p, 'runners', 'spec_runner.py');
     const exists = existsSync(p) && existsSync(markerPath);
 
@@ -398,6 +398,270 @@ export function registerSettingsHandlers(
         return {
           success: false,
           error: error instanceof Error ? error.message : 'Failed to write prompt file'
+        };
+      }
+    }
+  );
+
+  // ============================================
+  // Ideation Prompts
+  // ============================================
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_LIST_IDEATION,
+    async (): Promise<IPCResult<Record<string, string>>> => {
+      try {
+        // Ideation types map (matches backend IDEATION_TYPE_PROMPTS)
+        const ideationTypes = {
+          "code_improvements": "Code Improvements",
+          "ui_ux_improvements": "UI/UX Improvements",
+          "documentation_gaps": "Documentation",
+          "security_hardening": "Security",
+          "performance_optimizations": "Performance",
+          "code_quality": "Code Quality"
+        };
+        return { success: true, data: ideationTypes };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to list ideation types'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_READ_IDEATION,
+    async (_, type: string): Promise<IPCResult<string>> => {
+      try {
+        const filename = `ideation_${type}.md`;
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+
+        if (!existsSync(promptFilePath)) {
+          return {
+            success: false,
+            error: `Prompt file not found: ${promptFilePath}`
+          };
+        }
+
+        const content = readFileSync(promptFilePath, 'utf-8');
+        return { success: true, data: content };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read ideation prompt'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_WRITE_IDEATION,
+    async (_, type: string, content: string): Promise<IPCResult> => {
+      try {
+        const filename = `ideation_${type}.md`;
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+        const promptsDir = path.dirname(promptFilePath);
+        if (!existsSync(promptsDir)) {
+          mkdirSync(promptsDir, { recursive: true });
+        }
+
+        writeFileSync(promptFilePath, content, 'utf-8');
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to write ideation prompt'
+        };
+      }
+    }
+  );
+
+  // ============================================
+  // Roadmap Prompts
+  // ============================================
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_READ_ROADMAP,
+    async (_, type: 'discovery' | 'features'): Promise<IPCResult<string>> => {
+      try {
+        const filenameMap = {
+          discovery: 'roadmap_discovery.md',
+          features: 'roadmap_features.md'
+        };
+
+        const filename = filenameMap[type];
+        if (!filename) {
+          return { success: false, error: `Unknown roadmap type: ${type}` };
+        }
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+
+        if (!existsSync(promptFilePath)) {
+          return {
+            success: false,
+            error: `Prompt file not found: ${promptFilePath}`
+          };
+        }
+
+        const content = readFileSync(promptFilePath, 'utf-8');
+        return { success: true, data: content };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read roadmap prompt'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_WRITE_ROADMAP,
+    async (_, type: 'discovery' | 'features', content: string): Promise<IPCResult> => {
+      try {
+        const filenameMap = {
+          discovery: 'roadmap_discovery.md',
+          features: 'roadmap_features.md'
+        };
+
+        const filename = filenameMap[type];
+        if (!filename) {
+          return { success: false, error: `Unknown roadmap type: ${type}` };
+        }
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+        const promptsDir = path.dirname(promptFilePath);
+        if (!existsSync(promptsDir)) {
+          mkdirSync(promptsDir, { recursive: true });
+        }
+
+        writeFileSync(promptFilePath, content, 'utf-8');
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to write roadmap prompt'
+        };
+      }
+    }
+  );
+
+  // ============================================
+  // Insights Prompt
+  // ============================================
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_READ_INSIGHTS,
+    async (): Promise<IPCResult<string>> => {
+      try {
+        const filename = 'insight_extractor.md';
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+
+        if (!existsSync(promptFilePath)) {
+          return {
+            success: false,
+            error: `Prompt file not found: ${promptFilePath}`
+          };
+        }
+
+        const content = readFileSync(promptFilePath, 'utf-8');
+        return { success: true, data: content };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read insights prompt'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.PROMPT_WRITE_INSIGHTS,
+    async (_, content: string): Promise<IPCResult> => {
+      try {
+        const filename = 'insight_extractor.md';
+
+        const savedSettings = readSettingsFile();
+        const settings = { ...DEFAULT_APP_SETTINGS, ...savedSettings };
+        const backendPath = settings.autoBuildPath || detectAutoBuildSourcePath();
+
+        if (!backendPath) {
+          return {
+            success: false,
+            error: 'Backend path not configured. Please configure Turret path in settings.'
+          };
+        }
+
+        const promptFilePath = path.join(backendPath, 'prompts', filename);
+        const promptsDir = path.dirname(promptFilePath);
+        if (!existsSync(promptsDir)) {
+          mkdirSync(promptsDir, { recursive: true });
+        }
+
+        writeFileSync(promptFilePath, content, 'utf-8');
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to write insights prompt'
         };
       }
     }

@@ -1,0 +1,116 @@
+{
+  "ui_ux_improvements": [
+    {
+      "id": "uiux-001",
+      "type": "ui_ux_improvements",
+      "title": "Add Keyboard Focus Rings to Task Cards",
+      "description": "Task cards are interactive elements that can be clicked but lack visible focus indicators when navigating with keyboard. Add focus-visible ring styles matching the existing button focus pattern.",
+      "rationale": "Keyboard users cannot currently see which task card is focused, making keyboard navigation difficult. This violates WCAG 2.1 Success Criterion 2.4.7 (Focus Visible) which requires a visible focus indicator for keyboard-navigable elements.",
+      "category": "accessibility",
+      "affected_components": [
+        "apps/frontend/src/renderer/components/TaskCard.tsx",
+        "apps/frontend/src/renderer/components/SortableTaskCard.tsx",
+        "apps/frontend/src/renderer/components/ui/card.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "TaskCard uses Card component with cursor-pointer but no focus-visible styles. When users Tab through the interface, the task cards appear selected but have no visual focus ring. The Card component in ui/card.tsx doesn't include focus styles.",
+      "proposed_change": "Add 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background' classes to the Card component in TaskCard.tsx. Ensure the Card element is focusable with tabIndex={0} and add role='button' aria-label={task.title} for semantic correctness.",
+      "user_benefit": "Keyboard users can clearly see which task card is focused, enabling efficient keyboard navigation through the Kanban board without needing a mouse.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:56:00.000Z"
+    },
+    {
+      "id": "uiux-002",
+      "type": "ui_ux_improvements",
+      "title": "Add aria-labels to Icon-Only Buttons",
+      "description": "Several icon-only buttons throughout the application lack proper aria-labels, making them inaccessible to screen reader users. The Add, Archive, and Help buttons are particularly affected.",
+      "rationale": "Screen reader users cannot understand the purpose of icon-only buttons without aria-labels. Using only title attributes is insufficient as they are not reliably announced by screen readers. This violates WCAG 2.1 Success Criterion 4.1.2 (Name, Role, Value).",
+      "category": "accessibility",
+      "affected_components": [
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/Sidebar.tsx",
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Icon-only buttons like Plus (add task), Archive, and Help use title={} for tooltips but lack aria-label attributes. Examples: KanbanBoard line 119-127 has Plus button without aria-label; line 129-137 has Archive button without aria-label. Sidebar Help button at line 348 also lacks aria-label.",
+      "proposed_change": "Add aria-label to all icon-only buttons: 1) Add aria-label='Add new task to backlog' to Plus button in KanbanBoard DroppableColumn, 2) Add aria-label='Archive all completed tasks' to Archive button, 3) Add aria-label='Get help and support' to HelpCircle button in Sidebar. Pattern: <Button aria-label='Descriptive action label'>",
+      "user_benefit": "Screen reader users can understand the purpose of each icon button and effectively navigate and interact with the application.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:56:00.000Z"
+    },
+    {
+      "id": "uiux-003",
+      "type": "ui_ux_improvements",
+      "title": "Add Live Region for Form Error Announcements",
+      "description": "Form validation errors appear visually but are not announced to screen readers. Add aria-live regions to error messages in forms like TaskCreationWizard, AddProjectModal, and settings forms.",
+      "rationale": "When form submission fails or validation errors occur, sighted users see the error but screen reader users are not notified. This creates a confusing experience where the form appears to do nothing. WCAG 2.1 Success Criterion 4.1.3 (Status Messages) requires programmatic announcement of status changes.",
+      "category": "accessibility",
+      "affected_components": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+        "apps/frontend/src/renderer/components/AddProjectModal.tsx",
+        "apps/frontend/src/renderer/components/GitSetupModal.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "TaskCreationWizard displays errors in a styled div (lines 1111-1116) but has no aria-live attribute. The error div contains visual styling with destructive colors but no semantic announcement mechanism for assistive technology.",
+      "proposed_change": "Add role='alert' and aria-atomic='true' to error message containers. In TaskCreationWizard line 1111, update error div to: <div role='alert' aria-atomic='true' aria-live='assertive' className='flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive'>. Apply same pattern to all form error displays across the codebase.",
+      "user_benefit": "Screen reader users are immediately notified when form errors occur, allowing them to understand what went wrong and take corrective action without visual cues.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:56:00.000Z"
+    },
+    {
+      "id": "uiux-004",
+      "type": "ui_ux_improvements",
+      "title": "Improve Touch Target Sizes for Mobile",
+      "description": "Several interactive elements have touch targets smaller than the recommended 44x44px minimum, particularly image thumbnail remove buttons and column header icon buttons.",
+      "rationale": "The image thumbnail remove buttons in TaskCreationWizard are 16x16px (h-4 w-4 class), significantly below the WCAG 2.5.5 recommended 44x44px touch target. This makes them difficult to tap accurately on touch devices and causes frustration for mobile users.",
+      "category": "usability",
+      "affected_components": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/ui/button.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Image thumbnail remove buttons at TaskCreationWizard line 847 use 'h-4 w-4' (16x16px). Column header icon buttons in KanbanBoard use 'h-7 w-7' (28x28px). Both are below the 44x44px recommended minimum for reliable touch interaction.",
+      "proposed_change": "1) For image remove buttons: increase hit area using a larger wrapper while keeping icon visually small. Change 'h-4 w-4' button to 'h-8 w-8 p-2' wrapper containing 'h-3 w-3' icon. 2) For column header buttons: use 'h-10 w-10' (40px) which is closer to touch target minimum while keeping icon at 'h-4 w-4'. 3) Consider adding 'icon-lg' variant to button.tsx with 44x44px dimensions for critical touch targets.",
+      "user_benefit": "Mobile and touch screen users can accurately tap small interactive elements without frustration or accidental misclicks, especially when removing image attachments or using Kanban column actions.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:56:00.000Z"
+    },
+    {
+      "id": "uiux-005",
+      "type": "ui_ux_improvements",
+      "title": "Add Collapsible Sidebar Navigation Sections",
+      "description": "The sidebar has two fixed sections (Project and Tools) that cannot be collapsed. Allow users to collapse these sections to focus on relevant navigation items and reduce visual clutter.",
+      "rationale": "Users working primarily with the Kanban board may not need to see GitHub Issues, PRs, or Worktrees sections constantly. Collapsible sections give users control over their workspace, reduce cognitive load, and are especially beneficial for users who prefer minimal interfaces. The Collapsible component already exists in the codebase.",
+      "category": "usability",
+      "affected_components": [
+        "apps/frontend/src/renderer/components/Sidebar.tsx",
+        "apps/frontend/src/renderer/components/ui/collapsible.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Sidebar renders projectNavItems (7 items) and toolsNavItems (3 items) in fixed, non-collapsible sections. The collapsible.tsx component exists in ui/ folder and uses Radix UI but is not utilized in the Sidebar. Navigation is always fully expanded.",
+      "proposed_change": "Use the existing Collapsible component from ui/collapsible.tsx to wrap each navigation section. 1) Import Collapsible, CollapsibleContent, CollapsibleTrigger. 2) Add ChevronDown/ChevronRight icons to section headers. 3) Store collapse state in localStorage via useSettingsStore to persist preference. Pattern: <Collapsible defaultOpen={storedPreference}><CollapsibleTrigger asChild><button className='flex items-center gap-2'><h3>{t('sections.project')}</h3><ChevronDown/></button></CollapsibleTrigger><CollapsibleContent><nav>{projectNavItems.map(...)}</nav></CollapsibleContent></Collapsible>",
+      "user_benefit": "Users can customize their sidebar by collapsing sections they do not use frequently, creating a cleaner and more focused interface tailored to their current workflow.",
+      "status": "draft",
+      "created_at": "2025-12-26T19:56:00.000Z"
+    }
+  ],
+  "metadata": {
+    "generated_at": "2025-12-26T19:56:00.000Z",
+    "last_validated": "2025-12-27T00:30:00.000Z",
+    "agent": "ui_ux_improvements_ideation",
+    "project_analyzed": "Turret",
+    "frontend_framework": "React + TypeScript + Electron",
+    "styling": "Tailwind CSS + Radix UI",
+    "analysis_method": "static_code_analysis",
+    "wcag_version": "2.1",
+    "focus_areas": ["accessibility", "usability", "keyboard_navigation", "touch_targets"],
+    "validation_notes": {
+      "aria_coverage": "10 ARIA occurrences across 7 files - confirms accessibility gaps identified in uiux-001, uiux-002, uiux-003",
+      "title_attributes": "79 title= occurrences across 38 files - validates need for proper tooltips as noted in uiux-002",
+      "keyboard_handlers": "17 tabIndex/onKeyDown occurrences across 12 files - confirms limited keyboard navigation in uiux-001",
+      "touch_targets": "Multiple icon buttons use h-7 w-7 (28px) - validates uiux-004 touch target concerns",
+      "collapsible_component": "ui/collapsible.tsx exists and is used in TaskCard.tsx - pattern ready for Sidebar as proposed in uiux-005"
+    }
+  }
+}

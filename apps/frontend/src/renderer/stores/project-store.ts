@@ -404,7 +404,7 @@ export async function updateProjectSettings(
 }
 
 /**
- * Check auto-claude version status for a project
+ * Check turret version status for a project
  */
 export async function checkProjectVersion(
   projectId: string
@@ -421,7 +421,7 @@ export async function checkProjectVersion(
 }
 
 /**
- * Initialize auto-claude in a project
+ * Initialize turret in a project
  */
 export async function initializeProject(
   projectId: string
@@ -437,8 +437,8 @@ export async function initializeProject(
       console.log('[ProjectStore] IPC succeeded, result.data:', result.data);
       // Update the project's autoBuildPath in local state
       if (result.data.success) {
-        console.log('[ProjectStore] Updating project autoBuildPath to .auto-claude');
-        store.updateProject(projectId, { autoBuildPath: '.auto-claude' });
+        console.log('[ProjectStore] Updating project autoBuildPath to .turret');
+        store.updateProject(projectId, { autoBuildPath: '.turret' });
       } else {
         console.log('[ProjectStore] result.data.success is false, not updating project');
       }
@@ -455,7 +455,7 @@ export async function initializeProject(
 }
 
 /**
- * Update auto-claude in a project
+ * Update turret in a project
  */
 export async function updateProjectAutoBuild(
   projectId: string
@@ -467,7 +467,7 @@ export async function updateProjectAutoBuild(
     if (result.success && result.data) {
       return result.data;
     }
-    store.setError(result.error || 'Failed to update auto-claude');
+    store.setError(result.error || 'Failed to update turret');
     return null;
   } catch (error) {
     store.setError(error instanceof Error ? error.message : 'Unknown error');

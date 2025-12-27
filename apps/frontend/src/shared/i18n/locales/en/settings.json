@@ -61,7 +61,7 @@
     "otherAgentSettingsDescription": "Additional agent configuration options",
     "agentFramework": "Agent Framework",
     "agentFrameworkDescription": "The coding framework used for autonomous tasks",
-    "agentFrameworkccTurret": "Turret",
+    "agentFrameworkTurret": "Turret",
     "aiTerminalNaming": "AI Terminal Naming",
     "aiTerminalNamingDescription": "Automatically name terminals based on commands (uses Haiku)",
     "featureModelSettings": "Feature Model Settings",
@@ -73,9 +73,9 @@
     "pythonPath": "Python Path",
     "pythonPathDescription": "Path to Python executable (leave empty for default)",
     "pythonPathPlaceholder": "python3 (default)",
-    "ccTurretPath": "Turret Path",
-    "ccTurretPathDescription": "Relative path to auto-claude directory in projects",
-    "ccTurretPathPlaceholder": "auto-claude (default)",
+    "turretPath": "Turret Path",
+    "turretPathDescription": "Relative path to turret directory in projects",
+    "turretPathPlaceholder": "turret (default)",
     "autoNameTerminals": "Automatically name terminals",
     "autoNameTerminalsDescription": "Use AI to generate descriptive names for terminal tabs based on their activity"
   },
@@ -379,6 +379,26 @@
         "description": "Additional instructions appended to the QA reviewer base prompt",
         "placeholder": "e.g., Focus on edge cases and error conditions. Verify all user-facing changes..."
       }
+    },
+    "ideation": {
+      "title": "Ideation Prompts",
+      "sectionDescription": "Prompts used for generating ideas across different categories",
+      "code_improvements": "Code Improvements",
+      "ui_ux_improvements": "UI/UX Improvements",
+      "documentation_gaps": "Documentation",
+      "security_hardening": "Security",
+      "performance_optimizations": "Performance",
+      "code_quality": "Code Quality"
+    },
+    "roadmap": {
+      "title": "Roadmap Prompts",
+      "sectionDescription": "Prompts used for roadmap generation",
+      "discovery": "Discovery Phase",
+      "features": "Feature Planning"
+    },
+    "insights": {
+      "title": "Insights Prompt",
+      "sectionDescription": "Prompt used for extracting insights from coding sessions"
     },
     "global": {
       "title": "Global Instructions",

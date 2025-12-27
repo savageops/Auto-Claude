@@ -1,0 +1,142 @@
+{
+  "project_name": "Turret",
+  "project_type": "desktop-app",
+  "tech_stack": {
+    "primary_language": "TypeScript/Python",
+    "frameworks": [
+      "React",
+      "Electron",
+      "Vite",
+      "Claude Agent SDK"
+    ],
+    "key_dependencies": [
+      "@dnd-kit/core",
+      "@radix-ui components",
+      "Zustand",
+      "Tailwind CSS",
+      "graphiti-core",
+      "real_ladybug",
+      "node-pty",
+      "Playwright"
+    ]
+  },
+  "target_audience": {
+    "primary_persona": "Professional software developers who want to accelerate their development workflow by delegating coding tasks to autonomous AI agents",
+    "secondary_personas": [
+      "Solo developers and indie hackers who need to multiply their productivity",
+      "Development teams looking for autonomous QA and code generation",
+      "Open-source maintainers who want AI assistance with issues and PRs"
+    ],
+    "pain_points": [
+      "Spending too much time on repetitive coding tasks",
+      "AI tools require constant supervision and manual intervention",
+      "Fear of AI making changes directly to main branch without safety",
+      "Losing context between coding sessions with AI assistants",
+      "Managing complex multi-file refactoring is tedious",
+      "Limited productivity gains from single-agent AI tools"
+    ],
+    "goals": [
+      "Delegate entire coding tasks and focus on higher-level work",
+      "Build features faster without sacrificing code quality",
+      "Run multiple tasks in parallel to maximize throughput",
+      "Have AI remember project context across sessions",
+      "Safely experiment with AI-generated code in isolation"
+    ],
+    "usage_context": "Desktop application used during active development sessions. Developers describe tasks in natural language, and autonomous agents plan, implement, test, and prepare code for merge while the developer focuses on other work or reviews."
+  },
+  "product_vision": {
+    "one_liner": "Autonomous multi-agent coding framework that plans, builds, and validates software for you",
+    "problem_statement": "Existing AI coding tools require constant human supervision, operate on single files, lack persistent memory, and provide no safety mechanisms - making true delegation of coding tasks impossible",
+    "value_proposition": "Turret is the open-source autonomous coding alternative that lets developers truly delegate entire tasks. It plans, implements across multiple files, validates through QA, and safely isolates changes in git worktrees - all while retaining context across sessions through its Memory Layer.",
+    "success_metrics": [
+      "Number of tasks completed autonomously without human intervention",
+      "Time saved per developer using Turret vs manual coding",
+      "Active installations and daily active users",
+      "Community growth (GitHub stars, Discord members)",
+      "Merge success rate (tasks that pass QA and merge cleanly)"
+    ]
+  },
+  "current_state": {
+    "maturity": "growth",
+    "existing_features": [
+      "Autonomous task execution with planning, implementation, and validation",
+      "Parallel execution with up to 12 agent terminals",
+      "Git worktree isolation for safe development",
+      "Self-validating QA loop before code reaches user",
+      "AI-powered merge conflict resolution",
+      "Memory Layer for cross-session context retention",
+      "Kanban board for visual task management",
+      "Agent terminals with one-click task context injection",
+      "AI-assisted roadmap and feature planning",
+      "Codebase insights and chat interface",
+      "Ideation for discovering improvements and vulnerabilities",
+      "Changelog generation from completed tasks",
+      "Auto-updates for desktop app",
+      "Cross-platform support (Windows, macOS, Linux)",
+      "CLI mode for headless operation and CI/CD integration",
+      "Linear integration for project management sync"
+    ],
+    "known_gaps": [
+      "Advanced merge completion recording not yet implemented (workspace.py line 141)",
+      "Advanced conflict analysis checks are placeholder TODOs",
+      "Email alerts for health monitoring not implemented"
+    ],
+    "technical_debt": [
+      "Some route detection examples in analyzers may need real implementation",
+      "Password hashing placeholder in test output validator",
+      "Health monitor email alerts marked as TODO"
+    ]
+  },
+  "competitive_context": {
+    "alternatives": [
+      "Cursor - AI-powered code editor with inline suggestions",
+      "GitHub Copilot - AI pair programming assistant",
+      "Windsurf (Codeium) - AI coding environment",
+      "aider - Terminal-based AI coding assistant",
+      "Claude Code CLI - Anthropic's official CLI tool",
+      "Devin - Autonomous AI software engineer (closed-source)"
+    ],
+    "differentiators": [
+      "Open-source alternative to Devin with full autonomy - accessible to all developers",
+      "Memory Layer providing cross-session context that no competitor offers",
+      "Multi-agent parallel execution unique to Turret (up to 12 agents)",
+      "Git worktree isolation for safe autonomous development",
+      "Self-validating QA loop before any code reaches main branch",
+      "Desktop-native experience with Kanban board vs terminal-only tools"
+    ],
+    "market_position": "Open-source autonomous AI coding framework positioned as the accessible alternative to Devin. Turret uniquely combines full autonomy, multi-agent parallel execution, persistent memory, and git worktree safety - capabilities that no other open-source tool provides together. This addresses the large gap between expensive closed-source solutions (Devin) and limited suggestion-based tools (Copilot, Cursor).",
+    "competitor_pain_points": [
+      "All non-Devin competitors require constant human supervision and cannot work autonomously",
+      "No competitor offers persistent cross-session memory for project context",
+      "No competitor provides built-in QA validation before code reaches user",
+      "Most tools work in single-agent mode with no parallel execution capabilities",
+      "IDE-based tools lack safety mechanisms when AI modifies code directly",
+      "Devin is the only autonomous alternative but is closed-source and expensive"
+    ],
+    "competitor_analysis_available": true
+  },
+  "constraints": {
+    "technical": [
+      "Requires Claude Pro/Max subscription for API access",
+      "Python 3.12+ required for backend and Memory Layer",
+      "Node.js 24+ required for Electron frontend",
+      "Native dependencies (real_ladybug) require C++ compiler on some systems",
+      "Git must be initialized in target projects"
+    ],
+    "resources": [
+      "Primary maintainer with 553+ commits (savageops)",
+      "Growing contributor base (10+ contributors)",
+      "Active community on Discord",
+      "Open-source project with community contributions"
+    ],
+    "dependencies": [
+      "Anthropic Claude API for agent intelligence",
+      "Claude Code CLI as foundation",
+      "graphiti-core for Memory Layer",
+      "LadybugDB (real_ladybug) for embedded graph database",
+      "Electron for cross-platform desktop distribution",
+      "GitHub Actions for CI/CD and releases"
+    ]
+  },
+  "created_at": "2025-12-27T00:00:00Z"
+}

@@ -1,0 +1,4 @@
+{
+  "task_description": "# Cloud Sync for Settings and Memory\n\nImplement optional cloud synchronization for user settings, preferences, and Memory Layer data. Allow users to access their configuration from any machine while keeping data secure.\n\n## Rationale\nEnables seamless multi-device workflows. Addresses user pain point of context loss when switching machines. Complements Memory Layer by making it truly persistent across devices.\n\n## User Stories\n- As a developer, I want my settings to sync between work and home machines so that I don't have to reconfigure\n- As a privacy-conscious user, I want encryption so that my data stays private\n\n## Acceptance Criteria\n- [ ] Settings sync across devices with user account\n- [ ] Memory Layer can optionally sync to cloud\n- [ ] End-to-end encryption for all synced data\n- [ ] Offline mode works with local cache\n- [ ] Users can export all data at any time\n",
+  "workflow_type": "feature"
+}

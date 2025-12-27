@@ -203,7 +203,7 @@ export class AgentQueueManager {
     const spawnId = this.state.generateSpawnId();
     debugLog('[Agent Queue] Generated spawn ID:', spawnId);
 
-    // Run from auto-claude source directory so imports work correctly
+    // Run from turret source directory so imports work correctly
     const autoBuildSource = this.processManager.getAutoBuildSourcePath();
     const cwd = autoBuildSource || process.cwd();
 
@@ -218,14 +218,14 @@ export class AgentQueueManager {
 
     // Build final environment with proper precedence:
     // 1. process.env (system)
-    // 2. combinedEnv (auto-claude/.env for CLI usage)
+    // 2. combinedEnv (turret/.env for CLI usage)
     // 3. profileEnv (Electron app OAuth token - highest priority)
     // 4. Our specific overrides
     const finalEnv = {
       ...process.env,
       ...combinedEnv,
       ...profileEnv,
-      PYTHONPATH: autoBuildSource || '', // Allow imports from auto-claude directory
+      PYTHONPATH: autoBuildSource || '', // Allow imports from turret directory
       PYTHONUNBUFFERED: '1',
       PYTHONIOENCODING: 'utf-8',
       PYTHONUTF8: '1'
@@ -234,7 +234,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'auto-claude/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'turret/.env' : 'not found');
     const oauthToken = (finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     const hasToken = !!oauthToken;
     debugLog('[Agent Queue] OAuth token status:', {
@@ -303,7 +303,7 @@ export class AgentQueueManager {
 
         const typeFilePath = path.join(
           projectPath,
-          '.auto-claude',
+          '.turret',
           'ideation',
           `${ideationType}_ideas.json`
         );
@@ -428,7 +428,7 @@ export class AgentQueueManager {
           try {
             const ideationFilePath = path.join(
               storedProjectPath,
-              '.auto-claude',
+              '.turret',
               'ideation',
               'ideation.json'
             );
@@ -501,7 +501,7 @@ export class AgentQueueManager {
     const spawnId = this.state.generateSpawnId();
     debugLog('[Agent Queue] Generated roadmap spawn ID:', spawnId);
 
-    // Run from auto-claude source directory so imports work correctly
+    // Run from turret source directory so imports work correctly
     const autoBuildSource = this.processManager.getAutoBuildSourcePath();
     const cwd = autoBuildSource || process.cwd();
 
@@ -516,14 +516,14 @@ export class AgentQueueManager {
 
     // Build final environment with proper precedence:
     // 1. process.env (system)
-    // 2. combinedEnv (auto-claude/.env for CLI usage)
+    // 2. combinedEnv (turret/.env for CLI usage)
     // 3. profileEnv (Electron app OAuth token - highest priority)
     // 4. Our specific overrides
     const finalEnv = {
       ...process.env,
       ...combinedEnv,
       ...profileEnv,
-      PYTHONPATH: autoBuildSource || '', // Allow imports from auto-claude directory
+      PYTHONPATH: autoBuildSource || '', // Allow imports from turret directory
       PYTHONUNBUFFERED: '1',
       PYTHONIOENCODING: 'utf-8',
       PYTHONUTF8: '1'
@@ -532,7 +532,7 @@ export class AgentQueueManager {
     // Debug: Show OAuth token source
     const tokenSource = profileEnv['CLAUDE_CODE_OAUTH_TOKEN']
       ? 'Electron app profile'
-      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'auto-claude/.env' : 'not found');
+      : (combinedEnv['CLAUDE_CODE_OAUTH_TOKEN'] ? 'turret/.env' : 'not found');
     const oauthToken = (finalEnv as Record<string, string | undefined>)['CLAUDE_CODE_OAUTH_TOKEN'];
     const hasToken = !!oauthToken;
     debugLog('[Agent Queue] OAuth token status:', {
@@ -654,7 +654,7 @@ export class AgentQueueManager {
           try {
             const roadmapFilePath = path.join(
               storedProjectPath,
-              '.auto-claude',
+              '.turret',
               'roadmap',
               'roadmap.json'
             );

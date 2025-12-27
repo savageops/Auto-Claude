@@ -2,12 +2,12 @@
 
 **Autonomous multi-agent coding framework that plans, builds, and validates software for you.**
 
-![Turret Kanban Board](.github/assets/Auto-Claude-Kanban.png)
+![Turret Kanban Board](.github/assets/Turret-Kanban.png)
 
-[![Version](https://img.shields.io/badge/version-2.7.2-blue?style=flat-square)](https://github.com/AndyMik90/Auto-Claude/releases/latest)
+[![Version](https://img.shields.io/badge/version-2.7.2-blue?style=flat-square)](https://github.com/savageops/turret/releases/latest)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square)](./agpl-3.0.txt)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/KCXaPBr4Dj)
-[![CI](https://img.shields.io/github/actions/workflow/status/AndyMik90/Auto-Claude/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/AndyMik90/Auto-Claude/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/savageops/turret/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/savageops/turret/actions)
 
 ---
 
@@ -17,11 +17,11 @@ Get the latest pre-built release for your platform:
 
 | Platform | Download | Notes |
 |----------|----------|-------|
-| **Windows** | [Auto-Claude-2.7.2.exe](https://github.com/AndyMik90/Auto-Claude/releases/latest) | Installer (NSIS) |
-| **macOS (Apple Silicon)** | [Auto-Claude-2.7.2-arm64.dmg](https://github.com/AndyMik90/Auto-Claude/releases/latest) | M1/M2/M3 Macs |
-| **macOS (Intel)** | [Auto-Claude-2.7.2-x64.dmg](https://github.com/AndyMik90/Auto-Claude/releases/latest) | Intel Macs |
-| **Linux** | [Auto-Claude-2.7.2.AppImage](https://github.com/AndyMik90/Auto-Claude/releases/latest) | Universal |
-| **Linux (Debian)** | [Auto-Claude-2.7.2.deb](https://github.com/AndyMik90/Auto-Claude/releases/latest) | Ubuntu/Debian |
+| **Windows** | [Turret-2.7.2.exe](https://github.com/savageops/turret/releases/latest) | Installer (NSIS) |
+| **macOS (Apple Silicon)** | [Turret-2.7.2-arm64.dmg](https://github.com/savageops/turret/releases/latest) | M1/M2/M3 Macs |
+| **macOS (Intel)** | [Turret-2.7.2-x64.dmg](https://github.com/savageops/turret/releases/latest) | Intel Macs |
+| **Linux** | [Turret-2.7.2.AppImage](https://github.com/savageops/turret/releases/latest) | Universal |
+| **Linux (Debian)** | [Turret-2.7.2.deb](https://github.com/savageops/turret/releases/latest) | Ubuntu/Debian |
 
 > All releases include SHA256 checksums and VirusTotal scan results for security verification.
 
@@ -69,12 +69,12 @@ Visual task management from planning through completion. Create tasks and monito
 ### Agent Terminals
 AI-powered terminals with one-click task context injection. Spawn multiple agents for parallel work.
 
-![Agent Terminals](.github/assets/Auto-Claude-Agents-terminals.png)
+![Agent Terminals](.github/assets/Turret-Agents-terminals.png)
 
 ### Roadmap
 AI-assisted feature planning with competitor analysis and audience targeting.
 
-![Roadmap](.github/assets/Auto-Claude-roadmap.png)
+![Roadmap](.github/assets/Turret-roadmap.png)
 
 ### Additional Features
 - **Insights** - Chat interface for exploring your codebase
@@ -86,7 +86,7 @@ AI-assisted feature planning with competitor analysis and audience targeting.
 ## Project Structure
 
 ```
-Auto-Claude/
+Turret/
 ├── apps/
 │   ├── backend/     # Python agents, specs, QA pipeline
 │   └── frontend/    # Electron desktop application
@@ -141,8 +141,8 @@ For contributors and development:
 
 ```bash
 # Clone the repository
-git clone https://github.com/AndyMik90/Auto-Claude.git
-cd Auto-Claude
+git clone https://github.com/savageops/turret.git
+cd turret
 
 # Install all dependencies
 npm run install:all
@@ -336,8 +336,8 @@ We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 ## Community
 
 - **Discord** - [Join our community](https://discord.gg/KCXaPBr4Dj)
-- **Issues** - [Report bugs or request features](https://github.com/AndyMik90/Auto-Claude/issues)
-- **Discussions** - [Ask questions](https://github.com/AndyMik90/Auto-Claude/discussions)
+- **Issues** - [Report bugs or request features](https://github.com/savageops/turret/issues)
+- **Discussions** - [Ask questions](https://github.com/savageops/turret/discussions)
 
 ---
 

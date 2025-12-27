@@ -1,0 +1,27 @@
+{
+  "task_description": "Implement collapsible accordion-style behavior for tasks in the 'done' column of the kanban board. Tasks should be collapsed by default showing only essential info (title, badges), and smoothly expand when clicked to show full details. Use the existing Radix UI Collapsible component with CSS transitions for smooth animations.",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "apps/frontend/src/renderer/components/TaskCard.tsx",
+    "apps/frontend/src/renderer/components/KanbanBoard.tsx"
+  ],
+  "files_to_reference": [
+    "apps/frontend/src/renderer/components/ui/collapsible.tsx",
+    "apps/frontend/src/renderer/components/project-settings/CollapsibleSection.tsx",
+    "apps/frontend/src/renderer/components/SortableTaskCard.tsx"
+  ],
+  "patterns": {
+    "radix_ui_collapsible": "Use Collapsible from './ui/collapsible' - already has Radix UI wrappers",
+    "tailwind_transitions": "Use 'transition-all duration-300 ease-in-out' for smooth animations",
+    "dnd_kit_integration": "Preserve existing useSortable hook from @dnd-kit/sortable in SortableTaskCard",
+    "conditional_rendering": "Check task.status === 'done' to apply accordion behavior only to done column"
+  },
+  "existing_implementations": {
+    "kanban_board": "apps/frontend/src/renderer/components/KanbanBoard.tsx - Uses DroppableColumn for each status, renders SortableTaskCard for each task",
+    "task_card": "apps/frontend/src/renderer/components/TaskCard.tsx - Full task card with title, badges, description, metadata, progress, actions",
+    "sortable_wrapper": "apps/frontend/src/renderer/components/SortableTaskCard.tsx - Wraps TaskCard with drag-drop functionality",
+    "collapsible_ui": "apps/frontend/src/renderer/components/ui/collapsible.tsx - Radix UI Collapsible wrapper exports",
+    "collapsible_pattern": "apps/frontend/src/renderer/components/project-settings/CollapsibleSection.tsx - Example of collapsible section with toggle state"
+  },
+  "created_at": "2025-12-26T19:29:17.981538"
+}

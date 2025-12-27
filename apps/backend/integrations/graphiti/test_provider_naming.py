@@ -10,7 +10,7 @@ import os
 import sys
 from pathlib import Path
 
-# Add auto-claude to path
+# Add turret to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from integrations.graphiti.config import GraphitiConfig
@@ -44,7 +44,7 @@ def test_provider_naming():
         # Get naming info
         dimension = config.get_embedding_dimension()
         signature = config.get_provider_signature()
-        db_name = config.get_provider_specific_database_name("auto_claude_memory")
+        db_name = config.get_provider_specific_database_name("turret_memory")
 
         print(f"Provider: {provider}")
         if model:
@@ -52,7 +52,7 @@ def test_provider_naming():
         print(f"  Embedding Dimension: {dimension}")
         print(f"  Provider Signature: {signature}")
         print(f"  Database Name: {db_name}")
-        print(f"  Full Path: ~/.auto-claude/memories/{db_name}/")
+        print(f"  Full Path: ~/.turret/memories/{db_name}/")
         print()
 
     print("=" * 70)

@@ -1,0 +1,8 @@
+{
+  "feature": "Implement Auto-Recovery Checkpoint System",
+  "description": "Add a comprehensive checkpoint system that preserves task execution state across app restarts. This includes: (1) Execution state snapshots saved periodically to disk, capturing current iteration, active subtask, session timing, and tool call progress; (2) Process lifecycle tracking for any spawned subprocesses; (3) Terminal output buffering to prevent data loss; (4) Automatic resume logic that detects incomplete sessions on startup and restores context; (5) Graceful degradation when subprocess state cannot be recovered. The system should integrate with existing recovery.py mechanisms and use atomic file writes similar to task_logs.json storage.",
+  "created_at": "2025-12-26T18:44:24.755Z",
+  "updated_at": "2025-12-26T18:44:24.755Z",
+  "status": "pending",
+  "phases": []
+}

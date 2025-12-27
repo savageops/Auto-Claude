@@ -78,8 +78,8 @@ export function MemoriesTab({
             {memoryStatus?.available ? (
               <>
                 <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                  <InfoItem label="Database" value={memoryStatus.database || 'auto_claude_memory'} />
-                  <InfoItem label="Path" value={memoryStatus.dbPath || '~/.auto-claude/graphs'} />
+                  <InfoItem label="Database" value={memoryStatus.database || 'turret_memory'} />
+                  <InfoItem label="Path" value={memoryStatus.dbPath || '~/.turret/graphs'} />
                   {memoryState && (
                     <InfoItem label="Episodes" value={memoryState.episode_count.toString()} />
                   )}

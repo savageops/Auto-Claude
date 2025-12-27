@@ -1,0 +1,13 @@
+{
+  "feature": "Add Code Splitting and Lazy Loading",
+  "description": "Implement React.lazy and Suspense for route-based code splitting in the Vite/React frontend to reduce initial bundle size and improve first contentful paint.",
+  "created_at": "2025-12-26T17:55:38.296Z",
+  "updated_at": "2025-12-26T17:55:38.296Z",
+  "status": "backlog",
+  "planStatus": "pending",
+  "phases": [],
+  "workflow_type": "development",
+  "services_involved": [],
+  "final_acceptance": [],
+  "spec_file": "spec.md"
+}
