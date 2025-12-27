@@ -3,111 +3,109 @@
     {
       "id": "ci-001",
       "type": "code_improvements",
-      "title": "Add Search to PR List",
-      "description": "Add search and filter functionality to the GitHub Pull Requests list, allowing users to quickly find PRs by title, author, or branch name.",
-      "rationale": "The GitHub Issues list has comprehensive search/filter functionality (IssueListHeader with searchQuery, onSearchChange, filterState). The PRList component lacks this feature entirely despite handling similar list data. The useIssueFiltering hook pattern already exists and can be adapted for PRs.",
-      "builds_upon": ["GitHub Issues search (IssueListHeader.tsx)", "useIssueFiltering hook pattern"],
-      "estimated_effort": "trivial",
+      "title": "Add Keyboard Shortcuts for Task Operations",
+      "description": "Extend the existing keyboard shortcut pattern from the sidebar navigation to Kanban board task operations. Add shortcuts for common actions like opening task details (Enter), closing dialogs (Escape), marking tasks done (D), and moving to backlog (B).",
+      "rationale": "The Sidebar component already has a well-established keyboard shortcuts pattern with the 'shortcut' property on navigation items (K for Kanban, A for Terminals, etc.). This pattern can be directly extended to task operations in the KanbanBoard component without architectural changes.",
+      "builds_upon": ["Sidebar keyboard shortcuts pattern", "TaskCard click handlers", "KanbanBoard DnD system"],
+      "estimated_effort": "small",
       "affected_files": [
-        "apps/frontend/src/renderer/components/github-prs/components/PRList.tsx",
-        "apps/frontend/src/renderer/components/github-prs/hooks/useGitHubPRs.ts"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/TaskCard.tsx",
+        "apps/frontend/src/renderer/App.tsx"
       ],
       "existing_patterns": [
-        "IssueListHeader.tsx search input implementation",
-        "useIssueFiltering.ts hook structure",
-        "filterIssuesBySearch utility pattern"
+        "Sidebar.tsx shortcut property definition",
+        "App.tsx useEffect keyboard listener for project switching"
       ],
-      "implementation_approach": "1. Create usePRFiltering hook based on existing useIssueFiltering pattern. 2. Add PRListHeader component mirroring IssueListHeader structure with search input. 3. Wire up filtering to PRList component. The search should filter by PR title, author.login, and headRefName fields.",
+      "implementation_approach": "1. Add useEffect keyboard listener in KanbanBoard for focused task shortcuts. 2. Track selected/focused task state. 3. Map key events to existing updateTaskStatus and selectTask actions from task-store. 4. Follow the same pattern as App.tsx global keyboard handling.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-002",
       "type": "code_improvements",
-      "title": "Consolidate Filtering Hooks into Generic useFiltering",
-      "description": "Create a generic useFiltering hook that can be used across GitHub Issues, Linear Issues, PRs, and other list components, reducing code duplication.",
-      "rationale": "Two nearly identical useIssueFiltering hooks exist - one in github-issues/hooks and one in linear-import/hooks. Both implement similar search/filter logic that could be abstracted into a shared generic hook.",
-      "builds_upon": ["github-issues/hooks/useIssueFiltering.ts", "linear-import/hooks/useIssueFiltering.ts"],
-      "estimated_effort": "small",
+      "title": "Add Task Export to JSON/CSV",
+      "description": "Add export functionality for tasks in the Kanban board, allowing users to download their task list with all metadata in JSON or CSV format for backup or external tool integration.",
+      "rationale": "All task data structures are already defined in shared/types/task.ts with comprehensive Task type. The task-store provides getTasksByStatus selector. The only missing piece is the download trigger, which is a trivial browser API call using Blob and URL.createObjectURL.",
+      "builds_upon": ["Task type definitions in shared/types/task.ts", "task-store state management", "Button UI component"],
+      "estimated_effort": "trivial",
       "affected_files": [
-        "apps/frontend/src/renderer/hooks/useFiltering.ts (new)",
-        "apps/frontend/src/renderer/hooks/index.ts",
-        "apps/frontend/src/renderer/components/github-issues/hooks/useIssueFiltering.ts",
-        "apps/frontend/src/renderer/components/linear-import/hooks/useIssueFiltering.ts"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/lib/utils.ts"
       ],
       "existing_patterns": [
-        "useIssueFiltering pattern with useMemo",
-        "Generics pattern used in types/common.ts"
+        "Task type in shared/types/task.ts",
+        "useTaskStore selectors",
+        "Button component in ui/button.tsx"
       ],
-      "implementation_approach": "1. Create generic useFiltering<T> hook in renderer/hooks/ that accepts items, searchQuery, and a searchFn predicate. 2. Refactor both useIssueFiltering hooks to use the new generic hook with domain-specific search predicates. 3. Export from hooks/index.ts for shared access.",
+      "implementation_approach": "1. Add exportTasks utility function to lib/utils.ts that serializes tasks to JSON/CSV string. 2. Add export button in KanbanBoard header with dropdown for format selection. 3. Use Blob and URL.createObjectURL for download trigger.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-003",
       "type": "code_improvements",
-      "title": "Add Keyboard Shortcuts to Ideation Panel",
-      "description": "Add keyboard shortcuts for common ideation actions: dismiss (D), convert to task (C), archive (A), select all (Ctrl+A), and refresh (R).",
-      "rationale": "Keyboard shortcuts pattern exists in TaskEditDialog.tsx (Ctrl+Enter for submit) and App.tsx. The Ideation panel has frequent user actions (dismiss, convert, archive) that would benefit from keyboard acceleration. The store already has all the action methods.",
-      "builds_upon": ["TaskEditDialog keyboard handling", "ideation-store actions (dismissIdea, archiveIdea)"],
-      "estimated_effort": "small",
+      "title": "Add Task Filters to Kanban Board",
+      "description": "Add filtering capabilities to the Kanban board following the established ChangelogFilters pattern. Allow filtering tasks by creation date range, text search across title/description, and review reason.",
+      "rationale": "ChangelogFilters.tsx demonstrates a mature filter UI pattern with RadioGroup selections, date inputs, and Select dropdowns. The KanbanBoard already has tasks as props and uses useMemo for processing - adding filter logic fits naturally into this flow.",
+      "builds_upon": ["ChangelogFilters component pattern", "KanbanBoard task processing", "UI components (Select, Input, RadioGroup, Card)"],
+      "estimated_effort": "medium",
       "affected_files": [
-        "apps/frontend/src/renderer/components/ideation/Ideation.tsx",
-        "apps/frontend/src/renderer/components/ideation/IdeaCard.tsx"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/stores/task-store.ts"
       ],
       "existing_patterns": [
-        "onKeyDown event handling in TaskEditDialog",
-        "Keyboard shortcut registration pattern in App.tsx"
+        "ChangelogFilters.tsx filter state management and UI structure",
+        "useMemo for derived task lists in KanbanBoard",
+        "Input component for search, Select for dropdowns"
       ],
-      "implementation_approach": "1. Add useEffect with keydown listener in Ideation.tsx for global shortcuts (R to refresh). 2. Add onKeyDown to IdeaCard for item-level shortcuts when focused (D to dismiss, C to convert, A to archive). 3. Show shortcuts in tooltips using existing Tooltip component pattern.",
+      "implementation_approach": "1. Add filter state (search term, date range, reviewReason filter) to KanbanBoard. 2. Create compact filter bar component inspired by ChangelogFilters sidebar pattern. 3. Apply filters in useMemo before column grouping using existing task properties. 4. Use existing Input, Select, Checkbox UI components.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-004",
       "type": "code_improvements",
-      "title": "Create Shared GenericEmptyState Component",
-      "description": "Extract the EmptyState pattern from github-issues into a shared, reusable component that other features can use for consistent empty state UI.",
-      "rationale": "EmptyState component in github-issues/components/EmptyStates.tsx is well-designed with props for icon, message, and searchQuery handling. IdeationEmptyState and RoadmapEmptyState implement similar patterns separately. A shared component would ensure consistency and reduce duplication.",
-      "builds_upon": ["github-issues EmptyStates.tsx pattern", "IdeationEmptyState.tsx", "RoadmapEmptyState.tsx"],
-      "estimated_effort": "small",
+      "title": "Add Bulk Task Selection and Operations",
+      "description": "Enable multi-select functionality for tasks in the Kanban board to perform bulk operations like moving multiple tasks to a different status, archiving, or deleting.",
+      "rationale": "The Archive All button for Done column already demonstrates the bulk operation pattern. Checkbox component exists in ui/checkbox.tsx. The archiveTasks function in task-store shows multi-task operations are supported. This extends existing patterns to user-selectable scope.",
+      "builds_upon": ["Archive All button pattern in Done column", "Checkbox UI component", "archiveTasks function in task-store"],
+      "estimated_effort": "medium",
       "affected_files": [
-        "apps/frontend/src/renderer/components/ui/empty-state.tsx (new)",
-        "apps/frontend/src/renderer/components/github-issues/components/EmptyStates.tsx",
-        "apps/frontend/src/renderer/components/ideation/IdeationEmptyState.tsx",
-        "apps/frontend/src/renderer/components/roadmap/RoadmapEmptyState.tsx"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/TaskCard.tsx",
+        "apps/frontend/src/renderer/stores/task-store.ts"
       ],
       "existing_patterns": [
-        "EmptyState component structure with icon, message props",
-        "UI component pattern in components/ui/"
+        "archiveTasks function in task-store.ts",
+        "Checkbox component in ui/checkbox.tsx",
+        "Archive All button onClick handler in DroppableColumn"
       ],
-      "implementation_approach": "1. Create GenericEmptyState in components/ui/empty-state.tsx with props: icon, title, description, searchQuery, actionButton. 2. Migrate github-issues EmptyState to use this shared component. 3. Refactor IdeationEmptyState and RoadmapEmptyState to use GenericEmptyState, passing domain-specific content.",
+      "implementation_approach": "1. Add selectedTaskIds state to KanbanBoard. 2. Add checkbox to TaskCard (conditionally rendered based on selection mode toggle). 3. Add bulk action toolbar that appears when tasks selected. 4. Extend task-store with bulkUpdateTaskStatus action following archiveTasks pattern.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-005",
       "type": "code_improvements",
-      "title": "Add Export to Markdown for Changelog Entries",
-      "description": "Add ability to export changelog entries to a CHANGELOG.md file in the project root, formatted according to Keep a Changelog standard.",
-      "rationale": "The changelog system has comprehensive formatter (formatter.ts), parser (parser.ts), and generator infrastructure but no export-to-file capability. The formatter already produces markdown-compatible output. This builds on existing changelog patterns to complete the workflow.",
-      "builds_upon": ["changelog/formatter.ts", "changelog/generator.ts", "changelog-service.ts"],
-      "estimated_effort": "medium",
+      "title": "Add New Agent Tool Category for Task Analytics",
+      "description": "Extend the backend tool registry to include task analytics tools that can provide insights on task completion rates, average time in each status, and bottleneck identification.",
+      "rationale": "The tool registry pattern in agents/tools_pkg/registry.py shows a clean modular approach with create_*_tools factory functions (create_subtask_tools, create_progress_tools, create_qa_tools, create_memory_tools). Adding an analytics category follows the established factory pattern exactly.",
+      "builds_upon": ["Tool registry pattern in registry.py", "create_*_tools factory functions", "Existing tool structure in tools/*.py"],
+      "estimated_effort": "small",
       "affected_files": [
-        "apps/frontend/src/main/changelog/exporter.ts (new)",
-        "apps/frontend/src/main/changelog/index.ts",
-        "apps/frontend/src/main/ipc-handlers/changelog-handlers.ts",
-        "apps/frontend/src/renderer/components/changelog/ChangelogHeader.tsx",
-        "apps/frontend/src/preload/api/index.ts"
+        "apps/backend/agents/tools_pkg/tools/analytics.py",
+        "apps/backend/agents/tools_pkg/tools/__init__.py",
+        "apps/backend/agents/tools_pkg/registry.py"
       ],
       "existing_patterns": [
-        "changelog/formatter.ts formatting functions",
-        "fs-utils.ts file writing patterns",
-        "IPC handler registration pattern"
+        "create_subtask_tools, create_progress_tools factory pattern",
+        "Tool function signature pattern with spec_dir and project_dir params",
+        "Tool return format from existing tool implementations"
       ],
-      "implementation_approach": "1. Create exporter.ts with exportToMarkdown(entries, projectPath) function using existing formatter. 2. Add exportChangelog IPC handler in changelog-handlers.ts. 3. Add export button to ChangelogHeader.tsx using existing Button component. 4. Write to {projectPath}/CHANGELOG.md with proper header and formatted entries.",
+      "implementation_approach": "1. Create new tools/analytics.py following tools/progress.py structure. 2. Add create_analytics_tools(spec_dir, project_dir) factory function. 3. Register in registry.py create_all_tools by adding all_tools.extend(create_analytics_tools(...)). 4. Implement get_task_metrics and get_completion_trends tools.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     }
   ]
 }

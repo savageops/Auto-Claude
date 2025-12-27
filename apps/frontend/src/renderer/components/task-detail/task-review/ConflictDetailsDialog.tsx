@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { diffLines, diffWords, Change } from 'diff';
+import './conflict-diff-view.css';
 import { AlertTriangle, GitMerge, Eye, FileCode } from '@/lib/icons';
 import {
   AlertDialog,
@@ -50,73 +52,34 @@ export function ConflictDetailsDialog({
   onMerge
 }: ConflictDetailsDialogProps) {
   const [selectedConflict, setSelectedConflict] = useState<MergeConflict | null>(null);
-  const [oldString, setOldString] = useState<string>('');
-  const [newString, setNewString] = useState<string>('');
+  const [oldContent, setOldContent] = useState<string>('');
+  const [newContent, setNewContent] = useState<string>('');
   const [isLoadingDiff, setIsLoadingDiff] = useState(false);
-
-  // KISS diff: line-by-line compare (good enough for review, stable UI)
-  const createHighlightedDiff = (oldContent: string, newContent: string) => {
-    const oldLines = oldContent.split('\n');
-    const newLines = newContent.split('\n');
-    const max = Math.max(oldLines.length, newLines.length);
-
-    const outOld: string[] = [];
-    const outNew: string[] = [];
-
-    for (let i = 0; i < max; i++) {
-      const o = oldLines[i] ?? '';
-      const n = newLines[i] ?? '';
-
-      if (o === n) {
-        outOld.push(`  ${o}`);
-        outNew.push(`  ${n}`);
-      } else {
-        outOld.push(o ? `- ${o}` : '');
-        outNew.push(n ? `+ ${n}` : '');
-      }
-    }
-
-    return {
-      oldView: outOld.join('\n').trimEnd(),
-      newView: outNew.join('\n').trimEnd(),
-    };
-  };
+  const [diffError, setDiffError] = useState<string | null>(null);
 
   const handleConflictClick = async (conflict: MergeConflict) => {
     setSelectedConflict(conflict);
     setIsLoadingDiff(true);
-    setOldString('');
-    setNewString('');
+    setOldContent('');
+    setNewContent('');
+    setDiffError(null);
 
     try {
       if (taskId) {
-        // Get base+worktree contents for this specific conflict
         const result = await window.electronAPI.getWorktreeConflictDiff(taskId, conflict.file);
         if (result.success && result.data) {
-          try {
-            const parsed = JSON.parse(result.data) as { oldContent?: string; newContent?: string };
-            const oldContent = parsed.oldContent ?? '';
-            const newContent = parsed.newContent ?? '';
-
-            const { oldView, newView } = createHighlightedDiff(oldContent, newContent);
-            setOldString(oldView || '  // No content');
-            setNewString(newView || '  // No content');
-          } catch {
-            // Fallback: if parsing fails, show raw payload
-            setOldString(`// Raw response:\n${result.data}`);
-            setNewString('');
-          }
+          // Backend returns { oldContent, newContent }
+          const data = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+          setOldContent(data.oldContent || '');
+          setNewContent(data.newContent || '');
         } else {
-          setOldString(`Error loading diff: ${result.error || 'Failed to get conflict diff'}`);
-          setNewString('');
+          setDiffError(result.error || 'Failed to get diff');
         }
       } else {
-        setOldString(`Task ID not available - cannot load diff for ${conflict.file}`);
-        setNewString('');
+        setDiffError('Task ID not available');
       }
     } catch (error) {
-      setOldString(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setNewString('');
+      setDiffError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsLoadingDiff(false);
     }
@@ -124,8 +87,140 @@ export function ConflictDetailsDialog({
 
   const handleCloseDiffDialog = () => {
     setSelectedConflict(null);
-    setOldString('');
-    setNewString('');
+    setOldContent('');
+    setNewContent('');
+    setDiffError(null);
+  };
+
+  // Compute line-level diff
+  const lineDiff = useMemo(() => {
+    if (!oldContent && !newContent) return [];
+    const result = diffLines(oldContent, newContent);
+    console.log('[ConflictDiff] oldContent length:', oldContent.length);
+    console.log('[ConflictDiff] newContent length:', newContent.length);
+    console.log('[ConflictDiff] diffLines result:', result.map(c => ({
+      added: c.added,
+      removed: c.removed,
+      count: c.count,
+      valuePreview: c.value.slice(0, 50) + (c.value.length > 50 ? '...' : '')
+    })));
+    return result;
+  }, [oldContent, newContent]);
+
+  // Build split view rows from line diff
+  const splitRows = useMemo(() => {
+    const rows: Array<{
+      oldLine: number | null;
+      newLine: number | null;
+      oldContent: string | null;
+      newContent: string | null;
+      oldType: 'normal' | 'delete' | 'empty';
+      newType: 'normal' | 'insert' | 'empty';
+      wordDiff?: Change[];
+    }> = [];
+
+    let oldLineNum = 1;
+    let newLineNum = 1;
+
+    // Process changes and pair them for split view
+    let i = 0;
+    while (i < lineDiff.length) {
+      const change = lineDiff[i];
+      const lines = change.value.split('\n');
+      // Remove trailing empty string from split
+      if (lines[lines.length - 1] === '') lines.pop();
+
+      if (!change.added && !change.removed) {
+        // Context lines - show on both sides
+        for (const line of lines) {
+          rows.push({
+            oldLine: oldLineNum++,
+            newLine: newLineNum++,
+            oldContent: line,
+            newContent: line,
+            oldType: 'normal',
+            newType: 'normal',
+          });
+        }
+      } else if (change.removed && lineDiff[i + 1]?.added) {
+        // Paired delete + insert - show side by side with word diff
+        const nextChange = lineDiff[i + 1];
+        const oldLines = lines;
+        const newLines = nextChange.value.split('\n');
+        if (newLines[newLines.length - 1] === '') newLines.pop();
+
+        const maxLen = Math.max(oldLines.length, newLines.length);
+        for (let j = 0; j < maxLen; j++) {
+          const oldLine = oldLines[j];
+          const newLine = newLines[j];
+          
+          // Compute word-level diff for this line pair
+          let wordDiff: Change[] | undefined;
+          if (oldLine !== undefined && newLine !== undefined) {
+            wordDiff = diffWords(oldLine, newLine);
+          }
+
+          rows.push({
+            oldLine: oldLine !== undefined ? oldLineNum++ : null,
+            newLine: newLine !== undefined ? newLineNum++ : null,
+            oldContent: oldLine ?? null,
+            newContent: newLine ?? null,
+            oldType: oldLine !== undefined ? 'delete' : 'empty',
+            newType: newLine !== undefined ? 'insert' : 'empty',
+            wordDiff,
+          });
+        }
+        i++; // Skip the next change since we processed it
+      } else if (change.removed) {
+        // Only deletions
+        for (const line of lines) {
+          rows.push({
+            oldLine: oldLineNum++,
+            newLine: null,
+            oldContent: line,
+            newContent: null,
+            oldType: 'delete',
+            newType: 'empty',
+          });
+        }
+      } else if (change.added) {
+        // Only insertions
+        for (const line of lines) {
+          rows.push({
+            oldLine: null,
+            newLine: newLineNum++,
+            oldContent: null,
+            newContent: line,
+            oldType: 'empty',
+            newType: 'insert',
+          });
+        }
+      }
+      i++;
+    }
+
+    return rows;
+  }, [lineDiff]);
+
+  // Render text with word-level highlighting
+  const renderWithWordDiff = (text: string, wordDiff: Change[] | undefined, side: 'old' | 'new') => {
+    if (!wordDiff) return text;
+
+    return wordDiff.map((part, idx) => {
+      if (side === 'old') {
+        if (part.added) return null; // Skip added parts on old side
+        if (part.removed) {
+          return <span key={idx} className="diff-word-delete">{part.value}</span>;
+        }
+        return <span key={idx}>{part.value}</span>;
+      } else {
+        if (part.removed) return null; // Skip removed parts on new side
+        if (part.added) {
+          return <span key={idx} className="diff-word-insert">{part.value}</span>;
+        }
+        return <span key={idx}>{part.value}</span>;
+      }
+    });
   };
   return (
     <>
@@ -223,7 +318,7 @@ export function ConflictDetailsDialog({
 
     {/* Conflict Details Diff Dialog */}
     <Dialog open={!!selectedConflict} onOpenChange={handleCloseDiffDialog}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileCode className="h-5 w-5 text-info" />
@@ -235,7 +330,7 @@ export function ConflictDetailsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0 -mx-6 px-6">
           {isLoadingDiff ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -243,49 +338,81 @@ export function ConflictDetailsDialog({
                 <p className="text-sm text-muted-foreground">Loading conflict details...</p>
               </div>
             </div>
-          ) : (oldString || newString) ? (
+          ) : diffError ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-destructive opacity-50" />
+              <p className="text-destructive">{diffError}</p>
+            </div>
+          ) : splitRows.length > 0 ? (
             <div className="space-y-4">
+              {/* Debug info */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded p-2 text-xs font-mono">
+                <div>Old: {oldContent.length} chars, {oldContent.split('\n').length} lines</div>
+                <div>New: {newContent.length} chars, {newContent.split('\n').length} lines</div>
+                <div>Diff chunks: {lineDiff.length} ({lineDiff.filter(c => c.added).length} added, {lineDiff.filter(c => c.removed).length} removed)</div>
+                <div>Split rows: {splitRows.length} ({splitRows.filter(r => r.oldType === 'delete').length} del, {splitRows.filter(r => r.newType === 'insert').length} ins)</div>
+              </div>
+              
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="text-sm font-medium mb-2">Conflict Changes</h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium">Conflict Changes</h4>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded" style={{ background: 'hsl(0 70% 50% / 0.3)' }}></span>
+                      Removed
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded" style={{ background: 'hsl(120 50% 40% / 0.3)' }}></span>
+                      Added
+                    </span>
+                  </div>
+                </div>
 
-                {/* Custom side-by-side diff display */}
-                <div className="border rounded-lg overflow-hidden bg-card">
-                  <div className="grid grid-cols-2 border-b border-border">
-                    <div className="p-2 bg-muted/30 text-sm font-medium border-r border-border">
-                      Before (Base Branch)
-                    </div>
-                    <div className="p-2 bg-muted/30 text-sm font-medium">
-                      After (Current Changes)
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2" style={{ minHeight: '400px' }}>
-                    <div className="border-r border-border p-4 overflow-auto">
-                      <pre className="text-xs font-mono whitespace-pre-wrap">
-                        {oldString.split('\n').map((line, index) => (
-                          <div key={index} className={
-                            line.startsWith('- ') ? 'bg-destructive/10 text-destructive' :
-                            line.startsWith('  ') ? 'text-muted-foreground' :
-                            'text-foreground'
-                          }>
-                            {line || '\u00A0'}
-                          </div>
-                        ))}
-                      </pre>
-                    </div>
-                    <div className="p-4 overflow-auto">
-                      <pre className="text-xs font-mono whitespace-pre-wrap">
-                        {newString.split('\n').map((line, index) => (
-                          <div key={index} className={
-                            line.startsWith('+ ') ? 'bg-success/10 text-success' :
-                            line.startsWith('  ') ? 'text-muted-foreground' :
-                            'text-foreground'
-                          }>
-                            {line || '\u00A0'}
-                          </div>
-                        ))}
-                      </pre>
-                    </div>
-                  </div>
+                <div className="conflict-diff-view rounded-lg border border-border overflow-auto bg-card">
+                  <table className="diff-table">
+                    <colgroup>
+                      <col className="diff-gutter-col" />
+                      <col className="diff-code-col" />
+                      <col className="diff-gutter-col" />
+                      <col className="diff-code-col" />
+                    </colgroup>
+                    <thead>
+                      <tr className="diff-header">
+                        <th colSpan={2} className="diff-header-cell">Base Branch</th>
+                        <th colSpan={2} className="diff-header-cell">Current Changes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {splitRows.map((row, idx) => (
+                        <tr key={idx} className="diff-row">
+                          {/* Old side */}
+                          <td className={cn('diff-gutter', `diff-gutter-${row.oldType}`)}>
+                            {row.oldLine}
+                          </td>
+                          <td className={cn('diff-code', `diff-code-${row.oldType}`)}>
+                            {row.oldType === 'delete' && <span className="diff-marker">−</span>}
+                            {row.oldContent !== null && (
+                              <span className="diff-content">
+                                {row.wordDiff ? renderWithWordDiff(row.oldContent, row.wordDiff, 'old') : row.oldContent}
+                              </span>
+                            )}
+                          </td>
+                          {/* New side */}
+                          <td className={cn('diff-gutter', `diff-gutter-${row.newType}`)}>
+                            {row.newLine}
+                          </td>
+                          <td className={cn('diff-code', `diff-code-${row.newType}`)}>
+                            {row.newType === 'insert' && <span className="diff-marker">+</span>}
+                            {row.newContent !== null && (
+                              <span className="diff-content">
+                                {row.wordDiff ? renderWithWordDiff(row.newContent, row.wordDiff, 'new') : row.newContent}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
@@ -319,10 +446,15 @@ export function ConflictDetailsDialog({
                 </div>
               )}
             </div>
+          ) : (oldContent || newContent) ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileCode className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No differences detected</p>
+            </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <FileCode className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No conflict details available</p>
+              <p>Select a conflict to view details</p>
             </div>
           )}
         </div>

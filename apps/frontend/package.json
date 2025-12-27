@@ -75,6 +75,7 @@
     "chokidar": "^5.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "diff": "^8.0.2",
     "electron-updater": "^6.6.2",
     "i18next": "^25.7.3",
     "lucide-react": "^0.560.0",

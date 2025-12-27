@@ -87,8 +87,8 @@
         ],
         "total_routes": 4,
         "methods": [
-          "GET",
-          "POST"
+          "POST",
+          "GET"
         ],
         "protected_routes": [
           "/path"

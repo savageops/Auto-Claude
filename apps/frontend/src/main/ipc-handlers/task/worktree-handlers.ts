@@ -1047,42 +1047,40 @@ export function registerWorktreeHandlers(
           return { success: false, error: 'Worktree not found' };
         }
 
-        // Get the file content from both base branch and current worktree
+        // Get file contents from base branch and worktree for side-by-side diff
+        let oldContent = '';
+        let newContent = '';
+
+        // Get base branch version
         try {
-          // Get content from base branch
-          let oldContent = '';
-          try {
-            oldContent = execSync(`git show "${baseBranch}:${filePath}"`, {
+          oldContent = execSync(
+            `git show "${baseBranch}:${filePath}"`,
+            {
               cwd: worktreePath,
               encoding: 'utf8',
-              maxBuffer: 10 * 1024 * 1024,
-            });
-          } catch {
-            // File might not exist in base branch
-            oldContent = `// File does not exist in base branch (${baseBranch})`;
-          }
-
-          // Get content from current worktree
-          let newContent = '';
-          try {
-            newContent = readFileSync(path.join(worktreePath, filePath), 'utf8');
-          } catch {
-            // File might not exist in worktree
-            newContent = `// File does not exist in current worktree`;
-          }
-
-          return {
-            success: true,
-            data: JSON.stringify({ oldContent, newContent, filePath }),
-          };
-        } catch (contentError) {
-          return {
-            success: false,
-            error: `Failed to load conflict contents for ${filePath}: ${
-              contentError instanceof Error ? contentError.message : 'Unknown error'
-            }`,
-          };
+              maxBuffer: 10 * 1024 * 1024
+            }
+          );
+        } catch {
+          // File doesn't exist in base branch (new file)
+          oldContent = '';
         }
+
+        // Get worktree version
+        const worktreeFilePath = path.join(worktreePath, filePath);
+        try {
+          if (existsSync(worktreeFilePath)) {
+            newContent = readFileSync(worktreeFilePath, 'utf8');
+          }
+        } catch {
+          // File doesn't exist in worktree (deleted file)
+          newContent = '';
+        }
+
+        return {
+          success: true,
+          data: JSON.stringify({ oldContent, newContent })
+        };
       } catch (error) {
         return {
           success: false,

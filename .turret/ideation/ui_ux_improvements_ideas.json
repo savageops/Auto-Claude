@@ -97,7 +97,7 @@
   ],
   "metadata": {
     "generated_at": "2025-12-26T19:56:00.000Z",
-    "last_validated": "2025-12-27T00:30:00.000Z",
+    "last_validated": "2025-12-27T05:30:00.000Z",
     "agent": "ui_ux_improvements_ideation",
     "project_analyzed": "Turret",
     "frontend_framework": "React + TypeScript + Electron",
@@ -106,11 +106,19 @@
     "wcag_version": "2.1",
     "focus_areas": ["accessibility", "usability", "keyboard_navigation", "touch_targets"],
     "validation_notes": {
-      "aria_coverage": "10 ARIA occurrences across 7 files - confirms accessibility gaps identified in uiux-001, uiux-002, uiux-003",
-      "title_attributes": "79 title= occurrences across 38 files - validates need for proper tooltips as noted in uiux-002",
-      "keyboard_handlers": "17 tabIndex/onKeyDown occurrences across 12 files - confirms limited keyboard navigation in uiux-001",
-      "touch_targets": "Multiple icon buttons use h-7 w-7 (28px) - validates uiux-004 touch target concerns",
-      "collapsible_component": "ui/collapsible.tsx exists and is used in TaskCard.tsx - pattern ready for Sidebar as proposed in uiux-005"
+      "aria_coverage": "8 ARIA occurrences across 5 files (UsageIndicator, RateLimitModal/Indicator, SDKRateLimitModal, SecuritySettings) - confirms accessibility gaps identified in uiux-001, uiux-002, uiux-003",
+      "title_attributes": "Multiple title= attributes used instead of Tooltip components (KanbanBoard line 134, TaskCard line 442) - validates need for proper tooltips",
+      "keyboard_handlers": "DnD kit provides keyboard sensor support, but no global keyboard shortcuts exist for common actions",
+      "touch_targets": "Icon buttons use h-7 w-7 (28px) in KanbanBoard columns - validates uiux-004 touch target concerns",
+      "collapsible_component": "ui/collapsible.tsx exists and is used in TaskCard.tsx for collapsible done items - pattern ready for Sidebar as proposed in uiux-005",
+      "checkbox_inconsistency": "AddProjectModal (line 262-268) uses native input[type=checkbox] instead of Radix Checkbox component used elsewhere (KanbanBoard line 339-343)",
+      "skeleton_loading": "IdeaSkeletonCard exists but is the only skeleton component - KanbanBoard and WelcomeScreen noted in planned features for skeleton states"
+    },
+    "additional_findings": {
+      "native_checkbox": "AddProjectModal uses native checkbox for git init option - should use Radix Checkbox for consistency",
+      "tooltip_vs_title": "Inconsistent use of title attribute vs Tooltip component across codebase",
+      "keyboard_shortcuts": "No keyboard shortcuts for common actions - power users expect keyboard-driven workflows",
+      "design_system": "Comprehensive design system with 17+ themes, proper CSS variables, and consistent component patterns"
     }
   }
 }
