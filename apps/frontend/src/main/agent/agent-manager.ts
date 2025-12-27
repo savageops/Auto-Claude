@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import { existsSync } from 'fs';
+import type { BrowserWindow } from 'electron';
 import { AgentState } from './agent-state';
 import { AgentEvents } from './agent-events';
 import { AgentProcessManager } from './agent-process';
 import { AgentQueueManager } from './agent-queue';
-import { TaskMonitorService } from './task-monitor';
+import { getTaskMonitor } from './task-monitor';
 import { getClaudeProfileManager } from '../claude-profile-manager';
 import {
   SpecCreationMetadata,
@@ -13,6 +14,7 @@ import {
   RoadmapConfig
 } from './types';
 import type { IdeationConfig } from '../../shared/types';
+import type { ProjectStore } from '../project-store';
 
 /**
  * Main AgentManager - orchestrates agent process lifecycle
@@ -23,7 +25,6 @@ export class AgentManager extends EventEmitter {
   private events: AgentEvents;
   private processManager: AgentProcessManager;
   private queueManager: AgentQueueManager;
-  private taskMonitor: TaskMonitorService;
   private taskExecutionContext: Map<string, {
     projectPath: string;
     specId: string;
@@ -43,7 +44,6 @@ export class AgentManager extends EventEmitter {
     this.events = new AgentEvents();
     this.processManager = new AgentProcessManager(this.state, this.events, this);
     this.queueManager = new AgentQueueManager(this.state, this.events, this.processManager, this);
-    this.taskMonitor = new TaskMonitorService();
 
     // Listen for auto-swap restart events
     this.on('auto-swap-restart-task', (taskId: string, newProfileId: string) => {
@@ -325,6 +325,29 @@ export class AgentManager extends EventEmitter {
   }
 
   /**
+   * Start task monitoring service
+   * Convenience method that delegates to TaskMonitorService singleton
+   * @param projectStore - The ProjectStore instance to get all projects and tasks
+   * @param getMainWindow - Function to get the main BrowserWindow for IPC communication
+   */
+  startTaskMonitoring(
+    projectStore: ProjectStore,
+    getMainWindow: () => BrowserWindow | null
+  ): void {
+    const taskMonitor = getTaskMonitor();
+    taskMonitor.startMonitoring(this, projectStore, getMainWindow);
+  }
+
+  /**
+   * Stop task monitoring service
+   * Convenience method that delegates to TaskMonitorService singleton
+   */
+  stopTaskMonitoring(): void {
+    consttaskMonitor = getTaskMonitor();
+    taskMonitor.stopMonitoring();
+  }
+
+  /**
    * Store task execution context for potential restarts
    */
   private storeTaskContext(
@@ -424,19 +447,5 @@ export class AgentManager extends EventEmitter {
     }, 500);
 
     return true;
-  }
-
-  /**
-   * Start task monitoring service
-   */
-  startTaskMonitoring(): void {
-    this.taskMonitor.startMonitoring(this);
-  }
-
-  /**
-   * Stop task monitoring service
-   */
-  stopTaskMonitoring(): void {
-    this.taskMonitor.stopMonitoring();
   }
 }

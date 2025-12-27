@@ -22,6 +22,8 @@ def get_latest_commit(project_dir: Path) -> str | None:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         return result.stdout.strip()
@@ -37,6 +39,8 @@ def get_commit_count(project_dir: Path) -> int:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         return int(result.stdout.strip())

@@ -194,8 +194,8 @@ class GHClient:
 
                 # Successful execution (no timeout)
                 total_time = asyncio.get_event_loop().time() - start_time
-                stdout_str = stdout.decode("utf-8")
-                stderr_str = stderr.decode("utf-8")
+                stdout_str = stdout.decode("utf-8", errors="replace")
+                stderr_str = stderr.decode("utf-8", errors="replace")
 
                 result = GHCommandResult(
                     stdout=stdout_str,

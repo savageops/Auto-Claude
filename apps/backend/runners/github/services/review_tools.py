@@ -420,7 +420,7 @@ async def run_tests(
         return TestResult(
             executed=True,
             passed=passed,
-            error=None if passed else stderr.decode("utf-8")[:500],
+            error=None if passed else stderr.decode("utf-8", errors="replace")[:500],
         )
 
     except Exception as e:

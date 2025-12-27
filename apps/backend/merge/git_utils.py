@@ -42,6 +42,8 @@ def find_worktree(project_dir: Path, task_id: str) -> Path | None:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         for line in result.stdout.split("\n"):
@@ -71,6 +73,8 @@ def get_file_from_branch(project_dir: Path, file_path: str, branch: str) -> str 
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         return result.stdout

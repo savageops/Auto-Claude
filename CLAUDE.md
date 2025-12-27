@@ -373,6 +373,62 @@ const { t } = useTranslation(['navigation', 'common']);
 2. Use `namespace:section.key` format (e.g., `navigation:items.githubPRs`)
 3. Never use hardcoded strings in JSX/TSX files
 
+### AutoMem Memory Association
+
+**CRITICAL: When storing memories in AutoMem, always associate related memories using the correct relation types.**
+
+AutoMem supports the following relation types for associating memories:
+
+**Relation Types:**
+
+| Type | When to Use | Example |
+|------|-------------|---------|
+| `CONTRADICTS` | Memory conflicts with or invalidates another | "Prefer early returns" contradicts "Use nested conditionals" |
+| `DERIVED_FROM` | Memory is a conclusion drawn from another | "Use h-1.5 for progress bars" derived from "RoadmapGenerationProgress pattern" |
+| `EVOLVED_INTO` | Memory represents an evolution of a previous approach | "No Component Pop-ins pattern" evolved from "Skeleton loading approach" |
+| `EXEMPLIFIES` | Memory is a concrete example of a general principle | "WorkspaceStatus loading state" exemplifies "No Component Pop-ins" |
+| `EXPLAINS` | Memory provides reasoning/context for another | "Topographic spacing system" explains "Use .5 increments" |
+| `INVALIDATED_BY` | Memory was made obsolete by new information | "CSS animations" invalidated by "Use framer-motion standard" |
+| `LEADS_TO` | Memory caused or resulted in another decision | "User prefers no pop-ins" leads to "Structure stability pattern" |
+| `OCCURRED_BEFORE` | Temporal relationship between memories | "First skeleton attempt" occurred before "Framer-motion redesign" |
+| `PARALLEL_CONTEXT` | Memories exist in similar but separate contexts | "Backend loading patterns" parallel context to "Frontend loading patterns" |
+| `PART_OF` | Memory belongs to a larger concept/system | "Progress bar height h-1.5" part of "Design system requirements" |
+| `PRECEDED_BY` | Memory follows chronologically from another | "Final implementation" preceded by "Design research phase" |
+| `PREFERS_OVER` | Memory documents a preference between alternatives | "Framer-motion" prefers over "CSS animations" |
+| `REINFORCES` | Memory strengthens or supports another | "RoadmapGenerationProgress pattern" reinforces "Design system consistency" |
+| `RELATES_TO` | General relationship between memories | "Loading states" relates to "User experience" |
+| `SHARES_THEME` | Memories share common themes/topics | "Spacing system" shares theme with "Color opacity system" |
+| `SIMILAR_TO` | Memories are analogous or comparable | "Topographic spacing" similar to "Topographic colors" |
+
+**Best Practices:**
+
+1. **Use specific relation types** - Prefer `EXEMPLIFIES`, `DERIVED_FROM`, `PREFERS_OVER` over generic `RELATES_TO`
+2. **Create bidirectional associations** - Associate both memories with complementary relation types
+3. **Build knowledge graphs** - Link design decisions to their rationale using `EXPLAINS` and `LEADS_TO`
+4. **Document evolution** - Use `EVOLVED_INTO` and `INVALIDATED_BY` to track design pattern changes
+5. **Mark preferences** - Use `PREFERS_OVER` to document user/project preferences clearly
+
+**Example Usage:**
+```python
+# Store a design pattern
+pattern_id = store_memory({
+  content: "Progress bars use h-1.5 height, rounded-full container, framer-motion animation",
+  importance: 0.95,
+  tags: ["design-system", "golden-standard", "ui-patterns"]
+})
+
+# Store the source it was derived from
+source_id = store_memory({
+  content: "RoadmapGenerationProgress.tsx is the canonical pattern for loading states",
+  importance: 0.90,
+  tags: ["design-system", "reference-implementation"]
+})
+
+# Associate them
+associate_memories(pattern_id, source_id, "DERIVED_FROM")
+associate_memories(source_id, pattern_id, "EXEMPLIFIES")
+```
+
 ### UI Loading States - No Component Pop-ins
 
 **CRITICAL DESIGN RULE: Components must render their full structure immediately. Loading states show placeholder VALUES, never hide entire sections.**

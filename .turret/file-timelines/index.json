@@ -29,7 +29,11 @@
     "apps/frontend/src/renderer/components/task-detail/__tests__/discard-workflow.test.ts",
     ".turret/specs/034-implement-automatic-task-recovery-with-self-healin/build-progress.txt",
     ".turret/specs/034-implement-automatic-task-recovery-with-self-healin/implementation_plan.json",
-    "apps/frontend/src/main/agent/task-monitor.ts"
+    "apps/frontend/src/main/agent/task-monitor.ts",
+    "apps/frontend/src/main/agent/agent-manager.ts",
+    "apps/frontend/src/main/agent/index.ts",
+    "apps/frontend/src/main/agent/task-monitor.test.ts",
+    "apps/frontend/src/main/index.ts"
   ],
-  "last_updated": "2025-12-27T13:24:35.870674"
+  "last_updated": "2025-12-27T18:46:19.145798"
 }

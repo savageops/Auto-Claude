@@ -144,6 +144,8 @@ def open_file_in_editor(file_path: Path) -> bool:
                 subprocess.run(
                     ["which", candidate],
                     capture_output=True,
+                    encoding="utf-8",
+                    errors="replace",
                     check=True,
                 )
                 editor = candidate
@@ -162,9 +164,9 @@ def open_file_in_editor(file_path: Path) -> bool:
     try:
         # Use --wait flag for VS Code to block until closed
         if editor in ("code", "code-insiders"):
-            subprocess.run([editor, "--wait", str(file_path)], check=True)
+            subprocess.run([editor, "--wait", str(file_path)], encoding="utf-8", errors="replace", check=True)
         else:
-            subprocess.run([editor, str(file_path)], check=True)
+            subprocess.run([editor, str(file_path)], encoding="utf-8", errors="replace", check=True)
         return True
     except subprocess.CalledProcessError as e:
         print_status(f"Editor failed: {e}", "error")

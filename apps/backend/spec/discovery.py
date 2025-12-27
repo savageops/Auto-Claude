@@ -48,6 +48,8 @@ def run_discovery_script(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=300,
         )
 

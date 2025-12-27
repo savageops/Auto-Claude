@@ -7,6 +7,7 @@
  * - AgentEvents: Event handling and progress parsing
  * - AgentProcessManager: Process spawning and lifecycle
  * - AgentQueueManager: Ideation and roadmap queue management
+ * - TaskMonitorService: Background monitoring and auto-recovery for stuck tasks
  */
 
 export { AgentManager } from './agent-manager';
@@ -14,7 +15,7 @@ export { AgentState } from './agent-state';
 export { AgentEvents } from './agent-events';
 export { AgentProcessManager } from './agent-process';
 export { AgentQueueManager } from './agent-queue';
-export { TaskMonitorService } from './task-monitor';
+export { TaskMonitorService, getTaskMonitor } from './task-monitor';
 
 export type {
   AgentProcess,

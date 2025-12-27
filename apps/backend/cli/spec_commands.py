@@ -148,6 +148,8 @@ def print_specs_list(
                             "--auto-approve",
                         ],
                         cwd=project_dir,
+                        encoding="utf-8",
+                        errors="replace",
                     )
                 else:
                     # Interactive mode
@@ -155,6 +157,8 @@ def print_specs_list(
                     subprocess.run(
                         [python_path, str(spec_runner), "--interactive"],
                         cwd=project_dir,
+                        encoding="utf-8",
+                        errors="replace",
                     )
                 return
             else:

@@ -185,6 +185,8 @@ def merge_existing_build(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     current_branch = (
         current_branch_result.stdout.strip()
@@ -560,6 +562,8 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if base_result.returncode == 0:
             result["base_branch"] = base_result.stdout.strip()
@@ -570,6 +574,8 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if merge_base_result.returncode != 0:
             debug_warning(MODULE, "Could not find merge base")
@@ -583,12 +589,16 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         spec_commit_result = subprocess.run(
             ["git", "rev-parse", spec_branch],
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         if main_commit_result.returncode != 0 or spec_commit_result.returncode != 0:
@@ -612,6 +622,8 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # merge-tree returns exit code 1 if there are conflicts
@@ -643,6 +655,8 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 main_files = (
                     set(main_files_result.stdout.strip().split("\n"))
@@ -655,6 +669,8 @@ def _check_git_conflicts(project_dir: Path, spec_name: str) -> dict:
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 spec_files = (
                     set(spec_files_result.stdout.strip().split("\n"))
@@ -733,6 +749,8 @@ def _resolve_git_conflicts_with_ai(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     merge_base = (
         merge_base_result.stdout.strip() if merge_base_result.returncode == 0 else None
@@ -786,6 +804,8 @@ def _resolve_git_conflicts_with_ai(
                         ["git", "add", target_file_path],
                         cwd=project_dir,
                         capture_output=True,
+                        encoding="utf-8",
+                        errors="replace",
                     )
                     resolved_files.append(target_file_path)
                     if target_file_path != file_path:
@@ -904,7 +924,11 @@ def _resolve_git_conflicts_with_ai(
                     target_path.parent.mkdir(parents=True, exist_ok=True)
                     target_path.write_text(merged_content, encoding="utf-8")
                     subprocess.run(
-                        ["git", "add", file_path], cwd=project_dir, capture_output=True
+                        ["git", "add", file_path],
+                        cwd=project_dir,
+                        capture_output=True,
+                        encoding="utf-8",
+                        errors="replace",
                     )
                     resolved_files.append(file_path)
                     print(success(f"    ✓ {file_path} (new file)"))
@@ -917,6 +941,8 @@ def _resolve_git_conflicts_with_ai(
                             ["git", "add", file_path],
                             cwd=project_dir,
                             capture_output=True,
+                            encoding="utf-8",
+                            errors="replace",
                         )
                     resolved_files.append(file_path)
                     print(success(f"    ✓ {file_path} (deleted)"))
@@ -963,6 +989,8 @@ def _resolve_git_conflicts_with_ai(
                     ["git", "add", result.file_path],
                     cwd=project_dir,
                     capture_output=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 resolved_files.append(result.file_path)
 
@@ -1082,6 +1110,8 @@ def _resolve_git_conflicts_with_ai(
                     ["git", "add", result.file_path],
                     cwd=project_dir,
                     capture_output=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 resolved_files.append(result.file_path)
 
@@ -1115,6 +1145,8 @@ def _resolve_git_conflicts_with_ai(
                         ["git", "add", target_file_path],
                         cwd=project_dir,
                         capture_output=True,
+                        encoding="utf-8",
+                        errors="replace",
                     )
             else:
                 # Modified without path change - simple copy
@@ -1129,6 +1161,8 @@ def _resolve_git_conflicts_with_ai(
                         ["git", "add", target_file_path],
                         cwd=project_dir,
                         capture_output=True,
+                        encoding="utf-8",
+                        errors="replace",
                     )
                     resolved_files.append(target_file_path)
                     if target_file_path != file_path:

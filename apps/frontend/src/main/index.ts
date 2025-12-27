@@ -9,6 +9,7 @@ import { pythonEnvManager } from './python-env-manager';
 import { getUsageMonitor } from './claude-profile/usage-monitor';
 import { initializeUsageMonitorForwarding } from './ipc-handlers/terminal-handlers';
 import { initializeAppUpdater } from './app-updater';
+import { projectStore } from './project-store';
 import { DEFAULT_APP_SETTINGS } from '../shared/constants';
 import { readSettingsFile } from './settings-utils';
 import type { AppSettings } from '../shared/types';
@@ -180,11 +181,9 @@ app.whenReady().then(() => {
     usageMonitor.start();
     console.warn('[main] Usage monitor initialized and started');
 
-    // Start task monitoring for auto-recovery
-    if (agentManager) {
-      agentManager.startTaskMonitoring();
-      console.warn('[main] Task monitoring initialized and started');
-    }
+    // Start the task monitor for auto-recovery of stuck tasks
+    agentManager.startTaskMonitoring(projectStore, () => mainWindow);
+    console.warn('[main] Task monitor initialized and started');
 
     // Log debug mode status
     const isDebugMode = process.env.DEBUG === 'true';
@@ -234,16 +233,16 @@ app.on('window-all-closed', () => {
 
 // Cleanup before quit
 app.on('before-quit', async () => {
+  // Stop task monitor
+  if (agentManager) {
+    agentManager.stopTaskMonitoring();
+    console.warn('[main] Task monitor stopped');
+  }
+
   // Stop usage monitor
   const usageMonitor = getUsageMonitor();
   usageMonitor.stop();
   console.warn('[main] Usage monitor stopped');
-
-  // Stop task monitoring
-  if (agentManager) {
-    agentManager.stopTaskMonitoring();
-    console.warn('[main] Task monitoring stopped');
-  }
 
   // Kill all running agent processes
   if (agentManager) {

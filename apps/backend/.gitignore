@@ -63,4 +63,4 @@ Thumbs.db
 tests/
 
 # Turret data directory
-.auto-claude/
+.turret/

@@ -329,6 +329,8 @@ def initialize_timeline_tracking(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         branch_point = result.stdout.strip() if result.returncode == 0 else None
 

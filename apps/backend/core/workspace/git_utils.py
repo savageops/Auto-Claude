@@ -125,6 +125,8 @@ def detect_file_renames(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         if result.returncode == 0:
@@ -180,6 +182,8 @@ def get_merge_base(project_dir: Path, ref1: str, ref2: str) -> str | None:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             return result.stdout.strip()
@@ -195,6 +199,8 @@ def has_uncommitted_changes(project_dir: Path) -> bool:
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return bool(result.stdout.strip())
 
@@ -206,6 +212,8 @@ def get_current_branch(project_dir: Path) -> str:
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return result.stdout.strip()
 
@@ -237,6 +245,8 @@ def get_file_content_from_ref(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if result.returncode == 0:
         return result.stdout
@@ -266,6 +276,8 @@ def get_changed_files_from_branch(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
     files = []
@@ -390,6 +402,8 @@ def validate_merged_syntax(
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=15,  # esbuild is fast, 15s is plenty
                 )
 
@@ -489,6 +503,8 @@ def create_conflict_file_with_git(
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             # Read the merged content

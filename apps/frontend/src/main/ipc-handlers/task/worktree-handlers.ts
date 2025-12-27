@@ -265,8 +265,8 @@ export function registerWorktreeHandlers(
               return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
             }
           } else {
-            console.error('[IPC] Auto Claude source not found');
-            return { success: false, error: 'Python environment not ready and Auto Claude source not found' };
+            console.error('[IPC] Turret source not found');
+            return { success: false, error: 'Python environment not ready and Turret source not found' };
           }
         }
 
@@ -302,12 +302,12 @@ export function registerWorktreeHandlers(
 
         const sourcePath = getEffectiveSourcePath();
         if (!sourcePath) {
-          console.error('[IPC] Auto Claude source not found');
-          return { success: false, error: 'Auto Claude source not found' };
+          console.error('[IPC] Turret source not found');
+          return { success: false, error: 'Turret source not found' };
         }
 
         const runScript = path.join(sourcePath, 'run.py');
-        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
         const args = [
           runScript,
           '--spec', task.specId,

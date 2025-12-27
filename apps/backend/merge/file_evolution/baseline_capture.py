@@ -98,6 +98,8 @@ class BaselineCapture:
                 cwd=self.storage.project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             all_files = result.stdout.strip().split("\n")
@@ -129,6 +131,8 @@ class BaselineCapture:
                 cwd=self.storage.project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             return result.stdout.strip()

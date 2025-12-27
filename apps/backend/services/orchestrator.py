@@ -307,6 +307,8 @@ class ServiceOrchestrator:
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=timeout,
             )
 
@@ -346,6 +348,9 @@ class ServiceOrchestrator:
                         else self.project_dir,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
+                        text=True,
+                        encoding='utf-8',
+                        errors='replace',
                     )
                     self._processes[service.name] = proc
                     result.services_started.append(service.name)
@@ -378,6 +383,8 @@ class ServiceOrchestrator:
                     docker_cmd + ["down"],
                     cwd=self.project_dir,
                     capture_output=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=60,
                 )
         except Exception:
@@ -403,6 +410,8 @@ class ServiceOrchestrator:
             proc = subprocess.run(
                 ["docker", "compose", "version"],
                 capture_output=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=5,
             )
             if proc.returncode == 0:
@@ -415,6 +424,8 @@ class ServiceOrchestrator:
             proc = subprocess.run(
                 ["docker-compose", "version"],
                 capture_output=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=5,
             )
             if proc.returncode == 0:

@@ -54,10 +54,10 @@ lerna-debug.log*
 # ===========================
 # Turret Generated
 # ===========================
-.auto-claude/
+.turret/
 .auto-build-security.json
-.auto-claude-security.json
-.auto-claude-status
+.turret-security.json
+.turret-status
 .claude_settings.json
 .update-metadata.json
 

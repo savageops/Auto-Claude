@@ -58,6 +58,8 @@ def get_token_from_keychain() -> str | None:
             ],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=5,
         )
 

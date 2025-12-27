@@ -49,11 +49,11 @@ interface InsightsProps {
 }
 
 export function Insights({ projectId }: InsightsProps) {
-  const session = useInsightsStore((state) => state.session);
+  const session = useInsightsStore((state) => state.getCurrentSession(projectId));
   const sessions = useInsightsStore((state) => state.sessions);
   const status = useInsightsStore((state) => state.status);
-  const streamingContent = useInsightsStore((state) => state.streamingContent);
-  const currentTool = useInsightsStore((state) => state.currentTool);
+  const streamingContent = useInsightsStore((state) => state.streamingByProject[projectId]?.content ?? '');
+  const currentTool = useInsightsStore((state) => state.streamingByProject[projectId]?.currentTool ?? null);
   const isLoadingSessions = useInsightsStore((state) => state.isLoadingSessions);
 
   const [inputValue, setInputValue] = useState('');
@@ -68,7 +68,15 @@ export function Insights({ projectId }: InsightsProps) {
   useEffect(() => {
     loadInsightsSession(projectId);
     const cleanup = setupInsightsListeners();
-    return cleanup;
+
+    // Layer 2: Clear streaming state for this project when unmounting or switching projects
+    return () => {
+      cleanup();
+      const store = useInsightsStore.getState();
+      store.clearStreamingContent(projectId);
+      store.clearToolsUsed(projectId);
+      store.setCurrentTool(projectId, null);
+    };
   }, [projectId]);
 
   // Auto-scroll to bottom when messages change

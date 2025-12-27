@@ -91,6 +91,8 @@ def get_config(args) -> GitHubRunnerConfig:
             ["gh", "auth", "token"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             token = result.stdout.strip()
@@ -104,6 +106,8 @@ def get_config(args) -> GitHubRunnerConfig:
             cwd=args.project,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             repo = result.stdout.strip()
