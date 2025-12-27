@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type DragEvent } from 'react';
-import { ChevronRight, ChevronDown, Folder, File, FileCode, FileJson, FileText, FileImage, Loader2 } from '@/lib/icons';
+import { ChevronRight, ChevronDown, Folder, File, FileCode, FileJson, FileText, FileImage, RefreshCw } from '@/lib/icons';
 import { cn } from '../lib/utils';
 import type { FileNode } from '../../shared/types';
 
@@ -169,7 +169,7 @@ export function FileTreeItem({
           }}
         >
           {isLoading ? (
-            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" />
           ) : isExpanded ? (
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           ) : (

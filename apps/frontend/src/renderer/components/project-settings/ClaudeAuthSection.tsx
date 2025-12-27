@@ -1,4 +1,4 @@
-import { Key, ExternalLink, Loader2, Globe } from '@/lib/icons';
+import { Key, ExternalLink, RefreshCw, Globe } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { StatusBadge } from './StatusBadge';
 import { PasswordInput } from './PasswordInput';
@@ -45,7 +45,7 @@ export function ClaudeAuthSection({
     >
       {isLoadingEnv ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <RefreshCw className="h-4 w-4 animate-spin" />
           Loading configuration...
         </div>
       ) : envConfig ? (
@@ -69,7 +69,7 @@ export function ClaudeAuthSection({
                 disabled={isCheckingAuth}
               >
                 {isCheckingAuth ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
                     <ExternalLink className="h-4 w-4 mr-2" />

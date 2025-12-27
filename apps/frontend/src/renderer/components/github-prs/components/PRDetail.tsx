@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   FileDiff,
   CheckCheck,
@@ -10,19 +10,18 @@ import {
   Sparkles,
   Send,
   XCircle,
-  Loader2,
   GitMerge,
   CheckCircle,
-  RefreshCw,
   AlertCircle,
   MessageSquare,
   AlertTriangle,
+  RefreshCw,
 } from '@/lib/icons';
-import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
+import { Badge } from '../../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { ScrollArea } from '../../ui/scroll-area';
 import { Progress } from '../../ui/progress';
+import { ScrollArea } from '../../ui/scroll-area';
 import { ReviewFindings } from './ReviewFindings';
 import type { PRData, PRReviewResult, PRReviewProgress, PRReviewFinding } from '../hooks/useGitHubPRs';
 import type { NewCommitsCheck } from '../../../../preload/api/modules/github-api';
@@ -403,7 +402,7 @@ export function PRDetail({
               >
                 {isReviewing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Reviewing...
                   </>
                 ) : (
@@ -424,7 +423,7 @@ export function PRDetail({
               <Button onClick={handlePostReview} variant="secondary" disabled={isPostingFindings}>
                 {isPostingFindings ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Posting...
                   </>
                 ) : (
@@ -455,7 +454,7 @@ export function PRDetail({
               >
                 {isPosting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Posting...
                   </>
                 ) : (
@@ -473,7 +472,7 @@ export function PRDetail({
               >
                 {isMerging ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Merging...
                   </>
                 ) : (
@@ -506,7 +505,7 @@ export function PRDetail({
                 >
                   {isReviewing ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Reviewing...
                     </>
                   ) : (

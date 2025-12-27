@@ -4,7 +4,7 @@ import {
   Github,
   GitBranch,
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   ChevronRight,
@@ -527,7 +527,7 @@ export function GitHubSetupModal({
                     <Label>Owner</Label>
                     {isLoadingOrgs ? (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <RefreshCw className="h-4 w-4 animate-spin" />
                         Loading accounts...
                       </div>
                     ) : (
@@ -667,7 +667,7 @@ export function GitHubSetupModal({
                 <Button onClick={handleCreateRepo} disabled={isCreatingRepo || !newRepoName.trim()}>
                   {isCreatingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Creating...
                     </>
                   ) : (
@@ -682,7 +682,7 @@ export function GitHubSetupModal({
                 <Button onClick={handleLinkRepo} disabled={isCreatingRepo || !existingRepoName.trim()}>
                   {isCreatingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Linking...
                     </>
                   ) : (
@@ -697,7 +697,7 @@ export function GitHubSetupModal({
                 <Button variant="outline" onClick={detectRepository} disabled={isLoadingRepo}>
                   {isLoadingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Checking...
                     </>
                   ) : (
@@ -746,7 +746,7 @@ export function GitHubSetupModal({
                   <SelectTrigger>
                     {isLoadingBranches ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <RefreshCw className="h-3 w-3 animate-spin" />
                         <span>Loading branches...</span>
                       </div>
                     ) : (

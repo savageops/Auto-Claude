@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Info,
@@ -155,7 +155,7 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Loader2 className="h-6 w-6 animate-spin text-info shrink-0" />
+                <RefreshCw className="h-6 w-6 animate-spin text-info shrink-0" />
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-foreground">
                     Authenticating...

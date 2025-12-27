@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Settings,
   Save,
-  Loader2,
+  RefreshCw,
   Palette,
   Bot,
   FolderOpen,
@@ -473,7 +473,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
           >
             {(isSaving || (activeTopLevel === 'project' && projectSettingsHook?.isSaving)) ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 {t('common:buttons.saving', 'Saving...')}
               </>
             ) : (

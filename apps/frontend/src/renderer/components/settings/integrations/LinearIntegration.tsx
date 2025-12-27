@@ -1,4 +1,4 @@
-import { Radio, Import, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from '@/lib/icons';
+import { Radio, Import, Eye, EyeOff, RefreshCw, CheckCircle2, AlertCircle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -137,7 +137,7 @@ function ConnectionStatus({ isChecking, connectionStatus }: ConnectionStatusProp
           )}
         </div>
         {isChecking ? (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : connectionStatus?.connected ? (
           <CheckCircle2 className="h-4 w-4 text-success" />
         ) : (

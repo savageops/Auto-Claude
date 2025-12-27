@@ -440,7 +440,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             stagedProjectPath={state.stagedProjectPath}
                             suggestedCommitMessage={state.suggestedCommitMessage}
                             mergePreview={state.mergePreview}
-                            isLoadingPreview={state.isMergePreviewLoading}
+                            isLoadingPreview={state.isLoadingPreview}
                             showConflictDialog={state.showConflictDialog}
                             onFeedbackChange={state.setFeedback}
                             onReject={handleReject}
@@ -481,7 +481,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             stagedProjectPath={state.stagedProjectPath}
                             suggestedCommitMessage={state.suggestedCommitMessage}
                             mergePreview={state.mergePreview}
-                            isLoadingPreview={state.isMergePreviewLoading}
+                            isLoadingPreview={state.isLoadingPreview}
                             showConflictDialog={state.showConflictDialog}
                             onFeedbackChange={state.setFeedback}
                             onReject={handleReject}

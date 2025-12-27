@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from '@/lib/icons';
+import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle,  } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { InfrastructureStatus } from './InfrastructureStatus';
 import { PasswordInput } from './PasswordInput';
@@ -349,7 +349,7 @@ export function MemoryBackendSection({
                 <div className="flex items-center gap-2">
                   {ollamaStatus === 'checking' && (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                       Checking...
                     </span>
                   )}

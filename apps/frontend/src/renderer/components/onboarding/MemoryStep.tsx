@@ -3,7 +3,7 @@ import {
   Brain,
   Database,
   Info,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Eye,
@@ -385,7 +385,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
         {/* Loading state for infrastructure check */}
         {isCheckingInfra && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -518,7 +518,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                 Saving...
               </>
             ) : (

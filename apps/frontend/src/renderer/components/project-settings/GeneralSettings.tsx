@@ -2,12 +2,12 @@ import {
   RefreshCw,
   Download,
   CheckCircle2,
-  AlertCircle,
-  Loader2
+  AlertCircle
 } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
+import { Separator } from '../ui/separator';
 import {
   Select,
   SelectContent,
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '../ui/select';
-import { Separator } from '../ui/separator';
 import { AVAILABLE_MODELS } from '../../../shared/constants';
 import type {
   Project,
@@ -92,7 +91,7 @@ export function GeneralSettings({
             </div>
             {isCheckingVersion ? (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="h-3 w-3 animate-spin" />
+                <RefreshCw className="h-3 w-3 animate-spin" />
                 Checking status...
               </div>
             ) : versionInfo && (

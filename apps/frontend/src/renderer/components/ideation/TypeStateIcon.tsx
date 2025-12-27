@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Loader2, XCircle } from '@/lib/icons';
+import { CheckCircle2, Circle, RefreshCw, XCircle } from '@/lib/icons';
 import type { IdeationTypeState } from '../../stores/ideation-store';
 
 interface TypeStateIconProps {
@@ -12,7 +12,7 @@ export function TypeStateIcon({ state }: TypeStateIconProps) {
     case 'failed':
       return <XCircle className="h-4 w-4 text-destructive" />;
     case 'generating':
-      return <Loader2 className="h-4 w-4 text-primary animate-spin" />;
+      return <RefreshCw className="h-4 w-4 text-primary animate-spin" />;
     case 'pending':
     default:
       return <Circle className="h-4 w-4 text-muted-foreground" />;

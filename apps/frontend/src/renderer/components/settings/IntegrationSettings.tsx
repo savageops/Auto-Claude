@@ -12,19 +12,17 @@ import {
   Check,
   Pencil,
   X,
-  Loader2,
   LogIn,
   ChevronDown,
   ChevronRight,
-  RefreshCw,
   Activity,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from '@/lib/icons';
+import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
-import { cn } from '../../lib/utils';
 import { SettingsSection } from './SettingsSection';
 import { loadClaudeProfiles as loadGlobalClaudeProfiles } from '../../stores/claude-profile-store';
 import type { AppSettings, ClaudeProfile, ClaudeAutoSwitchSettings } from '../../../shared/types';
@@ -313,7 +311,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
             {/* Accounts list */}
             {isLoadingProfiles ? (
               <div className="flex items-center justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : claudeProfiles.length === 0 ? (
               <div className="rounded-lg border border-dashed border-border p-4 text-center mb-4">
@@ -418,7 +416,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               className="gap-1 h-7 text-xs"
                             >
                               {authenticatingProfileId === profile.id ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <RefreshCw className="h-3 w-3 animate-spin" />
                               ) : (
                                 <LogIn className="h-3 w-3" />
                               )}
@@ -435,7 +433,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               title="Re-authenticate profile"
                             >
                               {authenticatingProfileId === profile.id ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <RefreshCw className="h-3 w-3 animate-spin" />
                               ) : (
                                 <RefreshCw className="h-3 w-3" />
                               )}
@@ -485,7 +483,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               title="Delete profile"
                             >
                               {deletingProfileId === profile.id ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <RefreshCw className="h-3 w-3 animate-spin" />
                               ) : (
                                 <Trash2 className="h-3 w-3" />
                               )}
@@ -551,7 +549,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               className="h-7 text-xs gap-1"
                             >
                               {savingTokenProfileId === profile.id ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <RefreshCw className="h-3 w-3 animate-spin" />
                               ) : (
                                 <Check className="h-3 w-3" />
                               )}
@@ -586,7 +584,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                 className="gap-1 shrink-0"
               >
                 {isAddingProfile ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <RefreshCw className="h-3 w-3 animate-spin" />
                 ) : (
                   <Plus className="h-3 w-3" />
                 )}

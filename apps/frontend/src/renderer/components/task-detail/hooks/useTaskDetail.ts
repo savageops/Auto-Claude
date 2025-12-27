@@ -222,13 +222,9 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     try {
       console.warn('[useTaskDetail] Calling mergeWorktreePreview...');
       const result = await window.electronAPI.mergeWorktreePreview(task.id);
-      console.warn('%c[useTaskDetail] mergeWorktreePreview result:', 'color: lime; font-weight: bold;', JSON.stringify(result, null, 2));
+      console.warn('[useTaskDetail] mergeWorktreePreview completed:', result.success ? `${result.data?.preview?.files?.length || 0} files` : 'failed');
       if (result.success && result.data?.preview) {
         const previewData = result.data.preview;
-        console.warn('%c[useTaskDetail] Setting merge preview:', 'color: lime; font-weight: bold;', previewData);
-        console.warn('  - files:', previewData.files);
-        console.warn('  - conflicts:', previewData.conflicts);
-        console.warn('  - summary:', previewData.summary);
         setMergePreview(previewData);
         // Persist to sessionStorage to survive HMR reloads
         sessionStorage.setItem(`mergePreview-${task.id}`, JSON.stringify(previewData));

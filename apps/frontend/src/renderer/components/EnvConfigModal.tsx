@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   AlertCircle,
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   ExternalLink,
   Copy,
@@ -274,7 +274,7 @@ export function EnvConfigModal({
         {/* Loading state */}
         {isChecking && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -380,7 +380,7 @@ export function EnvConfigModal({
                 >
                   {isSaving ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -432,7 +432,7 @@ export function EnvConfigModal({
                 >
                   {isAuthenticating ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                       Waiting for authentication...
                     </>
                   ) : (
@@ -572,7 +572,7 @@ export function EnvConfigModal({
             <Button onClick={handleSave} disabled={isSaving || isAuthenticating}>
               {isSaving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (

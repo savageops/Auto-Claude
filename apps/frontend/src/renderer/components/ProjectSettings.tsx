@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings2, Save, Loader2 } from '@/lib/icons';
+import { Settings2, Save, RefreshCw } from '@/lib/icons';
 import { LinearTaskImportModal } from './LinearTaskImportModal';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
@@ -284,7 +284,7 @@ export function ProjectSettings({ project, open, onOpenChange }: ProjectSettings
           <Button onClick={handleSave} disabled={isSaving || isSavingEnv}>
             {isSaving || isSavingEnv ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (

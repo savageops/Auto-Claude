@@ -3,7 +3,7 @@ import {
   Brain,
   Database,
   Info,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   ExternalLink,
@@ -751,7 +751,7 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
         {/* Loading state for infrastructure check */}
         {isCheckingInfra && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -997,7 +997,7 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
                       >
                         {isValidating ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                             Testing connection...
                           </>
                         ) : (
@@ -1053,7 +1053,7 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                   Saving...
                 </>
               ) : config.enabled && !success ? (

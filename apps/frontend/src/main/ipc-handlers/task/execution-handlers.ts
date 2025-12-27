@@ -30,6 +30,287 @@ function checkSubtasksCompletion(plan: Record<string, unknown> | null): {
 }
 
 /**
+ * Internal recovery function shared by IPC handler and TaskMonitor
+ * @param taskId - Task to recover
+ * @param options - Recovery options (autoRestart, targetStatus)
+ * @param agentManager - AgentManager instance
+ * @param getMainWindow - Function to get main window
+ * @returns Recovery result
+ */
+export async function recoverStuckTaskInternal(
+  taskId: string,
+  options?: { targetStatus?: TaskStatus; autoRestart?: boolean },
+  agentManager?: AgentManager,
+  getMainWindow?: () => BrowserWindow | null
+): Promise<IPCResult<{ taskId: string; recovered: boolean; newStatus: TaskStatus; message: string; autoRestarted?: boolean }>> {
+  const targetStatus = options?.targetStatus;
+  const autoRestart = options?.autoRestart ?? false;
+
+  // Check if agentManager is provided (required for monitoring and restart checks)
+  if (!agentManager) {
+    return {
+      success: false,
+      error: 'AgentManager not provided'
+    };
+  }
+
+  // Check if task is actually running
+  const isActuallyRunning = agentManager.isRunning(taskId);
+
+  if (isActuallyRunning) {
+    return {
+      success: false,
+      error: 'Task is still running. Stop it first before recovering.',
+      data: {
+        taskId,
+        recovered: false,
+        newStatus: 'in_progress' as TaskStatus,
+        message: 'Task is still running'
+      }
+    };
+  }
+
+  // Find task and project
+  const { task, project } = findTaskAndProject(taskId);
+
+  if (!task || !project) {
+    return { success: false, error: 'Task not found' };
+  }
+
+  // Get the spec directory
+  const autoBuildDir = project.autoBuildPath || '.turret';
+  const specDir = path.join(
+    project.path,
+    autoBuildDir,
+    'specs',
+    task.specId
+  );
+
+  // Update implementation_plan.json
+  const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+
+  try {
+    // Read the plan to analyze subtask progress
+    let plan: Record<string, unknown> | null = null;
+    if (existsSync(planPath)) {
+      const planContent = readFileSync(planPath, 'utf-8');
+      plan = JSON.parse(planContent);
+    }
+
+    // Determine the target status intelligently based on subtask progress
+    // If targetStatus is explicitly provided, use it; otherwise calculate from subtasks
+    let newStatus: TaskStatus = targetStatus || 'backlog';
+
+    if (!targetStatus && plan?.phases && Array.isArray(plan.phases)) {
+      // Analyze subtask statuses to determine appropriate recovery status
+      const { completedCount, totalCount, allCompleted } = checkSubtasksCompletion(plan);
+
+      if (totalCount > 0) {
+        if (allCompleted) {
+          // All subtasks completed - should go to review (ai_review or human_review based on source)
+          // For recovery, human_review is safer as it requires manual verification
+          newStatus = 'human_review';
+        } else if (completedCount > 0) {
+          // Some subtasks completed, some still pending - task is in progress
+          newStatus = 'in_progress';
+        }
+        // else: no subtasks completed, stay with 'backlog'
+      }
+    }
+
+    if (plan) {
+      // Update status
+      plan.status = newStatus;
+      plan.planStatus = newStatus === 'done' ? 'completed'
+        : newStatus === 'in_progress' ? 'in_progress'
+        : newStatus === 'ai_review' ? 'review'
+        : newStatus === 'human_review' ? 'review'
+        : 'pending';
+      plan.updated_at = new Date().toISOString();
+
+      // Add recovery note
+      plan.recoveryNote = `Task recovered from stuck state at ${new Date().toISOString()}`;
+
+      // Check if task is actually stuck or just completed and waiting for merge
+      const { allCompleted } = checkSubtasksCompletion(plan);
+
+      if (allCompleted) {
+        console.log('[Recovery] Task is fully complete (all subtasks done), setting to human_review without restart');
+        // Don't reset any subtasks - task is done!
+        // Just update status in plan file (project store reads from file, no separate update needed)
+        plan.status = 'human_review';
+        plan.planStatus = 'review';
+        writeFileSync(planPath, JSON.stringify(plan, null, 2));
+
+        return {
+          success: true,
+          data: {
+            taskId,
+            recovered: true,
+            newStatus: 'human_review',
+            message: 'Task is complete and ready for review',
+            autoRestarted: false
+          }
+        };
+      }
+
+      // Task is not complete - reset only stuck subtasks for retry
+      // Keep completed subtasks as-is so run.py can resume from where it left off
+      if (plan.phases && Array.isArray(plan.phases)) {
+        for (const phase of plan.phases as Array<{ subtasks?: Array<{ status: string; actual_output?: string; started_at?: string; completed_at?: string }> }>) {
+          if (phase.subtasks && Array.isArray(phase.subtasks)) {
+            for (const subtask of phase.subtasks) {
+              // Reset in_progress subtasks to pending (they were interrupted)
+              // Keep completed subtasks as-is so run.py can resume
+              if (subtask.status === 'in_progress') {
+                const originalStatus = subtask.status;
+                subtask.status = 'pending';
+                // Clear execution data to maintain consistency
+                delete subtask.actual_output;
+                delete subtask.started_at;
+                delete subtask.completed_at;
+                console.log(`[Recovery] Reset stuck subtask: ${originalStatus} -> pending`);
+              }
+              // Also reset failed subtasks so they can be retried
+              if (subtask.status === 'failed') {
+                subtask.status = 'pending';
+                // Clear execution data to maintain consistency
+                delete subtask.actual_output;
+                delete subtask.started_at;
+                delete subtask.completed_at;
+                console.log(`[Recovery] Reset failed subtask for retry`);
+              }
+            }
+          }
+        }
+      }
+
+      writeFileSync(planPath, JSON.stringify(plan, null, 2));
+    }
+
+    // Stop file watcher if it was watching this task
+    fileWatcher.unwatch(taskId);
+
+    // Auto-restart the task if requested
+    let autoRestarted = false;
+    if (autoRestart && project) {
+      // Check git status before auto-restarting
+      const gitStatusForRestart = checkGitStatus(project.path);
+      if (!gitStatusForRestart.isGitRepo || !gitStatusForRestart.hasCommits) {
+        console.warn('[Recovery] Git check failed, cannot auto-restart task');
+        // Recovery succeeded but we can't restart without git
+        return {
+          success: true,
+          data: {
+            taskId,
+            recovered: true,
+            newStatus,
+            message: `Task recovered but cannot restart: ${gitStatusForRestart.error || 'Git repository with commits required.'}`,
+            autoRestarted: false
+          }
+        };
+      }
+
+      // Check authentication before auto-restarting
+      const profileManager = getClaudeProfileManager();
+      if (!profileManager.hasValidAuth()) {
+        console.warn('[Recovery] Auth check failed, cannot auto-restart task');
+        // Recovery succeeded but we can't restart without auth
+        return {
+          success: true,
+          data: {
+            taskId,
+            recovered: true,
+            newStatus,
+            message: 'Task recovered but cannot restart: Claude authentication required. Please go to Settings > Claude Profiles and authenticate your account.',
+            autoRestarted: false
+          }
+        };
+      }
+
+      try {
+        // Set status to in_progress for the restart
+        newStatus = 'in_progress';
+
+        // Update plan status for restart
+        if (plan) {
+          plan.status = 'in_progress';
+          plan.planStatus = 'in_progress';
+          writeFileSync(planPath, JSON.stringify(plan, null, 2));
+        }
+
+        // Start the task execution
+        // Start file watcher for this task
+        const specsBaseDir = getSpecsDir(project.autoBuildPath);
+        const specDirForWatcher = path.join(project.path, specsBaseDir, task.specId);
+        fileWatcher.watch(taskId, specDirForWatcher);
+
+        // Check if spec.md exists to determine whether to run spec creation or task execution
+        const specFilePath = path.join(specDirForWatcher, AUTO_BUILD_PATHS.SPEC_FILE);
+        const hasSpec = existsSync(specFilePath);
+        const needsSpecCreation = !hasSpec;
+
+        if (needsSpecCreation) {
+          // No spec file - need to run spec_runner.py to create the spec
+          const taskDescription = task.description || task.title;
+          console.warn(`[Recovery] Starting spec creation for: ${task.specId}`);
+          agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDirForWatcher, task.metadata);
+        } else {
+          // Spec exists - run task execution
+          console.warn(`[Recovery] Starting task execution for: ${task.specId}`);
+          agentManager.startTaskExecution(
+            taskId,
+            project.path,
+            task.specId,
+            {
+              parallel: false,
+              workers: 1
+            }
+          );
+        }
+
+        autoRestarted = true;
+        console.warn(`[Recovery] Auto-restarted task ${taskId}`);
+      } catch (restartError) {
+        console.error('Failed to auto-restart task after recovery:', restartError);
+        // Recovery succeeded but restart failed - still report success
+      }
+    }
+
+    // Notify renderer of status change
+    if (getMainWindow) {
+      const mainWindow = getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send(
+          IPC_CHANNELS.TASK_STATUS_CHANGE,
+          taskId,
+          newStatus
+        );
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        taskId,
+        recovered: true,
+        newStatus,
+        message: autoRestarted
+          ? 'Task recovered and restarted successfully'
+          : `Task recovered successfully and moved to ${newStatus}`,
+        autoRestarted
+      }
+    };
+  } catch (error) {
+    console.error('Failed to recover stuck task:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to recover task'
+    };
+  }
+}
+
+/**
  * Register task execution handlers (start, stop, review, status management, recovery)
  */
 export function registerTaskExecutionHandlers(
@@ -557,260 +838,7 @@ export function registerTaskExecutionHandlers(
       taskId: string,
       options?: { targetStatus?: TaskStatus; autoRestart?: boolean }
     ): Promise<IPCResult<{ taskId: string; recovered: boolean; newStatus: TaskStatus; message: string; autoRestarted?: boolean }>> => {
-      const targetStatus = options?.targetStatus;
-      const autoRestart = options?.autoRestart ?? false;
-      // Check if task is actually running
-      const isActuallyRunning = agentManager.isRunning(taskId);
-
-      if (isActuallyRunning) {
-        return {
-          success: false,
-          error: 'Task is still running. Stop it first before recovering.',
-          data: {
-            taskId,
-            recovered: false,
-            newStatus: 'in_progress' as TaskStatus,
-            message: 'Task is still running'
-          }
-        };
-      }
-
-      // Find task and project
-      const { task, project } = findTaskAndProject(taskId);
-
-      if (!task || !project) {
-        return { success: false, error: 'Task not found' };
-      }
-
-      // Get the spec directory
-      const autoBuildDir = project.autoBuildPath || '.turret';
-      const specDir = path.join(
-        project.path,
-        autoBuildDir,
-        'specs',
-        task.specId
-      );
-
-      // Update implementation_plan.json
-      const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
-
-      try {
-        // Read the plan to analyze subtask progress
-        let plan: Record<string, unknown> | null = null;
-        if (existsSync(planPath)) {
-          const planContent = readFileSync(planPath, 'utf-8');
-          plan = JSON.parse(planContent);
-        }
-
-        // Determine the target status intelligently based on subtask progress
-        // If targetStatus is explicitly provided, use it; otherwise calculate from subtasks
-        let newStatus: TaskStatus = targetStatus || 'backlog';
-
-        if (!targetStatus && plan?.phases && Array.isArray(plan.phases)) {
-          // Analyze subtask statuses to determine appropriate recovery status
-          const { completedCount, totalCount, allCompleted } = checkSubtasksCompletion(plan);
-
-          if (totalCount > 0) {
-            if (allCompleted) {
-              // All subtasks completed - should go to review (ai_review or human_review based on source)
-              // For recovery, human_review is safer as it requires manual verification
-              newStatus = 'human_review';
-            } else if (completedCount > 0) {
-              // Some subtasks completed, some still pending - task is in progress
-              newStatus = 'in_progress';
-            }
-            // else: no subtasks completed, stay with 'backlog'
-          }
-        }
-
-        if (plan) {
-          // Update status
-          plan.status = newStatus;
-          plan.planStatus = newStatus === 'done' ? 'completed'
-            : newStatus === 'in_progress' ? 'in_progress'
-            : newStatus === 'ai_review' ? 'review'
-            : newStatus === 'human_review' ? 'review'
-            : 'pending';
-          plan.updated_at = new Date().toISOString();
-
-          // Add recovery note
-          plan.recoveryNote = `Task recovered from stuck state at ${new Date().toISOString()}`;
-
-          // Check if task is actually stuck or just completed and waiting for merge
-          const { allCompleted } = checkSubtasksCompletion(plan);
-
-          if (allCompleted) {
-            console.log('[Recovery] Task is fully complete (all subtasks done), setting to human_review without restart');
-            // Don't reset any subtasks - task is done!
-            // Just update status in plan file (project store reads from file, no separate update needed)
-            plan.status = 'human_review';
-            plan.planStatus = 'review';
-            writeFileSync(planPath, JSON.stringify(plan, null, 2));
-
-            return {
-              success: true,
-              data: {
-                taskId,
-                recovered: true,
-                newStatus: 'human_review',
-                message: 'Task is complete and ready for review',
-                autoRestarted: false
-              }
-            };
-          }
-
-          // Task is not complete - reset only stuck subtasks for retry
-          // Keep completed subtasks as-is so run.py can resume from where it left off
-          if (plan.phases && Array.isArray(plan.phases)) {
-            for (const phase of plan.phases as Array<{ subtasks?: Array<{ status: string; actual_output?: string; started_at?: string; completed_at?: string }> }>) {
-              if (phase.subtasks && Array.isArray(phase.subtasks)) {
-                for (const subtask of phase.subtasks) {
-                  // Reset in_progress subtasks to pending (they were interrupted)
-                  // Keep completed subtasks as-is so run.py can resume
-                  if (subtask.status === 'in_progress') {
-                    const originalStatus = subtask.status;
-                    subtask.status = 'pending';
-                    // Clear execution data to maintain consistency
-                    delete subtask.actual_output;
-                    delete subtask.started_at;
-                    delete subtask.completed_at;
-                    console.log(`[Recovery] Reset stuck subtask: ${originalStatus} -> pending`);
-                  }
-                  // Also reset failed subtasks so they can be retried
-                  if (subtask.status === 'failed') {
-                    subtask.status = 'pending';
-                    // Clear execution data to maintain consistency
-                    delete subtask.actual_output;
-                    delete subtask.started_at;
-                    delete subtask.completed_at;
-                    console.log(`[Recovery] Reset failed subtask for retry`);
-                  }
-                }
-              }
-            }
-          }
-
-          writeFileSync(planPath, JSON.stringify(plan, null, 2));
-        }
-
-        // Stop file watcher if it was watching this task
-        fileWatcher.unwatch(taskId);
-
-        // Auto-restart the task if requested
-        let autoRestarted = false;
-        if (autoRestart && project) {
-          // Check git status before auto-restarting
-          const gitStatusForRestart = checkGitStatus(project.path);
-          if (!gitStatusForRestart.isGitRepo || !gitStatusForRestart.hasCommits) {
-            console.warn('[Recovery] Git check failed, cannot auto-restart task');
-            // Recovery succeeded but we can't restart without git
-            return {
-              success: true,
-              data: {
-                taskId,
-                recovered: true,
-                newStatus,
-                message: `Task recovered but cannot restart: ${gitStatusForRestart.error || 'Git repository with commits required.'}`,
-                autoRestarted: false
-              }
-            };
-          }
-
-          // Check authentication before auto-restarting
-          const profileManager = getClaudeProfileManager();
-          if (!profileManager.hasValidAuth()) {
-            console.warn('[Recovery] Auth check failed, cannot auto-restart task');
-            // Recovery succeeded but we can't restart without auth
-            return {
-              success: true,
-              data: {
-                taskId,
-                recovered: true,
-                newStatus,
-                message: 'Task recovered but cannot restart: Claude authentication required. Please go to Settings > Claude Profiles and authenticate your account.',
-                autoRestarted: false
-              }
-            };
-          }
-
-          try {
-            // Set status to in_progress for the restart
-            newStatus = 'in_progress';
-
-            // Update plan status for restart
-            if (plan) {
-              plan.status = 'in_progress';
-              plan.planStatus = 'in_progress';
-              writeFileSync(planPath, JSON.stringify(plan, null, 2));
-            }
-
-            // Start the task execution
-            // Start file watcher for this task
-            const specsBaseDir = getSpecsDir(project.autoBuildPath);
-            const specDirForWatcher = path.join(project.path, specsBaseDir, task.specId);
-            fileWatcher.watch(taskId, specDirForWatcher);
-
-            // Check if spec.md exists to determine whether to run spec creation or task execution
-            const specFilePath = path.join(specDirForWatcher, AUTO_BUILD_PATHS.SPEC_FILE);
-            const hasSpec = existsSync(specFilePath);
-            const needsSpecCreation = !hasSpec;
-
-            if (needsSpecCreation) {
-              // No spec file - need to run spec_runner.py to create the spec
-              const taskDescription = task.description || task.title;
-              console.warn(`[Recovery] Starting spec creation for: ${task.specId}`);
-              agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDirForWatcher, task.metadata);
-            } else {
-              // Spec exists - run task execution
-              console.warn(`[Recovery] Starting task execution for: ${task.specId}`);
-              agentManager.startTaskExecution(
-                taskId,
-                project.path,
-                task.specId,
-                {
-                  parallel: false,
-                  workers: 1
-                }
-              );
-            }
-
-            autoRestarted = true;
-            console.warn(`[Recovery] Auto-restarted task ${taskId}`);
-          } catch (restartError) {
-            console.error('Failed to auto-restart task after recovery:', restartError);
-            // Recovery succeeded but restart failed - still report success
-          }
-        }
-
-        // Notify renderer of status change
-        const mainWindow = getMainWindow();
-        if (mainWindow) {
-          mainWindow.webContents.send(
-            IPC_CHANNELS.TASK_STATUS_CHANGE,
-            taskId,
-            newStatus
-          );
-        }
-
-        return {
-          success: true,
-          data: {
-            taskId,
-            recovered: true,
-            newStatus,
-            message: autoRestarted
-              ? 'Task recovered and restarted successfully'
-              : `Task recovered successfully and moved to ${newStatus}`,
-            autoRestarted
-          }
-        };
-      } catch (error) {
-        console.error('Failed to recover stuck task:', error);
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to recover task'
-        };
-      }
+      return await recoverStuckTaskInternal(taskId, options, agentManager, getMainWindow);
     }
   );
 }

@@ -44,7 +44,7 @@ interface RoadmapGenerationProgressProps {
 // Type for generation phases (excluding idle)
 type GenerationPhase = Exclude<RoadmapGenerationStatus['phase'], 'idle'>;
 
-// Phase display configuration
+// Phase display configuration - monochromatic topographic color scheme
 const PHASE_CONFIG: Record<
   GenerationPhase,
   {
@@ -53,42 +53,48 @@ const PHASE_CONFIG: Record<
     icon: typeof Search;
     color: string;
     bgColor: string;
+    opacity: number;
   }
 > = {
   analyzing: {
     label: 'Analyzing',
     description: 'Analyzing project structure and codebase...',
     icon: Search,
-    color: 'bg-amber-500',
-    bgColor: 'bg-amber-500/20',
+    color: 'bg-primary',
+    bgColor: 'bg-muted',
+    opacity: 0.7,
   },
   discovering: {
     label: 'Discovering',
     description: 'Discovering target audience and user needs...',
     icon: Users,
-    color: 'bg-info',
-    bgColor: 'bg-info/20',
+    color: 'bg-primary',
+    bgColor: 'bg-muted',
+    opacity: 0.8,
   },
   generating: {
     label: 'Generating',
     description: 'Generating feature roadmap...',
     icon: Sparkles,
     color: 'bg-primary',
-    bgColor: 'bg-primary/20',
+    bgColor: 'bg-muted',
+    opacity: 1,
   },
   complete: {
     label: 'Complete',
     description: 'Roadmap generation complete!',
     icon: CheckCircle2,
     color: 'bg-success',
-    bgColor: 'bg-success/20',
+    bgColor: 'bg-muted',
+    opacity: 1,
   },
   error: {
     label: 'Error',
     description: 'Generation failed',
     icon: AlertCircle,
     color: 'bg-destructive',
-    bgColor: 'bg-destructive/20',
+    bgColor: 'bg-muted',
+    opacity: 1,
   },
 };
 
@@ -135,18 +141,18 @@ function PhaseStepsIndicator({
   };
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-4">
+    <div className="flex items-center justify-center gap-0.5 mt-2">
       {STEP_PHASES.map((phase, index) => {
         const state = getPhaseState(phase.key);
         return (
           <div key={phase.key} className="flex items-center">
             <motion.div
               className={cn(
-                'flex items-center gap-1 px-2 py-1 rounded text-xs font-medium',
-                state === 'complete' && 'bg-success/10 text-success',
-                state === 'active' && 'bg-primary/10 text-primary',
-                state === 'error' && 'bg-destructive/10 text-destructive',
-                state === 'pending' && 'bg-muted text-muted-foreground'
+                'flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                state === 'complete' && 'bg-muted text-primary',
+                state === 'active' && 'bg-muted text-primary',
+                state === 'error' && 'bg-muted text-destructive',
+                state === 'pending' && 'bg-secondary text-muted-foreground'
               )}
               animate={getStepAnimation(state)}
               transition={getStepTransition(state)}
@@ -171,10 +177,10 @@ function PhaseStepsIndicator({
             {index < STEP_PHASES.length - 1 && (
               <div
                 className={cn(
-                  'w-4 h-px mx-1',
+                  'w-2 h-px mx-0.5 transition-colors',
                   getPhaseState(STEP_PHASES[index + 1].key) !== 'pending'
-                    ? 'bg-success/50'
-                    : 'bg-border'
+                    ? 'bg-primary/30'
+                    : 'bg-muted'
                 )}
               />
             )}
@@ -198,6 +204,9 @@ export function RoadmapGenerationProgress({
   const { phase, progress, message, error } = generationStatus;
   const reducedMotion = useReducedMotion();
   const [isStopping, setIsStopping] = useState(false);
+
+  // Filter out debug text like "[Tool: Read]" from message
+  const cleanMessage = message?.replace(/\[Tool:.*?\]\s*/g, '').trim();
 
   /**
    * Handle stop button click with error handling and double-click prevention
@@ -268,10 +277,10 @@ export function RoadmapGenerationProgress({
       };
 
   return (
-    <div className={cn('space-y-4 p-6 rounded-xl bg-card border', className)}>
+    <div className={cn('max-w-lg mx-auto space-y-2.5 p-4 rounded-lg bg-card/80 backdrop-blur-sm', className)}>
       {/* Header with Stop button */}
       {isActivePhase && onStop && (
-        <div className="flex justify-end mb-2">
+        <div className="flex justify-end -mt-1 mb-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -290,20 +299,21 @@ export function RoadmapGenerationProgress({
       )}
 
       {/* Main phase display */}
-      <div className="flex flex-col items-center text-center space-y-3">
+      <div className="flex flex-col items-center text-center space-y-2">
         {/* Animated icon with pulsing animation for active phase */}
         <div className="relative">
           <motion.div
-            className={cn('p-4 rounded-full', config.bgColor)}
+            className={cn('p-2.5 rounded-md', config.bgColor)}
             animate={isActivePhase ? pulseAnimation : {}}
             transition={pulseTransition}
+            style={{ opacity: config.opacity }}
           >
             <Icon className={cn('h-8 w-8', config.color.replace('bg-', 'text-'))} />
           </motion.div>
           {/* Pulsing activity indicator dot for active phase */}
           {isActivePhase && (
             <motion.div
-              className={cn('absolute top-0 right-0 h-3 w-3 rounded-full', config.color)}
+              className={cn('absolute top-0 right-0 h-2 w-2 rounded-full', config.color)}
               animate={dotAnimation}
               transition={dotTransition}
             />
@@ -320,10 +330,10 @@ export function RoadmapGenerationProgress({
             transition={{ duration: 0.2 }}
             className="space-y-1"
           >
-            <h3 className="text-lg font-semibold">{config.label}</h3>
-            <p className="text-sm text-muted-foreground">{config.description}</p>
-            {message && message !== config.description && (
-              <p className="text-xs text-muted-foreground mt-1">{message}</p>
+            <h3 className="text-lg font-semibold tracking-tight">{config.label}</h3>
+            <p className="text-sm text-muted-foreground/80 leading-relaxed">{config.description}</p>
+            {cleanMessage && cleanMessage !== config.description && (
+              <p className="text-xs text-muted-foreground/70 mt-1 leading-relaxed">{cleanMessage}</p>
             )}
           </motion.div>
         </AnimatePresence>
@@ -331,26 +341,28 @@ export function RoadmapGenerationProgress({
 
       {/* Progress bar */}
       {isActivePhase && (
-        <div className="space-y-2">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Progress</span>
-            <span className="text-xs font-medium">{progress}%</span>
+            <span className="text-xs text-muted-foreground/70">Progress</span>
+            <span className="text-xs font-medium tabular-nums">{progress}%</span>
           </div>
-          <div className="relative h-2 w-full overflow-hidden rounded-full bg-border">
+          <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
             {progress > 0 ? (
               // Determinate progress bar
               <motion.div
-                className={cn('h-full rounded-full', config.color)}
+                className={cn('h-full rounded-sm', config.color)}
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
+                style={{ opacity: config.opacity }}
               />
             ) : (
               // Indeterminate progress bar when progress is 0
               <motion.div
-                className={cn('absolute h-full w-1/3 rounded-full', config.color)}
+                className={cn('absolute h-full w-1/3 rounded-sm', config.color)}
                 animate={indeterminateAnimation}
                 transition={indeterminateTransition}
+                style={{ opacity: config.opacity * 0.8 }}
               />
             )}
           </div>
@@ -369,11 +381,11 @@ export function RoadmapGenerationProgress({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="p-3 bg-destructive/10 rounded-md"
+            className="p-2.5 bg-muted rounded-md"
           >
             <div className="flex items-start gap-2">
               <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-sm text-destructive/90 leading-relaxed">{error}</p>
             </div>
           </motion.div>
         )}

@@ -14,6 +14,7 @@ export { AgentState } from './agent-state';
 export { AgentEvents } from './agent-events';
 export { AgentProcessManager } from './agent-process';
 export { AgentQueueManager } from './agent-queue';
+export { TaskMonitorService } from './task-monitor';
 
 export type {
   AgentProcess,

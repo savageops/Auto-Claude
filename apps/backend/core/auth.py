@@ -166,6 +166,9 @@ def get_sdk_env_vars() -> dict[str, str]:
     Collects relevant env vars (ANTHROPIC_BASE_URL, etc.) that should
     be passed through to the claude-agent-sdk subprocess.
 
+    Also adds UTF-8 encoding support for Windows to prevent UnicodeDecodeError
+    when subprocess output contains non-ASCII characters.
+
     Returns:
         Dict of env var name -> value for non-empty vars
     """
@@ -174,6 +177,13 @@ def get_sdk_env_vars() -> dict[str, str]:
         value = os.environ.get(var)
         if value:
             env[var] = value
+    
+    # Add UTF-8 encoding support for Windows subprocesses
+    # This prevents UnicodeDecodeError when subprocess output contains
+    # non-ASCII characters (Windows defaults to cp1252 encoding)
+    env["PYTHONUTF8"] = "1"  # Enable Python UTF-8 mode on Windows
+    env["PYTHONIOENCODING"] = "utf-8:replace"  # Set encoding with error handler
+    
     return env
 
 

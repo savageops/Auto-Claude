@@ -22,7 +22,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Loader2, X } from '@/lib/icons';
+import { RefreshCw, X } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -355,7 +355,7 @@ export function AddFeatureDialog({
           >
             {isSaving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 {t('addFeature.adding')}
               </>
             ) : (

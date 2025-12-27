@@ -5,7 +5,7 @@ import {
   Eye,
   EyeOff,
   Info,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Plus,
@@ -306,7 +306,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         {/* Loading state */}
         {isLoadingProfiles && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -462,7 +462,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 className="gap-1 h-7 text-xs"
                               >
                                 {authenticatingProfileId === profile.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <RefreshCw className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <LogIn className="h-3 w-3" />
                                 )}
@@ -513,7 +513,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 title="Delete profile"
                               >
                                 {deletingProfileId === profile.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <RefreshCw className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Trash2 className="h-3 w-3" />
                                 )}
@@ -579,7 +579,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 className="h-7 text-xs gap-1"
                               >
                                 {savingTokenProfileId === profile.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <RefreshCw className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Check className="h-3 w-3" />
                                 )}
@@ -614,7 +614,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                   className="gap-1 shrink-0"
                 >
                   {isAddingProfile ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <RefreshCw className="h-3 w-3 animate-spin" />
                   ) : (
                     <Plus className="h-3 w-3" />
                   )}

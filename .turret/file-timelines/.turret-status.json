@@ -10,8 +10,8 @@
         "timestamp": "2025-12-27T03:02:59.307120"
       },
       "worktree_state": {
-        "content": "{\n  \"active\": true,\n  \"spec\": \"030-add-file-discard-to-review-workflow\",\n  \"state\": \"building\",\n  \"subtasks\": {\n    \"completed\": 5,\n    \"total\": 6,\n    \"in_progress\": 1,\n    \"failed\": 0\n  },\n  \"phase\": {\n    \"current\": \"Integration and testing\",\n    \"id\": 3,\n    \"total\": 2\n  },\n  \"workers\": {\n    \"active\": 0,\n    \"max\": 1\n  },\n  \"session\": {\n    \"number\": 1,\n    \"started_at\": \"2025-12-27T02:58:52.310266\"\n  },\n  \"last_update\": \"2025-12-27T02:58:52.313265\"\n}",
-        "last_modified": "2025-12-27T03:02:59.921417"
+        "content": "{\n  \"active\": true,\n  \"spec\": \"030-add-file-discard-to-review-workflow\",\n  \"state\": \"building\",\n  \"subtasks\": {\n    \"completed\": 5,\n    \"total\": 6,\n    \"in_progress\": 1,\n    \"failed\": 0\n  },\n  \"phase\": {\n    \"current\": \"Integration and testing\",\n    \"id\": 3,\n    \"total\": 2\n  },\n  \"workers\": {\n    \"active\": 0,\n    \"max\": 1\n  },\n  \"session\": {\n    \"number\": 1,\n    \"started_at\": \"2025-12-27T03:03:00.074763\"\n  },\n  \"last_update\": \"2025-12-27T03:03:00.077761\"\n}",
+        "last_modified": "2025-12-27T03:44:44.828832"
       },
       "task_intent": {
         "title": "030-add-file-discard-to-review-workflow",

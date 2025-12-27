@@ -1,0 +1,25 @@
+{
+  "file_path": ".turret/specs/034-implement-automatic-task-recovery-with-self-healin/build-progress.txt",
+  "main_branch_history": [],
+  "task_views": {
+    "034-implement-automatic-task-recovery-with-self-healin": {
+      "task_id": "034-implement-automatic-task-recovery-with-self-healin",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "",
+        "timestamp": "2025-12-27T13:24:35.601625"
+      },
+      "worktree_state": null,
+      "task_intent": {
+        "title": "034-implement-automatic-task-recovery-with-self-healin",
+        "description": "Implement an automatic self-healing system that detects and recovers tasks that appear stuck (marked as running but no active process). The system runs as a background monitoring service that checks all tasks every 10 seconds and automatically restarts stuck tasks with rate limiting (max 3 restarts per 3 minutes per task).",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2025-12-27T12:52:43.769551",
+  "last_updated": "2025-12-27T13:24:35.619291"
+}

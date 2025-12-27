@@ -180,6 +180,12 @@ app.whenReady().then(() => {
     usageMonitor.start();
     console.warn('[main] Usage monitor initialized and started');
 
+    // Start task monitoring for auto-recovery
+    if (agentManager) {
+      agentManager.startTaskMonitoring();
+      console.warn('[main] Task monitoring initialized and started');
+    }
+
     // Log debug mode status
     const isDebugMode = process.env.DEBUG === 'true';
     if (isDebugMode) {
@@ -232,6 +238,12 @@ app.on('before-quit', async () => {
   const usageMonitor = getUsageMonitor();
   usageMonitor.stop();
   console.warn('[main] Usage monitor stopped');
+
+  // Stop task monitoring
+  if (agentManager) {
+    agentManager.stopTaskMonitoring();
+    console.warn('[main] Task monitoring stopped');
+  }
 
   // Kill all running agent processes
   if (agentManager) {

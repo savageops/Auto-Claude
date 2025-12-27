@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { FileText, Copy, Save, CheckCircle, ImageIcon, Loader2 } from '@/lib/icons';
+import { FileText, Copy, Save, CheckCircle, ImageIcon, RefreshCw } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
@@ -59,7 +59,7 @@ function LocalImage({ src, alt, projectPath }: LocalImageProps) {
   if (loading) {
     return (
       <span className="inline-flex items-center gap-2 rounded border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <RefreshCw className="h-4 w-4 animate-spin" />
         <span>Loading image...</span>
       </span>
     );

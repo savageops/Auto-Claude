@@ -1,4 +1,4 @@
-import { GitPullRequest, FileDiff, User, Clock, Loader2, CheckCircle2, AlertCircle, MessageSquare, RefreshCw } from '@/lib/icons';
+import { GitPullRequest, FileDiff, User, Clock, RefreshCw, CheckCircle2, AlertCircle, MessageSquare,  } from '@/lib/icons';
 import { ScrollArea } from '../../ui/scroll-area';
 import { Badge } from '../../ui/badge';
 import { cn } from '../../../lib/utils';
@@ -193,7 +193,7 @@ export function PRList({ prs, selectedPRNumber, isLoading, error, activePRReview
                     {/* Review status indicator */}
                     {isReviewingPR && (
                       <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <RefreshCw className="h-3 w-3 animate-spin" />
                         {t('prReview.reviewing')}
                       </Badge>
                     )}

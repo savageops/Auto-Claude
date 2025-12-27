@@ -145,6 +145,8 @@ export interface TaskDraft {
   images: ImageAttachment[];
   referencedFiles: ReferencedFile[];
   requireReviewBeforeCoding?: boolean;
+  autoRecoveryEnabled?: boolean;
+  maxRecoveryAttempts?: number;
   savedAt: Date;
 }
 
@@ -228,6 +230,10 @@ export interface TaskMetadata {
   // Archive status
   archivedAt?: string;  // ISO date when task was archived
   archivedInVersion?: string;  // Version in which task was archived (from changelog)
+
+  // Auto-recovery settings
+  autoRecoveryEnabled?: boolean;  // Enable/disable automatic task recovery for stuck tasks (default: true)
+  maxRecoveryAttempts?: number;   // Maximum number of auto-recovery attempts (default: 3)
 }
 
 export interface Task {

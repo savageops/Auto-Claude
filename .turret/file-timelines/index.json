@@ -26,7 +26,10 @@
     ".turret/specs/030-add-file-discard-to-review-workflow/task_logs.json",
     ".turret/specs/030-add-file-discard-to-review-workflow/task_metadata.json",
     "apps/frontend/src/renderer/components/task-detail/__tests__/DiffViewDialog.test.tsx",
-    "apps/frontend/src/renderer/components/task-detail/__tests__/discard-workflow.test.ts"
+    "apps/frontend/src/renderer/components/task-detail/__tests__/discard-workflow.test.ts",
+    ".turret/specs/034-implement-automatic-task-recovery-with-self-healin/build-progress.txt",
+    ".turret/specs/034-implement-automatic-task-recovery-with-self-healin/implementation_plan.json",
+    "apps/frontend/src/main/agent/task-monitor.ts"
   ],
-  "last_updated": "2025-12-27T03:03:00.071683"
+  "last_updated": "2025-12-27T13:24:35.870674"
 }

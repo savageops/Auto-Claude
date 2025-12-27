@@ -114,7 +114,7 @@ declare module '@icons/layout-grid.svg?react' { const content: SVGComponent; exp
 declare module '@icons/lightbulb.svg?react' { const content: SVGComponent; export default content; }
 declare module '@icons/list-checks.svg?react' { const content: SVGComponent; export default content; }
 declare module '@icons/list-todo.svg?react' { const content: SVGComponent; export default content; }
-declare module '@icons/loader2.svg?react' { const content: SVGComponent; export default content; }
+declare module '@icons/RefreshCw.svg?react' { const content: SVGComponent; export default content; }
 declare module '@icons/lock.svg?react' { const content: SVGComponent; export default content; }
 declare module '@icons/log-in.svg?react' { const content: SVGComponent; export default content; }
 declare module '@icons/mail.svg?react' { const content: SVGComponent; export default content; }

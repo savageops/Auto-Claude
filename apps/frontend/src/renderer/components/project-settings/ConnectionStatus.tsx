@@ -1,4 +1,4 @@
-import { Loader2, CheckCircle2, AlertCircle } from '@/lib/icons';
+import { RefreshCw, CheckCircle2, AlertCircle } from '@/lib/icons';
 
 interface ConnectionStatusProps {
   isChecking: boolean;
@@ -32,7 +32,7 @@ export function ConnectionStatus({
           )}
         </div>
         {isChecking ? (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : isConnected ? (
           <CheckCircle2 className="h-4 w-4 text-success" />
         ) : (

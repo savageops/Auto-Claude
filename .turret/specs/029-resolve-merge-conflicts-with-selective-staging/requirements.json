@@ -1,4 +1,0 @@
-{
-  "task_description": "Merge Conflicts Preview\n4 potential conflicts detected.\n\nCLAUDE.md\nhigh\nLocation: file-level\nReason: File modified in both development_2_acc and worktree since branch point\n.docs/DIRECTORY_REFERENCE.md\nhigh\nLocation: file-level\nReason: File modified in both development_2_acc and worktree since branch point\n.turret-status\nhigh\nLocation: file-level\nReason: File modified in both development_2_acc and worktree since branch point\n.claude_settings.json\nhigh\nLocation: file-level\nReason: File modified in both development_2_acc and worktree since branch point\nClose\nStage with AI Merge\n\n\nThis dialog when reviewing a task before staging, should allow discarding or clicking on the cards to disable them, meaning they wont be staged. for example, a css file you dont want to commit",
-  "workflow_type": "feature"
-}

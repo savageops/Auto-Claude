@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Check,
   Download,
-  Loader2,
-  AlertCircle,
-  RefreshCw
+  RefreshCw,
+  AlertCircle
 } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
@@ -306,7 +305,7 @@ export function OllamaModelSelector({
   if (isLoading) {
     return (
       <div className={cn('flex items-center justify-center py-8', className)}>
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
         <span className="ml-2 text-sm text-muted-foreground">Checking Ollama models...</span>
       </div>
     );
@@ -410,7 +409,7 @@ export function OllamaModelSelector({
                    >
                      {isCurrentlyDownloading ? (
                        <>
-                         <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                         <RefreshCw className="h-3.5 w-3.5 animate-spin mr-1.5" />
                          Downloading...
                        </>
                      ) : (

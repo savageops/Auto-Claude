@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   MessageSquare,
   Send,
-  Loader2,
+  RefreshCw,
   Plus,
   Sparkles,
   User,
@@ -291,7 +291,7 @@ export function Insights({ projectId }: InsightsProps) {
                   <Bot className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                   Thinking...
                 </div>
               </div>
@@ -328,7 +328,7 @@ export function Insights({ projectId }: InsightsProps) {
             className="self-end"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
@@ -436,7 +436,7 @@ function MessageBubble({
               >
                 {isCreatingTask ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : taskCreated ? (
@@ -581,7 +581,7 @@ function ToolIndicator({ name, input }: ToolIndicatorProps) {
         };
       default:
         return {
-          icon: Loader2,
+          icon: RefreshCw,
           label: toolName,
           color: 'text-primary bg-primary/10'
         };

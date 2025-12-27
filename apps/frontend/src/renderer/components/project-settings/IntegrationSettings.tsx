@@ -5,14 +5,13 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
-  Loader2,
   CheckCircle2,
   AlertCircle,
   Import,
   Radio,
   Github,
-  RefreshCw,
-  GitBranch
+  GitBranch,
+  RefreshCw
 } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -201,7 +200,7 @@ export function IntegrationSettings({
                         )}
                       </div>
                       {isCheckingLinear ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : linearConnectionStatus?.connected ? (
                         <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
@@ -392,7 +391,7 @@ export function IntegrationSettings({
                         )}
                       </div>
                       {isCheckingGitHub ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : gitHubConnectionStatus?.connected ? (
                         <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
@@ -455,7 +454,7 @@ export function IntegrationSettings({
                     <SelectTrigger>
                       {isLoadingBranches ? (
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <RefreshCw className="h-3 w-3 animate-spin" />
                           <span>Loading branches...</span>
                         </div>
                       ) : (

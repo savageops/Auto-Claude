@@ -5,16 +5,15 @@ import {
   CheckCircle2,
   AlertCircle,
   CloudDownload,
-  Loader2,
   ExternalLink,
   Download,
   Sparkles
 } from '@/lib/icons';
+import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Progress } from '../ui/progress';
-import { cn } from '../../lib/utils';
 import { SettingsSection } from './SettingsSection';
 import type {
   AppSettings,
@@ -312,7 +311,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                 </p>
               </div>
               {isCheckingSourceUpdate ? (
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
               ) : sourceUpdateCheck?.updateAvailable ? (
                 <AlertCircle className="h-6 w-6 text-info" />
               ) : (

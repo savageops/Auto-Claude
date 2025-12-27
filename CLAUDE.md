@@ -373,6 +373,91 @@ const { t } = useTranslation(['navigation', 'common']);
 2. Use `namespace:section.key` format (e.g., `navigation:items.githubPRs`)
 3. Never use hardcoded strings in JSX/TSX files
 
+### UI Loading States - No Component Pop-ins
+
+**CRITICAL DESIGN RULE: Components must render their full structure immediately. Loading states show placeholder VALUES, never hide entire sections.**
+
+This prevents jarring layout shifts and creates a professional, polished user experience.
+
+**Core Pattern:**
+- ✅ Full component structure visible on mount
+- ✅ Placeholder values during loading (skeleton text, loading spinners, subtle progress bars)
+- ✅ Smooth transitions from placeholder → real data (animate values only, not layout)
+- ✅ Progress indicators blend into the design system (subtle, integrated)
+- ❌ Never hide/show entire sections based on loading state
+- ❌ Never mount/unmount components conditionally for loading
+- ❌ Never let components "pop in" after data loads
+
+**Anti-Pattern Example:**
+```tsx
+// ❌ WRONG - component pops in when data loads
+{isLoadingPreview && !data ? null : <StatusCard data={data} />}
+```
+
+**Golden Standard Example:**
+```tsx
+// ✅ CORRECT - structure always visible, values update smoothly
+<div className="p-2.5 rounded-lg border bg-muted/30">
+  <div className="flex-1 space-y-1.5">
+    <div className="flex items-center gap-2">
+      {isLoading ? (
+        <>
+          <RefreshCw className="h-4 w-4 text-muted-foreground animate-spin" />
+          <span className="text-sm text-muted-foreground/80">Analyzing...</span>
+        </>
+      ) : (
+        <>
+          <CheckCircle className="h-4 w-4 text-success" />
+          <span className="text-sm font-medium text-success">{data.status}</span>
+        </>
+      )}
+    </div>
+
+    {/* Progress bar - visible when loading, matching RoadmapGenerationProgress */}
+    {isLoading && (
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <motion.div
+          className="absolute h-full w-1/3 rounded-sm bg-primary"
+          animate={{ x: ['-100%', '400%'] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ opacity: 0.7 }}
+        />
+      </div>
+    )}
+  </div>
+</div>
+```
+
+**Design System Requirements:**
+- **Progress Bars**: Use `h-1.5` height, `rounded-full` container, `rounded-sm` fill
+- **Animation**: Use `motion` from `motion/react` (framer-motion), NOT CSS animations
+- **Spacing**: Clean, tight padding (`p-2.5`, `space-y-1.5`, consistent gaps)
+- **Colors**: Topographic monochromatic scheme with opacity variations (0.7, 0.8, 1.0)
+  - Loading: `bg-muted/30`, `text-muted-foreground/80`
+  - Success: `bg-success/10`, `text-success`
+  - Warning: `bg-warning/10`, `text-warning`
+  - Error: `bg-destructive/10`, `text-destructive`
+- **Transitions**: Use `transition-all duration-300` for smooth state changes
+
+**Real-World Example (Merge Preview in TaskReview):**
+- Card structure ALWAYS identical (same padding, border, spacing)
+- Loading state: placeholder text + indeterminate progress bar (h-1.5, framer-motion)
+- Loaded state: real data, no progress bar
+- Only content/opacity changes, structure remains 100% stable
+- Matches RoadmapGenerationProgress design system exactly
+
+**Reference Implementation:**
+See `RoadmapGenerationProgress.tsx` (lines 342-369) for the canonical progress bar pattern used throughout the app.
+
+**Why This Matters:**
+- **Professional UX** - No jarring layout shifts or pop-in effects
+- **Perceived Performance** - User sees progress immediately, feels faster
+- **Consistent Structure** - User knows what to expect, reduces cognitive load
+- **Design Consistency** - Progress bars look identical across the entire app
+- **Clean, Sharp Aesthetic** - Topographic monochromatic design with tight padding
+
+This is a **UNIVERSAL PRINCIPLE** - apply to all loading states across the application.
+
 ### End-to-End Testing (Electron App)
 
 **IMPORTANT: When bug fixing or implementing new features in the frontend, AI agents can perform automated E2E testing using the Electron MCP server.**

@@ -37,7 +37,8 @@ export const IPC_CHANNELS = {
   TASK_WORKTREE_MERGE: 'task:worktreeMerge',
   TASK_WORKTREE_MERGE_PREVIEW: 'task:worktreeMergePreview',  // Preview merge conflicts before merging
   TASK_WORKTREE_DISCARD: 'task:worktreeDiscard',
-  TASK_WORKTREE_DISCARD_FILE: 'task:worktreeDiscardFile',
+  TASK_WORKTREE_DISCARD_FILE: 'task:worktreeDiscardFile',  // Discard specific file changes
+  TASK_WORKTREE_CONFLICT_DIFF: 'task:worktreeConflictDiff',  // Get diff for specific conflict
   TASK_LIST_WORKTREES: 'task:listWorktrees',
   TASK_ARCHIVE: 'task:archive',
   TASK_UNARCHIVE: 'task:unarchive',
@@ -289,7 +290,7 @@ export const IPC_CHANNELS = {
   // Memory Infrastructure status (LadybugDB - no Docker required)
   MEMORY_STATUS: 'memory:status',
   MEMORY_LIST_DATABASES: 'memory:listDatabases',
-  MEMORY_TEST_CONNECTION:'memory:testConnection',
+  MEMORY_TEST_CONNECTION: 'memory:testConnection',
 
   // Graphiti validation
   GRAPHITI_VALIDATE_LLM: 'graphiti:validateLlm',
@@ -381,4 +382,6 @@ export const IPC_CHANNELS = {
 
   // Release events (main -> renderer)
   RELEASE_PROGRESS: 'release:progress',
-} as const;
+  RELEASE_COMPLETE: 'release:complete',
+  RELEASE_ERROR: 'release:error',
+};

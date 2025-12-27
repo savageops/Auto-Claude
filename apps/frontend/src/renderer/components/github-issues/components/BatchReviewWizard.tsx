@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Layers,
   CheckCircle2,
-  Loader2,
+  RefreshCw,
   ChevronDown,
   ChevronRight,
   Users,
@@ -219,7 +219,7 @@ export function BatchReviewWizard({
 
   const renderAnalyzing = () => (
     <div className="flex flex-col items-center justify-center py-8 space-y-6">
-      <Loader2 className="h-12 w-12 text-primary animate-spin" />
+      <RefreshCw className="h-12 w-12 text-primary animate-spin" />
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Analyzing Issues...</h3>
         <p className="text-sm text-muted-foreground">
@@ -339,7 +339,7 @@ export function BatchReviewWizard({
 
   const renderApproving = () => (
     <div className="flex flex-col items-center justify-center py-8 space-y-6">
-      <Loader2 className="h-12 w-12 text-primary animate-spin" />
+      <RefreshCw className="h-12 w-12 text-primary animate-spin" />
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Creating Batches...</h3>
         <p className="text-sm text-muted-foreground">
@@ -402,7 +402,7 @@ export function BatchReviewWizard({
             >
               {isApproving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Creating...
                 </>
               ) : (

@@ -1,9 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   GitBranch,
-  RefreshCw,
   Trash2,
-  Loader2,
   AlertCircle,
   FolderOpen,
   GitMerge,
@@ -12,12 +10,9 @@ import {
   Minus,
   ChevronRight,
   Check,
-  X
+  X,
+  RefreshCw
 } from '@/lib/icons';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +31,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from './ui/alert-dialog';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { ScrollArea } from './ui/scroll-area';
 import { useProjectStore } from '../stores/project-store';
 import { useTaskStore } from '../stores/task-store';
 import type { WorktreeListItem, WorktreeMergeResult } from '../../shared/types';
@@ -219,7 +218,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
       {/* Loading state */}
       {isLoading && worktrees.length === 0 && (
         <div className="flex h-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
@@ -422,7 +421,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
               >
                 {isMerging ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Merging...
                   </>
                 ) : (
@@ -461,7 +460,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Deleting...
                 </>
               ) : (

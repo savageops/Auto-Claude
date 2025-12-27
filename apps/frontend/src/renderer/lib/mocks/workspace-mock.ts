@@ -66,7 +66,8 @@ export const workspaceMock = {
     success: true,
     data: {
       success: true,
-      message: `File ${filePath} discarded successfully`
+      message: `Successfully discarded changes to ${filePath}`,
+      filePath
     }
   }),
 

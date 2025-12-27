@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Wand2, Loader2, AlertCircle, CheckCircle2 } from '@/lib/icons';
+import { Wand2, RefreshCw, AlertCircle, CheckCircle2 } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Progress } from '../../ui/progress';
 import type { GitHubIssue } from '../../../../shared/types';
@@ -110,7 +110,7 @@ export function AutoFixButton({ issue, projectId, config, queueItem }: AutoFixBu
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <RefreshCw className="h-4 w-4 animate-spin" />
           <span>{progress?.message || 'Processing...'}</span>
         </div>
         {progress && (

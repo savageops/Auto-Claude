@@ -1,8 +1,0 @@
-{
-  "feature": "Fix ideation loading state race condition on stop",
-  "description": "Fix race condition where stopping ideation generation immediately hides the loading screen before backend confirms stop, causing users to think generation failed when it actually completed successfully in the background.\n\nThe issue: When clicking stop, the frontend immediately sets isGenerating=false and hides the loading UI, but the backend Python process may still be running and successfully complete. When it completes, the results are stored but the user never sees them because the UI already transitioned away from the loading state.\n\nThe fix: Remove immediate isGenerating=false in stopIdeation() function (line 428 in ideation-store.ts) and let the backend event handlers (IDEATION_STOPPED or IDEATION_COMPLETE) properly update the state. This ensures the UI stays in loading state until backend confirms the stop or completion.\n\nFiles to modify:\n- apps/frontend/src/renderer/stores/ideation-store.ts (stopIdeation function, line 420-451)\n\nOptional UX improvements:\n- Update loading screen message to indicate 'Stopping generation...' when stop is requested\n- Add a timeout to force exit loading state if backend doesn't respond within reasonable time",
-  "created_at": "2025-12-26T18:21:04.012Z",
-  "updated_at": "2025-12-26T18:21:04.012Z",
-  "status": "pending",
-  "phases": []
-}

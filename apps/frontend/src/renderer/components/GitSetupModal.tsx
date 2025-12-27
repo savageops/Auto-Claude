@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GitBranch, Terminal, CheckCircle2, AlertCircle, Loader2, FolderGit2 } from '@/lib/icons';
+import { GitBranch, Terminal, CheckCircle2, AlertCircle, RefreshCw, FolderGit2 } from '@/lib/icons';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -158,7 +158,7 @@ export function GitSetupModal({
     <>
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
-          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <RefreshCw className="h-5 w-5 animate-spin text-primary" />
           {t('gitSetup.settingUp')}
         </DialogTitle>
       </DialogHeader>
