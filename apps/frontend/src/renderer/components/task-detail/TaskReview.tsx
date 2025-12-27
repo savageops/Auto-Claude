@@ -171,6 +171,7 @@ export function TaskReview({
         open={showConflictDialog}
         mergePreview={mergePreview}
         stageOnly={stageOnly}
+        taskId={task.id}
         onOpenChange={onShowConflictDialog}
         onMerge={onMerge}
       />

@@ -146,7 +146,7 @@ export function TaskLogs({
             ))}
             <div ref={logsEndRef} />
           </>
-        ) : task.logs && task.logs.length > 0 ? (
+        ) : task?.logs && task.logs.length > 0 ? (
           // Fallback to legacy raw logs if no phase logs exist
           <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
             {task.logs.join('')}

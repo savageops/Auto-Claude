@@ -52,6 +52,7 @@ export interface TaskAPI {
   mergeWorktreePreview: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
   discardWorktree: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>>;
   discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<import('../../shared/types').WorktreeFileDiscardResult>>;
+  getWorktreeConflictDiff: (taskId: string, filePath: string) => Promise<IPCResult<string>>;
   listWorktrees: (projectId: string) => Promise<IPCResult<import('../../shared/types').WorktreeListResult>>;
   archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
   unarchiveTasks: (projectId: string, taskIds: string[]) => Promise<IPCResult<boolean>>;
@@ -144,6 +145,9 @@ export const createTaskAPI = (): TaskAPI => ({
 
   discardWorktreeFile: (taskId: string, filePath: string): Promise<IPCResult<import('../../shared/types').WorktreeFileDiscardResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILE, taskId, filePath),
+
+  getWorktreeConflictDiff: (taskId: string, filePath: string): Promise<IPCResult<string>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_CONFLICT_DIFF, taskId, filePath),
 
   listWorktrees: (projectId: string): Promise<IPCResult<import('../../shared/types').WorktreeListResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_LIST_WORKTREES, projectId),

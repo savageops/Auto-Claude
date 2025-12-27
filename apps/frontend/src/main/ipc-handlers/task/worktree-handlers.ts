@@ -1006,6 +1006,93 @@ export function registerWorktreeHandlers(
   );
 
   /**
+   * Get the diff content for a specific conflict file
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_CONFLICT_DIFF,
+    async (_, taskId: string, filePath: string): Promise<IPCResult<string>> => {
+      try {
+        const { project, task } = findTaskAndProject(taskId);
+        if (!project || !task) {
+          return { success: false, error: 'Task not found' };
+        }
+
+        // Spec directory is stored under the project's autoBuildPath (.turret by default)
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
+
+        // Determine base branch:
+        // 1) task_metadata.json (most accurate)
+        // 2) project.settings.mainBranch (project-configured)
+        // 3) origin/HEAD (git-configured default)
+        // 4) 'main' (last resort)
+        let baseBranch =
+          getTaskBaseBranch(specDir) ||
+          project.settings?.mainBranch ||
+          project.settings?.mainBranch; // (kept explicit for safety; settings is always present on Project)
+
+        if (!baseBranch) {
+          try {
+            const originHead = execSync('git symbolic-ref --short refs/remotes/origin/HEAD', {
+              cwd: project.path,
+              encoding: 'utf8',
+            }).trim(); // e.g. "origin/development_acc_3"
+            baseBranch = originHead.startsWith('origin/') ? originHead.slice('origin/'.length) : originHead;
+          } catch {
+            baseBranch = 'main';
+          }
+        }
+        const worktreePath = path.join(project.path, '.worktrees', taskId);
+
+        if (!existsSync(worktreePath)) {
+          return { success: false, error: 'Worktree not found' };
+        }
+
+        // Get the file content from both base branch and current worktree
+        try {
+          // Get content from base branch
+          let oldContent = '';
+          try {
+            oldContent = execSync(`git show "${baseBranch}:${filePath}"`, {
+              cwd: worktreePath,
+              encoding: 'utf8',
+              maxBuffer: 10 * 1024 * 1024,
+            });
+          } catch {
+            // File might not exist in base branch
+            oldContent = `// File does not exist in base branch (${baseBranch})`;
+          }
+
+          // Get content from current worktree
+          let newContent = '';
+          try {
+            newContent = readFileSync(path.join(worktreePath, filePath), 'utf8');
+          } catch {
+            // File might not exist in worktree
+            newContent = `// File does not exist in current worktree`;
+          }
+
+          return {
+            success: true,
+            data: JSON.stringify({ oldContent, newContent, filePath }),
+          };
+        } catch (contentError) {
+          return {
+            success: false,
+            error: `Failed to load conflict contents for ${filePath}: ${
+              contentError instanceof Error ? contentError.message : 'Unknown error'
+            }`,
+          };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to get conflict diff'
+        };
+      }
+    }
+  );
+
+  /**
    * List all worktrees for a project
    */
   ipcMain.handle(

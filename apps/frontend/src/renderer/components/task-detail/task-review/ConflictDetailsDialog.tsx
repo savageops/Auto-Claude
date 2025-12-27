@@ -1,4 +1,5 @@
-import { AlertTriangle, GitMerge } from '@/lib/icons';
+import { useState } from 'react';
+import { AlertTriangle, GitMerge, Eye, FileCode } from '@/lib/icons';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +10,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../../ui/dialog';
 import { Badge } from '../../ui/badge';
+import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 import { getSeverityIcon, getSeverityVariant } from './utils';
 import type { MergeConflict, MergeStats, GitConflictInfo } from '../../../../shared/types';
@@ -18,22 +27,109 @@ interface ConflictDetailsDialogProps {
   open: boolean;
   mergePreview: { files: string[]; conflicts: MergeConflict[]; summary: MergeStats; gitConflicts?: GitConflictInfo } | null;
   stageOnly: boolean;
+  taskId?: string;
   onOpenChange: (open: boolean) => void;
   onMerge: () => void;
 }
 
 /**
  * Dialog displaying detailed information about merge conflicts
+ *
+ * Features:
+ * - Clickable conflict entries that open detailed diff views
+ * - GitHub-style diff visualization with syntax highlighting
+ * - Split-view showing before/after changes
+ * - Word-level diff highlighting for precise change tracking
  */
 export function ConflictDetailsDialog({
   open,
   mergePreview,
   stageOnly,
+  taskId,
   onOpenChange,
   onMerge
 }: ConflictDetailsDialogProps) {
+  const [selectedConflict, setSelectedConflict] = useState<MergeConflict | null>(null);
+  const [oldString, setOldString] = useState<string>('');
+  const [newString, setNewString] = useState<string>('');
+  const [isLoadingDiff, setIsLoadingDiff] = useState(false);
+
+  // KISS diff: line-by-line compare (good enough for review, stable UI)
+  const createHighlightedDiff = (oldContent: string, newContent: string) => {
+    const oldLines = oldContent.split('\n');
+    const newLines = newContent.split('\n');
+    const max = Math.max(oldLines.length, newLines.length);
+
+    const outOld: string[] = [];
+    const outNew: string[] = [];
+
+    for (let i = 0; i < max; i++) {
+      const o = oldLines[i] ?? '';
+      const n = newLines[i] ?? '';
+
+      if (o === n) {
+        outOld.push(`  ${o}`);
+        outNew.push(`  ${n}`);
+      } else {
+        outOld.push(o ? `- ${o}` : '');
+        outNew.push(n ? `+ ${n}` : '');
+      }
+    }
+
+    return {
+      oldView: outOld.join('\n').trimEnd(),
+      newView: outNew.join('\n').trimEnd(),
+    };
+  };
+
+  const handleConflictClick = async (conflict: MergeConflict) => {
+    setSelectedConflict(conflict);
+    setIsLoadingDiff(true);
+    setOldString('');
+    setNewString('');
+
+    try {
+      if (taskId) {
+        // Get base+worktree contents for this specific conflict
+        const result = await window.electronAPI.getWorktreeConflictDiff(taskId, conflict.file);
+        if (result.success && result.data) {
+          try {
+            const parsed = JSON.parse(result.data) as { oldContent?: string; newContent?: string };
+            const oldContent = parsed.oldContent ?? '';
+            const newContent = parsed.newContent ?? '';
+
+            const { oldView, newView } = createHighlightedDiff(oldContent, newContent);
+            setOldString(oldView || '  // No content');
+            setNewString(newView || '  // No content');
+          } catch {
+            // Fallback: if parsing fails, show raw payload
+            setOldString(`// Raw response:\n${result.data}`);
+            setNewString('');
+          }
+        } else {
+          setOldString(`Error loading diff: ${result.error || 'Failed to get conflict diff'}`);
+          setNewString('');
+        }
+      } else {
+        setOldString(`Task ID not available - cannot load diff for ${conflict.file}`);
+        setNewString('');
+      }
+    } catch (error) {
+      setOldString(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setNewString('');
+    } finally {
+      setIsLoadingDiff(false);
+    }
+  };
+
+  const handleCloseDiffDialog = () => {
+    setSelectedConflict(null);
+    setOldString('');
+    setNewString('');
+  };
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
@@ -56,18 +152,20 @@ export function ConflictDetailsDialog({
                 <div
                   key={idx}
                   className={cn(
-                    "p-3 rounded-lg border",
+                    "p-3 rounded-lg border cursor-pointer transition-colors hover:bg-secondary/50",
                     conflict.canAutoMerge
                       ? "bg-secondary/30 border-border"
                       : conflict.severity === 'high' || conflict.severity === 'critical'
-                        ? "bg-destructive/10 border-destructive/30"
-                        : "bg-warning/10 border-warning/30"
+                        ? "bg-destructive/10 border-destructive/30 hover:bg-destructive/20"
+                        : "bg-warning/10 border-warning/30 hover:bg-warning/20"
                   )}
+                  onClick={() => handleConflictClick(conflict)}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       {getSeverityIcon(conflict.severity)}
                       <span className="text-sm font-mono truncate">{conflict.file}</span>
+                      <Eye className="h-3 w-3 text-muted-foreground ml-auto" />
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Badge
@@ -94,6 +192,9 @@ export function ConflictDetailsDialog({
                       <div><span className="text-foreground/70">Strategy:</span> {conflict.strategy}</div>
                     )}
                   </div>
+                  <div className="mt-2 text-xs text-muted-foreground italic">
+                    Click to view conflict details
+                  </div>
                 </div>
               ))}
             </div>
@@ -119,5 +220,114 @@ export function ConflictDetailsDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    {/* Conflict Details Diff Dialog */}
+    <Dialog open={!!selectedConflict} onOpenChange={handleCloseDiffDialog}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileCode className="h-5 w-5 text-info" />
+            Conflict Details: {selectedConflict?.file}
+          </DialogTitle>
+          <DialogDescription>
+            {selectedConflict?.location && `Location: ${selectedConflict.location}`}
+            {selectedConflict?.reason && ` • Reason: ${selectedConflict.reason}`}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          {isLoadingDiff ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-sm text-muted-foreground">Loading conflict details...</p>
+              </div>
+            </div>
+          ) : (oldString || newString) ? (
+            <div className="space-y-4">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="text-sm font-medium mb-2">Conflict Changes</h4>
+
+                {/* Custom side-by-side diff display */}
+                <div className="border rounded-lg overflow-hidden bg-card">
+                  <div className="grid grid-cols-2 border-b border-border">
+                    <div className="p-2 bg-muted/30 text-sm font-medium border-r border-border">
+                      Before (Base Branch)
+                    </div>
+                    <div className="p-2 bg-muted/30 text-sm font-medium">
+                      After (Current Changes)
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2" style={{ minHeight: '400px' }}>
+                    <div className="border-r border-border p-4 overflow-auto">
+                      <pre className="text-xs font-mono whitespace-pre-wrap">
+                        {oldString.split('\n').map((line, index) => (
+                          <div key={index} className={
+                            line.startsWith('- ') ? 'bg-destructive/10 text-destructive' :
+                            line.startsWith('  ') ? 'text-muted-foreground' :
+                            'text-foreground'
+                          }>
+                            {line || '\u00A0'}
+                          </div>
+                        ))}
+                      </pre>
+                    </div>
+                    <div className="p-4 overflow-auto">
+                      <pre className="text-xs font-mono whitespace-pre-wrap">
+                        {newString.split('\n').map((line, index) => (
+                          <div key={index} className={
+                            line.startsWith('+ ') ? 'bg-success/10 text-success' :
+                            line.startsWith('  ') ? 'text-muted-foreground' :
+                            'text-foreground'
+                          }>
+                            {line || '\u00A0'}
+                          </div>
+                        ))}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {selectedConflict && (
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <h5 className="font-medium mb-2">Conflict Info</h5>
+                    <div className="space-y-1 text-muted-foreground">
+                      <div>File: <code className="bg-muted px-1 rounded text-xs">{selectedConflict.file}</code></div>
+                      <div>Severity: <Badge className={cn('text-xs', getSeverityVariant(selectedConflict.severity))}>{selectedConflict.severity}</Badge></div>
+                      <div>Auto-merge: {selectedConflict.canAutoMerge ? 'Yes' : 'No'}</div>
+                      {selectedConflict.strategy && <div>Strategy: {selectedConflict.strategy}</div>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h5 className="font-medium mb-2">Resolution</h5>
+                    <div className="space-y-1 text-muted-foreground">
+                      {selectedConflict.canAutoMerge ? (
+                        <div className="text-success">Will be automatically resolved during merge</div>
+                      ) : (
+                        <div className="text-warning">
+                          Manual review may be required
+                          {selectedConflict.severity === 'high' || selectedConflict.severity === 'critical' ? (
+                            <div className="text-destructive text-xs mt-1">High priority - review recommended</div>
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileCode className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No conflict details available</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

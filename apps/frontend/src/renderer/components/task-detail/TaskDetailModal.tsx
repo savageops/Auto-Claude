@@ -506,14 +506,24 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                 <TabsContent value="subtasks" className="flex-1 min-h-0 overflow-hidden mt-0">
                   <ScrollArea className="h-full">
                     <div className="p-5">
-                      <TaskSubtasks subtasks={task.subtasks} />
+                      <TaskSubtasks task={task} />
                     </div>
                   </ScrollArea>
                 </TabsContent>
 
                 {/* Logs Tab */}
                 <TabsContent value="logs" className="flex-1 min-h-0 overflow-hidden mt-0">
-                  <TaskLogs taskId={task.id} />
+                  <TaskLogs
+                    task={task}
+                    phaseLogs={state.phaseLogs}
+                    isLoadingLogs={state.isLoadingLogs}
+                    expandedPhases={state.expandedPhases}
+                    isStuck={state.isStuck}
+                    logsEndRef={state.logsEndRef}
+                    logsContainerRef={state.logsContainerRef}
+                    onLogsScroll={state.handleLogsScroll}
+                    onTogglePhase={state.togglePhase}
+                  />
                 </TabsContent>
               </Tabs>
             </div>
