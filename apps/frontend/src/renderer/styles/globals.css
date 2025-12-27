@@ -99,51 +99,51 @@
 
 /* CSS variables for light mode (secondary consideration per design system) */
 :root {
-  /* Light Mode - Warm off-white tones */
+  /* Light Mode - Balanced neutral with soft sage accents */
   --background: #F2F2ED;
-  --foreground: #0B0B0F;
+  --foreground: #0F1014;
 
   --card: #FFFFFF;
-  --card-foreground: #0B0B0F;
+  --card-foreground: #0F1014;
 
-  /* Accent - Muted olive/yellow for light mode */
-  --primary: #A5A66A;
-  --primary-foreground: #0B0B0F;
+  /* Accent - Soft sage/olive for light mode */
+  --primary: #B8B978;
+  --primary-foreground: #0F1014;
 
   --secondary: #E8E8E3;
-  --secondary-foreground: #0B0B0F;
+  --secondary-foreground: #0F1014;
 
   --muted: #EDEDE8;
   --muted-foreground: #5C6974;
 
-  --accent: #EFEFE0;
-  --accent-foreground: #A5A66A;
+  --accent: #B8B978;
+  --accent-foreground: #0F1014;
 
-  --destructive: #D84F68;
+  --destructive: #B87878;
   --destructive-foreground: #FFFFFF;
 
   --border: transparent;
   --input: transparent;
-  --ring: #A5A66A;
+  --ring: #B8B978;
 
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0B0B0F;
+  --sidebar-foreground: #0F1014;
 
   --popover: #FFFFFF;
-  --popover-foreground: #0B0B0F;
+  --popover-foreground: #0F1014;
 
   /* Semantic colors */
-  --success: #4EBE96;
+  --success: #78B88A;
   --success-foreground: #FFFFFF;
-  --success-light: #E0F5ED;
-  --warning: #D2D714;
-  --warning-foreground: #0B0B0F;
-  --warning-light: #F5F5D0;
-  --info: #479FFA;
+  --success-light: #E8F0EA;
+  --warning: #B8B078;
+  --warning-foreground: #0F1014;
+  --warning-light: #F0F0E8;
+  --info: #788AB8;
   --info-foreground: #FFFFFF;
-  --info-light: #E8F4FF;
-  --error: #D84F68;
-  --error-light: #FCE8EC;
+  --info-light: #E8ECF0;
+  --error: #B87878;
+  --error-light: #F0E8E8;
 
   /* Shadows - soft and diffused for light mode */
   --shadow-sm: none;
@@ -156,55 +156,55 @@
   --radius: 12px;
 }
 
-/* Dark Mode - Oscura Midnight (Default/Primary theme per design system) */
+/* Dark Mode - Default theme */
 .dark {
-  /* Near-black backgrounds - OLED optimized */
-  --background: #0B0B0F;
+  /* Near-black backgrounds */
+  --background: #0F1014;
   --foreground: #E6E6E6;
 
   /* Card surfaces - subtle elevation */
-  --card: #121216;
+  --card: #16171C;
   --card-foreground: #E6E6E6;
 
-  /* Accent - Saturated yellow for vibrant contrast */
-  --primary: #D6D876;
-  --primary-foreground: #0B0B0F;
+  /* Accent - Sage/olive for dark mode */
+  --primary: #D4D79A;
+  --primary-foreground: #0F1014;
 
-  --secondary: #1A1A1F;
+  --secondary: #1C1D22;
   --secondary-foreground: #E6E6E6;
 
-  --muted: #1A1A1F;
+  --muted: #1C1D22;
   --muted-foreground: #868F97;
 
-  --accent: #2A2A1F;
-  --accent-foreground: #D6D876;
+  --accent: #D4D79A;
+  --accent-foreground: #0F1014;
 
-  --destructive: #FF5C5C;
-  --destructive-foreground: #0B0B0F;
+  --destructive: #C89898;
+  --destructive-foreground: #0F1014;
 
   /* Subtle dark borders for card definition */
   --border: transparent;
   --input: transparent;
-  --ring: #D6D876;
+  --ring: #D4D79A;
 
-  --sidebar: #0E0E12;
+  --sidebar: #12131A;
   --sidebar-foreground: #E6E6E6;
 
-  --popover: #1A1A1F;
+  --popover: #1C1D22;
   --popover-foreground: #E6E6E6;
 
   /* Semantic colors - muted for dark mode */
-  --success: #4EBE96;
-  --success-foreground: #0B0B0F;
-  --success-light: #1A2924;
-  --warning: #D2D714;
-  --warning-foreground: #0B0B0F;
-  --warning-light: #262618;
-  --info: #479FFA;
-  --info-foreground: #0B0B0F;
-  --info-light: #1A2230;
-  --error: #FF5C5C;
-  --error-light: #2A1A1A;
+  --success: #98C8A8;
+  --success-foreground: #0F1014;
+  --success-light: #1C1D22;
+  --warning: #C8C098;
+  --warning-foreground: #0F1014;
+  --warning-light: #1C1D22;
+  --info: #98A8C8;
+  --info-foreground: #0F1014;
+  --info-light: #1C1D22;
+  --error: #C89898;
+  --error-light: #1C1D22;
 
   /* Shadows - deeper for dark mode, but cards use borders primarily */
   --shadow-sm: none;
