@@ -31,7 +31,7 @@
     },
     "prompts": {
       "title": "Prompts",
-      "description": "Configure all AI prompts used throughout the application"
+      "description": "Customize AI prompts"
     },
     "updates": {
       "title": "Updates",

@@ -3,7 +3,7 @@
   "workflow_type": "feature",
   "description": "Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.",
   "created_at": "2025-12-27T00:12:18.777Z",
-  "updated_at": "2025-12-27T00:43:27.900Z",
+  "updated_at": "2025-12-27T01:02:58.306Z",
   "status": "in_progress",
   "phases": [
     {
@@ -40,7 +40,9 @@
         {
           "id": "2.2",
           "description": "Add error handling and user feedback for restore operation",
-          "status": "pending"
+          "status": "completed",
+          "notes": "Added comprehensive error handling and user feedback for restore operation. Implementation includes: (1) isDiscardingFile loading state to track operation in progress, (2) discardFileSuccess state for success feedback, (3) Loading spinner on discard buttons and confirmation dialog, (4) Error alert display in DiffViewDialog when restore fails, (5) Success message with file path when restore completes, (6) Auto-close confirmation dialog on success using useEffect tracking, (7) try/catch error handling for unexpected errors. All changes integrated through useTaskDetail hook → TaskDetailPanel/TaskDetailModal → TaskReview → DiffViewDialog prop chain. TypeScript and ESLint checks pass.",
+          "updated_at": "2025-12-27T00:54:29.669798+00:00"
         }
       ]
     },
@@ -51,7 +53,9 @@
         {
           "id": "3.1",
           "description": "Update diff view state after file discard to reflect changes",
-          "status": "pending"
+          "status": "completed",
+          "notes": "Verified that diff view state update is already implemented in handleDiscardFile (both TaskDetailPanel.tsx and TaskDetailModal.tsx). After successful file discard: (1) getWorktreeDiff API call refreshes file list, (2) setWorktreeDiff updates component state, (3) getWorktreeStatus updates file counts, (4) loadMergePreview refreshes merge preview if loaded. DiffViewDialog re-renders with updated data automatically via React's prop passing. TypeScript and ESLint checks pass.",
+          "updated_at": "2025-12-27T00:58:11.015764+00:00"
         },
         {
           "id": "3.2",
@@ -62,6 +66,6 @@
     }
   ],
   "planStatus": "in_progress",
-  "last_updated": "2025-12-27T00:48:01.890925+00:00",
-  "recoveryNote": "Task recovered from stuck state at 2025-12-27T00:43:27.900Z"
+  "last_updated": "2025-12-27T00:58:11.015764+00:00",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-27T01:02:58.306Z"
 }

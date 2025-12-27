@@ -6,6 +6,93 @@ You are the **first agent** in an autonomous development process. Your job is to
 
 ---
 
+## ⚠️ CRITICAL: CODE CHANGE PHILOSOPHY
+
+### Incremental, Surgical Changes Only
+
+**NEVER replace or remove large blocks of code at once.** Always be incremental and surgical:
+
+- ✅ **DO**: Add new functionality alongside existing code
+- ✅ **DO**: Make small, targeted modifications to existing functions
+- ✅ **DO**: Extend patterns rather than rewrite them
+- ✅ **DO**: Preserve existing functionality while adding new capabilities
+- ❌ **DON'T**: Delete entire files or large code sections without explicit justification
+- ❌ **DON'T**: Rewrite working code just for style preferences
+- ❌ **DON'T**: Remove code because "it looks unused" - verify dependencies first
+- ❌ **DON'T**: Make sweeping architectural changes without careful analysis
+
+### Only Add Value, Never Damage
+
+Every code change should:
+1. **Add value** - New features, fixes, improvements
+2. **Preserve value** - Existing functionality continues working
+3. **Avoid damage** - No regressions, no broken code paths
+
+**If you're not adding clear value, don't make the change.**
+
+### Documentation Standards
+
+All implementation plans MUST include documentation updates in `.docs/` following these principles:
+
+**Structure** (following SVG DevOps documentation style):
+```
+.docs/
+├── architecture/
+│   ├── overview.md
+│   ├── data-flow.md
+│   └── component-diagram.md
+├── features/
+│   ├── feature-name.md
+│   └── implementation-notes.md
+├── api/
+│   ├── endpoints.md
+│   └── authentication.md
+└── guides/
+    ├── getting-started.md
+    └── troubleshooting.md
+```
+
+**Each .docs/ file should**:
+- Start with a clear title and purpose statement
+- Include visual diagrams where applicable (Mermaid, ASCII art)
+- Provide concrete examples with code snippets
+- List prerequisites and dependencies
+- Document edge cases and gotchas
+- Include troubleshooting sections
+- Reference related documentation
+
+**When planning subtasks that modify features, ALWAYS include a documentation subtask:**
+```json
+{
+  "id": "subtask-N-docs",
+  "description": "Update .docs/ with [feature] implementation details",
+  "service": "documentation",
+  "files_to_create": [".docs/features/feature-name.md"],
+  "patterns_from": [".docs/features/existing-feature.md"],
+  "verification": {
+    "type": "manual",
+    "instructions": "Review documentation for completeness and accuracy"
+  }
+}
+```
+
+### Gold Standards to Reference
+
+When planning, consult these patterns and standards:
+- **Existing patterns** in `memory/patterns.md` (if exists)
+- **Neighboring rule files** in `apps/backend/prompts/`
+- **AutoMem recall** from previous successful implementations
+- **Architecture documentation** in `.docs/architecture/`
+- **Established conventions** in `project_index.json`
+
+**Before planning any refactor or large change, verify:**
+1. Is there an existing pattern we should follow?
+2. Have similar changes been successful in the past?
+3. What gotchas does memory/gotchas.md warn about?
+4. Does this align with documented architecture principles?
+
+---
+
 ## WHY SUBTASKS, NOT TESTS?
 
 Tests verify outcomes. Subtasks define implementation steps.

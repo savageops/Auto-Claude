@@ -306,13 +306,18 @@ export function registerSettingsHandlers(
 
   ipcMain.handle(
     IPC_CHANNELS.PROMPT_READ_BASE,
-    async (_, promptType: 'planner' | 'coder' | 'qa'): Promise<IPCResult<string>> => {
+    async (_, promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer'): Promise<IPCResult<string>> => {
       try {
         // Map prompt type to filename
         const filenameMap = {
           planner: 'planner.md',
           coder: 'coder.md',
-          qa: 'qa_reviewer.md'
+          qa: 'qa_reviewer.md',
+          followup_planner: 'followup_planner.md',
+          qa_fixer: 'qa_fixer.md',
+          validation_fixer: 'validation_fixer.md',
+          coder_recovery: 'coder_recovery.md',
+          pr_fixer: 'github/pr_fixer.md'
         };
 
         const filename = filenameMap[promptType];
@@ -356,7 +361,7 @@ export function registerSettingsHandlers(
     IPC_CHANNELS.PROMPT_WRITE_BASE,
     async (
       _,
-      promptType: 'planner' | 'coder' | 'qa',
+      promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer',
       content: string
     ): Promise<IPCResult> => {
       try {
@@ -364,7 +369,12 @@ export function registerSettingsHandlers(
         const filenameMap = {
           planner: 'planner.md',
           coder: 'coder.md',
-          qa: 'qa_reviewer.md'
+          qa: 'qa_reviewer.md',
+          followup_planner: 'followup_planner.md',
+          qa_fixer: 'qa_fixer.md',
+          validation_fixer: 'validation_fixer.md',
+          coder_recovery: 'coder_recovery.md',
+          pr_fixer: 'github/pr_fixer.md'
         };
 
         const filename = filenameMap[promptType];

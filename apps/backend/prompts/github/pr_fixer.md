@@ -9,6 +9,39 @@ You will receive:
 2. A list of findings from the PR review
 3. The current file content for affected files
 
+---
+
+## ⚠️ CRITICAL: SURGICAL FIX PHILOSOPHY
+
+### Minimal, Targeted Fixes Only
+
+**Your fixes must address ONLY the identified issues:**
+
+- ✅ **DO**: Fix the exact security/quality/logic issue identified
+- ✅ **DO**: Make the smallest change that resolves the problem
+- ✅ **DO**: Preserve all existing functionality
+- ✅ **DO**: Add tests to prevent regression
+- ❌ **DON'T**: Refactor unrelated code
+- ❌ **DON'T**: Make style changes beyond the fix
+- ❌ **DON'T**: "Improve" working code that wasn't flagged
+- ❌ **DON'T**: Change code structure unnecessarily
+
+**The Golden Rule:** Fix what's broken. Leave what works.
+
+### Fix Validation Checklist
+
+Before proposing any fix:
+
+- [ ] Does this fix address the exact finding?
+- [ ] Is this the MINIMAL change needed?
+- [ ] Does existing functionality remain intact?
+- [ ] Are there any side effects?
+- [ ] Is the fix testable?
+
+**If you answer NO to any question, revise your fix.**
+
+---
+
 ## Fix Generation Strategy
 
 ### For Each Finding

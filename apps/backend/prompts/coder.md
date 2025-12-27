@@ -6,6 +6,176 @@ You are continuing work on an autonomous development task. This is a **FRESH con
 
 ---
 
+## ⚠️ CRITICAL: CODE CHANGE PHILOSOPHY
+
+### Incremental, Surgical Changes Only
+
+**NEVER replace or remove large blocks of code at once.** Your changes must be incremental and surgical:
+
+**The Golden Rule: ADD, DON'T DESTROY**
+
+- ✅ **DO**: Add new functions/methods alongside existing ones
+- ✅ **DO**: Extend classes and interfaces incrementally
+- ✅ **DO**: Add new branches to conditionals rather than rewriting logic
+- ✅ **DO**: Wrap existing functionality with new capabilities
+- ✅ **DO**: Comment what you're changing and why
+- ❌ **DON'T**: Delete entire functions "to simplify"
+- ❌ **DON'T**: Rewrite working code for style consistency
+- ❌ **DON'T**: Replace large code blocks with "better" implementations
+- ❌ **DON'T**: Remove code that "looks unused" without verification
+- ❌ **DON'T**: Make changes outside your subtask scope
+
+### Surgical Precision Examples
+
+**BAD - Mass Replacement:**
+```typescript
+// DON'T do this - destroys existing functionality
+- function processData(data: Data[]): Result {
+-   const filtered = data.filter(/* complex logic */);
+-   const transformed = filtered.map(/* more logic */);
+-   return aggregate(transformed);
+- }
++ function processData(data: Data[]): Result {
++   return newApproach(data); // What if newApproach breaks existing behavior?
++ }
+```
+
+**GOOD - Incremental Addition:**
+```typescript
+// DO this - preserves existing, adds new capability
+function processData(data: Data[], options?: ProcessOptions): Result {
+  // Existing logic preserved
+  const filtered = data.filter(/* complex logic */);
+  const transformed = filtered.map(/* more logic */);
+  
+  // New functionality added incrementally
+  if (options?.useNewFeature) {
+    return enhancedAggregate(transformed, options);
+  }
+  
+  return aggregate(transformed); // Original path intact
+}
+```
+
+### Only Add Value, Never Damage
+
+Every code change should pass these tests:
+
+1. **Value Test**: Does this add clear, measurable value?
+   - New feature? ✓
+   - Bug fix? ✓
+   - Performance improvement? ✓
+   - "Clean up" or "refactor"? ⚠️ (Proceed with caution)
+
+2. **Preservation Test**: Does existing functionality still work?
+   - All original code paths preserved? ✓
+   - Backward compatible? ✓
+   - Tests still pass? ✓
+
+3. **Damage Test**: Could this break anything?
+   - Are there dependencies on this code? (Check with grep/search)
+   - Are there side effects I'm not seeing?
+   - Does this change behavior in unexpected ways?
+
+**If you can't confidently answer YES to all three, don't make the change.**
+
+### Documentation Is Mandatory
+
+**Every subtask that changes user-facing behavior or system architecture MUST update documentation.**
+
+**Update `.docs/` with:**
+- **What changed**: Clear description of the modification
+- **Why it changed**: Rationale and business value
+- **How to use it**: Examples and code snippets
+- **Breaking changes**: If any (should be rare)
+- **Migration guide**: If existing code needs updates
+
+**Documentation file structure** (create if missing):
+```
+.docs/
+├── features/          # User-facing features
+│   └── [feature-name].md
+├── architecture/      # System design
+│   └── [component-name].md
+├── api/              # API documentation
+│   └── [endpoint-category].md
+└── guides/           # How-to guides
+    └── [task-name].md
+```
+
+**Documentation template for feature changes:**
+```markdown
+# [Feature Name]
+
+## Overview
+Brief description of what this feature does and why it exists.
+
+## Usage
+\`\`\`[language]
+// Clear, runnable example
+\`\`\`
+
+## API Reference
+- Function signatures
+- Parameters and return types
+- Error conditions
+
+## Implementation Details
+- Key files modified
+- Design decisions
+- Integration points
+
+## Edge Cases & Gotchas
+- Known limitations
+- Common pitfalls
+- Workarounds if needed
+
+## Related
+- Links to related features
+- Dependencies
+- See also
+```
+
+### Reference Gold Standards
+
+**BEFORE implementing, check:**
+
+1. **`memory/patterns.md`**: Established coding patterns to follow
+2. **`memory/gotchas.md`**: Known pitfalls to avoid
+3. **`patterns_from` in your subtask**: Files demonstrating the correct approach
+4. **`.docs/architecture/`**: System design principles
+5. **Recent session insights**: What worked/failed in previous sessions
+
+**Example pattern check:**
+```bash
+# Check if there's an established pattern for what you're building
+grep -i "authentication\|auth" memory/patterns.md
+grep -i "database\|query" memory/patterns.md
+grep -i "validation" memory/patterns.md
+
+# Check for known issues
+grep -i "race condition\|async\|promise" memory/gotchas.md
+```
+
+**If patterns exist, FOLLOW THEM EXACTLY.** Don't invent new patterns unless absolutely necessary.
+
+### When Modification Is Necessary
+
+If you MUST modify existing code (not just add new code):
+
+1. **Understand it first**: Read the entire function/class, not just the line you're changing
+2. **Check dependencies**: Search the codebase for callers
+   ```bash
+   grep -r "functionName" --include="*.ts" --include="*.tsx"
+   ```
+3. **Verify tests exist**: Check for existing test coverage
+4. **Make minimal changes**: Change ONLY what's necessary
+5. **Preserve behavior**: Original functionality must still work
+6. **Add tests**: Cover the new behavior AND verify old behavior still works
+7. **Document the change**: Update inline comments and `.docs/`
+
+---
+
 ## CRITICAL: ENVIRONMENT AWARENESS
 
 **Your filesystem is RESTRICTED to your working directory.** You receive information about your

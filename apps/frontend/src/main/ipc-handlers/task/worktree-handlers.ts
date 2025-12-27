@@ -247,6 +247,181 @@ export function registerWorktreeHandlers(
   );
 
   /**
+   * Preview merge conflicts before merging
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_MERGE_PREVIEW,
+    async (_, taskId: string): Promise<IPCResult<WorktreeMergeResult>> => {
+      console.warn('[IPC] TASK_WORKTREE_MERGE_PREVIEW called with taskId:', taskId);
+      try {
+        // Ensure Python environment is ready
+        if (!pythonEnvManager.isEnvReady()) {
+          console.warn('[IPC] Python environment not ready, initializing...');
+          const autoBuildSource = getEffectiveSourcePath();
+          if (autoBuildSource) {
+            const status = await pythonEnvManager.initialize(autoBuildSource);
+            if (!status.ready) {
+              console.error('[IPC] Python environment failed to initialize:', status.error);
+              return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
+            }
+          } else {
+            console.error('[IPC] Auto Claude source not found');
+            return { success: false, error: 'Python environment not ready and Auto Claude source not found' };
+          }
+        }
+
+        const { task, project } = findTaskAndProject(taskId);
+        if (!task || !project) {
+          console.error('[IPC] Task not found:', taskId);
+          return { success: false, error: 'Task not found' };
+        }
+        console.warn('[IPC] Found task:', task.specId, 'project:', project.name);
+
+        // Check for uncommitted changes in the main project
+        let hasUncommittedChanges = false;
+        let uncommittedFiles: string[] = [];
+        try {
+          const gitStatus = execSync('git status --porcelain', {
+            cwd: project.path,
+            encoding: 'utf-8'
+          });
+
+          if (gitStatus && gitStatus.trim()) {
+            // Parse the status output to get file names
+            // Format: XY filename (where X and Y are status chars, then space, then filename)
+            uncommittedFiles = gitStatus
+              .split('\n')
+              .filter(line => line.trim())
+              .map(line => line.substring(3).trim()); // Skip 2 status chars + 1 space, trim any trailing whitespace
+
+            hasUncommittedChanges = uncommittedFiles.length > 0;
+          }
+        } catch (e) {
+          console.error('[IPC] Failed to check git status:', e);
+        }
+
+        const sourcePath = getEffectiveSourcePath();
+        if (!sourcePath) {
+          console.error('[IPC] Auto Claude source not found');
+          return { success: false, error: 'Auto Claude source not found' };
+        }
+
+        const runScript = path.join(sourcePath, 'run.py');
+        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
+        const args = [
+          runScript,
+          '--spec', task.specId,
+          '--project-dir', project.path,
+          '--merge-preview'
+        ];
+
+        // Add --base-branch if task was created with a specific base branch
+        const taskBaseBranch = getTaskBaseBranch(specDir);
+        if (taskBaseBranch) {
+          args.push('--base-branch', taskBaseBranch);
+          console.warn('[IPC] Using stored base branch for preview:', taskBaseBranch);
+        }
+
+        const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
+        console.warn('[IPC] Running merge preview:', pythonPath, args.join(' '));
+
+        // Get profile environment for consistency
+        const previewProfileEnv = getProfileEnv();
+
+        return new Promise((resolve) => {
+          // Parse Python command to handle space-separated commands like "py -3"
+          const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
+          const previewProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
+            cwd: sourcePath,
+            env: { ...process.env, ...previewProfileEnv, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1', DEBUG: 'true' }
+          });
+
+          let stdout = '';
+          let stderr = '';
+
+          previewProcess.stdout.on('data', (data: Buffer) => {
+            const chunk = data.toString();
+            stdout += chunk;
+            console.warn('[IPC] merge-preview stdout:', chunk);
+          });
+
+          previewProcess.stderr.on('data', (data: Buffer) => {
+            const chunk = data.toString();
+            stderr += chunk;
+            console.warn('[IPC] merge-preview stderr:', chunk);
+          });
+
+          previewProcess.on('close', (code: number) => {
+            console.warn('[IPC] merge-preview process exited with code:', code);
+            if (code === 0) {
+              try {
+                // Parse JSON output from Python
+                const result = JSON.parse(stdout.trim());
+                console.warn('[IPC] merge-preview result:', JSON.stringify(result, null, 2));
+                resolve({
+                  success: true,
+                  data: {
+                    success: result.success,
+                    message: result.error || 'Preview completed',
+                    preview: {
+                      files: result.files || [],
+                      conflicts: result.conflicts || [],
+                      summary: result.summary || {
+                        totalFiles: 0,
+                        conflictFiles: 0,
+                        totalConflicts: 0,
+                        autoMergeable: 0,
+                        hasGitConflicts: false
+                      },
+                      gitConflicts: result.gitConflicts || null,
+                      // Include uncommitted changes info for the frontend
+                      uncommittedChanges: hasUncommittedChanges ? {
+                        hasChanges: true,
+                        files: uncommittedFiles,
+                        count: uncommittedFiles.length
+                      } : null
+                    }
+                  }
+                });
+              } catch (parseError) {
+                console.error('[IPC] Failed to parse preview result:', parseError);
+                console.error('[IPC] stdout:', stdout);
+                console.error('[IPC] stderr:', stderr);
+                resolve({
+                  success: false,
+                  error: `Failed to parse preview result: ${stderr || stdout}`
+                });
+              }
+            } else {
+              console.error('[IPC] Preview failed with exit code:', code);
+              console.error('[IPC] stderr:', stderr);
+              console.error('[IPC] stdout:', stdout);
+              resolve({
+                success: false,
+                error: `Preview failed: ${stderr || stdout}`
+              });
+            }
+          });
+
+          previewProcess.on('error', (err: Error) => {
+            console.error('[IPC] merge-preview spawn error:', err);
+            resolve({
+              success: false,
+              error: `Failed to run preview: ${err.message}`
+            });
+          });
+        });
+      } catch (error) {
+        console.error('[IPC] TASK_WORKTREE_MERGE_PREVIEW error:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to preview merge'
+        };
+      }
+    }
+  );
+
+  /**
    * Merge the worktree changes into the main branch
    */
   ipcMain.handle(
@@ -304,7 +479,7 @@ export function registerWorktreeHandlers(
         if (options?.noCommit) {
           const stagedResult = spawnSync('git', ['diff', '--staged', '--name-only'], {
             cwd: project.path,
-encoding: 'utf-8'
+            encoding: 'utf-8'
           });
 
           if (stagedResult.status === 0 && stagedResult.stdout?.trim()) {
@@ -394,11 +569,21 @@ encoding: 'utf-8'
               resolved = true;
               mergeProcess.kill('SIGTERM');
               setTimeout(() => {
-                if (!resolved) {
+                if (!mergeProcess.killed) {
                   debug('FORCE KILL: Process still running, sending SIGKILL...');
                   mergeProcess.kill('SIGKILL');
                 }
               }, 5000);
+              resolve({
+                success: false,
+                error: 'Merge operation timed out after 10 minutes',
+                data: {
+                  success: false,
+                  merged: false,
+                  message: 'Merge operation timed out',
+                  projectPath: project.path
+                }
+              });
             }
           }, MERGE_TIMEOUT_MS);
 
@@ -414,7 +599,8 @@ encoding: 'utf-8'
             debug('STDERR:', chunk);
           });
 
-          mergeProcess.on('close', (code: number) => {
+          // Consolidated exit handler
+          const handleProcessExit = (code: number) => {
             if (resolved) return; // Already timed out
             resolved = true;
             if (timeoutId) clearTimeout(timeoutId);
@@ -423,55 +609,153 @@ encoding: 'utf-8'
             debug('FINAL STDOUT:', stdout);
             debug('FINAL STDERR:', stderr);
 
+            // Determine merge result
+            let newStatus: string | undefined;
+            let planStatus: string | undefined;
+            let message = '';
+            let staged = false;
+
             if (code === 0) {
-              // Parse success output
+              // Verify git status after merge
+              try {
+                const gitStatusAfter = execSync('git status --short', { cwd: project.path, encoding: 'utf-8' });
+                debug('Git status AFTER merge:\n', gitStatusAfter || '(clean)');
+
+                // For stage-only mode, verify changes were actually staged
+                if (options?.noCommit) {
+                  const stagedResult = spawnSync('git', ['diff', '--staged', '--name-only'], {
+                    cwd: project.path,
+                    encoding: 'utf-8'
+                  });
+
+                  if (stagedResult.status === 0 && stagedResult.stdout?.trim()) {
+                    const stagedFiles = stagedResult.stdout.trim().split('\n');
+                    debug('Verified staged files:', stagedFiles);
+                    staged = true;
+                    newStatus = 'human_review';
+                    planStatus = 'review';
+                    message = `Changes staged successfully (${stagedFiles.length} files). Review with git diff --staged.`;
+                  } else {
+                    // Merge reported success but nothing staged - might be already committed or no changes
+                    const commitCheckResult = spawnSync('git', ['log', '-1', '--oneline'], {
+                      cwd: project.path,
+                      encoding: 'utf-8'
+                    });
+
+                    if (commitCheckResult.stdout?.includes(task.specId) ||
+                        commitCheckResult.stdout?.toLowerCase().includes('merge')) {
+                      // Looks like merge was already committed
+                      debug('Merge appears to be already committed');
+                      newStatus = 'done';
+                      planStatus = 'completed';
+                      message = 'Merge already committed';
+                    } else {
+                      debug('Warning: Merge succeeded but no changes staged');
+                      message = 'Merge completed but no changes detected';
+                    }
+                  }
+                } else {
+                  // Regular merge with commit
+                  newStatus = 'done';
+                  planStatus = 'completed';
+                  message = 'Merge completed successfully';
+                }
+              } catch (statusError) {
+                debug('Failed to get git status after merge:', statusError);
+              }
+
+              // Try to parse JSON output for additional info
               try {
                 const output = stdout.trim();
-                debug('Parsing output:', output);
-
-                // Try to find JSON in output
                 const jsonMatch = output.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                   const result = JSON.parse(jsonMatch[0]);
                   debug('Parsed merge result:', result);
+
+                  // Override message if provided in result
+                  if (result.message) {
+                    message = result.message;
+                  }
+
+                  // Read suggested commit message if available
+                  let suggestedCommitMessage: string | undefined;
+                  const commitMsgPath = path.join(specDir, 'suggested_commit_message.txt');
+                  if (existsSync(commitMsgPath)) {
+                    try {
+                      suggestedCommitMessage = readFileSync(commitMsgPath, 'utf-8');
+                      debug('Read suggested commit message:', suggestedCommitMessage);
+                    } catch (e) {
+                      debug('Failed to read suggested commit message:', e);
+                    }
+                  }
+
+                  // Update implementation_plan.json with status
+                  if (newStatus && planStatus) {
+                    const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+                    try {
+                      if (existsSync(planPath)) {
+                        const planContent = readFileSync(planPath, 'utf-8');
+                        const plan = JSON.parse(planContent);
+
+                        plan.status = newStatus;
+                        plan.planStatus = planStatus;
+                        plan.updated_at = new Date().toISOString();
+
+                        const { writeFileSync } = require('fs');
+                        writeFileSync(planPath, JSON.stringify(plan, null, 2));
+                        debug('Updated implementation_plan.json with status:', newStatus);
+
+                        // Notify UI of status change
+                        const mainWindow = getMainWindow();
+                        if (mainWindow) {
+                          mainWindow.webContents.send(
+                            IPC_CHANNELS.TASK_STATUS_CHANGE,
+                            taskId,
+                            newStatus
+                          );
+                          debug('Sent status change event to UI:', newStatus);
+                        }
+                      }
+                    } catch (planError) {
+                      debug('Failed to update implementation plan:', planError);
+                    }
+                  }
+
                   return resolve({
                     success: true,
                     data: {
                       success: true,
                       merged: true,
-                      message: result.message || 'Merge completed successfully',
+                      message,
+                      staged,
                       projectPath: project.path,
+                      suggestedCommitMessage,
                       ...result
                     }
                   });
                 }
-
-                // Fallback if no JSON found
-                resolve({
-                  success: true,
-                  data: {
-                    success: true,
-                    merged: true,
-                    message: 'Merge completed successfully',
-                    projectPath: project.path
-                  }
-                });
               } catch (parseError) {
                 debug('Error parsing merge output:', parseError);
-                resolve({
-                  success: true,
-                  data: {
-                    success: true,
-                    merged: true,
-                    message: 'Merge completed successfully',
-                    projectPath: project.path
-                  }
-                });
               }
+
+              // Fallback response if no JSON
+              resolve({
+                success: true,
+                data: {
+                  success: true,
+                  merged: !options?.noCommit,
+                  message: message || 'Merge completed successfully',
+                  staged,
+                  projectPath: project.path
+                }
+              });
             } else {
-              // Merge failed
+              // Merge failed - check for conflicts vs general failure
               const errorMessage = stderr || stdout || `Merge failed with exit code ${code}`;
+              const hasConflicts = errorMessage.toLowerCase().includes('conflict');
+
               debug('Merge error:', errorMessage);
+              debug('Has conflicts:', hasConflicts);
 
               resolve({
                 success: false,
@@ -480,11 +764,14 @@ encoding: 'utf-8'
                   success: false,
                   merged: false,
                   message: `Merge failed: ${errorMessage}`,
+                  hasConflicts,
                   projectPath: project.path
                 }
               });
             }
-          });
+          };
+
+          mergeProcess.on('close', handleProcessExit);
 
           mergeProcess.on('error', (error: Error) => {
             if (resolved) return;
@@ -603,9 +890,7 @@ encoding: 'utf-8'
                 success: true,
                 data: {
                   success: true,
-                  discarded: true,
-                  message: 'Changes discarded successfully',
-                  projectPath: project.path
+                  message: 'Changes discarded successfully'
                 }
               });
             } else {
@@ -615,9 +900,7 @@ encoding: 'utf-8'
                 error: errorMessage,
                 data: {
                   success: false,
-                  discarded: false,
-                  message: `Discard failed: ${errorMessage}`,
-                  projectPath: project.path
+                  message: `Discard failed: ${errorMessage}`
                 }
               });
             }
@@ -633,9 +916,7 @@ encoding: 'utf-8'
               error: error.message,
               data: {
                 success: false,
-                discarded: false,
-                message: `Failed to execute discard: ${error.message}`,
-                projectPath: project.path
+                message: `Failed to execute discard: ${error.message}`
               }
             });
           });
@@ -695,10 +976,7 @@ encoding: 'utf-8'
             success: true,
             data: {
               success: true,
-              discarded: true,
-              file: filePath,
-              message: `File ${filePath} discarded successfully`,
-              projectPath: project.path
+              message: `File ${filePath} discarded successfully`
             }
           };
         } catch (gitError) {
@@ -708,10 +986,8 @@ encoding: 'utf-8'
             error: `Failed to discard file: ${gitError instanceof Error ? gitError.message : 'Unknown error'}`,
             data: {
               success: false,
-              discarded: false,
-              file: filePath,
               message: `Failed to discard file ${filePath}`,
-              projectPath: project.path
+              error: gitError instanceof Error ? gitError.message : 'Unknown error'
             }
           };
         }
@@ -722,9 +998,8 @@ encoding: 'utf-8'
           error: error instanceof Error ? error.message : 'Failed to discard file from worktree',
           data: {
             success: false,
-            discarded: false,
             message: 'Failed to discard file from worktree',
-            projectPath: project.path
+            error: error instanceof Error ? error.message : 'Failed to discard file from worktree'
           }
         };
       }
@@ -732,84 +1007,107 @@ encoding: 'utf-8'
   );
 
   /**
-   * List tasks with worktrees
+   * List all worktrees for a project
    */
   ipcMain.handle(
     IPC_CHANNELS.TASK_LIST_WORKTREES,
-    async (): Promise<IPCResult<WorktreeListResult>> => {
+    async (_, projectId: string): Promise<IPCResult<WorktreeListResult>> => {
       try {
-        const items: WorktreeListItem[] = [];
+        const project = projectStore.getProject(projectId);
+        if (!project) {
+          return { success: false, error: 'Project not found' };
+        }
 
-        for (const project of projectStore.projects) {
-          const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs');
-          if (!existsSync(specDir)) continue;
+        const worktreesDir = path.join(project.path, '.worktrees');
+        const worktrees: WorktreeListItem[] = [];
+
+        if (!existsSync(worktreesDir)) {
+          return { success: true, data: { worktrees } };
+        }
+
+        // Get all directories in .worktrees
+        const entries = readdirSync(worktreesDir);
+        for (const entry of entries) {
+          const entryPath = path.join(worktreesDir, entry);
+          const stat = statSync(entryPath);
+
+          // Skip worker directories and non-directories
+          if (!stat.isDirectory() || entry.startsWith('worker-')) {
+            continue;
+          }
 
           try {
-            const specDirs = readdirSync(specDir);
-            for (const specId of specDirs) {
-              const specPath = path.join(specDir, specId);
-              const stat = statSync(specPath);
-              if (!stat.isDirectory()) continue;
+            // Get branch info
+            const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+              cwd: entryPath,
+              encoding: 'utf-8'
+            }).trim();
 
-              // Look for associated task
-              const task = project.tasks?.find((t) => t.specId === specId);
-              if (!task) continue;
-
-              // Check if worktree exists
-              const worktreePath = path.join(project.path, '.worktrees', specId);
-              if (existsSync(worktreePath)) {
-                try {
-                  const branch = execSync('git rev-parse --abbrev-ref HEAD', {
-                    cwd: worktreePath,
-                    encoding: 'utf-8'
-                  }).trim();
-
-                  // Get base branch from main project
-                  let baseBranch = 'main';
-                  try {
-                    baseBranch = execSync('git rev-parse --abbrev-ref HEAD', {
-                      cwd: project.path,
-                      encoding: 'utf-8'
-                    }).trim();
-                  } catch {
-                    baseBranch = 'main';
-                  }
-
-                  // Get commit count
-                  let commitCount = 0;
-                  try {
-                    const countOutput = execSync(`git rev-list --count ${baseBranch}..HEAD`, {
-                      cwd: worktreePath,
-                      encoding: 'utf-8',
-                      stdio: ['pipe', 'pipe', 'pipe']
-                    }).trim();
-                    commitCount = parseInt(countOutput, 10) || 0;
-                  } catch {
-                    commitCount = 0;
-                  }
-
-                  items.push({
-                    taskId: task.id,
-                    specId,
-                    projectId: project.id,
-                    branch,
-                    baseBranch,
-                    commitCount
-                  });
-                } catch (gitError) {
-                  console.error(`Failed to get worktree info for ${specId}:`, gitError);
-                }
-              }
+            // Get base branch - the current branch in the main project (where changes will be merged)
+            let baseBranch = 'main';
+            try {
+              baseBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+                cwd: project.path,
+                encoding: 'utf-8'
+              }).trim();
+            } catch {
+              baseBranch = 'main';
             }
-          } catch (readError) {
-            console.error('Failed to list worktrees for project:', readError);
+
+            // Get commit count (cross-platform - no shell syntax)
+            let commitCount = 0;
+            try {
+              const countOutput = execSync(`git rev-list --count ${baseBranch}..HEAD`, {
+                cwd: entryPath,
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe']
+              }).trim();
+              commitCount = parseInt(countOutput, 10) || 0;
+            } catch {
+              commitCount = 0;
+            }
+
+            // Get diff stats (cross-platform - no shell syntax)
+            let filesChanged = 0;
+            let additions = 0;
+            let deletions = 0;
+            let diffStat = '';
+
+            try {
+              diffStat = execSync(`git diff --shortstat ${baseBranch}...HEAD`, {
+                cwd: entryPath,
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe']
+              }).trim();
+
+              const filesMatch = diffStat.match(/(\d+) files? changed/);
+              const addMatch = diffStat.match(/(\d+) insertions?/);
+              const delMatch = diffStat.match(/(\d+) deletions?/);
+
+              if (filesMatch) filesChanged = parseInt(filesMatch[1], 10) || 0;
+              if (addMatch) additions = parseInt(addMatch[1], 10) || 0;
+              if (delMatch) deletions = parseInt(delMatch[1], 10) || 0;
+            } catch {
+              // Ignore diff errors
+            }
+
+            worktrees.push({
+              specName: entry,
+              path: entryPath,
+              branch,
+              baseBranch,
+              commitCount,
+              filesChanged,
+              additions,
+              deletions
+            });
+          } catch (gitError) {
+            console.error(`Error getting info for worktree ${entry}:`, gitError);
+            // Skip this worktree if we can't get git info
           }
         }
 
-        return {
-          success: true,
-          data: { items }
-        };
+        return { success: true, data: { worktrees } };
       } catch (error) {
         console.error('Failed to list worktrees:', error);
         return {

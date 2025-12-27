@@ -7,7 +7,26 @@
     "apps/frontend/src/preload/api/task-api.ts",
     "apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts",
     "apps/frontend/src/renderer/components/task-detail/task-review/DiffViewDialog.tsx",
-    "apps/frontend/src/shared/types/task.ts"
+    "apps/frontend/src/shared/types/task.ts",
+    ".turret/specs/030-add-file-discard-to-review-workflow/implementation_plan.json",
+    "apps/frontend/src/renderer/components/task-detail/TaskDetailModal.tsx",
+    "apps/frontend/src/renderer/components/task-detail/TaskDetailPanel.tsx",
+    "apps/frontend/src/renderer/components/task-detail/TaskReview.tsx",
+    "apps/frontend/src/renderer/components/task-detail/hooks/useTaskDetail.ts",
+    "apps/frontend/src/renderer/lib/mocks/workspace-mock.ts",
+    ".turret-status",
+    ".turret/specs/030-add-file-discard-to-review-workflow/complexity_assessment.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/context.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/memory/attempt_history.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/memory/build_commits.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/project_index.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/requirements.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/review_state.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/spec.md",
+    ".turret/specs/030-add-file-discard-to-review-workflow/task_logs.json",
+    ".turret/specs/030-add-file-discard-to-review-workflow/task_metadata.json",
+    "apps/frontend/src/renderer/components/task-detail/__tests__/DiffViewDialog.test.tsx",
+    "apps/frontend/src/renderer/components/task-detail/__tests__/discard-workflow.test.ts"
   ],
-  "last_updated": "2025-12-27T02:43:29.263381"
+  "last_updated": "2025-12-27T03:03:00.071683"
 }

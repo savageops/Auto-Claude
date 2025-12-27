@@ -21,8 +21,8 @@ export interface SettingsAPI {
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
 
   // Prompt File Operations
-  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa') => Promise<IPCResult<string>>;
-  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa', content: string) => Promise<IPCResult>;
+  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer') => Promise<IPCResult<string>>;
+  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer', content: string) => Promise<IPCResult>;
 
   // Ideation Prompts
   listIdeationPrompts: () => Promise<IPCResult<Record<string, string>>>;
@@ -61,10 +61,10 @@ export const createSettingsAPI = (): SettingsAPI => ({
     ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN),
 
   // Prompt File Operations
-  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa'): Promise<IPCResult<string>> =>
+  readBasePrompt: (promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer'): Promise<IPCResult<string>> =>
     ipcRenderer.invoke(IPC_CHANNELS.PROMPT_READ_BASE, promptType),
 
-  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa', content: string): Promise<IPCResult> =>
+  writeBasePrompt: (promptType: 'planner' | 'coder' | 'qa' | 'followup_planner' | 'qa_fixer' | 'validation_fixer' | 'coder_recovery' | 'pr_fixer', content: string): Promise<IPCResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.PROMPT_WRITE_BASE, promptType, content),
 
   // Ideation Prompts

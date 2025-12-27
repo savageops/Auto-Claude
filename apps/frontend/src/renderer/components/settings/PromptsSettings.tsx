@@ -253,10 +253,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         )}
 
         {/* SECTION 1: Merge Prompts */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowMerge(!showMerge)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <GitMerge className="h-5 w-5 text-primary" />
@@ -466,10 +466,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         </div>
 
         {/* SECTION 2: Task Execution Prompts */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowTaskExecution(!showTaskExecution)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <Code className="h-5 w-5 text-primary" />
@@ -684,10 +684,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         </div>
 
         {/* SECTION 3: Ideation Prompts */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowIdeation(!showIdeation)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <Lightbulb className="h-5 w-5 text-primary" />
@@ -747,10 +747,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         </div>
 
         {/* SECTION 4: Roadmap Prompts */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowRoadmap(!showRoadmap)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <Map className="h-5 w-5 text-primary" />
@@ -842,10 +842,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         </div>
 
         {/* SECTION 5: Insights Prompt */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowInsights(!showInsights)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -878,10 +878,10 @@ export function PromptsSettings({ settings, onSettingsChange, onAdditionalPrompt
         </div>
 
         {/* SECTION 6: Global Instructions */}
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
           <button
             onClick={() => setShowGlobal(!showGlobal)}
-            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <MessageSquare className="h-5 w-5 text-primary" />

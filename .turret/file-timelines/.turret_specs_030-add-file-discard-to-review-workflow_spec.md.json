@@ -1,0 +1,28 @@
+{
+  "file_path": ".turret/specs/030-add-file-discard-to-review-workflow/spec.md",
+  "main_branch_history": [],
+  "task_views": {
+    "030-add-file-discard-to-review-workflow": {
+      "task_id": "030-add-file-discard-to-review-workflow",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "",
+        "timestamp": "2025-12-27T03:02:59.307120"
+      },
+      "worktree_state": {
+        "content": "# Add File Discard to Review Workflow\n\n## Overview\n\nAdd per-file discard capability to the existing human review workflow in DiffViewDialog, allowing users to selectively exclude unwanted files (e.g., CSS changes) from task changes before merging/staging.\n\n## Workflow Type\n\n**Feature Enhancement** - Extending existing human review capabilities with selective file discard functionality.\n\n## Task Scope\n\n### Components Affected\n- **DiffViewDialog**: Primary UI component requiring enhancement to add discard action per file\n\n### Technical Approach\n- Use `git restore <file>` to revert specific files in worktree\n- File-level granularity (not hunk-level)\n- Must preserve other uncommitted changes\n\n### Key Constraints\n- Must not disrupt existing merge/stage/reject workflows\n- Should only affect worktree (no staging area or commit history changes)\n- Need clear user confirmation/feedback for destructive action\n\n## Success Criteria\n\n1. Users can review task changes in DiffViewDialog\n2. Users can identify unwanted file changes\n3. Users can discard specific files individually via UI action\n4. Users can proceed with merge/stage for remaining files\n5. Git restore operation correctly reverts only the targeted file\n6. Other uncommitted changes remain unaffected\n",
+        "last_modified": "2025-12-27T03:02:59.944360"
+      },
+      "task_intent": {
+        "title": "030-add-file-discard-to-review-workflow",
+        "description": "Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2025-12-27T03:02:59.502876",
+  "last_updated": "2025-12-27T03:02:59.523538"
+}

@@ -1,22 +1,22 @@
 {
-  "id": "roadmap-20251226-2030",
+  "id": "roadmap-20251227",
   "project_name": "Turret",
-  "version": "1.0",
+  "version": "1.1",
   "vision": "Autonomous multi-agent coding framework that plans, builds, and validates software for you",
   "target_audience": {
-    "primary": "Software developers who want to automate coding tasks and accelerate their development workflow through AI agents",
+    "primary": "Professional software developers who want to accelerate their development workflow by delegating coding tasks to autonomous AI agents",
     "secondary": [
-      "Development teams seeking parallel autonomous coding capabilities",
-      "CI/CD pipeline operators needing headless AI-powered builds",
-      "Solo developers wanting to multiply their productivity",
-      "Open-source maintainers looking to automate repetitive coding tasks"
+      "Solo developers and indie hackers who need to multiply their productivity",
+      "Development teams looking for autonomous QA and code generation",
+      "Open-source maintainers who want AI assistance with issues and PRs",
+      "CI/CD pipeline operators needing headless AI-powered builds"
     ]
   },
   "phases": [
     {
       "id": "phase-1",
       "name": "Foundation Enhancement",
-      "description": "Polish and strengthen core differentiating features that set Turret apart from competitors. Focus on making existing capabilities more robust, user-friendly, and reliable.",
+      "description": "Polish and strengthen core differentiating features that set Turret apart from competitors. Complete known technical gaps. Focus on making existing capabilities more robust, user-friendly, and reliable.",
       "order": 1,
       "status": "planned",
       "features": [
@@ -25,7 +25,9 @@
         "feature-3",
         "feature-4",
         "feature-5",
-        "feature-6"
+        "feature-6",
+        "feature-20",
+        "feature-21"
       ],
       "milestones": [
         {
@@ -41,20 +43,22 @@
         {
           "id": "milestone-1-2",
           "title": "Quality Assurance Completeness",
-          "description": "QA pipeline catches 95%+ of common issues before code reaches user, with full merge completion recording",
+          "description": "QA pipeline catches 95%+ of common issues before code reaches user, with full merge completion recording and advanced conflict analysis",
           "features": [
             "feature-3",
-            "feature-4"
+            "feature-4",
+            "feature-20"
           ],
           "status": "planned"
         },
         {
           "id": "milestone-1-3",
-          "title": "Frictionless Onboarding",
-          "description": "New users can complete their first autonomous task within 10 minutes of installation",
+          "title": "Frictionless Onboarding & Monitoring",
+          "description": "New users can complete their first autonomous task within 10 minutes. Health monitoring keeps developers informed.",
           "features": [
             "feature-5",
-            "feature-6"
+            "feature-6",
+            "feature-21"
           ],
           "status": "planned"
         }
@@ -63,7 +67,7 @@
     {
       "id": "phase-2",
       "name": "User Experience Enhancement",
-      "description": "Improve the visual interface, workflow management, and developer experience. Make Turret more intuitive and powerful for daily use.",
+      "description": "Improve the visual interface, workflow management, and developer experience. Make Turret more intuitive and powerful for daily use. Enable true fire-and-forget autonomous operation.",
       "order": 2,
       "status": "planned",
       "features": [
@@ -71,7 +75,10 @@
         "feature-8",
         "feature-9",
         "feature-10",
-        "feature-11"
+        "feature-11",
+        "feature-22",
+        "feature-23",
+        "feature-24"
       ],
       "milestones": [
         {
@@ -80,7 +87,8 @@
           "description": "Kanban board and dashboard provide complete visibility into agent work with actionable insights",
           "features": [
             "feature-7",
-            "feature-8"
+            "feature-8",
+            "feature-22"
           ],
           "status": "planned"
         },
@@ -94,20 +102,31 @@
             "feature-11"
           ],
           "status": "planned"
+        },
+        {
+          "id": "milestone-2-3",
+          "title": "Autonomous Resilience",
+          "description": "System recovers from failures and coordinates multi-agent work without human intervention",
+          "features": [
+            "feature-23",
+            "feature-24"
+          ],
+          "status": "planned"
         }
       ]
     },
     {
       "id": "phase-3",
       "name": "Scale & Performance",
-      "description": "Optimize for large codebases and heavy workloads. Reduce barriers to installation and improve resource efficiency.",
+      "description": "Optimize for large codebases and heavy workloads. Reduce barriers to installation and improve resource efficiency. Deep integrations with development tools.",
       "order": 3,
       "status": "planned",
       "features": [
         "feature-12",
         "feature-13",
         "feature-14",
-        "feature-15"
+        "feature-15",
+        "feature-25"
       ],
       "milestones": [
         {
@@ -129,39 +148,52 @@
             "feature-15"
           ],
           "status": "planned"
+        },
+        {
+          "id": "milestone-3-3",
+          "title": "GitHub/GitLab Integration",
+          "description": "End-to-end automation from issue to merged PR with deep Git platform integration",
+          "features": [
+            "feature-25"
+          ],
+          "status": "planned"
         }
       ]
     },
     {
       "id": "phase-4",
       "name": "Growth & Ecosystem",
-      "description": "Build extensibility, team collaboration, and ecosystem features for broader adoption and community growth.",
+      "description": "Build extensibility, team collaboration, and ecosystem features for broader adoption and community growth. Enterprise-ready features.",
       "order": 4,
       "status": "planned",
       "features": [
         "feature-16",
         "feature-17",
         "feature-18",
-        "feature-19"
+        "feature-19",
+        "feature-26",
+        "feature-27"
       ],
       "milestones": [
         {
           "id": "milestone-4-1",
           "title": "Plugin Ecosystem Launch",
-          "description": "Community can extend Turret with custom plugins and integrations",
+          "description": "Community can extend Turret with custom plugins, agents, and integrations",
           "features": [
             "feature-16",
-            "feature-17"
+            "feature-17",
+            "feature-26"
           ],
           "status": "planned"
         },
         {
           "id": "milestone-4-2",
-          "title": "Team Collaboration Ready",
-          "description": "Teams can share configurations, memory, and workflows across members",
+          "title": "Team & Enterprise Ready",
+          "description": "Teams can share configurations, memory, and workflows. Enterprise SSO and RBAC available.",
           "features": [
             "feature-18",
-            "feature-19"
+            "feature-19",
+            "feature-27"
           ],
           "status": "planned"
         }
@@ -173,7 +205,7 @@
       "id": "feature-1",
       "title": "Semantic Memory Search",
       "description": "Enhance the Memory Layer with semantic search capabilities that understand intent, not just keywords. Use embeddings to find relevant context even when exact terms differ. Prioritize recent and frequently-used memories.",
-      "rationale": "Addresses a critical competitor pain point - Cursor (pain-1-3), aider (pain-4-4), and Claude Code CLI (pain-5-4) all lack persistent memory. This strengthens Turret's key differentiator and helps agents make better decisions by surfacing relevant past context.",
+      "rationale": "Addresses a critical competitor pain point - Cursor, aider, and Claude Code CLI all lack persistent memory. This strengthens Turret's key differentiator and helps agents make better decisions by surfacing relevant past context.",
       "priority": "must",
       "complexity": "medium",
       "impact": "high",
@@ -193,15 +225,16 @@
       "linked_spec_id": "007-semantic-memory-search",
       "competitor_insight_ids": [
         "pain-1-3",
-        "pain-4-4",
-        "pain-5-4"
+        "pain-4-2",
+        "pain-5-4",
+        "pain-6-4"
       ]
     },
     {
       "id": "feature-2",
       "title": "Memory Curation Dashboard",
       "description": "Build a visual interface for viewing, editing, and managing Memory Layer contents. Allow users to see what the AI remembers, correct inaccuracies, and add important context manually.",
-      "rationale": "Addresses competitor pain point pain-6-3 (Devin black box decision making). Provides transparency into what the agent knows and gives users control over the AI's learning, building trust and improving accuracy.",
+      "rationale": "Provides transparency into what the agent knows and gives users control over the AI's learning, building trust and improving accuracy. Differentiates from closed-source black-box competitors like Devin.",
       "priority": "should",
       "complexity": "medium",
       "impact": "medium",
@@ -223,13 +256,13 @@
       ],
       "linked_spec_id": "006-memory-curation-dashboard",
       "competitor_insight_ids": [
-        "pain-6-3"
+        "pain-1-1"
       ]
     },
     {
       "id": "feature-3",
       "title": "Advanced Merge Completion Recording",
-      "description": "Implement comprehensive tracking of merge operations including detailed conflict resolution history, success/failure metrics, and rollback capabilities. Store merge patterns for future reference.",
+      "description": "Implement comprehensive tracking of merge operations including detailed conflict resolution history, success/failure metrics, and rollback capabilities. Store merge patterns for future reference. Addresses TODO at workspace.py line 141.",
       "rationale": "Listed as a known gap in the current system. Essential for audit trails and debugging merge issues. Helps agents learn from successful merge patterns and avoid repeating failed approaches.",
       "priority": "must",
       "complexity": "medium",
@@ -254,7 +287,7 @@
       "id": "feature-4",
       "title": "Customizable QA Validation Rules",
       "description": "Allow users to define custom validation rules for the QA pipeline beyond built-in checks. Support project-specific linting, test requirements, code coverage thresholds, and custom scripts.",
-      "rationale": "Addresses competitor pain point pain-2-2 (Copilot has no validation) and pain-4-3 (aider has no QA). Strengthens our self-validating QA pipeline differentiator by making it adaptable to any project's standards.",
+      "rationale": "Addresses competitor pain point of no validation in Copilot and aider. Strengthens our self-validating QA pipeline differentiator by making it adaptable to any project's standards.",
       "priority": "must",
       "complexity": "medium",
       "impact": "high",
@@ -273,15 +306,16 @@
         "As a team lead, I want to require 80% test coverage so that the AI writes comprehensive tests"
       ],
       "competitor_insight_ids": [
-        "pain-2-2",
-        "pain-4-3"
+        "pain-2-4",
+        "pain-3-4",
+        "pain-5-3"
       ]
     },
     {
       "id": "feature-5",
       "title": "Interactive Onboarding Wizard",
       "description": "Create a guided first-run experience that helps new users configure Turret, understand its capabilities, and complete their first successful autonomous task. Include interactive tutorials and example projects.",
-      "rationale": "Reduces barrier to entry for new users. Addresses the learning curve that makes competitors like aider (pain-4-1) and Claude Code CLI (pain-5-1) less accessible. Critical for adoption and retention.",
+      "rationale": "Reduces barrier to entry for new users. Addresses the learning curve that makes competitors like aider and Claude Code CLI less accessible. Critical for adoption and retention.",
       "priority": "must",
       "complexity": "low",
       "impact": "high",
@@ -300,15 +334,15 @@
         "As a developer trying Turret, I want to see a quick win so that I understand its value"
       ],
       "competitor_insight_ids": [
-        "pain-4-1",
-        "pain-5-1"
+        "pain-5-1",
+        "pain-6-2"
       ]
     },
     {
       "id": "feature-6",
       "title": "Agent Confidence Metrics",
       "description": "Display confidence scores for agent actions and decisions. Show users when the AI is uncertain and might need guidance. Allow setting confidence thresholds for automatic vs. human-approval workflows.",
-      "rationale": "Addresses competitor pain points pain-1-1 (Cursor requires supervision) and pain-2-1 (Copilot passive). Provides a middle ground between full autonomy and constant oversight, building user trust in autonomous operations.",
+      "rationale": "Addresses competitor pain points requiring constant supervision. Provides a middle ground between full autonomy and constant oversight, building user trust in autonomous operations.",
       "priority": "should",
       "complexity": "medium",
       "impact": "medium",
@@ -328,15 +362,17 @@
       ],
       "linked_spec_id": "008-agent-confidence-metrics",
       "competitor_insight_ids": [
-        "pain-1-1",
-        "pain-2-1"
+        "pain-2-1",
+        "pain-3-1",
+        "pain-4-1",
+        "pain-6-1"
       ]
     },
     {
       "id": "feature-7",
       "title": "Advanced Kanban Board Features",
       "description": "Enhance the Kanban board with filtering, labels, time tracking, dependencies visualization, and swimlanes. Add drag-and-drop prioritization and custom columns for different workflows.",
-      "rationale": "Addresses competitor pain points pain-5-1 and pain-4-1 (terminal tools lack visual task management). Differentiates from CLI-based competitors and improves project management capabilities for complex multi-task workflows.",
+      "rationale": "Addresses competitor pain points for terminal-only tools lacking visual task management. Differentiates from CLI-based competitors and improves project management capabilities for complex multi-task workflows.",
       "priority": "should",
       "complexity": "medium",
       "impact": "medium",
@@ -356,14 +392,14 @@
       ],
       "competitor_insight_ids": [
         "pain-5-1",
-        "pain-4-1"
+        "pain-6-2"
       ]
     },
     {
       "id": "feature-8",
       "title": "Agent Activity Dashboard",
       "description": "Create a comprehensive dashboard showing real-time agent activity, resource usage, success rates, and historical trends. Include metrics like tasks completed, tokens used, average task duration, and error rates.",
-      "rationale": "Addresses pain-6-3 (Devin black box). Provides visibility into autonomous operations, helping users understand performance and optimize their workflows. Builds confidence in AI-powered development.",
+      "rationale": "Provides visibility into autonomous operations, helping users understand performance and optimize their workflows. Builds confidence in AI-powered development by showing exactly what's happening.",
       "priority": "should",
       "complexity": "medium",
       "impact": "medium",
@@ -382,9 +418,7 @@
         "As a budget-conscious user, I want to track token usage so that I can manage API costs"
       ],
       "linked_spec_id": "009-agent-activity-dashboard",
-      "competitor_insight_ids": [
-        "pain-6-3"
-      ]
+      "competitor_insight_ids": []
     },
     {
       "id": "feature-9",
@@ -461,15 +495,14 @@
       ],
       "linked_spec_id": "010-workflow-automation-builder",
       "competitor_insight_ids": [
-        "pain-3-2",
-        "pain-5-3"
+        "pain-3-3"
       ]
     },
     {
       "id": "feature-12",
       "title": "Large Codebase Performance Optimization",
       "description": "Optimize indexing, search, and analysis for codebases with 100,000+ files. Implement incremental updates, smart caching, and parallel processing. Reduce memory footprint for large projects.",
-      "rationale": "Technical debt item: Large codebase with 24,000+ source files. Critical for enterprise adoption and projects that grow over time. Addresses user pain point about context switching in large projects.",
+      "rationale": "Critical for enterprise adoption and projects that grow over time. Addresses user pain point about context switching in large projects. Essential for working on large enterprise monorepos.",
       "priority": "should",
       "complexity": "high",
       "impact": "high",
@@ -494,7 +527,7 @@
       "id": "feature-13",
       "title": "Native Dependency Simplification",
       "description": "Remove or replace native dependencies (real_ladybug requiring C++ compiler) with pure JavaScript/Python alternatives or pre-built binaries. Make installation require only npm install with no external tools.",
-      "rationale": "Technical debt item: Complex native dependency chain. Reduces barrier to installation and improves cross-platform reliability. Critical for developer adoption who expect simple npm/pip install workflows.",
+      "rationale": "Reduces barrier to installation and improves cross-platform reliability. Critical for developer adoption who expect simple npm/pip install workflows. Addresses constraint of C++ compiler requirement.",
       "priority": "should",
       "complexity": "high",
       "impact": "medium",
@@ -518,7 +551,7 @@
       "id": "feature-14",
       "title": "Status Tracking System Consolidation",
       "description": "Unify the multiple overlapping status tracking systems (Linear, internal) into a single source of truth. Provide sync adapters for external systems while maintaining internal consistency.",
-      "rationale": "Technical debt item: Multiple overlapping status tracking systems. Reduces confusion, improves reliability, and simplifies maintenance. Ensures task status is always accurate and consistent.",
+      "rationale": "Reduces confusion, improves reliability, and simplifies maintenance. Ensures task status is always accurate and consistent across all views and integrations.",
       "priority": "could",
       "complexity": "medium",
       "impact": "medium",
@@ -543,7 +576,7 @@
       "id": "feature-15",
       "title": "Python Version Flexibility",
       "description": "Remove the Python 3.12 version lock by ensuring compatibility with Python 3.11-3.14. Create fallback mechanisms for dependencies lacking pre-built wheels on newer Python versions.",
-      "rationale": "Technical debt item: Python 3.12 version lock. Improves user flexibility and future-proofing. Reduces installation friction for users with different Python versions installed.",
+      "rationale": "Improves user flexibility and future-proofing. Reduces installation friction for users with different Python versions installed. Addresses constraint of Python 3.12+ requirement.",
       "priority": "could",
       "complexity": "medium",
       "impact": "low",
@@ -568,7 +601,7 @@
       "id": "feature-16",
       "title": "Plugin System Architecture",
       "description": "Design and implement an extension/plugin system that allows community contributions. Support custom agents, validators, integrations, and UI components. Provide plugin SDK and documentation.",
-      "rationale": "Enables ecosystem growth and community contributions. Addresses competitor pain point pain-6-1 (Devin closed source) by being extensible and transparent. Allows users to customize for their needs.",
+      "rationale": "Enables ecosystem growth and community contributions. Differentiates from closed-source alternatives like Devin by being extensible and transparent. Allows users to customize for their needs.",
       "priority": "could",
       "complexity": "high",
       "impact": "high",
@@ -588,7 +621,7 @@
       ],
       "linked_spec_id": "013-plugin-system-architecture",
       "competitor_insight_ids": [
-        "pain-6-1"
+        "pain-1-1"
       ]
     },
     {
@@ -672,33 +705,260 @@
       ],
       "linked_spec_id": "016-cloud-sync-for-settings-and-memory",
       "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-20",
+      "title": "Advanced Conflict Analysis",
+      "description": "Replace placeholder TODO checks in conflict analysis with real implementation. Provide semantic understanding of conflicts, not just line-based detection. Analyze code structure, variable renames, and functional changes.",
+      "rationale": "Addresses known technical gap (placeholder TODOs in conflict analysis). Current placeholder implementation limits conflict resolution quality. Semantic analysis enables smarter resolutions and reduces developer intervention.",
+      "priority": "must",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-1",
+      "dependencies": [
+        "feature-3"
+      ],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Conflict analysis identifies semantic conflicts (not just line conflicts)",
+        "Analysis provides context about conflicting changes (intent, scope)",
+        "Resolution suggestions are ranked by confidence",
+        "Handles complex scenarios: rename + modify, structural changes",
+        "Tests verify correct handling of various conflict types"
+      ],
+      "user_stories": [
+        "As a developer, I want conflicts analyzed semantically so the AI makes smarter resolution choices",
+        "As a developer, I want to understand why conflicts occurred so I can approve resolutions confidently"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-21",
+      "title": "Health Monitoring Email Alerts",
+      "description": "Implement email notification system for health monitoring. Alert developers when tasks fail, agents error, or system health degrades. Addresses the TODO in health monitor code.",
+      "rationale": "Addresses known technical gap (TODO in health monitor). Critical for enabling true delegation - developers need to know when to intervene without constantly checking. Enables truly autonomous operation.",
+      "priority": "must",
+      "complexity": "medium",
+      "impact": "high",
+      "phase_id": "phase-1",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Email alerts sent on task failure with error context",
+        "Configurable alert thresholds (e.g., 3 consecutive failures)",
+        "SMTP configuration UI in settings",
+        "Test email functionality to verify configuration",
+        "Opt-out available per notification type"
+      ],
+      "user_stories": [
+        "As a developer, I want email alerts when tasks fail so I don't need to constantly monitor Turret",
+        "As a developer, I want configurable thresholds so I'm not overwhelmed by notifications"
+      ],
+      "competitor_insight_ids": [
+        "pain-2-1",
+        "pain-3-1",
+        "pain-4-1",
+        "pain-6-1"
+      ]
+    },
+    {
+      "id": "feature-22",
+      "title": "Enhanced Git Worktree UI",
+      "description": "Visual diff viewer, branch comparison, and easy merge/discard controls for worktree-isolated changes. See exactly what AI changed before merging with file-by-file review.",
+      "rationale": "Git worktree isolation is a key safety differentiator that no competitor offers. Better UI for reviewing and merging increases confidence in the safety system and makes adoption easier.",
+      "priority": "should",
+      "complexity": "medium",
+      "impact": "medium",
+      "phase_id": "phase-2",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Visual diff viewer shows all changes in worktree",
+        "File-by-file review with accept/reject per file",
+        "Branch comparison view between worktree and main",
+        "One-click merge with conflict preview",
+        "Discard all changes with confirmation"
+      ],
+      "user_stories": [
+        "As a developer, I want to visually review worktree changes so I approve only what I want",
+        "As a developer, I want easy merge controls so worktree-to-main is seamless"
+      ],
+      "competitor_insight_ids": [
+        "pain-2-5"
+      ]
+    },
+    {
+      "id": "feature-23",
+      "title": "Autonomous Recovery from Failures",
+      "description": "When agents fail, automatically attempt alternative approaches based on error analysis. Learn from failures to improve future attempts. Store failure patterns in Memory Layer.",
+      "rationale": "Reduces need for human intervention when tasks fail. Makes autonomous execution more robust and moves closer to true delegation. Addresses the critical pain point of AI tools requiring constant supervision.",
+      "priority": "should",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-2",
+      "dependencies": [
+        "feature-1"
+      ],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Failed tasks trigger automated retry with different approach",
+        "Error patterns are analyzed to select recovery strategy",
+        "Maximum retry attempts configurable",
+        "Failure patterns stored in Memory Layer for future avoidance",
+        "Clear reporting on recovery attempts and outcomes"
+      ],
+      "user_stories": [
+        "As a developer, I want tasks to self-recover from failures so I don't need to intervene often",
+        "As a developer, I want Turret to learn from failures so the same errors don't repeat"
+      ],
+      "competitor_insight_ids": [
+        "pain-2-1",
+        "pain-3-1",
+        "pain-4-1"
+      ]
+    },
+    {
+      "id": "feature-24",
+      "title": "Multi-Agent Task Coordination",
+      "description": "Improve coordination between parallel agents. Implement task dependency awareness, resource locking, and conflict prevention when multiple agents work on related files.",
+      "rationale": "12-agent parallel execution is a unique differentiator that no competitor offers. Better coordination prevents conflicts and maximizes the productivity benefit of parallel execution.",
+      "priority": "should",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-2",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Agents are aware of files being modified by other agents",
+        "File-level locking prevents simultaneous edits to same file",
+        "Dependency graph ensures prerequisite tasks complete first",
+        "Coordination overhead is minimal (< 5% of execution time)",
+        "Clear UI indication of agent coordination status"
+      ],
+      "user_stories": [
+        "As a developer, I want parallel agents to coordinate so they don't create conflicts",
+        "As a developer, I want to run 12 agents simultaneously without manual coordination"
+      ],
+      "competitor_insight_ids": [
+        "pain-2-3",
+        "pain-4-3",
+        "pain-5-2",
+        "pain-6-3"
+      ]
+    },
+    {
+      "id": "feature-25",
+      "title": "GitHub/GitLab Integration",
+      "description": "Deep integration with GitHub/GitLab: create PRs from completed tasks, respond to issues, automate CI triggers. Enable end-to-end automation from issue to merged PR.",
+      "rationale": "Addresses the secondary persona of open-source maintainers. Enables true end-to-end automation from issue creation to merged pull request. Reduces context switching.",
+      "priority": "should",
+      "complexity": "medium",
+      "impact": "high",
+      "phase_id": "phase-3",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "One-click PR creation from merged worktree",
+        "Automatic PR description generation from task context",
+        "GitHub issue import as Kanban tasks",
+        "GitLab support for MR creation",
+        "Webhook support for CI/CD triggers"
+      ],
+      "user_stories": [
+        "As an open-source maintainer, I want issues to become tasks automatically",
+        "As a developer, I want PRs created with good descriptions from task context"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-26",
+      "title": "Custom Agent Roles",
+      "description": "Configure specialized agent personas (Security Auditor, Performance Optimizer, Documentation Writer). Agents with domain expertise for specific tasks bring different perspectives.",
+      "rationale": "Leverages multi-agent capability for specialized expertise. Different personas can bring different perspectives to code review and generation. Enables domain-specific optimization.",
+      "priority": "could",
+      "complexity": "medium",
+      "impact": "medium",
+      "phase_id": "phase-4",
+      "dependencies": [
+        "feature-24"
+      ],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Pre-built roles: Security, Performance, Documentation, Testing",
+        "Custom role creation with specific system prompts",
+        "Role assignment to specific task types",
+        "Multi-role review (e.g., both security and performance check)",
+        "Role effectiveness tracking"
+      ],
+      "user_stories": [
+        "As a developer, I want a Security Auditor agent to review my code for vulnerabilities",
+        "As a developer, I want to create custom roles for my team's specific needs"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-27",
+      "title": "Enterprise SSO & RBAC",
+      "description": "Single Sign-On integration (SAML, OIDC) and Role-Based Access Control for enterprise deployments. Control who can access what in team environments.",
+      "rationale": "Required for enterprise adoption. Large organizations need SSO and access controls for security compliance. Opens market for larger organizations.",
+      "priority": "wont",
+      "complexity": "high",
+      "impact": "medium",
+      "phase_id": "phase-4",
+      "dependencies": [
+        "feature-18"
+      ],
+      "status": "idea",
+      "acceptance_criteria": [
+        "SAML and OIDC SSO support",
+        "Role definitions: Admin, Developer, Viewer",
+        "Project-level access controls",
+        "Audit logging for compliance",
+        "Integration with enterprise identity providers"
+      ],
+      "user_stories": [
+        "As an IT admin, I want SSO so employees use corporate credentials",
+        "As a security officer, I want audit logs for compliance requirements"
+      ],
+      "competitor_insight_ids": [
+        "pain-1-2"
+      ]
     }
   ],
   "metadata": {
     "created_at": "2025-12-26T20:30:00Z",
-    "updated_at": "2025-12-27T00:46:51.622Z",
+    "updated_at": "2025-12-27T00:00:00Z",
     "generated_by": "roadmap_features agent",
     "prioritization_framework": "MoSCoW",
     "competitor_analysis_used": true,
-    "competitor_insights_leveraged": 19,
+    "features_addressing_competitor_pain_points": 18,
     "pain_points_addressed": [
       "pain-1-1",
       "pain-1-2",
       "pain-1-3",
-      "pain-1-4",
       "pain-2-1",
-      "pain-2-2",
       "pain-2-3",
       "pain-2-4",
-      "pain-3-2",
+      "pain-2-5",
+      "pain-3-1",
+      "pain-3-3",
+      "pain-3-4",
       "pain-4-1",
+      "pain-4-2",
       "pain-4-3",
-      "pain-4-4",
       "pain-5-1",
+      "pain-5-2",
       "pain-5-3",
       "pain-5-4",
       "pain-6-1",
-      "pain-6-3"
+      "pain-6-2",
+      "pain-6-3",
+      "pain-6-4"
+    ],
+    "known_gaps_addressed": [
+      "Advanced merge completion recording (workspace.py line 141)",
+      "Advanced conflict analysis checks (placeholder TODOs)",
+      "Email alerts for health monitoring (TODO in health monitor)"
     ]
   }
 }
