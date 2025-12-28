@@ -51,6 +51,7 @@ class FileAccessTracker:
                      If None, uses Path.cwd() (not recommended in hooks).
         """
         self._reads: dict[str, FileReadRecord] = {}
+        self._violations: list[str] = []
         self._base_dir = base_dir
 
     def record_read(
@@ -69,6 +70,7 @@ class FileAccessTracker:
             The mtime of the file at read time, or None if file doesn't exist.
         """
         normalized_path = self._normalize_path(file_path)
+        print(f"[TRACKER DEBUG] record_read: {file_path} -> {normalized_path}", flush=True)
 
         # Get current mtime
         mtime = self._get_file_mtime(normalized_path)
@@ -110,7 +112,11 @@ class FileAccessTracker:
             True if the file was read, False otherwise.
         """
         normalized_path = self._normalize_path(file_path)
-        return normalized_path in self._reads
+        result = normalized_path in self._reads
+        print(f"[TRACKER DEBUG] was_read: {file_path} -> {normalized_path} (exists={result})", flush=True)
+        if not result:
+            print(f"[TRACKER DEBUG] Current tracked reads: {list(self._reads.keys())}", flush=True)
+        return result
 
     def was_partial_read(self, file_path: str) -> bool:
         """
@@ -191,6 +197,41 @@ class FileAccessTracker:
         """
         return list(self._reads.values())
 
+    def record_violation(self, message: str) -> None:
+        """
+        Record a security violation.
+
+        Args:
+            message: Description of the violation
+        """
+        self._violations.append(message)
+
+    def get_violations(self) -> list[str]:
+        """
+        Get all recorded security violations.
+
+        Returns:
+            List of violation messages
+        """
+        return self._violations
+
+    def get_summary(self) -> dict:
+        """
+        Get a summary of file access activity for the session.
+
+        Returns:
+            Dictionary with counts and violation list
+        """
+        total_reads = len(self._reads)
+        full_reads = len([r for r in self._reads.values() if not r.partial])
+        
+        return {
+            "total_reads": total_reads,
+            "full_reads": full_reads,
+            "violations_count": len(self._violations),
+            "violations": self._violations,
+        }
+
     def _normalize_path(self, file_path: str) -> str:
         """
         Normalize a file path for consistent tracking.
@@ -201,23 +242,18 @@ class FileAccessTracker:
         Returns:
             Normalized absolute path.
         """
-        # Convert to Path for normalization
-        path = Path(file_path)
-
+        # Use os.path for consistent normalization across platforms
+        # Avoid .resolve() as it follows symlinks which can break worktree tracking
+        # (e.g., resolving a worktree path back to the main project path)
+        
         # Make absolute if relative
-        if not path.is_absolute():
+        if not os.path.is_absolute(file_path):
             # Use base_dir if provided, otherwise fall back to cwd
-            base = self._base_dir if self._base_dir else Path.cwd()
-            path = base / path
+            base = str(self._base_dir) if self._base_dir else os.getcwd()
+            file_path = os.path.join(base, file_path)
 
-        # Resolve to canonical path (resolves symlinks, .., etc.)
-        try:
-            path = path.resolve()
-        except OSError:
-            # Path doesn't exist yet - just normalize it
-            pass
-
-        return str(path)
+        # Normalize path (resolve .. and . but NOT symlinks)
+        return os.path.normpath(file_path)
 
     def _get_file_mtime(self, file_path: str) -> Optional[float]:
         """

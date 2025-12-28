@@ -469,7 +469,7 @@ class TestFileModificationDetection:
 
         # Agent reads file
         initial_mtime = file_path.stat().st_mtime
-        file_tracker.record_read(str(file_path), full_content=True)
+        file_tracker.record_read(str(file_path), partial=False)
 
         # Simulate external modification (different process updates file)
         time.sleep(0.01)  # Ensure timestamp difference
@@ -498,7 +498,7 @@ class TestFileModificationDetection:
 
         # Agent reads file
         initial_mtime = file_path.stat().st_mtime
-        file_tracker.record_read(str(file_path), full_content=True)
+        file_tracker.record_read(str(file_path), partial=False)
 
         # NO external modification
 
@@ -527,7 +527,7 @@ class TestFileModificationDetection:
         rel_path = str(file_path.relative_to(temp_project_dir))
 
         # Agent reads file
-        file_tracker.record_read(str(file_path), full_content=True)
+        file_tracker.record_read(str(file_path), partial=False)
 
         # File modified externally
         time.sleep(0.01)
@@ -537,7 +537,7 @@ class TestFileModificationDetection:
         assert file_tracker.is_file_modified_since_read(str(file_path)) is True
 
         # Agent RE-READS file (should update read timestamp)
-        file_tracker.record_read(str(file_path), full_content=True)
+        file_tracker.record_read(str(file_path), partial=False)
 
         # Verify modification is no longer detected
         assert file_tracker.is_file_modified_since_read(str(file_path)) is False
@@ -550,7 +550,7 @@ class TestFileModificationDetection:
 class TestSessionIsolation:
     """Test that different sessions have independent file tracking."""
 
-    def test_separate_sessions_independent_tracking(self):
+    def test_separate_sessions_independent_tracking(self, temp_dir):
         """
         Each session must have independent file read/write tracking.
 
@@ -560,27 +560,33 @@ class TestSessionIsolation:
         - Session B should be BLOCKED (hasn't read in its session)
         - Session A can edit (has read in its session)
         """
+        file_path = temp_dir / "example.py"
+        file_path.write_text("content = 1\n")
+
         # Session A
         tracker_a = FileAccessTracker()
-        tracker_a.record_read("src/example.py")
+        tracker_a.record_read(str(file_path))
 
         # Session B
         tracker_b = FileAccessTracker()
 
         # Verify Session A: file was read
-        assert tracker_a.was_read("src/example.py")
+        assert tracker_a.was_read(str(file_path))
 
         # Verify Session B: file was NOT read
-        assert not tracker_b.was_read("src/example.py")
+        assert not tracker_b.was_read(str(file_path))
 
-    def test_session_reset_clears_tracking(self, file_tracker):
+    def test_session_reset_clears_tracking(self, file_tracker, temp_dir):
         """
         Session reset should clear all read/write history.
 
         Use case: Starting a new build/task should reset tracking.
         """
+        file_path = temp_dir / "example.py"
+        file_path.write_text("content = 1\n")
+
         # Session 1: read
-        file_tracker.record_read("src/example.py")
+        file_tracker.record_read(str(file_path))
 
         # Verify session has history
         reads = file_tracker.get_all_reads()
@@ -592,7 +598,7 @@ class TestSessionIsolation:
         # Verify history cleared
         reads = file_tracker.get_all_reads()
         assert len(reads) == 0
-        assert not file_tracker.was_read("src/example.py")
+        assert not file_tracker.was_read(str(file_path))
 
 
 # =============================================================================
@@ -618,7 +624,11 @@ class TestFileEditBlockingHookReadTracking:
             "tool_input": {"file_path": str(test_file)},
         }
 
-        result = await file_edit_blocking_hook(input_data)
+        # Use a mock context to pass our tracker instance to the hook
+        mock_context = MagicMock()
+        mock_context.file_tracker = tracker
+        
+        result = await file_edit_blocking_hook(input_data, context=mock_context)
 
         # Should allow the read
         assert result == {}
@@ -643,7 +653,11 @@ class TestFileEditBlockingHookReadTracking:
             },
         }
 
-        result = await file_edit_blocking_hook(input_data)
+        # Use a mock context to pass our tracker instance to the hook
+        mock_context = MagicMock()
+        mock_context.file_tracker = tracker
+        
+        result = await file_edit_blocking_hook(input_data, context=mock_context)
 
         # Should allow the read
         assert result == {}

@@ -107,7 +107,7 @@ async def run_followup_planner(
     try:
         # Run single planning session
         async with client:
-            status, response, _ = await run_agent_session(
+            status, response = await run_agent_session(
                 client, prompt, spec_dir, verbose, phase=LogPhase.PLANNING
             )
 

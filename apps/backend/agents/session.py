@@ -9,7 +9,6 @@ memory updates, recovery tracking, and Linear integration.
 import logging
 from pathlib import Path
 
-from agents.file_tracker import FileAccessTracker
 from claude_agent_sdk import ClaudeSDKClient
 from debug import debug, debug_detailed, debug_error, debug_section, debug_success
 from insight_extractor import extract_session_insights
@@ -58,7 +57,6 @@ async def post_session_processing(
     linear_enabled: bool = False,
     status_manager: StatusManager | None = None,
     source_spec_dir: Path | None = None,
-    session_metrics: dict | None = None,
 ) -> bool:
     """
     Process session results and update memory automatically.
@@ -76,11 +74,14 @@ async def post_session_processing(
         linear_enabled: Whether Linear integration is enabled
         status_manager: Optional status manager for ccstatusline
         source_spec_dir: Original spec directory (for syncing back from worktree)
-        session_metrics: Optional metrics from the session including safety violations
 
     Returns:
         True if subtask was completed successfully
     """
+    from .file_tracker import get_file_tracker
+    tracker = get_file_tracker()
+    session_metrics = tracker.get_summary()
+
     print()
     print(muted("--- Post-Session Processing ---"))
 
@@ -383,10 +384,6 @@ async def run_agent_session(
     message_count = 0
     tool_count = 0
 
-    # Initialize file access tracker
-    tracker = FileAccessTracker()
-    debug("session", "FileAccessTracker initialized")
-
     try:
         # Send the query
         debug("session", "Sending query to Claude SDK...")
@@ -446,22 +443,6 @@ async def run_agent_session(
                                 else:
                                     tool_input = str(inp)[:100]
 
-                                # Track file access operations for security
-                                if tool_name == "Read" and "file_path" in inp:
-                                    # Check if full file or partial (offset means partial)
-                                    is_full = inp.get("offset") is None
-                                    tracker.record_read(inp["file_path"], full_content=is_full)
-                                    debug_detailed(
-                                        "session",
-                                        f"Tracked Read: {inp['file_path']} (full={is_full})",
-                                    )
-                                elif tool_name in ["Write", "Edit"] and "file_path" in inp:
-                                    tracker.record_write(inp["file_path"])
-                                    debug_detailed(
-                                        "session",
-                                        f"Tracked {tool_name}: {inp['file_path']}",
-                                    )
-
                         current_tool = tool_name
                         
                         debug_detailed(
@@ -482,6 +463,7 @@ async def run_agent_session(
 
             # Handle ToolResultMessage
             elif msg_type == "ToolResultMessage":
+                print(f"[SESSION DEBUG] Received ToolResultMessage for {current_tool}", flush=True)
                 if hasattr(msg, "content"):
                     result_content = ""
                     # Content is typically a list of blocks in SDK
@@ -499,8 +481,21 @@ async def run_agent_session(
                     else:
                         result_content = str(msg.content)
 
+                    print(f"[SESSION DEBUG] Tool result content preview: {str(result_content)[:100]}", flush=True)
+
                     # Check if command was blocked by security hook
-                    if "blocked" in str(result_content).lower():
+                    # Handle generic "blocked" and specific safety patterns
+                    res_lower = str(result_content).lower()
+                    is_blocked = any(p in res_lower for p in [
+                        "blocked", 
+                        "must be read",
+                        "modified since last read",
+                        "read it first"
+                    ])
+                    
+                    print(f"[SESSION DEBUG] is_blocked detection: {is_blocked}", flush=True)
+                    
+                    if is_blocked:
                         debug_error(
                             "session",
                             f"Tool BLOCKED: {current_tool}",
@@ -508,6 +503,12 @@ async def run_agent_session(
                         )
                         print(f"   [BLOCKED] {result_content}", flush=True)
                         if task_logger and current_tool:
+                            # Log as an explicit error for pink styling in UI
+                            task_logger.log_error(
+                                f"Blocked {current_tool} operation: {result_content}",
+                                phase=phase
+                            )
+                            # Still record tool end for state tracking
                             task_logger.tool_end(
                                 current_tool,
                                 success=False,
@@ -576,30 +577,6 @@ async def run_agent_session(
         tool_count=tool_count,
     )
 
-    # Report file access violations
-    violations = tracker.get_violations()
-    if violations:
-        debug_error("session", "File access violations detected", count=len(violations))
-        print("\n" + "=" * 70)
-        print("⚠️  FILE ACCESS VIOLATIONS DETECTED")
-        print("=" * 70)
-        for violation in violations:
-            print(f"  {violation}")
-        print("=" * 70 + "\n")
-
-        # Log violations for debugging
-        summary = tracker.get_summary()
-        debug(
-            "session",
-            "File access summary",
-            total_reads=summary["total_reads"],
-            total_writes=summary["total_writes"],
-            full_reads=summary["full_reads"],
-            violations_count=summary["violations_count"],
-        )
-    else:
-        debug_success("session", "No file access violations detected")
-
     # Check if build is complete
     if is_build_complete(spec_dir):
         debug_success(
@@ -609,7 +586,7 @@ async def run_agent_session(
             tool_count=tool_count,
             response_length=len(response_text),
         )
-        return "complete", response_text, tracker.get_summary()
+        return "complete", response_text
 
     debug_success(
         "session",
@@ -618,4 +595,4 @@ async def run_agent_session(
         tool_count=tool_count,
         response_length=len(response_text),
     )
-    return status, response_text, tracker.get_summary()
+    return status, response_text
