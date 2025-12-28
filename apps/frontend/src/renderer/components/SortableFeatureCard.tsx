@@ -72,7 +72,7 @@ export function SortableFeatureCard({
       {...listeners}
     >
       <Card
-        className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+        className="p-3 hover:bg-secondary cursor-pointer transition-colors"
         onClick={onClick}
       >
         {/* Header - Title with priority badge and action button */}

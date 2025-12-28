@@ -115,7 +115,7 @@ const configureServicesWithPython = (
   agentManager.configure(pythonPath, autoBuildPath);
   changelogService.configure(pythonPath, autoBuildPath);
   insightsService.configure(pythonPath, autoBuildPath);
-  titleGenerator.configure(pythonPath, autoBuildPath);
+  titleGenerator.configure(autoBuildPath);
 };
 
 /**

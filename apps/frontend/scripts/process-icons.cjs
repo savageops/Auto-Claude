@@ -302,7 +302,7 @@ function processIcons(options) {
   let processed = 0;
   let errors = 0;
 
-  for (const { source, destName, lucideName, hugeIconName } of filesToProcess) {
+  for (const { source, destName } of filesToProcess) {
     try {
       const destPath = path.join(DEST_DIR, destName);
 

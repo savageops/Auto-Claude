@@ -130,7 +130,7 @@ def generate_subtask_prompt(
 ## ⚠️ RETRY ATTEMPT ({attempt_count + 1})
 
 This subtask has been attempted {attempt_count} time(s) before without success.
-You MUST retrace your steps and continue.
+You MUST use a DIFFERENT approach than previous attempts.
 """)
         if recovery_hints:
             sections.append("**Previous attempt insights:**")
@@ -337,9 +337,9 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += f"\n\nCRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
-                    content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
-                    content += f"Example: Read {pattern_path}\n"
+                    content += (
+                        f"\n\n... (truncated, {len(lines)- max_file_lines} more lines)"
+                    )
                 else:
                     content = "\n".join(lines)
                 context["patterns"][pattern_path] = content
@@ -354,9 +354,9 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += f"\n\nCRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
-                    content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
-                    content += f"Example: Read {file_path}\n"
+                    content += (
+                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
+                    )
                 else:
                     content = "\n".join(lines)
                 context["files_to_modify"][file_path] = content
@@ -386,6 +386,33 @@ def format_context_for_prompt(context: dict) -> str:
     if context.get("files_to_modify"):
         sections.append("## Current File Contents (To Modify)\n")
         for path, content in context["files_to_modify"].items():
-            sections.append(f"### `{path}`\n```\n{content}\n```\n")
+            # Add truncation warning with clear instruction
+            is_truncated = "truncated" in content.lower() or "more lines" in content
+            truncation_warning = ""
+            if is_truncated:
+                truncation_warning = (
+                    f"\nCRITICAL: This file was truncated ({_count_truncated_lines(content)} more lines below).\n"
+                    f"YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
+                    f"Example: Read {path}\n"
+                )
+            sections.append(f"### `{path}`\n```\n{content}\n```{truncation_warning}\n")
 
     return "\n".join(sections)
+
+
+def _count_truncated_lines(content: str) -> str:
+    """
+    Extract the truncated line count from content if present.
+
+    Args:
+        content: File content that may contain truncation message
+
+    Returns:
+        String with line count or default message
+    """
+    import re
+
+    match = re.search(r"(\d+) more lines", content)
+    if match:
+        return match.group(1)
+    return "many"

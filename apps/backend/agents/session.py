@@ -34,6 +34,7 @@ from ui import (
     print_status,
 )
 
+from .file_tracker import reset_file_tracker
 from .memory_manager import save_session_memory
 from .utils import (
     find_subtask_in_plan,
@@ -75,6 +76,7 @@ async def post_session_processing(
         linear_enabled: Whether Linear integration is enabled
         status_manager: Optional status manager for ccstatusline
         source_spec_dir: Original spec directory (for syncing back from worktree)
+        session_metrics: Optional metrics from the session including safety violations
 
     Returns:
         True if subtask was completed successfully
@@ -308,7 +310,7 @@ async def post_session_processing(
                 spec_dir=spec_dir,
                 project_dir=project_dir,
                 subtask_id=subtask_id,
-                session_num=session_num,
+session_num=session_num,
                 commit_before=commit_before,
                 commit_after=commit_after,
                 success=False,
@@ -358,6 +360,12 @@ async def run_agent_session(
         - "complete" if all subtasks complete
         - "error" if an error occurred
     """
+    # Reset file tracker for session-scoped state
+    # This ensures each session starts with clean file tracking,
+    # and the file_edit_blocking_hook will require files to be
+    # read before being edited within this session.
+    reset_file_tracker()
+
     debug_section("session", f"Agent Session - {phase.value}")
     debug(
         "session",
@@ -434,10 +442,11 @@ async def run_agent_session(
                                     if len(cmd) > 50:
                                         cmd = cmd[:47] + "..."
                                     tool_input = cmd
-                                elif "path" in inp:
-                                    tool_input = inp["path"]
+                                # For other tools, just show the dict as string if needed
+                                else:
+                                    tool_input = str(inp)[:100]
 
-                                # Track file access operations
+                                # Track file access operations for security
                                 if tool_name == "Read" and "file_path" in inp:
                                     # Check if full file or partial (offset means partial)
                                     is_full = inp.get("offset") is None
@@ -453,167 +462,160 @@ async def run_agent_session(
                                         f"Tracked {tool_name}: {inp['file_path']}",
                                     )
 
-                        debug(
+                        current_tool = tool_name
+                        
+                        debug_detailed(
                             "session",
-                            f"Tool call #{tool_count}: {tool_name}",
+                            f"Tool Use Block #{tool_count}",
+                            tool_name=tool_name,
                             tool_input=tool_input,
-                            full_input=str(block.input)[:500]
-                            if hasattr(block, "input")
-                            else None,
                         )
 
-                        # Log tool start (handles printing too)
+                        # Log tool start to task logger
                         if task_logger:
                             task_logger.tool_start(
-                                tool_name, tool_input, phase, print_to_console=True
+                                tool_name=tool_name,
+                                tool_input=tool_input,
+                                phase=phase,
+                                print_to_console=False,
                             )
-                        else:
-                            print(f"\n[Tool: {tool_name}]", flush=True)
 
-                        if verbose and hasattr(block, "input"):
-                            input_str = str(block.input)
-                            if len(input_str) > 300:
-                                print(f"   Input: {input_str[:300]}...", flush=True)
+            # Handle ToolResultMessage
+            elif msg_type == "ToolResultMessage":
+                if hasattr(msg, "content"):
+                    result_content = ""
+                    # Content is typically a list of blocks in SDK
+                    if isinstance(msg.content, list):
+                        for block in msg.content:
+                            block_type = type(block).__name__
+                            if hasattr(block, "text"):
+                                result_content += block.text
+                            elif hasattr(block, "content"): # Some blocks might wrap content
+                                result_content += str(block.content)
+                            elif block_type == "ToolResultBlock": # Direct block access
+                                result_content += getattr(block, "content", "")
                             else:
-                                print(f"   Input: {input_str}", flush=True)
-                        current_tool = tool_name
+                                result_content += str(block)
+                    else:
+                        result_content = str(msg.content)
 
-            # Handle UserMessage (tool results)
-            elif msg_type == "UserMessage" and hasattr(msg, "content"):
-                for block in msg.content:
-                    block_type = type(block).__name__
-
-                    if block_type == "ToolResultBlock":
-                        result_content = getattr(block, "content", "")
-                        is_error = getattr(block, "is_error", False)
-
-                        # Check if command was blocked by security hook
-                        if "blocked" in str(result_content).lower():
-                            debug_error(
-                                "session",
-                                f"Tool BLOCKED: {current_tool}",
-                                result=str(result_content)[:300],
+                    # Check if command was blocked by security hook
+                    if "blocked" in str(result_content).lower():
+                        debug_error(
+                            "session",
+                            f"Tool BLOCKED: {current_tool}",
+                            result=str(result_content)[:300],
+                        )
+                        print(f"   [BLOCKED] {result_content}", flush=True)
+                        if task_logger and current_tool:
+                            task_logger.tool_end(
+                                current_tool,
+                                success=False,
+                                result="BLOCKED",
+                                detail=str(result_content),
+                                phase=phase,
+                                print_to_console=False,
                             )
-                            print(f"   [BLOCKED] {result_content}", flush=True)
-                            if task_logger and current_tool:
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=False,
-                                    result="BLOCKED",
-                                    detail=str(result_content),
-                                    phase=phase,
-                                )
-                        elif is_error:
-                            # Show errors (truncated)
-                            error_str = str(result_content)[:500]
-                            debug_error(
-                                "session",
-                                f"Tool error: {current_tool}",
-                                error=error_str[:200],
+                    else:
+                        # Standard result logging
+                        debug_detailed(
+                            "session",
+                            f"Tool Result for {current_tool}",
+                            result_length=len(result_content)
+                        )
+
+                        # Log tool result
+                        if task_logger and current_tool:
+                            # Determine success/failure from content (heuristic)
+                            success = "Error:" not in result_content[:50] 
+                            
+                            result_preview = result_content.strip()
+                            if len(result_preview) > 100:
+                                result_preview = result_preview[:97] + "..."
+                                
+                            # Optimize storage for large outputs
+                            detail_content = None
+                            if current_tool in ("Read", "Grep", "Bash", "Edit", "Write"):
+                                # Only store if not too large (50KB limit)
+                                if len(result_content) < 50000:
+                                    detail_content = result_content
+
+                            task_logger.tool_end(
+                                tool_name=current_tool,
+                                success=success,
+                                result=result_preview,
+                                detail=detail_content or result_content,
+                                phase=phase,
+                                print_to_console=False,
                             )
-                            print(f"   [Error] {error_str}", flush=True)
-                            if task_logger and current_tool:
-                                # Store full error in detail for expandable view
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=False,
-                                    result=error_str[:100],
-                                    detail=str(result_content),
-                                    phase=phase,
-                                )
-                        else:
-                            # Tool succeeded
-                            debug_detailed(
-                                "session",
-                                f"Tool success: {current_tool}",
-                                result_length=len(str(result_content)),
-                            )
-                            if verbose:
-                                result_str = str(result_content)[:200]
-                                print(f"   [Done] {result_str}", flush=True)
-                            else:
-                                print("   [Done]", flush=True)
-                            if task_logger and current_tool:
-                                # Store full result in detail for expandable view (only for certain tools)
-                                # Skip storing for very large outputs like Glob results
-                                detail_content = None
-                                if current_tool in (
-                                    "Read",
-                                    "Grep",
-                                    "Bash",
-                                    "Edit",
-                                    "Write",
-                                ):
-                                    result_str = str(result_content)
-                                    # Only store if not too large (detail truncation happens in logger)
-                                    if (
-                                        len(result_str) < 50000
-                                    ):  # 50KB max before truncation
-                                        detail_content = result_str
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=True,
-                                    detail=detail_content,
-                                    phase=phase,
-                                )
 
-                        current_tool = None
+                    current_tool = None
 
-        print("\n" + "-" * 70 + "\n")
+        debug_success("session", "Response stream completed")
 
-        # Report file access violations
-        violations = tracker.get_violations()
-        if violations:
-            debug_error("session", "File access violations detected", count=len(violations))
-            print("\n" + "=" * 70)
-            print("⚠️  FILE ACCESS VIOLATIONS DETECTED")
-            print("=" * 70)
-            for violation in violations:
-                print(f"  {violation}")
-            print("=" * 70 + "\n")
+    except Exception as e:
+        logger.error(f"Error during agent session: {e}")
+        debug_error("session", f"Session error: {e}")
+        return "error", f"Session error: {e}", {}
 
-            # Log violations for debugging
-            summary = tracker.get_summary()
-            debug(
-                "session",
-                "File access summary",
-                total_reads=summary["total_reads"],
-                total_writes=summary["total_writes"],
-                full_reads=summary["full_reads"],
-                violations_count=summary["violations_count"],
-            )
-        else:
-            debug_success("session", "No file access violations detected")
+    # Parse response to determine status
+    response_lower = response_text.lower()
 
-        # Check if build is complete
-        if is_build_complete(spec_dir):
-            debug_success(
-                "session",
-                "Session completed - build is complete",
-                message_count=message_count,
-                tool_count=tool_count,
-                response_length=len(response_text),
-            )
-            return "complete", response_text, tracker.get_summary()
+    if "completed" in response_lower or "finished" in response_lower:
+        status = "complete"
+    elif "continue" in response_lower or "next" in response_lower:
+        status = "continue"
+    else:
+        status = "continue"
 
+    debug_detailed(
+        "session",
+        "Session analysis",
+        detected_status=status,
+        message_count=message_count,
+        tool_count=tool_count,
+    )
+
+    # Report file access violations
+    violations = tracker.get_violations()
+    if violations:
+        debug_error("session", "File access violations detected", count=len(violations))
+        print("\n" + "=" * 70)
+        print("⚠️  FILE ACCESS VIOLATIONS DETECTED")
+        print("=" * 70)
+        for violation in violations:
+            print(f"  {violation}")
+        print("=" * 70 + "\n")
+
+        # Log violations for debugging
+        summary = tracker.get_summary()
+        debug(
+            "session",
+            "File access summary",
+            total_reads=summary["total_reads"],
+            total_writes=summary["total_writes"],
+            full_reads=summary["full_reads"],
+            violations_count=summary["violations_count"],
+        )
+    else:
+        debug_success("session", "No file access violations detected")
+
+    # Check if build is complete
+    if is_build_complete(spec_dir):
         debug_success(
             "session",
-            "Session completed - continuing",
+            "Session completed - build is complete",
             message_count=message_count,
             tool_count=tool_count,
             response_length=len(response_text),
         )
-        return "continue", response_text, tracker.get_summary()
+        return "complete", response_text, tracker.get_summary()
 
-    except Exception as e:
-        debug_error(
-            "session",
-            f"Session error: {e}",
-            exception_type=type(e).__name__,
-            message_count=message_count,
-            tool_count=tool_count,
-        )
-        print(f"Error during agent session: {e}")
-        if task_logger:
-            task_logger.log_error(f"Session error: {e}", phase)
-        return "error", str(e), {}
+    debug_success(
+        "session",
+        "Session completed - continuing",
+        message_count=message_count,
+        tool_count=tool_count,
+        response_length=len(response_text),
+    )
+    return status, response_text, tracker.get_summary()

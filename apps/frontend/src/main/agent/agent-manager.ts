@@ -343,7 +343,7 @@ export class AgentManager extends EventEmitter {
    * Convenience method that delegates to TaskMonitorService singleton
    */
   stopTaskMonitoring(): void {
-    consttaskMonitor = getTaskMonitor();
+    const taskMonitor = getTaskMonitor();
     taskMonitor.stopMonitoring();
   }
 

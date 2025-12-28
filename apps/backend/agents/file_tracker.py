@@ -1,136 +1,267 @@
 """
-File Access Tracker - Track file reads and writes during agent sessions.
+File Access Tracker
+====================
 
-This module provides detection of incomplete-context edits by tracking when files
-are read vs written during an agent session. It identifies two critical violations:
-
-1. Files written without being read first
-2. Files written after only truncated/partial reads
-
-The tracker is integrated into agent sessions to provide real-time violation warnings
-and post-session violation reports.
+Session-scoped tracking of file read operations with mtime recording.
+Used by the file edit blocking hook to validate that files are read
+before being edited, and that they haven't been modified externally.
 """
 
+import os
+from dataclasses import dataclass
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Optional, Set, List
+from typing import Optional
+
+
+@dataclass
+class FileReadRecord:
+    """Record of a file read operation."""
+
+    file_path: str
+    """Absolute path to the file."""
+
+    mtime: float
+    """Modification time of the file when it was read."""
+
+    partial: bool = False
+    """Whether the read was partial (offset/limit specified)."""
 
 
 class FileAccessTracker:
     """
-    Track file reads and writes during agent session.
+    Session-scoped tracker for file read operations.
 
-    Detects violations where agents edit files without proper context:
-    - Writing without reading (blind edits)
-    - Writing after truncated reads (partial context edits)
+    Tracks when files are read and stores their modification times,
+    allowing the file edit blocking hook to:
+    1. Block edits to files that weren't read first
+    2. Block edits to files that were modified since last read
+
+    Usage:
+        tracker = FileAccessTracker()
+        tracker.record_read("/path/to/file.py")  # Stores mtime
+        mtime = tracker.get_read_mtime("/path/to/file.py")  # Retrieve mtime
     """
 
-    def __init__(self):
-        """Initialize empty tracking state."""
-        self._reads: Dict[str, datetime] = {}  # file_path -> timestamp of last read
-        self._writes: Dict[str, datetime] = {}  # file_path -> timestamp of last write
-        self._full_reads: Set[str] = set()  # Files read in full (not truncated)
-
-    def record_read(self, file_path: str, full_content: bool = False):
+    def __init__(self, base_dir: Optional[Path] = None) -> None:
         """
-        Record that a file was read.
+        Initialize an empty file access tracker.
 
         Args:
-            file_path: Path to the file that was read
-            full_content: True if entire file was read, False if truncated/partial
+            base_dir: Base directory for resolving relative paths.
+                     If None, uses Path.cwd() (not recommended in hooks).
         """
-        self._reads[file_path] = datetime.now()
-        if full_content:
-            self._full_reads.add(file_path)
+        self._reads: dict[str, FileReadRecord] = {}
+        self._base_dir = base_dir
 
-    def record_write(self, file_path: str):
+    def record_read(
+        self,
+        file_path: str,
+        partial: bool = False,
+    ) -> Optional[float]:
         """
-        Record that a file was written.
+        Record a file read operation with its current mtime.
 
         Args:
-            file_path: Path to the file that was written
-        """
-        self._writes[file_path] = datetime.now()
+            file_path: Path to the file that was read (will be normalized).
+            partial: Whether this was a partial read (offset/limit specified).
 
-    def was_read_before_write(self, file_path: str) -> bool:
+        Returns:
+            The mtime of the file at read time, or None if file doesn't exist.
         """
-        Check if file was read before being written.
+        normalized_path = self._normalize_path(file_path)
+
+        # Get current mtime
+        mtime = self._get_file_mtime(normalized_path)
+        if mtime is None:
+            # File doesn't exist - still record the read attempt
+            # This handles the case where we read a non-existent file
+            return None
+
+        self._reads[normalized_path] = FileReadRecord(
+            file_path=normalized_path,
+            mtime=mtime,
+            partial=partial,
+        )
+
+        return mtime
+
+    def get_read_mtime(self, file_path: str) -> Optional[float]:
+        """
+        Get the mtime from when a file was last read.
 
         Args:
-            file_path: Path to check
+            file_path: Path to the file to check.
 
         Returns:
-            True if file was read before write, False otherwise
+            The mtime of the file when it was read, or None if not read.
         """
-        if file_path not in self._writes:
-            return True  # Not written yet, no violation
-        if file_path not in self._reads:
-            return False  # Written without reading
-        return self._reads[file_path] < self._writes[file_path]
+        normalized_path = self._normalize_path(file_path)
+        record = self._reads.get(normalized_path)
+        return record.mtime if record else None
 
-    def was_full_read(self, file_path: str) -> bool:
+    def was_read(self, file_path: str) -> bool:
         """
-        Check if file was read in full (not truncated).
+        Check if a file was read during this session.
 
         Args:
-            file_path: Path to check
+            file_path: Path to the file to check.
 
         Returns:
-            True if file was fully read, False if only partial/truncated read
+            True if the file was read, False otherwise.
         """
-        return file_path in self._full_reads
+        normalized_path = self._normalize_path(file_path)
+        return normalized_path in self._reads
 
-    def get_violations(self) -> List[str]:
+    def was_partial_read(self, file_path: str) -> bool:
         """
-        Get list of file access violations.
+        Check if the last read of a file was partial.
 
-        Returns:
-            List of violation messages for files that were:
-            - Written without reading (critical)
-            - Written after truncated read (warning)
-        """
-        violations = []
-        for file_path in self._writes:
-            if not self.was_read_before_write(file_path):
-                violations.append(f"❌ {file_path}: Written without reading")
-            elif not self.was_full_read(file_path):
-                violations.append(f"⚠️ {file_path}: Written after truncated read")
-        return violations
-
-    def get_summary(self) -> dict:
-        """
-        Get summary statistics of file accesses during session.
+        Args:
+            file_path: Path to the file to check.
 
         Returns:
-            Dict with counts of reads, writes, violations, and lists of affected files
+            True if the file was read with offset/limit, False otherwise.
         """
-        violations = self.get_violations()
-        return {
-            "total_reads": len(self._reads),
-            "total_writes": len(self._writes),
-            "full_reads": len(self._full_reads),
-            "violations_count": len(violations),
-            "violations": violations,
-            "files_read": sorted(self._reads.keys()),
-            "files_written": sorted(self._writes.keys()),
-            "files_full_read": sorted(self._full_reads),
-        }
+        normalized_path = self._normalize_path(file_path)
+        record = self._reads.get(normalized_path)
+        return record.partial if record else False
 
-    def has_violations(self) -> bool:
+    def is_file_modified_since_read(self, file_path: str) -> Optional[bool]:
         """
-        Check if any violations were detected.
+        Check if a file has been modified since it was last read.
+
+        Args:
+            file_path: Path to the file to check.
 
         Returns:
-            True if violations exist, False otherwise
+            True if modified since read, False if not modified,
+            None if the file was never read or doesn't exist.
         """
-        return len(self.get_violations()) > 0
+        normalized_path = self._normalize_path(file_path)
+        record = self._reads.get(normalized_path)
 
-    def reset(self):
-        """
-        Reset all tracking state.
+        if record is None:
+            return None
 
-        Useful for starting a new session or clearing data between runs.
+        current_mtime = self._get_file_mtime(normalized_path)
+        if current_mtime is None:
+            # File was deleted - consider it modified
+            return True
+
+        return current_mtime > record.mtime
+
+    def update_after_write(self, file_path: str) -> Optional[float]:
         """
+        Update the tracked mtime after a successful write/edit operation.
+
+        This allows immediate re-edits without requiring a re-read.
+
+        Args:
+            file_path: Path to the file that was written.
+
+        Returns:
+            The new mtime, or None if file doesn't exist.
+        """
+        normalized_path = self._normalize_path(file_path)
+
+        if normalized_path not in self._reads:
+            # File wasn't tracked - don't start tracking it now
+            return None
+
+        new_mtime = self._get_file_mtime(normalized_path)
+        if new_mtime is None:
+            return None
+
+        # Update the record with new mtime
+        self._reads[normalized_path].mtime = new_mtime
+        self._reads[normalized_path].partial = False
+
+        return new_mtime
+
+    def clear(self) -> None:
+        """Clear all tracked file reads (start fresh session)."""
         self._reads.clear()
-        self._writes.clear()
-        self._full_reads.clear()
+
+    def get_all_reads(self) -> list[FileReadRecord]:
+        """
+        Get all recorded file reads.
+
+        Returns:
+            List of all file read records.
+        """
+        return list(self._reads.values())
+
+    def _normalize_path(self, file_path: str) -> str:
+        """
+        Normalize a file path for consistent tracking.
+
+        Args:
+            file_path: The file path to normalize.
+
+        Returns:
+            Normalized absolute path.
+        """
+        # Convert to Path for normalization
+        path = Path(file_path)
+
+        # Make absolute if relative
+        if not path.is_absolute():
+            # Use base_dir if provided, otherwise fall back to cwd
+            base = self._base_dir if self._base_dir else Path.cwd()
+            path = base / path
+
+        # Resolve to canonical path (resolves symlinks, .., etc.)
+        try:
+            path = path.resolve()
+        except OSError:
+            # Path doesn't exist yet - just normalize it
+            pass
+
+        return str(path)
+
+    def _get_file_mtime(self, file_path: str) -> Optional[float]:
+        """
+        Get the modification time of a file.
+
+        Args:
+            file_path: Path to the file.
+
+        Returns:
+            The mtime as a float, or None if file doesn't exist.
+        """
+        try:
+            return os.path.getmtime(file_path)
+        except OSError:
+            return None
+
+
+# Global instance for session-scoped tracking
+# Note: In production, this would be managed per-session
+_current_tracker: Optional[FileAccessTracker] = None
+
+
+def get_file_tracker() -> FileAccessTracker:
+    """
+    Get the current session's file access tracker.
+
+    Creates a new tracker if one doesn't exist.
+
+    Returns:
+        The current FileAccessTracker instance.
+    """
+    global _current_tracker
+    if _current_tracker is None:
+        _current_tracker = FileAccessTracker()
+    return _current_tracker
+
+
+def reset_file_tracker() -> FileAccessTracker:
+    """
+    Reset the file tracker for a new session.
+
+    Returns:
+        A new FileAccessTracker instance.
+    """
+    global _current_tracker
+    _current_tracker = FileAccessTracker()
+    return _current_tracker

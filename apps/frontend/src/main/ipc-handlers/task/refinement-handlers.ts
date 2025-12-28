@@ -4,8 +4,9 @@ import { app } from 'electron';
 import path from 'path';
 import { existsSync, readFileSync } from 'fs';
 import type { IPCResult } from '../../../shared/types';
-import { findPythonCommand, parsePythonCommand } from '../../python-detector';
+import { parsePythonCommand } from '../../python-detector';
 import { getProfileEnv } from '../../rate-limit-detector';
+import { pythonEnvManager } from '../../python-env-manager';
 
 /**
  * Task refinement result returned by the AI service
@@ -161,6 +162,29 @@ export function registerTaskRefinementHandlers(): void {
         };
       }
 
+      // Check if Python environment is ready (has claude_agent_sdk installed)
+      if (!pythonEnvManager.isEnvReady()) {
+        debug('Python environment not ready, initializing...');
+        const status = await pythonEnvManager.initialize(autoBuildSource);
+        if (!status.ready) {
+          console.error('[TaskRefinement] Python environment initialization failed:', status.error);
+          return {
+            success: false,
+            error: `Python environment initialization failed: ${status.error}`
+          };
+        }
+      }
+
+      // Get the venv Python path (where claude_agent_sdk is installed)
+      const venvPythonPath = pythonEnvManager.getPythonPath();
+      if (!venvPythonPath) {
+        console.error('[TaskRefinement] Venv Python path not available');
+        return {
+          success: false,
+          error: 'Python environment not ready'
+        };
+      }
+
       const script = createRefinementScript(briefDescription.trim());
       const autoBuildEnv = loadAutoBuildEnv();
       const profileEnv = getProfileEnv();
@@ -170,11 +194,9 @@ export function registerTaskRefinementHandlers(): void {
         autoBuildSource
       });
 
-      const pythonPath = findPythonCommand() || 'python';
-
       return new Promise((resolve) => {
-        // Parse Python command to handle space-separated commands like "py -3"
-        const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
+        // Use the venv Python where claude_agent_sdk is installed
+        const [pythonCommand, pythonBaseArgs] = parsePythonCommand(venvPythonPath);
         const childProcess = spawn(pythonCommand, [...pythonBaseArgs, '-c', script], {
           cwd: autoBuildSource,
           env: {

@@ -52,7 +52,7 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
 
   return (
     <Card
-      className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
+      className={`p-4 hover:bg-secondary cursor-pointer transition-colors ${
         isInactive ? 'opacity-50' : ''
       } ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
       onClick={onClick}

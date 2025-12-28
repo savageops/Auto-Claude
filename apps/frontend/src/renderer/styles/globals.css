@@ -2090,8 +2090,7 @@ body {
 }
 
 .task-card-enhanced:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background-color: var(--secondary);
 }
 
 /* Progress bar animated shimmer for active state */
