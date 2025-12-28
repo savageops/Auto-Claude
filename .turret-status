@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "036-block-file-edits-when-file-modified-since-last-rea",
+  "spec": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
   "state": "building",
   "subtasks": {
-    "completed": 9,
-    "total": 10,
+    "completed": 0,
+    "total": 1,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Cleanup and Consolidation",
-    "id": null,
-    "total": 2
+    "current": "Add Missing Translation",
+    "id": 1,
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 10,
-    "started_at": "2025-12-28T04:16:00.669205"
+    "number": 1,
+    "started_at": "2025-12-29T01:43:38.298892"
   },
-  "last_update": "2025-12-28T04:40:59.387253"
+  "last_update": "2025-12-29T01:43:38.314499"
 }
