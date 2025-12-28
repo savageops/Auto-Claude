@@ -244,28 +244,34 @@ export class ProjectStore {
    * Get tasks for a project by scanning specs directory
    */
   getTasks(projectId: string): Task[] {
-    console.warn('[ProjectStore] getTasks called with projectId:', projectId);
     const project = this.getProject(projectId);
     if (!project) {
       console.warn('[ProjectStore] Project not found for id:', projectId);
       return [];
     }
-    console.warn('[ProjectStore] Found project:', project.name, 'autoBuildPath:', project.autoBuildPath);
+    
+    // Consolidated start log
+    console.log(`[ProjectStore] Loading tasks for project: ${project.name} (${project.autoBuildPath})`);
 
     const allTasks: Task[] = [];
     const specsBaseDir = getSpecsDir(project.autoBuildPath);
 
     // 1. Scan main project specs directory
     const mainSpecsDir = path.join(project.path, specsBaseDir);
-    console.warn('[ProjectStore] Main specsDir:', mainSpecsDir, 'exists:', existsSync(mainSpecsDir));
     if (existsSync(mainSpecsDir)) {
       const mainTasks = this.loadTasksFromSpecsDir(mainSpecsDir, project.path, 'main', projectId, specsBaseDir);
       allTasks.push(...mainTasks);
-      console.warn('[ProjectStore] Loaded', mainTasks.length, 'tasks from main project');
+      // Only log main tasks count if > 0 to reduce noise
+      if (mainTasks.length > 0) {
+        console.log(`[ProjectStore] - Main: ${mainTasks.length} tasks`);
+      }
     }
 
     // 2. Scan worktree specs directories
     const worktreesDir = path.join(project.path, '.worktrees');
+    let worktreeTaskCount = 0;
+    let activeWorktrees = 0;
+
     if (existsSync(worktreesDir)) {
       try {
         const worktrees = readdirSync(worktreesDir, { withFileTypes: true });
@@ -281,13 +287,22 @@ export class ProjectStore {
               projectId,
               specsBaseDir
             );
-            allTasks.push(...worktreeTasks);
-            console.warn('[ProjectStore] Loaded', worktreeTasks.length, 'tasks from worktree:', worktree.name);
+            if (worktreeTasks.length > 0) {
+              allTasks.push(...worktreeTasks);
+              worktreeTaskCount += worktreeTasks.length;
+              activeWorktrees++;
+              // Optional: Log individual worktree if it has tasks? 
+              // User said "not so intense", so aggregating is better.
+            }
           }
         }
       } catch (error) {
         console.error('[ProjectStore] Error scanning worktrees:', error);
       }
+    }
+
+    if (worktreeTaskCount > 0) {
+      console.log(`[ProjectStore] - Worktrees: ${worktreeTaskCount} tasks across ${activeWorktrees} active worktrees`);
     }
 
     // 3. Deduplicate tasks by ID (prefer worktree version if exists in both)
@@ -300,7 +315,7 @@ export class ProjectStore {
     }
 
     const tasks = Array.from(taskMap.values());
-    console.warn('[ProjectStore] Returning', tasks.length, 'unique tasks (after deduplication)');
+    console.log(`[ProjectStore] Complete: Returning ${tasks.length} unique tasks`);
     return tasks;
   }
 

@@ -588,6 +588,12 @@ async def run_agent_session(
         )
         return "complete", response_text
 
+    # If build is not complete but agent said complete (e.g. "subtask completed"),
+    # force continue so we pick up the next subtask.
+    if status == "complete":
+        debug("session", "Agent said complete but build is incomplete - continuing to next subtask")
+        status = "continue"
+
     debug_success(
         "session",
         "Session completed - continuing",

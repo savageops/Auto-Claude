@@ -63,6 +63,7 @@ from .utils import (
     get_latest_commit,
     load_implementation_plan,
     sync_plan_to_source,
+    update_subtask_status,
 )
 
 logger = logging.getLogger(__name__)
@@ -219,6 +220,12 @@ async def run_autonomous_agent(
         next_subtask = get_next_subtask(spec_dir)
         subtask_id = next_subtask.get("id") if next_subtask else None
         phase_name = next_subtask.get("phase_name") if next_subtask else None
+
+        # Auto-mark as in_progress if currently pending (immediate UI feedback)
+        if subtask_id and next_subtask.get("status") == "pending":
+            update_subtask_status(spec_dir, subtask_id, "in_progress")
+            # Sync back to source immediately so UI updates
+            sync_plan_to_source(spec_dir, source_spec_dir)
 
         # Update status for this session
         status_manager.update_session(iteration)

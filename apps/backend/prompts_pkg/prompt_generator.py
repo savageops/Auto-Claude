@@ -216,7 +216,7 @@ Verify:""")
 3. **Implement the subtask** following the patterns exactly.
    - Verify imports are correct and available.
    - Verify that the code is correct and does not break existing functionality.
-   - Maintain gold standards (DRY, STEP, LEVER, UNIFORM, YAGNI, MODULAR, SINGLE SOURCES OF TRUTH, [add 12 more here]), unless explicitly told otherwise.
+   - Maintain gold standards (DRY, STEP, LEVER, UNIFORM, YAGNI, MODULAR, SINGLE SOURCES OF TRUTH, REUSABLE, [add 12 more here]).
    - Use type hints and docstrings.
 4. **Run verification** and fix any issues.
 5. **Commit your changes:**
@@ -233,7 +233,7 @@ Before marking complete, verify:
 - [ ] Follows patterns from reference files
 - [ ] No console.log/print debugging statements
 - [ ] Error handling in place
-- [ ] Verification passes
+- [ ] Verification passes, and are all subtasks completed?
 - [ ] Clean commit with descriptive message
 
 ## Important
@@ -305,6 +305,48 @@ not in the spec directory.
     return header + prompt
 
 
+def _smart_load_file(path: Path, max_lines: int) -> str:
+    """
+    Safely load file content with binary detection and streaming truncation.
+
+    Args:
+        path: Path to file
+        max_lines: Maximum lines to read
+
+    Returns:
+        Content string or error message
+    """
+    if not path.exists():
+        return "(File not found)"
+
+    try:
+        # Check for binary content (read first chunk)
+        with open(path, "rb") as f:
+            chunk = f.read(1024)
+            if b"\x00" in chunk:
+                return "(Binary file - cannot display content)"
+
+        lines = []
+        truncated = False
+        
+        # Stream lines to avoid memory issues with large files
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for i, line in enumerate(f):
+                if i >= max_lines:
+                    truncated = True
+                    break
+                lines.append(line.rstrip("\n"))
+
+        content = "\n".join(lines)
+        if truncated:
+            content += f"\n\n... (truncated, {max_lines} lines shown. Read full file to see more.)"
+
+        return content
+
+    except Exception as e:
+        return f"(Error reading file: {e})"
+
+
 def load_subtask_context(
     spec_dir: Path,
     project_dir: Path,
@@ -329,39 +371,17 @@ def load_subtask_context(
         "spec_excerpt": None,
     }
 
-    # Load pattern files (truncated)
+    # Load pattern files
     for pattern_path in subtask.get("patterns_from", []):
         full_path = project_dir / pattern_path
-        if full_path.exists():
-            try:
-                lines = full_path.read_text().split("\n")
-                if len(lines) > max_file_lines:
-                    content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines)- max_file_lines} more lines)"
-                    )
-                else:
-                    content = "\n".join(lines)
-                context["patterns"][pattern_path] = content
-            except Exception:
-                context["patterns"][pattern_path] = "(Could not read file)"
+        context["patterns"][pattern_path] = _smart_load_file(full_path, max_file_lines)
 
-    # Load files to modify (truncated)
+    # Load files to modify
     for file_path in subtask.get("files_to_modify", []):
         full_path = project_dir / file_path
-        if full_path.exists():
-            try:
-                lines = full_path.read_text().split("\n")
-                if len(lines) > max_file_lines:
-                    content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
-                    )
-                else:
-                    content = "\n".join(lines)
-                context["files_to_modify"][file_path] = content
-            except Exception:
-                context["files_to_modify"][file_path] = "(Could not read file)"
+        context["files_to_modify"][file_path] = _smart_load_file(
+            full_path, max_file_lines
+        )
 
     return context
 

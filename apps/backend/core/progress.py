@@ -402,6 +402,7 @@ def get_current_phase(spec_dir: Path) -> dict | None:
 def get_next_subtask(spec_dir: Path) -> dict | None:
     """
     Find the next subtask to work on, respecting phase dependencies.
+    Prioritizes in_progress (resume), then failed (retry), then pending.
 
     Args:
         spec_dir: Directory containing implementation_plan.json
@@ -429,17 +430,45 @@ def get_next_subtask(spec_dir: Path) -> dict | None:
                 s.get("status") == "completed" for s in subtasks
             )
 
-        # Find next available subtask
+        # 1. First priority: Look for any in_progress subtasks to resume
         for phase in phases:
             phase_id = phase.get("id") or phase.get("phase")
             depends_on = phase.get("depends_on", [])
-
-            # Check if dependencies are satisfied
-            deps_satisfied = all(phase_complete.get(dep, False) for dep in depends_on)
-            if not deps_satisfied:
+            if not all(phase_complete.get(dep, False) for dep in depends_on):
                 continue
 
-            # Find first pending subtask in this phase
+            for subtask in phase.get("subtasks", []):
+                if subtask.get("status") == "in_progress":
+                    return {
+                        "phase_id": phase_id,
+                        "phase_name": phase.get("name"),
+                        "phase_num": phase.get("phase"),
+                        **subtask,
+                    }
+
+        # 2. Second priority: Look for failed subtasks to retry
+        for phase in phases:
+            phase_id = phase.get("id") or phase.get("phase")
+            depends_on = phase.get("depends_on", [])
+            if not all(phase_complete.get(dep, False) for dep in depends_on):
+                continue
+
+            for subtask in phase.get("subtasks", []):
+                if subtask.get("status") == "failed":
+                    return {
+                        "phase_id": phase_id,
+                        "phase_name": phase.get("name"),
+                        "phase_num": phase.get("phase"),
+                        **subtask,
+                    }
+
+        # 3. Third priority: Look for first pending subtask
+        for phase in phases:
+            phase_id = phase.get("id") or phase.get("phase")
+            depends_on = phase.get("depends_on", [])
+            if not all(phase_complete.get(dep, False) for dep in depends_on):
+                continue
+
             for subtask in phase.get("subtasks", []):
                 if subtask.get("status") == "pending":
                     return {

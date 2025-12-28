@@ -71,7 +71,14 @@
     ".turret/specs/047-investigate-and-fix-kanban-board-state-persistence/redirect_instruction.md.1766903855.processed",
     "apps/frontend/src/renderer/__tests__/task-store.test.ts",
     ".turret/specs/047-investigate-and-fix-kanban-board-state-persistence/redirect_instruction.md.1766904377.processed",
-    ".turret/specs/047-investigate-and-fix-kanban-board-state-persistence/redirect_instruction.md.1766904870.processed"
+    ".turret/specs/047-investigate-and-fix-kanban-board-state-persistence/redirect_instruction.md.1766904870.processed",
+    ".gitignore",
+    "apps/frontend/src/main/project-store.ts",
+    "apps/frontend/src/shared/constants/themes.ts",
+    "apps/frontend/src/shared/types/settings.ts",
+    "apps/backend/agents/session.py",
+    "apps/backend/qa/loop.py",
+    "apps/frontend/src/renderer/styles/globals.css"
   ],
-  "last_updated": "2025-12-28T09:04:16.854010"
+  "last_updated": "2025-12-29T01:03:33.424710"
 }
