@@ -817,6 +817,59 @@ export function registerTaskExecutionHandlers(
   );
 
   /**
+   * Save user redirect instruction
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_SAVE_REDIRECT,
+    async (_, taskId: string, instruction: string): Promise<IPCResult> => {
+      // Find task and project
+      const { task, project } = findTaskAndProject(taskId);
+
+      if (!task || !project) {
+        return { success: false, error: 'Task or project not found' };
+      }
+
+      const autoBuildDir = project.autoBuildPath || '.turret';
+      const specDir = path.join(
+        project.path,
+        autoBuildDir,
+        'specs',
+        task.specId
+      );
+
+      if (!existsSync(specDir)) {
+        return { success: false, error: 'Spec directory not found' };
+      }
+
+      // Save instruction to redirect_instruction.md
+      // The agent should check for this file on next iteration/startup
+      const redirectPath = path.join(specDir, 'redirect_instruction.md');
+
+      try {
+        const timestamp = new Date().toISOString();
+        const formattedInstruction = `\n\n## Redirect Instruction (${timestamp})\n${instruction}\n`;
+
+        if (existsSync(redirectPath)) {
+          const fs = await import('fs');
+          fs.appendFileSync(redirectPath, formattedInstruction);
+        } else {
+          writeFileSync(redirectPath, `# User Redirect Instructions\n${formattedInstruction}`);
+        }
+
+        console.warn(`[TASK_SAVE_REDIRECT] Saved instruction for task ${taskId} to ${redirectPath}`);
+
+        return { success: true };
+      } catch (error) {
+        console.error('[TASK_SAVE_REDIRECT] Failed to save instruction:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to save instruction'
+        };
+      }
+    }
+  );
+
+  /**
    * Check if a task is actually running (has active process)
    */
   ipcMain.handle(

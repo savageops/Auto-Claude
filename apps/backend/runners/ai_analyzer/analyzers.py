@@ -134,13 +134,28 @@ class ArchitectureAnalyzer(BaseAnalyzer):
 
     def get_prompt(self) -> str:
         """Generate analysis prompt."""
-        return """Analyze the architecture patterns used in this codebase.
+        return """Analyze the architecture patterns used in this codebase against the Professional DevOps Protocol.
 
 Identify:
 1. Design patterns (Repository, Factory, Dependency Injection, etc.)
 2. Architectural style (MVC, Layered, Microservices, etc.)
 3. SOLID principles adherence
-4. Code organization and separation of concerns
+4. DevOps Protocols adherence:
+   - DRY (Don't Repeat Yourself)
+   - LEVER (Leverage/Evolve/Validate/Execute/Repeat)
+   - STEP (Simple/Testable/Extensible/Performant)
+   - YAGNI (You Aren't Gonna Need It)
+   - UNIFORM (Consistent naming/UI)
+   - MODULAR (Plug-in/adapter arch, 1 file/entity)
+   - REUSABLE (Externalize funcs)
+   - PARAMETERS (Configurable)
+5. Code organization and separation of concerns
+6. Antipatterns and technical debt
+7. Compliance with project specific rules (CLAUDE.md):
+   - Naming: kebab-case files, PascalCase exports
+   - Pure Engine Layer: No I/O or side effects in engine/
+   - Registry Pattern: Use ctx.getById vs direct imports
+   - No Hardcoded Values
 
 Output JSON:
 {
@@ -153,11 +168,27 @@ Output JSON:
     "interface_segregation": 7,
     "dependency_inversion": 8
   },
-  "suggestions": ["Extract validation logic into separate validators"],
+  "devops_compliance": {
+    "dry": 8,
+    "lever": 7,
+    "step": 6,
+    "yagni": 7,
+    "uniform": 8,
+    "modular": 7,
+    "reusable": 6,
+    "parameters": 7
+  },
+  "rule_compliance": {
+    "naming": 8,
+    "pure_engine": 9,
+    "registry_pattern": 7,
+    "no_hardcoding": 6
+  },
+  "suggestions": ["Extract validation logic into separate validators", "Move hardcoded strings to config"],
   "score": 75
 }
 
-Analyze the actual code structure using Read, Grep, and Glob."""
+Analyze the actual code structure using Read, Grep, and Glob behaviors."""
 
     def get_default_result(self) -> dict[str, Any]:
         """Get default result structure."""

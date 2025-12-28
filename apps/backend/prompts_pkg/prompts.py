@@ -47,7 +47,7 @@ def get_planner_prompt(spec_dir: Path) -> str:
 
 Your spec file is located at: `{spec_dir}/spec.md`
 
-🚨 CRITICAL FILE CREATION INSTRUCTIONS 🚨
+CRITICAL FILE CREATION INSTRUCTIONS
 
 You MUST use the Write tool to create these files in the spec directory:
 - `{spec_dir}/implementation_plan.json` - Subtask-based implementation plan (USE WRITE TOOL!)
@@ -148,12 +148,12 @@ def _get_recovery_context(spec_dir: Path) -> str:
         # Check for stuck subtasks
         stuck_subtasks = history.get("stuck_subtasks", [])
         if stuck_subtasks:
-            context = """## ⚠️ RECOVERY ALERT - STUCK SUBTASKS DETECTED
+            context = """## RECOVERY ALERT - STUCK SUBTASKS DETECTED
 
 Some subtasks have been attempted multiple times without success. These subtasks need:
 - A COMPLETELY DIFFERENT approach
 - Possibly simpler implementation
-- Or escalation to human if infeasible
+- Or warm up gradually
 
 Stuck subtasks:
 """
@@ -171,12 +171,13 @@ Stuck subtasks:
                 subtasks_with_retries.append((subtask_id, len(attempts)))
 
         if subtasks_with_retries:
-            context = """## ⚠️ RECOVERY CONTEXT - RETRY AWARENESS
+            context = """## RECOVERY CONTEXT - RETRY AWARENESS
 
 Some subtasks have been attempted before. When working on these:
 1. READ memory/attempt_history.json for the specific subtask
 2. See what approaches were tried
 3. Use a DIFFERENT approach
+4. Warm up gradually
 
 Subtasks with previous attempts:
 """

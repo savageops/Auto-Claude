@@ -7,6 +7,7 @@ Main autonomous agent loop that runs the coder agent to implement subtasks.
 
 import asyncio
 import logging
+import time
 from pathlib import Path
 
 from core.client import create_client
@@ -65,6 +66,8 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+REDIRECT_INSTRUCTION_FILE = "redirect_instruction.md"
 
 
 async def run_autonomous_agent(
@@ -329,6 +332,33 @@ async def run_autonomous_agent(
                 print_status(f"Previous attempts: {attempt_count}", "warning")
             print()
 
+        # Check for user redirect instruction (applies to both Planner and Coder phases)
+        redirect_file = spec_dir / REDIRECT_INSTRUCTION_FILE
+        if redirect_file.exists():
+            try:
+                user_redirect_content = redirect_file.read_text().strip()
+                # Rename to mark as processed
+                timestamp = int(time.time())
+                redirect_file.rename(spec_dir / f"{REDIRECT_INSTRUCTION_FILE}.{timestamp}.processed")
+
+                if user_redirect_content:
+                    print("\n" + "=" * 70)
+                    print("  USER REDIRECT INSTRUCTION RECEIVED")
+                    print("=" * 70)
+                    print(f"\nInstruction: {user_redirect_content}\n")
+                    print_status("Injecting user instruction into next prompt", "info")
+
+                    # Log to task logger so it appears in UI logs
+                    if task_logger:
+                        task_logger.log_info(f"User Redirect: {user_redirect_content}")
+
+                    # Inject into prompt
+                    prompt += f"\n\n## USER REDIRECT INSTRUCTION\n\nIMPORTANT: The user has provided the following specific instruction. Priority: HIGH.\n\n{user_redirect_content}"
+            except Exception as e:
+                logger.error(f"Failed to read/process redirect file: {e}")
+                if task_logger:
+                    task_logger.log_error(f"Failed to process user redirect: {e}")
+
         # Set subtask info in logger
         if task_logger and subtask_id:
             task_logger.set_subtask(subtask_id)
@@ -336,7 +366,7 @@ async def run_autonomous_agent(
 
         # Run session with async context manager
         async with client:
-            status, response = await run_agent_session(
+            status, response, metrics = await run_agent_session(
                 client, prompt, spec_dir, verbose, phase=current_log_phase
             )
 
@@ -356,6 +386,7 @@ async def run_autonomous_agent(
                 linear_enabled=linear_is_enabled,
                 status_manager=status_manager,
                 source_spec_dir=source_spec_dir,
+                session_metrics=metrics,
             )
 
             # Check for stuck subtasks

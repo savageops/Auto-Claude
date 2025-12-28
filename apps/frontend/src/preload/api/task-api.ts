@@ -44,6 +44,10 @@ export interface TaskAPI {
   ) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
   refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
+  saveUserRedirect: (
+    taskId: string,
+    instruction: string
+  ) => Promise<IPCResult>;
 
   // Workspace Management (for human review)
   getWorktreeStatus: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeStatus>>;
@@ -126,6 +130,9 @@ export const createTaskAPI = (): TaskAPI => ({
 
   refineTask: (briefDescription: string): Promise<IPCResult<TaskRefinementResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_REFINE, briefDescription),
+
+  saveUserRedirect: (taskId: string, instruction: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_SAVE_REDIRECT, taskId, instruction),
 
   // Workspace Management
   getWorktreeStatus: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeStatus>> =>

@@ -57,6 +57,7 @@ async def post_session_processing(
     linear_enabled: bool = False,
     status_manager: StatusManager | None = None,
     source_spec_dir: Path | None = None,
+    session_metrics: dict | None = None,
 ) -> bool:
     """
     Process session results and update memory automatically.
@@ -97,6 +98,29 @@ async def post_session_processing(
         return False
 
     subtask_status = subtask.get("status", "pending")
+
+    # CRITICAL: Check for safety violations (Read Before Write)
+    if session_metrics and session_metrics.get("violations_count", 0) > 0:
+        print_status("SAFETY VIOLATION DETECTED", "error")
+        for v in session_metrics.get("violations", []):
+            print(f"  {v}")
+        
+        # Consider this a failure regardless of what the agent claims
+        if subtask_status == "completed":
+            print_status("Rejecting completion due to safety violations", "error")
+            subtask_status = "failed"
+            # Revert status in plan if needed? 
+            # Ideally the agent should have updated the plan file. 
+            # But since we are failing here, we should record it as failure.
+        
+        recovery_manager.record_attempt(
+            subtask_id=subtask_id,
+            session=session_num,
+            success=False,
+            approach="Rejected due to safety violations",
+            error=f"Safety Violations: {session_metrics.get('violations')}",
+        )
+        return False
 
     # Check for new commits
     commit_after = get_latest_commit(project_dir)
@@ -317,7 +341,7 @@ async def run_agent_session(
     spec_dir: Path,
     verbose: bool = False,
     phase: LogPhase = LogPhase.CODING,
-) -> tuple[str, str]:
+) -> tuple[str, str, dict]:
     """
     Run a single agent session using Claude Agent SDK.
 
@@ -329,7 +353,7 @@ async def run_agent_session(
         phase: Current execution phase for logging
 
     Returns:
-        (status, response_text) where status is:
+        (status, response_text, metrics) where status is:
         - "continue" if agent should continue working
         - "complete" if all subtasks complete
         - "error" if an error occurred
@@ -570,7 +594,7 @@ async def run_agent_session(
                 tool_count=tool_count,
                 response_length=len(response_text),
             )
-            return "complete", response_text
+            return "complete", response_text, tracker.get_summary()
 
         debug_success(
             "session",
@@ -579,7 +603,7 @@ async def run_agent_session(
             tool_count=tool_count,
             response_length=len(response_text),
         )
-        return "continue", response_text
+        return "continue", response_text, tracker.get_summary()
 
     except Exception as e:
         debug_error(
@@ -592,4 +616,4 @@ async def run_agent_session(
         print(f"Error during agent session: {e}")
         if task_logger:
             task_logger.log_error(f"Session error: {e}", phase)
-        return "error", str(e)
+        return "error", str(e), {}

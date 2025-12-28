@@ -29,6 +29,7 @@ export const IPC_CHANNELS = {
   TASK_RECOVER_STUCK: 'task:recoverStuck',
   TASK_CHECK_RUNNING: 'task:checkRunning',
   TASK_REFINE: 'task:refine',
+  TASK_SAVE_REDIRECT: 'task:saveRedirect',  // Save user redirect instruction
 
   // Workspace management (for human review)
   // Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/

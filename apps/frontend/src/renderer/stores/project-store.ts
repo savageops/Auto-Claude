@@ -7,11 +7,20 @@ const LAST_SELECTED_PROJECT_KEY = 'lastSelectedProjectId';
 // Debounce timer for saving tab state
 let saveTabStateTimeout: ReturnType<typeof setTimeout> | null = null;
 
+// Sequence tracking to prevent race conditions
+let updateSequenceCounter = 0;
+function getNextSequence(): number {
+  return ++updateSequenceCounter;
+}
+
 interface ProjectState {
   projects: Project[];
   selectedProjectId: string | null;
   isLoading: boolean;
   error: string | null;
+
+  // Internal: sequence number for optimistic concurrency control
+  _updateSequence: number;
 
   // Tab state
   openProjectIds: string[]; // Array of open project IDs
@@ -46,13 +55,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   selectedProjectId: null,
   isLoading: false,
   error: null,
+  _updateSequence: 0,
 
   // Tab state - initialized empty, loaded via IPC from main process for reliability
   openProjectIds: [],
   activeProjectId: null,
   tabOrder: [],
 
-  setProjects: (projects) => set({ projects }),
+  setProjects: (projects) => set((state) => ({
+    projects,
+    _updateSequence: getNextSequence()
+  })),
 
   addProject: (project) =>
     set((state) => ({
@@ -236,6 +249,10 @@ function saveTabStateToMain(): void {
  */
 export async function loadProjects(): Promise<void> {
   const store = useProjectStore.getState();
+
+  // Capture sequence at start to detect race conditions
+  const startSequence = store._updateSequence;
+
   store.setLoading(true);
   store.setError(null);
 
@@ -243,6 +260,13 @@ export async function loadProjects(): Promise<void> {
     // First, load tab state from main process (reliable persistence)
     const tabStateResult = await window.electronAPI.getTabState();
     console.log('[ProjectStore] Loaded tab state from main process:', tabStateResult.data);
+
+    // Check sequence before updating tab state
+    const currentState = useProjectStore.getState();
+    if (currentState._updateSequence !== startSequence) {
+      console.log('[ProjectStore] Race condition detected in loadProjects (tab state), aborting stale update');
+      return;
+    }
 
     if (tabStateResult.success && tabStateResult.data) {
       useProjectStore.setState({
@@ -259,6 +283,13 @@ export async function loadProjects(): Promise<void> {
       projectCount: result.data?.length,
       projectIds: result.data?.map(p => p.id)
     });
+
+    // Check sequence again before updating projects
+    const finalState = useProjectStore.getState();
+    if (finalState._updateSequence !== startSequence) {
+      console.log('[ProjectStore] Race condition detected in loadProjects (projects), aborting stale update');
+      return;
+    }
 
     if (result.success && result.data) {
       store.setProjects(result.data);

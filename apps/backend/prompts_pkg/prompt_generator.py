@@ -82,7 +82,7 @@ def generate_subtask_prompt(
     recovery_hints: list[str] | None = None,
 ) -> str:
     """
-    Generate a minimal, focused prompt for implementing a single subtask.
+    Generate a focused systems quality prompt for implementing a single subtask.
 
     Args:
         spec_dir: Directory containing spec files
@@ -93,7 +93,7 @@ def generate_subtask_prompt(
         recovery_hints: Hints from previous failed attempts
 
     Returns:
-        A focused prompt string (~100 lines instead of 900)
+        A focused prompt string (~200 lines instead of 900)
     """
     subtask_id = subtask.get("id", "unknown")
     description = subtask.get("description", "No description")
@@ -130,7 +130,7 @@ def generate_subtask_prompt(
 ## ⚠️ RETRY ATTEMPT ({attempt_count + 1})
 
 This subtask has been attempted {attempt_count} time(s) before without success.
-You MUST use a DIFFERENT approach than previous attempts.
+You MUST retrace your steps and continue.
 """)
         if recovery_hints:
             sections.append("**Previous attempt insights:**")
@@ -200,13 +200,25 @@ Verify:""")
         instructions = verification.get("instructions", "Manual verification required")
         sections.append(f"**Manual Verification:**\n{instructions}\n")
 
+    # Critical Rules - Enforce "Read Before Write"
+    sections.append("""## CRITICAL RULES
+
+1. **READ BEFORE EDIT**: You MUST read the file content immediately before editing it. Do NOT rely on the truncated context provided in this prompt. The context below is for reference only and may be outdated or incomplete.
+2. **NO BLIND EDITS**: Editing a file without reading it first is a violation of safety protocols.
+3. **REFRESH CONTEXT**: Even if you think you know the file content, things may have changed. ALWAYS read the file again right before applying edits.
+""")
+
     # Instructions
     sections.append(f"""## Instructions
 
 1. **Read the pattern files** to understand code style and conventions
-2. **Read the files to modify** (if any) to understand current implementation
-3. **Implement the subtask** following the patterns exactly
-4. **Run verification** and fix any issues
+2. **Read the files to modify** (if any) to understand current implementation and refresh your context.
+3. **Implement the subtask** following the patterns exactly.
+   - Verify imports are correct and available.
+   - Verify that the code is correct and does not break existing functionality.
+   - Maintain gold standards (DRY, STEP, LEVER, UNIFORM, YAGNI, MODULAR, SINGLE SOURCES OF TRUTH, [add 12 more here]), unless explicitly told otherwise.
+   - Use type hints and docstrings.
+4. **Run verification** and fix any issues.
 5. **Commit your changes:**
    ```bash
    git add .
@@ -217,6 +229,7 @@ Verify:""")
 ## Quality Checklist
 
 Before marking complete, verify:
+- [ ] Read files before editing (CRITICAL)
 - [ ] Follows patterns from reference files
 - [ ] No console.log/print debugging statements
 - [ ] Error handling in place
@@ -225,7 +238,7 @@ Before marking complete, verify:
 
 ## Important
 
-- Focus ONLY on this subtask - don't modify unrelated code
+- Focus ONLY on this subtask - don't touch unrelated code
 - If verification fails, FIX IT before committing
 - If you encounter a blocker, document it in build-progress.txt
 """)
@@ -324,7 +337,7 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += f"\n\n⚠️ CRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
+                    content += f"\n\nCRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
                     content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
                     content += f"Example: Read {pattern_path}\n"
                 else:
@@ -341,7 +354,7 @@ def load_subtask_context(
                 lines = full_path.read_text().split("\n")
                 if len(lines) > max_file_lines:
                     content = "\n".join(lines[:max_file_lines])
-                    content += f"\n\n⚠️ CRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
+                    content += f"\n\nCRITICAL: This file was truncated ({len(lines) - max_file_lines} more lines below).\n"
                     content += "YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
                     content += f"Example: Read {file_path}\n"
                 else:

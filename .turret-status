@@ -1,16 +1,16 @@
 {
   "active": true,
-  "spec": "030-add-file-discard-to-review-workflow",
-  "state": "building",
+  "spec": "039-fix-import-error-in-task-dialog",
+  "state": "complete",
   "subtasks": {
-    "completed": 5,
-    "total": 6,
-    "in_progress": 1,
+    "completed": 2,
+    "total": 2,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Integration and testing",
-    "id": 3,
+    "current": "Fix Missing Dependency",
+    "id": 1,
     "total": 2
   },
   "workers": {
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2025-12-27T02:58:52.310266"
+    "number": 2,
+    "started_at": "2025-12-28T01:26:53.010167"
   },
-  "last_update": "2025-12-27T02:58:52.313265"
+  "last_update": "2025-12-28T01:33:33.069766"
 }
