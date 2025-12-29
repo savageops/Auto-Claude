@@ -23,11 +23,23 @@
         }
       ],
       "status": "completed"
+    },
+    "subtask-2-1": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2025-12-29T02:35:39.332969",
+          "approach": "Implemented: Add English translations for CLAUDE.md toggle",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
     }
   },
   "stuck_subtasks": [],
   "metadata": {
     "created_at": "2025-12-29T02:31:48.999728",
-    "last_updated": "2025-12-29T02:34:13.544512"
+    "last_updated": "2025-12-29T02:35:39.332969"
   }
 }

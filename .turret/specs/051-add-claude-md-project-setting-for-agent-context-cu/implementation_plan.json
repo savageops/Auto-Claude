@@ -77,8 +77,9 @@
             "command": "grep -A1 \"useClaudeMd\" apps/frontend/src/shared/i18n/locales/en/settings.json",
             "expected": "Use CLAUDE.md"
           },
-          "status": "in_progress",
-          "notes": "Add to projectSections.general: 'useClaudeMd': 'Use CLAUDE.md', 'useClaudeMdDescription': 'Include CLAUDE.md instructions in agent context'"
+          "status": "completed",
+          "notes": "Added English translations for CLAUDE.md toggle: useClaudeMd (\"Use CLAUDE.md\") and useClaudeMdDescription (\"Inject CLAUDE.md content as context for agent tasks\") to the general section of settings.json",
+          "updated_at": "2025-12-29T00:35:31.814253+00:00"
         },
         {
           "id": "subtask-2-2",
@@ -96,7 +97,7 @@
             "command": "grep -A1 \"useClaudeMd\" apps/frontend/src/shared/i18n/locales/fr/settings.json",
             "expected": "Utiliser CLAUDE.md"
           },
-          "status": "pending",
+          "status": "in_progress",
           "notes": "Add to projectSections.general: 'useClaudeMd': 'Utiliser CLAUDE.md', 'useClaudeMdDescription': 'Inclure les instructions CLAUDE.md dans le contexte de l'agent'"
         }
       ]
@@ -380,5 +381,5 @@
     }
   },
   "qa_signoff": null,
-  "last_updated": "2025-12-29T00:34:07.213939+00:00"
+  "last_updated": "2025-12-29T00:35:31.814253+00:00"
 }

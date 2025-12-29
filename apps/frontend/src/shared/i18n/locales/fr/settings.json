@@ -73,7 +73,9 @@
     "autoClaudePathDescription": "Chemin relatif vers le répertoire auto-claude dans les projets",
     "autoClaudePathPlaceholder": "auto-claude (par défaut)",
     "autoNameTerminals": "Nommer automatiquement les terminaux",
-    "autoNameTerminalsDescription": "Utiliser l'IA pour générer des noms descriptifs pour les onglets de terminal en fonction de leur activité"
+    "autoNameTerminalsDescription": "Utiliser l'IA pour générer des noms descriptifs pour les onglets de terminal en fonction de leur activité",
+    "useClaudeMd": "Utiliser CLAUDE.md",
+    "useClaudeMdDescription": "Injecter le contenu de CLAUDE.md comme contexte pour les tâches de l'agent"
   },
   "theme": {
     "title": "Apparence",
