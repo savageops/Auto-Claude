@@ -59,6 +59,35 @@ def get_electron_debug_port() -> int:
     return int(os.environ.get("ELECTRON_DEBUG_PORT", "9222"))
 
 
+def should_use_claude_md() -> bool:
+    """
+    Check if CLAUDE.md instructions should be included in system prompt.
+
+    Enabled when USE_CLAUDE_MD environment variable is set to "true".
+    This is controlled by the useClaudeMd project setting in the frontend.
+    """
+    return os.environ.get("USE_CLAUDE_MD", "").lower() == "true"
+
+
+def load_claude_md(project_dir: Path) -> str | None:
+    """
+    Load CLAUDE.md content from project root if it exists.
+
+    Args:
+        project_dir: Root directory of the project
+
+    Returns:
+        Content of CLAUDE.md if found, None otherwise
+    """
+    claude_md_path = project_dir / "CLAUDE.md"
+    if claude_md_path.exists():
+        try:
+            return claude_md_path.read_text(encoding="utf-8")
+        except Exception:
+            return None
+    return None
+
+
 # Puppeteer MCP tools for browser automation
 # NOTE: Screenshots must be compressed (1280x720, quality 60, JPEG) to stay under
 # Claude SDK's 1MB JSON message buffer limit. See GitHub issue #74.
