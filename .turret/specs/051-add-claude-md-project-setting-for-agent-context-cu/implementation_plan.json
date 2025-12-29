@@ -27,8 +27,9 @@
             "command": "grep -n \"useClaudeMd\" apps/frontend/src/shared/types/project.ts",
             "expected": "useClaudeMd?: boolean"
           },
-          "status": "in_progress",
-          "notes": "Add `useClaudeMd?: boolean` with JSDoc comment after mainBranch field in ProjectSettings interface"
+          "status": "completed",
+          "notes": "Added useClaudeMd?: boolean property to ProjectSettings interface with JSDoc comment. Verification passed.",
+          "updated_at": "2025-12-29T00:32:53.462506+00:00"
         },
         {
           "id": "subtask-1-2",
@@ -46,7 +47,7 @@
             "command": "grep -n \"useClaudeMd\" apps/frontend/src/shared/constants/config.ts",
             "expected": "useClaudeMd: true"
           },
-          "status": "pending",
+          "status": "in_progress",
           "notes": "Add `useClaudeMd: true` with comment after graphitiMcpUrl in DEFAULT_PROJECT_SETTINGS"
         }
       ]
@@ -377,5 +378,6 @@
       "checks": []
     }
   },
-  "qa_signoff": null
+  "qa_signoff": null,
+  "last_updated": "2025-12-29T00:32:53.462506+00:00"
 }
