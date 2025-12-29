@@ -87,7 +87,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         );
 
         // Determine status and reviewReason based on subtasks
-        // This logic must match the backend (project-store.ts) exactly
+        // This logic matches the backend (project-store.ts) exactly
         const allCompleted = subtasks.length > 0 && subtasks.every((s) => s.status === 'completed');
         const anyInProgress = subtasks.some((s) => s.status === 'in_progress');
         const anyFailed = subtasks.some((s) => s.status === 'failed');
@@ -96,26 +96,85 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         let status: TaskStatus = t.status;
         let reviewReason: ReviewReason | undefined = t.reviewReason;
 
-        // CRITICAL: Don't recalculate status if user already approved/completed the task
-        // This prevents reverting from 'done' back to 'human_review' when plan updates arrive
-        if (t.status !== 'done') {
-          if (allCompleted) {
-            // Manual tasks skip AI review and go directly to human review
-            status = t.metadata?.sourceType === 'manual' ? 'human_review' : 'ai_review';
-            if (t.metadata?.sourceType === 'manual') {
-              reviewReason = 'completed';
-            } else {
-              reviewReason = undefined;
-            }
-          } else if (anyFailed) {
-            // Some subtasks failed - needs human attention
-            status = 'human_review';
-            reviewReason = 'errors';
-          } else if (anyInProgress || anyCompleted) {
-            // Work in progress
-            status = 'in_progress';
+        // Calculate status from subtasks (default)
+        let calculatedStatus: TaskStatus = t.status;
+
+        if (allCompleted) {
+          // Manual tasks skip AI review and go directly to human review
+          calculatedStatus = t.metadata?.sourceType === 'manual' ? 'human_review' : 'ai_review';
+          if (t.metadata?.sourceType === 'manual') {
+            reviewReason = 'completed';
+          } else {
             reviewReason = undefined;
           }
+        } else if (anyFailed) {
+          calculatedStatus = 'human_review';
+          reviewReason = 'errors';
+        } else if (anyInProgress || anyCompleted) {
+          calculatedStatus = 'in_progress';
+          reviewReason = undefined;
+        } else {
+          // If no progress (all pending), preserve current active status
+          // This prevents tasks from snapping back to backlog during planning phase
+          if (t.status === 'in_progress') {
+            calculatedStatus = 'in_progress';
+          } else {
+            calculatedStatus = 'backlog';
+          }
+        }
+
+        status = calculatedStatus;
+
+        // CRITICAL: Respect explicit status from plan if valid (syncs with project-store.ts)
+        if (plan.status) {
+          const statusMap: Record<string, TaskStatus> = {
+            'pending': 'backlog',
+            'planning': 'in_progress',
+            'in_progress': 'in_progress',
+            'coding': 'in_progress',
+            'review': 'ai_review',
+            'completed': 'done',
+            'done': 'done',
+            'human_review': 'human_review',
+            'ai_review': 'ai_review',
+            'backlog': 'backlog'
+          };
+          const storedStatus = statusMap[plan.status];
+
+          if (storedStatus) {
+            // Validate stored status against calculated status (logic from project-store.ts)
+            const isActiveProcessStatus = (plan.status as string) === 'planning' ||
+              (plan.status as string) === 'coding' ||
+              (plan.status as string) === 'in_progress';
+            const isPlanReviewStage = (plan as unknown as { planStatus?: string })?.planStatus === 'review';
+
+            const isStoredStatusValid =
+              (storedStatus === calculatedStatus) ||
+              (storedStatus === 'human_review' && calculatedStatus === 'ai_review') ||
+              (storedStatus === 'human_review' && isPlanReviewStage) ||
+              (isActiveProcessStatus && storedStatus === 'in_progress') ||
+              (storedStatus === 'done'); // Always respect done
+
+            if (isStoredStatusValid) {
+              status = storedStatus;
+
+              // Preserve reviewReason for human_review status
+              if (status === 'human_review' && !reviewReason) {
+                if (anyFailed) {
+                  reviewReason = 'errors';
+                } else if (allCompleted) {
+                  reviewReason = 'completed';
+                } else if (isPlanReviewStage) {
+                  reviewReason = 'plan_review';
+                }
+              }
+            }
+          }
+        }
+
+        // CRITICAL: Don't revert 'done' status if user locally approved it (double safety)
+        if (t.status === 'done' && status !== 'done') {
+          status = 'done';
         }
 
         return {
@@ -270,23 +329,44 @@ export async function submitReview(
 export async function persistTaskStatus(
   taskId: string,
   status: TaskStatus
-): Promise<boolean> {
+): Promise<{ success: boolean; error?: string }> {
   const store = useTaskStore.getState();
+  const task = store.tasks.find((t) => t.id === taskId);
+
+  if (!task) {
+    console.error('[TaskStore] Task not found:', taskId);
+    return { success: false, error: 'Task not found' };
+  }
+
+  const previousStatus = task.status;
 
   try {
-    // Update local state first for immediate feedback
+    // 1. Optimistic update
     store.updateTaskStatus(taskId, status);
 
-    // Persist to file
+    // 2. Persist to backend
     const result = await window.electronAPI.updateTaskStatus(taskId, status);
+
     if (!result.success) {
-      console.error('Failed to persist task status:', result.error);
-      return false;
+      console.error('[TaskStore] Failed to persist task status:', result.error);
+
+      // 3. Revert on failure
+      store.updateTaskStatus(taskId, previousStatus);
+
+      return { success: false, error: result.error || 'Failed to update status' };
     }
-    return true;
+
+    return { success: true };
   } catch (error) {
-    console.error('Error persisting task status:', error);
-    return false;
+    console.error('[TaskStore] Exception persisting task status:', error);
+
+    // 3. Revert on exception
+    store.updateTaskStatus(taskId, previousStatus);
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error persisting status'
+    };
   }
 }
 
@@ -385,7 +465,10 @@ export async function deleteTask(
 
     if (result.success) {
       // Remove from local state
-      store.setTasks(store.tasks.filter(t => t.id !== taskId && t.specId !== taskId));
+      store.setTasks(
+        store.tasks.filter(t => t.id !== taskId && t.specId !== taskId),
+        store.currentProjectId || ''
+      );
       // Clear selection if this task was selected
       if (store.selectedTaskId === taskId) {
         store.selectTask(null);

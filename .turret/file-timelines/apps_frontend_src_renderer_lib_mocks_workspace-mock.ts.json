@@ -7,11 +7,11 @@
       "branch_point": {
         "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
         "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};\n",
-        "timestamp": "2025-12-27T03:02:59.307120"
+        "timestamp": "2025-12-29T02:02:43.458355"
       },
       "worktree_state": {
         "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  discardWorktreeFile: async (_taskId: string, filePath: string) => ({\n    success: true,\n    data: {\n      success: true,\n      message: `Successfully discarded changes to ${filePath}`,\n      filePath\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};\n",
-        "last_modified": "2025-12-27T03:44:44.842407"
+        "last_modified": "2025-12-29T02:02:44.372685"
       },
       "task_intent": {
         "title": "030-add-file-discard-to-review-workflow",
@@ -21,8 +21,48 @@
       "commits_behind_main": 0,
       "status": "active",
       "merged_at": null
+    },
+    "054-fix-sidebar-item-visual-alignment-and-styling-inco": {
+      "task_id": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};\n",
+        "timestamp": "2025-12-29T02:26:33.307267"
+      },
+      "worktree_state": {
+        "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  discardWorktreeFile: async (_taskId: string, filePath: string) => ({\n    success: true,\n    data: {\n      success: true,\n      message: `Successfully discarded changes to ${filePath}`,\n      filePath\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};",
+        "last_modified": "2025-12-29T02:29:32.041393"
+      },
+      "task_intent": {
+        "title": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
+        "description": "Add missing agentTools translation key to navigation.json files causing the sidebar item to display incorrectly",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    },
+    "052-implement-github-commit-siphoning-extension-for-ta": {
+      "task_id": "052-implement-github-commit-siphoning-extension-for-ta",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};\n",
+        "timestamp": "2025-12-29T02:42:14.454379"
+      },
+      "worktree_state": {
+        "content": "/**\n * Mock implementation for workspace management operations\n */\n\nexport const workspaceMock = {\n  getWorktreeStatus: async () => ({\n    success: true,\n    data: {\n      exists: false\n    }\n  }),\n\n  getWorktreeDiff: async () => ({\n    success: true,\n    data: {\n      files: [],\n      summary: 'No changes'\n    }\n  }),\n\n  mergeWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Merge completed successfully'\n    }\n  }),\n\n  mergeWorktreePreview: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Preview generated',\n      preview: {\n        files: ['src/index.ts', 'src/utils.ts'],\n        conflicts: [\n          {\n            file: 'src/utils.ts',\n            location: 'lines 10-15',\n            tasks: ['task-001'],\n            severity: 'low' as const,\n            canAutoMerge: true,\n            strategy: 'append',\n            reason: 'Non-overlapping additions'\n          }\n        ],\n        summary: {\n          totalFiles: 2,\n          conflictFiles: 1,\n          totalConflicts: 1,\n          autoMergeable: 1\n        }\n      }\n    }\n  }),\n\n  discardWorktree: async () => ({\n    success: true,\n    data: {\n      success: true,\n      message: 'Worktree discarded successfully'\n    }\n  }),\n\n  discardWorktreeFile: async (_taskId: string, filePath: string) => ({\n    success: true,\n    data: {\n      success: true,\n      message: `Successfully discarded changes to ${filePath}`,\n      filePath\n    }\n  }),\n\n  listWorktrees: async () => ({\n    success: true,\n    data: {\n      worktrees: []\n    }\n  })\n};",
+        "last_modified": "2025-12-29T02:46:31.174059"
+      },
+      "task_intent": {
+        "title": "052-implement-github-commit-siphoning-extension-for-ta",
+        "description": "Develop a new vampiric extension in the extensions library that scrapes GitHub repository commits to automatically generate contextual tasks. The extension will analyze commit messages, identifying underlying strategies and methodologies, particularly for security fixes and complex bug resolutions, and transform them into actionable tasks for our own codebase.",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
     }
   },
   "created_at": "2025-12-27T02:58:51.847971",
-  "last_updated": "2025-12-27T03:02:59.766044"
+  "last_updated": "2025-12-29T02:45:26.720234"
 }

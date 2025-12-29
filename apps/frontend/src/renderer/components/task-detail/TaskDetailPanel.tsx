@@ -155,6 +155,24 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
     }
   };
 
+  const handleRestart = async () => {
+    state.setIsRestarting(true);
+    state.setRestartError(null);
+    try {
+      const result = await window.electronAPI.restartTask(task.id);
+      if (result.success) {
+        state.setShowRestartDialog(false);
+        onClose();
+      } else {
+        state.setRestartError(result.error || 'Failed to restart task');
+      }
+    } catch (error) {
+      state.setRestartError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      state.setIsRestarting(false);
+    }
+  };
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-full w-96 flex-col bg-card border-l border-border">
@@ -293,10 +311,15 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
           showDeleteDialog={state.showDeleteDialog}
           isDeleting={state.isDeleting}
           deleteError={state.deleteError}
+          showRestartDialog={state.showRestartDialog}
+          isRestarting={state.isRestarting}
+          restartError={state.restartError}
           onStartStop={handleStartStop}
           onRecover={handleRecover}
           onDelete={handleDelete}
+          onRestart={handleRestart}
           onShowDeleteDialog={state.setShowDeleteDialog}
+          onShowRestartDialog={state.setShowRestartDialog}
         />
 
         {/* Edit Task Dialog */}

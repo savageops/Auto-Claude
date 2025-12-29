@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS, AUTO_BUILD_PATHS } from '../../../shared/constants';
-import type { IPCResult, WorktreeStatus, WorktreeDiff, WorktreeDiffFile, WorktreeMergeResult, WorktreeDiscardResult, WorktreeFileDiscardResult, WorktreeListResult, WorktreeListItem } from '../../../shared/types';
+import type { IPCResult, WorktreeStatus, WorktreeDiff, WorktreeDiffFile, WorktreeMergeResult, WorktreeDiscardResult, WorktreeDiscardFileResult, WorktreeListResult, WorktreeListItem } from '../../../shared/types';
 import path from 'path';
 import { existsSync, readdirSync, statSync, readFileSync } from 'fs';
 import { execSync, spawn, spawnSync } from 'child_process';
@@ -643,7 +643,7 @@ export function registerWorktreeHandlers(
                     });
 
                     if (commitCheckResult.stdout?.includes(task.specId) ||
-                        commitCheckResult.stdout?.toLowerCase().includes('merge')) {
+                      commitCheckResult.stdout?.toLowerCase().includes('merge')) {
                       // Looks like merge was already committed
                       debug('Merge appears to be already committed');
                       newStatus = 'done';
@@ -837,6 +837,9 @@ export function registerWorktreeHandlers(
           args.push('--base-branch', taskBaseBranch);
         }
 
+        // Add --force to skip confirmation prompt (IPC calls are non-interactive)
+        args.push('--force');
+
         const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
 
         return new Promise((resolve) => {
@@ -935,7 +938,7 @@ export function registerWorktreeHandlers(
    */
   ipcMain.handle(
     IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILE,
-    async (_, taskId: string, filePath: string): Promise<IPCResult<WorktreeFileDiscardResult>> => {
+    async (_, taskId: string, filePath: string): Promise<IPCResult<WorktreeDiscardFileResult>> => {
       try {
         const { task, project } = findTaskAndProject(taskId);
         if (!task || !project) {
@@ -975,7 +978,8 @@ export function registerWorktreeHandlers(
             success: true,
             data: {
               success: true,
-              message: `File ${filePath} discarded successfully`
+              message: `File ${filePath} discarded successfully`,
+              filePath
             }
           };
         } catch (gitError) {
@@ -986,7 +990,8 @@ export function registerWorktreeHandlers(
             data: {
               success: false,
               message: `Failed to discard file ${filePath}`,
-              error: gitError instanceof Error ? gitError.message : 'Unknown error'
+              error: gitError instanceof Error ? gitError.message : 'Unknown error',
+              filePath
             }
           };
         }
@@ -998,7 +1003,8 @@ export function registerWorktreeHandlers(
           data: {
             success: false,
             message: 'Failed to discard file from worktree',
-            error: error instanceof Error ? error.message : 'Failed to discard file from worktree'
+            error: error instanceof Error ? error.message : 'Failed to discard file from worktree',
+            filePath
           }
         };
       }

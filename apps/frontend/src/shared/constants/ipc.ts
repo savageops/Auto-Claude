@@ -26,7 +26,9 @@ export const IPC_CHANNELS = {
   TASK_STOP: 'task:stop',
   TASK_REVIEW: 'task:review',
   TASK_UPDATE_STATUS: 'task:updateStatus',
+  TASK_STATUS: 'task:status',
   TASK_RECOVER_STUCK: 'task:recoverStuck',
+  TASK_RESTART: 'task:restart',
   TASK_CHECK_RUNNING: 'task:checkRunning',
   TASK_REFINE: 'task:refine',
   TASK_SAVE_REDIRECT: 'task:saveRedirect',  // Save user redirect instruction

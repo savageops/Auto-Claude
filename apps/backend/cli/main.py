@@ -378,7 +378,7 @@ def main() -> None:
         return
 
     if args.discard:
-        handle_discard_command(project_dir, spec_dir.name)
+        handle_discard_command(project_dir, spec_dir.name, force=args.force)
         return
 
     # Handle QA commands

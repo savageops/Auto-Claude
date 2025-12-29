@@ -304,15 +304,16 @@ def handle_review_command(project_dir: Path, spec_name: str) -> None:
     review_existing_build(project_dir, spec_name)
 
 
-def handle_discard_command(project_dir: Path, spec_name: str) -> None:
+def handle_discard_command(project_dir: Path, spec_name: str, force: bool = False) -> None:
     """
     Handle the --discard command.
 
     Args:
         project_dir: Project root directory
         spec_name: Name of the spec
+        force: If True, skip confirmation
     """
-    discard_existing_build(project_dir, spec_name)
+    discard_existing_build(project_dir, spec_name, force=force)
 
 
 def handle_list_worktrees_command(project_dir: Path) -> None:

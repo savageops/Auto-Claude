@@ -18,6 +18,9 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [isRestarting, setIsRestarting] = useState(false);
+  const [restartError, setRestartError] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [worktreeStatus, setWorktreeStatus] = useState<WorktreeStatus | null>(null);
   const [worktreeDiff, setWorktreeDiff] = useState<WorktreeDiff | null>(null);
@@ -161,7 +164,7 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     window.electronAPI.watchTaskLogs(selectedProject.id, task.specId);
 
     // Listen for log changes
-    const unsubscribe = window.electronAPI.onTaskLogsChanged((specId, logs) => {
+    const unsubscribe = window.electronAPI.onTaskLogsChanged((specId: string, logs: TaskLogs) => {
       if (specId === task.specId) {
         setPhaseLogs(logs);
         // Auto-expand newly active phase
@@ -269,6 +272,9 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     showDeleteDialog,
     isDeleting,
     deleteError,
+    showRestartDialog,
+    isRestarting,
+    restartError,
     isEditDialogOpen,
     worktreeStatus,
     worktreeDiff,
@@ -311,6 +317,9 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     setShowDeleteDialog,
     setIsDeleting,
     setDeleteError,
+    setShowRestartDialog,
+    setIsRestarting,
+    setRestartError,
     setIsEditDialogOpen,
     setWorktreeStatus,
     setWorktreeDiff,

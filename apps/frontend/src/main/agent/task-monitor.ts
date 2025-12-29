@@ -35,7 +35,7 @@ export class TaskMonitorService extends EventEmitter {
   private agentManager: AgentManager | null = null;
   private projectStore: ProjectStore | null = null;
   private getMainWindow: (() => BrowserWindow | null) | null = null;
-  private isRecovering: Set<string> = new Map(); // Track tasks being recovered
+  private isRecovering: Set<string> = new Set(); // Track tasks being recovered
 
   // Configuration constants
   private readonly CHECK_INTERVAL_MS = 10000; // 10 seconds

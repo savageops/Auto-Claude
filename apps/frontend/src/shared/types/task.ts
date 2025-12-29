@@ -412,6 +412,7 @@ export interface WorktreeDiscardResult {
 export interface WorktreeDiscardFileResult {
   success: boolean;
   message: string;
+  error?: string;
   filePath: string;  // The file path that was discarded
 }
 

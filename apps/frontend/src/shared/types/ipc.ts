@@ -31,7 +31,7 @@ import type {
   WorktreeDiff,
   WorktreeMergeResult,
   WorktreeDiscardResult,
-  WorktreeFileDiscardResult,
+  WorktreeDiscardFileResult,
   WorktreeListResult,
   TaskRecoveryResult,
   TaskRecoveryOptions,
@@ -139,11 +139,20 @@ export interface ElectronAPI {
   updateTask: (taskId: string, updates: { title?: string; description?: string }) => Promise<IPCResult<Task>>;
   startTask: (taskId: string, options?: TaskStartOptions) => void;
   stopTask: (taskId: string) => void;
+  restartTask: (taskId: string) => Promise<IPCResult>;
   submitReview: (taskId: string, approved: boolean, feedback?: string) => Promise<IPCResult>;
   updateTaskStatus: (taskId: string, status: TaskStatus) => Promise<IPCResult>;
   recoverStuckTask: (taskId: string, options?: TaskRecoveryOptions) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
   refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
+  saveUserRedirect: (taskId: string, instruction: string) => Promise<IPCResult>;
+
+  // Task Phase Logs
+  getTaskLogs: (projectId: string, specId: string) => Promise<IPCResult<TaskLogs | null>>;
+  watchTaskLogs: (projectId: string, specId: string) => Promise<IPCResult>;
+  unwatchTaskLogs: (specId: string) => Promise<IPCResult>;
+  onTaskLogsChanged: (callback: (specId: string, logs: TaskLogs) => void) => () => void;
+  onTaskLogsStream: (callback: (specId: string, chunk: TaskLogStreamChunk) => void) => () => void;
 
   // Workspace management (for human review)
   // Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
@@ -152,7 +161,7 @@ export interface ElectronAPI {
   mergeWorktree: (taskId: string, options?: { noCommit?: boolean }) => Promise<IPCResult<WorktreeMergeResult>>;
   mergeWorktreePreview: (taskId: string) => Promise<IPCResult<WorktreeMergeResult>>;
   discardWorktree: (taskId: string) => Promise<IPCResult<WorktreeDiscardResult>>;
-  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<WorktreeFileDiscardResult>>;
+  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<WorktreeDiscardFileResult>>;
   getWorktreeConflictDiff: (taskId: string, filePath: string) => Promise<IPCResult<string>>;
   listWorktrees: (projectId: string) => Promise<IPCResult<WorktreeListResult>>;
 

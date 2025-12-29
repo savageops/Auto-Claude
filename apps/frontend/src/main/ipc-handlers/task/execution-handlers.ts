@@ -2,11 +2,11 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS, AUTO_BUILD_PATHS, getSpecsDir } from '../../../shared/constants';
 import type { IPCResult, TaskStartOptions, TaskStatus } from '../../../shared/types';
 import path from 'path';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { AgentManager } from '../../agent';
 import { fileWatcher } from '../../file-watcher';
-import { findTaskAndProject } from './shared';
+import { findTaskAndProject, updateTaskStatusInPlan } from './shared';
 import { checkGitStatus } from '../../project-initializer';
 import { getClaudeProfileManager } from '../../claude-profile-manager';
 
@@ -104,9 +104,9 @@ export async function recoverStuckTaskInternal(
       plan.status = newStatus;
       plan.planStatus = newStatus === 'done' ? 'completed'
         : newStatus === 'in_progress' ? 'in_progress'
-        : newStatus === 'ai_review' ? 'review'
-        : newStatus === 'human_review' ? 'review'
-        : 'pending';
+          : newStatus === 'ai_review' ? 'review'
+            : newStatus === 'human_review' ? 'review'
+              : 'pending';
       plan.updated_at = new Date().toISOString();
 
       // Add recovery note
@@ -357,6 +357,10 @@ export function registerTaskExecutionHandlers(
 
       console.warn('[TASK_START] Found task:', task.specId, 'status:', task.status, 'subtasks:', task.subtasks.length);
 
+      // Persist 'in_progress' status immediately to implementation_plan.json
+      // This prevents the task from reverting to 'backlog' if the app reloads before the agent starts
+      updateTaskStatusInPlan(project, task, 'in_progress');
+
       // Start file watcher for this task
       const specsBaseDir = getSpecsDir(project.autoBuildPath);
       const specDir = path.join(
@@ -376,6 +380,15 @@ export function registerTaskExecutionHandlers(
       const needsImplementation = hasSpec && task.subtasks.length === 0;
 
       console.warn('[TASK_START] hasSpec:', hasSpec, 'needsSpecCreation:', needsSpecCreation, 'needsImplementation:', needsImplementation);
+
+      // Notify renderer that task is starting (immediate UI feedback)
+      // This ensures the button flips to "Stop" and card moves to "In Progress"
+      // while the process is spinning up
+      mainWindow.webContents.send(
+        IPC_CHANNELS.TASK_STATUS_CHANGE,
+        taskId,
+        'in_progress'
+      );
 
       // Get base branch from project settings for worktree creation
       const baseBranch = project.settings?.mainBranch;
@@ -416,6 +429,23 @@ export function registerTaskExecutionHandlers(
         // Note: Parallel execution is handled internally by the agent, not via CLI flags
         console.warn('[TASK_START] Starting task execution (has subtasks) for:', task.specId);
 
+        // Update implementation_plan.json status to prevent UI flicker/revert
+        // This ensures that even if file watcher picks up the file before run.py updates it,
+        // the status is already 'in_progress'
+        try {
+          const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+          if (existsSync(planPath)) {
+            const planContent = readFileSync(planPath, 'utf-8');
+            const plan = JSON.parse(planContent);
+            plan.status = 'in_progress';
+            plan.planStatus = 'in_progress';
+            plan.updated_at = new Date().toISOString();
+            writeFileSync(planPath, JSON.stringify(plan, null, 2));
+          }
+        } catch (e) {
+          console.error('[TASK_START] Failed to update plan status:', e);
+        }
+
         agentManager.startTaskExecution(
           taskId,
           project.path,
@@ -444,12 +474,20 @@ export function registerTaskExecutionHandlers(
     agentManager.killTask(taskId);
     fileWatcher.unwatch(taskId);
 
+    // Persist status as 'in_progress' (Paused) instead of reverting to 'backlog'
+    // This allows the user to resume later without losing state
+    const { task, project } = findTaskAndProject(taskId);
+    if (task && project) {
+      updateTaskStatusInPlan(project, task, 'in_progress');
+    }
+
     const mainWindow = getMainWindow();
     if (mainWindow) {
+      // Send 'in_progress' status to UI to reflect "Active but Stopped/Paused" state
       mainWindow.webContents.send(
         IPC_CHANNELS.TASK_STATUS_CHANGE,
         taskId,
-        'backlog'
+        'in_progress'
       );
     }
   });
@@ -492,6 +530,9 @@ export function registerTaskExecutionHandlers(
           qaReportPath,
           `# QA Review\n\nStatus: APPROVED\n\nReviewed at: ${new Date().toISOString()}\n`
         );
+
+        // Persist 'done' status
+        updateTaskStatusInPlan(project, task, 'done');
 
         const mainWindow = getMainWindow();
         if (mainWindow) {
@@ -552,6 +593,9 @@ export function registerTaskExecutionHandlers(
           fixRequestPath,
           `# QA Fix Request\n\nStatus: REJECTED\n\n## Feedback\n\n${feedback || 'No feedback provided'}\n\nCreated at: ${new Date().toISOString()}\n`
         );
+
+        // Persist 'in_progress' status
+        updateTaskStatusInPlan(project, task, 'in_progress');
 
         // Restart QA process - use worktree path if it exists, otherwise main project
         // The QA process needs to run where the implementation_plan.json with completed subtasks is
@@ -660,57 +704,42 @@ export function registerTaskExecutionHandlers(
         }
       }
 
-      // Get the spec directory
-      const specsBaseDir = getSpecsDir(project.autoBuildPath);
-      const specDir = path.join(
-        project.path,
-        specsBaseDir,
-        task.specId
-      );
-
-      // Update implementation_plan.json if it exists
-      const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
-
-      try {
-        if (existsSync(planPath)) {
-          const planContent = readFileSync(planPath, 'utf-8');
-          const plan = JSON.parse(planContent);
-
-          // Store the exact UI status - project-store.ts will map it back
-          plan.status = status;
-          // Also store mapped version for Python compatibility
-          plan.planStatus = status === 'in_progress' ? 'in_progress'
-            : status === 'ai_review' ? 'review'
-            : status === 'human_review' ? 'review'
-            : status === 'done' ? 'completed'
-            : 'pending';
-          plan.updated_at = new Date().toISOString();
-
-          writeFileSync(planPath, JSON.stringify(plan, null, 2));
-        } else {
-          // If no implementation plan exists yet, create a basic one
-          const plan = {
-            feature: task.title,
-            description: task.description || '',
-            created_at: task.createdAt.toISOString(),
-            updated_at: new Date().toISOString(),
-            status: status, // Store exact UI status for persistence
-            planStatus: status === 'in_progress' ? 'in_progress'
-              : status === 'ai_review' ? 'review'
-              : status === 'human_review' ? 'review'
-              : status === 'done' ? 'completed'
-              : 'pending',
-            phases: []
-          };
-
-          // Ensure spec directory exists
-          if (!existsSync(specDir)) {
-            mkdirSync(specDir, { recursive: true });
-          }
-
-          writeFileSync(planPath, JSON.stringify(plan, null, 2));
-        }
-
+            // Update implementation_plan.json using shared helper
+            const success = updateTaskStatusInPlan(project, task, status);
+            
+            if (!success) {
+              // If file doesn't exist yet, we might need to initialize it
+              // This handles drag-and-drop for tasks that haven't started yet
+              try {
+                const specsBaseDir = getSpecsDir(project.autoBuildPath);
+                const specDir = path.join(project.path, specsBaseDir, task.specId);
+                
+                if (!existsSync(specDir)) {
+                  mkdirSync(specDir, { recursive: true });
+                }
+                
+                const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+                if (!existsSync(planPath)) {
+                   const plan = {
+                    feature: task.title,
+                    description: task.description || '',
+                    created_at: task.createdAt.toISOString(),
+                    updated_at: new Date().toISOString(),
+                    status: status, // Store exact UI status for persistence
+                    planStatus: status === 'in_progress' ? 'in_progress'
+                      : status === 'ai_review' ? 'review'
+                      : status === 'human_review' ? 'review'
+                      : status === 'done' ? 'completed'
+                      : 'pending',
+                    phases: []
+                  };
+                  writeFileSync(planPath, JSON.stringify(plan, null, 2));
+                }
+              } catch (err) {
+                console.error('[TASK_UPDATE_STATUS] Failed to initialize plan:', err);
+                return { success: false, error: 'Failed to update task status' };
+              }
+            }
         // Auto-stop task when status changes AWAY from 'in_progress' and process IS running
         // This handles the case where user drags a running task back to Planning/backlog
         if (status !== 'in_progress' && agentManager.isRunning(taskId)) {
@@ -875,7 +904,38 @@ export function registerTaskExecutionHandlers(
   ipcMain.handle(
     IPC_CHANNELS.TASK_CHECK_RUNNING,
     async (_, taskId: string): Promise<IPCResult<boolean>> => {
-      const isRunning = agentManager.isRunning(taskId);
+      let isRunning = agentManager.isRunning(taskId);
+
+      // Fallback: Check if log file was updated recently (e.g., last 30 seconds)
+      // This handles cases where the backend reloaded (clearing AgentManager state)
+      // but the Python process is still running and writing logs.
+      if (!isRunning) {
+        try {
+          const { task, project } = findTaskAndProject(taskId);
+          if (task && project) {
+            const { getSpecsDir } = require('../../../shared/constants'); // Dynamic import to avoid cycles if any
+            const fs = require('fs');
+            const path = require('path');
+
+            const specsRelPath = getSpecsDir(project.autoBuildPath);
+            const specDir = path.join(project.path, specsRelPath, task.specId);
+            const logFile = path.join(specDir, 'task_logs.json');
+
+            if (fs.existsSync(logFile)) {
+              const stats = fs.statSync(logFile);
+              const timeSinceUpdate = Date.now() - stats.mtimeMs;
+              // If logs updated in last 30 seconds, assume running
+              if (timeSinceUpdate < 30000) {
+                console.log(`[TASK_CHECK_RUNNING] AgentManager says NOT running, but logs updated ${timeSinceUpdate}ms ago. Reporting RUNNING.`);
+                isRunning = true;
+              }
+            }
+          }
+        } catch (err) {
+          console.error('[TASK_CHECK_RUNNING] Error checking log file fallback:', err);
+        }
+      }
+
       return { success: true, data: isRunning };
     }
   );
@@ -908,6 +968,67 @@ export function registerTaskExecutionHandlers(
 
       // Task is not running, proceed with recovery
       return recoverStuckTaskInternal(taskId, options || {}, agentManager, getMainWindow);
+    }
+  );
+
+  /**
+   * Restart a task
+   * Stops the agent, removes worktree (via CLI), clears artifacts, and resets status
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_RESTART,
+    async (_, taskId: string): Promise<IPCResult> => {
+      console.warn('[TASK_RESTART] Request to restart task:', taskId);
+
+      // Find task and project
+      const { task, project } = findTaskAndProject(taskId);
+
+      if (!task || !project) {
+        return { success: false, error: 'Task or project not found' };
+      }
+
+      // Stop the task if it's running
+      if (agentManager.isRunning(taskId)) {
+        console.warn('[TASK_RESTART] Stopping running task process...');
+        agentManager.killTask(taskId);
+        fileWatcher.unwatch(taskId);
+      }
+
+      // Remove worktree and implementation files
+      // Use the python script to discard the worktree properly with --force
+      try {
+        console.warn('[TASK_RESTART] Discarding worktree via CLI with --force');
+        const pythonProcess = spawnSync('python', [
+          path.join('turret', 'run.py'),
+          '--spec', task.specId,
+          '--discard',
+          '--force'
+        ], {
+          cwd: project.path,
+          encoding: 'utf-8',
+          stdio: 'pipe'
+        });
+
+        if (pythonProcess.status !== 0) {
+          console.error('[TASK_RESTART] Failed to discard worktree:', pythonProcess.stderr);
+        } else {
+          console.warn('[TASK_RESTART] Worktree discarded successfully');
+        }
+      } catch (err) {
+        console.error('[TASK_RESTART] Error running discard command:', err);
+      }
+
+      // Notify renderer of status change to backlog
+      const mainWindow = getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send(
+          IPC_CHANNELS.TASK_STATUS_CHANGE,
+          taskId,
+          'backlog'
+        );
+      }
+
+      return { success: true };
     }
   );
 }

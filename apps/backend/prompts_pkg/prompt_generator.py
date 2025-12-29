@@ -141,6 +141,23 @@ You MUST use a DIFFERENT approach than previous attempts.
     # Files section
     sections.append("## Files\n")
 
+    # Check for redirect instructions (High Priority)
+    redirect_file = spec_dir / "redirect_instruction.md"
+    if redirect_file.exists():
+        try:
+            content = redirect_file.read_text(encoding="utf-8").strip()
+            if content:
+                sections.append(f"""## 🛑 USER REDIRECT INSTRUCTIONS
+
+The user has intervened with specific instructions. You must prioritize these over the original plan if they conflict.
+
+{content}
+
+---
+""")
+        except Exception:
+            pass
+
     if files_to_modify:
         sections.append("**Files to Modify:**")
         for f in files_to_modify:

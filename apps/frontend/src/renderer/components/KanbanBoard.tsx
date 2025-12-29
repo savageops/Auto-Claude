@@ -28,6 +28,7 @@ import { SortableTaskCard } from './SortableTaskCard';
 import { TASK_STATUS_COLUMNS, TASK_STATUS_LABELS } from '../../shared/constants';
 import { cn } from '../lib/utils';
 import { persistTaskStatus, archiveTasks } from '../stores/task-store';
+import { useToast } from '../hooks/useToast';
 import type { Task, TaskStatus } from '../../shared/types';
 
 interface KanbanBoardProps {
@@ -195,6 +196,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 
 export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardProps) {
   const { t } = useTranslation('tasks');
+  const { toast } = useToast();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -298,7 +300,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
     setOverColumnId(null);
@@ -315,7 +317,14 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
 
       if (task && task.status !== newStatus) {
         // Persist status change to file and update local state
-        persistTaskStatus(activeTaskId, newStatus);
+        const result = await persistTaskStatus(activeTaskId, newStatus);
+        if (!result.success) {
+          toast({
+            variant: "destructive",
+            title: t('errors.statusUpdateFailed', "Status Update Failed"),
+            description: result.error || "Could not move task."
+          });
+        }
       }
       return;
     }
@@ -326,7 +335,14 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
       const task = tasks.find((t) => t.id === activeTaskId);
       if (task && task.status !== overTask.status) {
         // Persist status change to file and update local state
-        persistTaskStatus(activeTaskId, overTask.status);
+        const result = await persistTaskStatus(activeTaskId, overTask.status);
+        if (!result.success) {
+          toast({
+            variant: "destructive",
+            title: t('errors.statusUpdateFailed', "Status Update Failed"),
+            description: result.error || "Could not move task."
+          });
+        }
       }
     }
   };
@@ -352,7 +368,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
                 {archivedCount}
               </span>
             )}
-</Label>
+          </Label>
         </div>
       </div>
 
@@ -382,7 +398,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
         <DragOverlay>
           {activeTask ? (
             <div className="drag-overlay-card">
-              <TaskCard task={activeTask} onClick={() => {}} />
+              <TaskCard task={activeTask} onClick={() => { }} />
             </div>
           ) : null}
         </DragOverlay>

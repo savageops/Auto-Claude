@@ -29,6 +29,7 @@ export interface TaskAPI {
   ) => Promise<IPCResult<Task>>;
   startTask: (taskId: string, options?: TaskStartOptions) => void;
   stopTask: (taskId: string) => void;
+  restartTask: (taskId: string) => Promise<IPCResult>;
   submitReview: (
     taskId: string,
     approved: boolean,
@@ -55,7 +56,7 @@ export interface TaskAPI {
   mergeWorktree: (taskId: string, options?: { noCommit?: boolean }) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
   mergeWorktreePreview: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
   discardWorktree: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>>;
-  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<import('../../shared/types').WorktreeFileDiscardResult>>;
+  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardFileResult>>;
   getWorktreeConflictDiff: (taskId: string, filePath: string) => Promise<IPCResult<string>>;
   listWorktrees: (projectId: string) => Promise<IPCResult<import('../../shared/types').WorktreeListResult>>;
   archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
@@ -106,6 +107,9 @@ export const createTaskAPI = (): TaskAPI => ({
   stopTask: (taskId: string): void =>
     ipcRenderer.send(IPC_CHANNELS.TASK_STOP, taskId),
 
+  restartTask: (taskId: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_RESTART, taskId),
+
   submitReview: (
     taskId: string,
     approved: boolean,
@@ -150,7 +154,7 @@ export const createTaskAPI = (): TaskAPI => ({
   discardWorktree: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD, taskId),
 
-  discardWorktreeFile: (taskId: string, filePath: string): Promise<IPCResult<import('../../shared/types').WorktreeFileDiscardResult>> =>
+  discardWorktreeFile: (taskId: string, filePath: string): Promise<IPCResult<import('../../shared/types').WorktreeDiscardFileResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILE, taskId, filePath),
 
   getWorktreeConflictDiff: (taskId: string, filePath: string): Promise<IPCResult<string>> =>

@@ -52,9 +52,16 @@ export function useIpcListeners(): void {
 
     const cleanupStatus = window.electronAPI.onTaskStatusChange(
       (taskId: string, status: TaskStatus) => {
+        const inProject = isTaskInCurrentProject(taskId);
+        console.log(`[IPC Debug] onTaskStatusChange: ${taskId} -> ${status} (inProject: ${inProject})`);
+
         // Only update if task belongs to current project
-        if (isTaskInCurrentProject(taskId)) {
+        if (inProject) {
           updateTaskStatus(taskId, status);
+        } else {
+          // Force check if ID mismatch or really not in project
+          const tasks = useTaskStore.getState().tasks;
+          console.warn(`[IPC Debug] Task ${taskId} filtered out. Available tasks:`, tasks.map(t => t.id));
         }
       }
     );
