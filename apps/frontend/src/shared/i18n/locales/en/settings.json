@@ -77,7 +77,9 @@
     "turretPathDescription": "Relative path to turret directory in projects",
     "turretPathPlaceholder": "turret (default)",
     "autoNameTerminals": "Automatically name terminals",
-    "autoNameTerminalsDescription": "Use AI to generate descriptive names for terminal tabs based on their activity"
+    "autoNameTerminalsDescription": "Use AI to generate descriptive names for terminal tabs based on their activity",
+    "useClaudeMd": "Use CLAUDE.md",
+    "useClaudeMdDescription": "Inject CLAUDE.md content as context for agent tasks"
   },
   "theme": {
     "title": "Appearance",

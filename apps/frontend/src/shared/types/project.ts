@@ -24,6 +24,8 @@ export interface ProjectSettings {
   graphitiMcpUrl?: string;
   /** Main branch name for worktree creation (default: auto-detected or 'main') */
   mainBranch?: string;
+  /** Use CLAUDE.md file content as agent context (default: true) */
+  useClaudeMd?: boolean;
 }
 
 export interface NotificationSettings {
