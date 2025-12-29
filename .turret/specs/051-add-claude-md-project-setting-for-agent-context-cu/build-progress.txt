@@ -130,3 +130,62 @@ Acceptance Criteria:
   - No regressions in existing tests
 
 === END SESSION 1 ===
+
+=== SESSION 2: INTEGRATION VERIFICATION ===
+Started: 2025-12-29
+
+## Subtask 6-1: Verify Settings Persistence and UI Toggle Behavior
+
+### Manual Verification Checklist
+
+1. ✅ Toggle visible in Project Settings > General section
+   - Located in "Agent Configuration" section after Model selector
+   - File: apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx (lines 135-150)
+
+2. ✅ Correct label and description displayed
+   - EN: "Use CLAUDE.md" / "Inject CLAUDE.md content as context for agent tasks"
+   - FR: "Utiliser CLAUDE.md" / "Injecter le contenu de CLAUDE.md comme contexte..."
+   - Files: apps/frontend/src/shared/i18n/locales/en/settings.json (lines 77-78)
+           apps/frontend/src/shared/i18n/locales/fr/settings.json (lines 77-78)
+
+3. ✅ Default is ON for new projects
+   - DEFAULT_PROJECT_SETTINGS.useClaudeMd = true
+   - File: apps/frontend/src/shared/constants/config.ts (line 70)
+
+4. ✅ Toggle state persists (implementation verified)
+   - Uses setSettings({ ...settings, useClaudeMd: checked })
+   - Nullish coalescing ensures backward compatibility: settings.useClaudeMd ?? true
+   - Settings stored via project store (Zustand persistence)
+
+### Code Verification Results
+
+Frontend:
+- ✅ project.ts: useClaudeMd?: boolean (line 28)
+- ✅ config.ts: useClaudeMd: true (line 70)
+- ✅ GeneralSettings.tsx: Toggle with i18n, default-on behavior (lines 135-150)
+- ✅ agent-process.ts: USE_CLAUDE_MD env var (line 100)
+- ✅ settings.json (EN): useClaudeMd translations (lines 77-78)
+- ✅ settings.json (FR): useClaudeMd translations (lines 77-78)
+
+Backend:
+- ✅ client.py: should_use_claude_md() function (lines 62-69)
+- ✅ client.py: load_claude_md() function (lines 72-88)
+- ✅ client.py: System prompt injection (lines 380-400)
+- ✅ client.py: Debug logging (lines 324-331)
+
+### Compilation Verification
+
+- ✅ Python syntax check: PASSED
+- ✅ No useClaudeMd-related TypeScript errors
+- Note: Pre-existing TS errors (vitest, electron dev dependencies) are unrelated
+
+### Status: VERIFIED ✅
+
+All code implementations are correctly in place. The toggle:
+1. Appears in the Agent Configuration section
+2. Uses proper i18n labels
+3. Defaults to ON (useClaudeMd: true)
+4. Persists state through project settings store
+5. Passes USE_CLAUDE_MD env var to backend when enabled
+
+=== END SUBTASK 6-1 ===
