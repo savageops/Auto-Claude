@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw,
   Download,
@@ -44,6 +45,8 @@ export function GeneralSettings({
   handleInitialize,
   handleUpdate: _handleUpdate
 }: GeneralSettingsProps) {
+  const { t } = useTranslation('settings');
+
   return (
     <>
       {/* Auto-Build Integration */}
@@ -128,6 +131,22 @@ export function GeneralSettings({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex items-center justify-between pt-2">
+              <div className="space-y-0.5">
+                <Label className="font-normal text-foreground">
+                  {t('general.useClaudeMd')}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t('general.useClaudeMdDescription')}
+                </p>
+              </div>
+              <Switch
+                checked={settings.useClaudeMd ?? true}
+                onCheckedChange={(checked) =>
+                  setSettings({ ...settings, useClaudeMd: checked })
+                }
+              />
             </div>
           </section>
 

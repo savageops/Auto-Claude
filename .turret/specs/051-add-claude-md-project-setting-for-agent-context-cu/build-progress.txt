@@ -1,0 +1,132 @@
+=== AUTO-BUILD PROGRESS ===
+
+Project: CLAUDE.md Project Setting for Agent Context
+Spec: 051-add-claude-md-project-setting-for-agent-context-cu
+Workspace: Turret (Monorepo)
+Started: 2025-12-29
+
+Workflow Type: feature
+Rationale: New end-to-end feature spanning frontend (UI toggle, env var passing)
+           and backend (file loading, system prompt injection). Follows existing
+           patterns for settings toggles.
+
+Session 1 (Planner):
+- Created implementation_plan.json
+- Phases: 6
+- Total subtasks: 9
+- Created init.sh
+- Created build-progress.txt
+
+=== PHASE SUMMARY ===
+
+Phase 1: Frontend Configuration (2 subtasks)
+  - Add useClaudeMd to ProjectSettings type
+  - Add useClaudeMd to DEFAULT_PROJECT_SETTINGS
+  Dependencies: None
+  Status: pending
+
+Phase 2: Internationalization (2 subtasks)
+  - Add English translations
+  - Add French translations
+  Dependencies: None
+  Status: pending
+
+Phase 3: Frontend UI Toggle (1 subtask)
+  - Add CLAUDE.md toggle switch to GeneralSettings
+  Dependencies: phase-1-frontend-config, phase-2-i18n
+  Status: pending
+
+Phase 4: Frontend Agent Process (1 subtask)
+  - Set USE_CLAUDE_MD env var in agent-process.ts
+  Dependencies: phase-1-frontend-config
+  Status: pending
+
+Phase 5: Backend CLAUDE.md Loading (2 subtasks)
+  - Add should_use_claude_md() and load_claude_md() functions
+  - Modify create_client() to inject CLAUDE.md into system prompt
+  Dependencies: None
+  Status: pending
+
+Phase 6: Integration Verification (2 subtasks)
+  - Verify settings persistence and UI toggle
+  - Verify CLAUDE.md content injection
+  Dependencies: phase-3, phase-4, phase-5
+  Status: pending
+
+=== SERVICES INVOLVED ===
+
+- frontend: UI toggle, type definitions, i18n, env var passing
+  Tech: TypeScript, React, Vite, Electron, Zustand, Radix UI
+  Entry: apps/frontend/src/main/index.ts
+  Port: 3000
+
+- backend: CLAUDE.md file loading, system prompt injection
+  Tech: Python, claude-agent-sdk
+  Entry: apps/backend/core/client.py
+  Spawned by: Frontend agent process
+
+=== FILES TO MODIFY ===
+
+Frontend:
+  - apps/frontend/src/shared/types/project.ts (add useClaudeMd?: boolean)
+  - apps/frontend/src/shared/constants/config.ts (add useClaudeMd: true)
+  - apps/frontend/src/shared/i18n/locales/en/settings.json (add translations)
+  - apps/frontend/src/shared/i18n/locales/fr/settings.json (add French translations)
+  - apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx (add toggle)
+  - apps/frontend/src/main/agent/agent-process.ts (set USE_CLAUDE_MD env var)
+
+Backend:
+  - apps/backend/core/client.py (add CLAUDE.md loading and prompt injection)
+
+=== PATTERNS TO FOLLOW ===
+
+1. UI Toggle Pattern (from existing notification toggles in GeneralSettings.tsx):
+   - Use Switch component with Label and description
+   - Default to true using nullish coalescing: ?? true
+
+2. Env Var Pattern (from GRAPHITI_MCP_URL in agent-process.ts):
+   - Check project.settings.useClaudeMd !== false
+   - Set as string: env['USE_CLAUDE_MD'] = 'true'
+
+3. Backend Pattern (from is_graphiti_mcp_enabled in client.py):
+   - Check env var with os.environ.get()
+   - Use Path for file operations with UTF-8 encoding
+   - Return None on errors for graceful degradation
+
+=== PARALLELISM ANALYSIS ===
+
+- Max parallel phases: 3
+- Recommended workers: 2
+- Parallel groups:
+  1. [phase-1, phase-2, phase-5] - Independent, no file overlap
+  2. [phase-3, phase-4] - Both depend on phase-1, different files
+
+Speedup estimate: 1.5x faster than sequential
+
+=== STARTUP COMMAND ===
+
+To continue building this spec, run:
+
+  source turret/.venv/bin/activate && python turret/run.py --spec 051 --parallel 2
+
+=== VERIFICATION STRATEGY ===
+
+Risk Level: low
+Skip Validation: No
+Test Types: unit, integration
+
+Verification Steps:
+  1. TypeScript Compilation: cd apps/frontend && npx tsc --noEmit
+  2. Frontend Unit Tests: cd apps/frontend && npm test
+  3. Python Syntax Check: python -m py_compile apps/backend/core/client.py
+
+Acceptance Criteria:
+  - Toggle appears in Project Settings > General section
+  - Toggle defaults to ON for new/existing projects
+  - CLAUDE.md content injected when enabled and file exists
+  - Graceful handling when file missing or unreadable
+  - Console shows appropriate status messages
+  - EN and FR translations display correctly
+  - No regressions in existing tests
+
+=== END SESSION 1 ===

@@ -97,8 +97,9 @@
             "command": "grep -A1 \"useClaudeMd\" apps/frontend/src/shared/i18n/locales/fr/settings.json",
             "expected": "Utiliser CLAUDE.md"
           },
-          "status": "in_progress",
-          "notes": "Add to projectSections.general: 'useClaudeMd': 'Utiliser CLAUDE.md', 'useClaudeMdDescription': 'Inclure les instructions CLAUDE.md dans le contexte de l'agent'"
+          "status": "completed",
+          "notes": "Added French translations for CLAUDE.md toggle: useClaudeMd = \"Utiliser CLAUDE.md\", useClaudeMdDescription = \"Injecter le contenu de CLAUDE.md comme contexte pour les t\u00e2ches de l'agent\"",
+          "updated_at": "2025-12-29T00:37:03.072564+00:00"
         }
       ]
     },
@@ -129,7 +130,7 @@
             "command": "grep -c \"useClaudeMd\" apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx",
             "expected": "3"
           },
-          "status": "pending",
+          "status": "in_progress",
           "notes": "Add useTranslation hook import, add Switch toggle after Model select using existing notification toggle pattern. Use `settings.useClaudeMd ?? true` for default-on behavior."
         }
       ]
@@ -381,5 +382,9 @@
     }
   },
   "qa_signoff": null,
-  "last_updated": "2025-12-29T00:35:31.814253+00:00"
+  "last_updated": "2025-12-29T00:37:03.072564+00:00",
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "updated_at": "2025-12-29T00:37:22.015Z",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-29T00:37:22.015Z"
 }
