@@ -638,11 +638,8 @@ function BranchSelector({
           disabled={isLoading}
           className="w-full flex items-center justify-between px-3 py-2 text-sm border border-input rounded-md bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
         >
-          {isLoading ? (
-            <span className="flex items-center gap-2 text-muted-foreground">
-              <RefreshCw className="h-4 w-4 animate-spin" />
-              Loading branches...
-            </span>
+          {selectedBranch === '__ACTIVE__' ? (
+            <span className="text-muted-foreground">Auto-detect (Active Branch)</span>
           ) : selectedBranch ? (
             <span className="flex items-center gap-2">
               <GitBranch className="h-3 w-3 text-muted-foreground" />
@@ -667,7 +664,7 @@ function BranchSelector({
               />
             </div>
 
-            {/* Auto-detect option */}
+            {/* Auto-detect option (main/master) */}
             <button
               type="button"
               onClick={() => {
@@ -680,6 +677,21 @@ function BranchSelector({
               }`}
             >
               <span className="text-sm text-muted-foreground italic">Auto-detect (main/master)</span>
+            </button>
+
+            {/* Auto-detect option (Active Branch) */}
+            <button
+              type="button"
+              onClick={() => {
+                onSelect('__ACTIVE__');
+                setIsOpen(false);
+                setFilter('');
+              }}
+              className={`w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2 ${
+                selectedBranch === '__ACTIVE__' ? 'bg-accent' : ''
+              }`}
+            >
+              <span className="text-sm text-muted-foreground italic">Auto-detect (Active Branch)</span>
             </button>
 
             {/* Branch list */}
@@ -714,7 +726,11 @@ function BranchSelector({
 
       {selectedBranch && (
         <p className="text-xs text-muted-foreground pl-6">
-          All new tasks will branch from <code className="px-1 bg-muted rounded">{selectedBranch}</code>
+          All new tasks will branch from {selectedBranch === '__ACTIVE__' ? (
+            <span className="italic">the currently active branch</span>
+          ) : (
+            <code className="px-1 bg-muted rounded">{selectedBranch}</code>
+          )}
         </p>
       )}
     </div>

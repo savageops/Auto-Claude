@@ -63,6 +63,7 @@ class WorktreeManager:
         Detect the base branch for worktree creation.
 
         Priority order:
+        0. If base_branch is '__ACTIVE__', use current branch
         1. DEFAULT_BRANCH environment variable
         2. Auto-detect main/master (if they exist)
         3. Fall back to current branch (with warning)
@@ -70,6 +71,13 @@ class WorktreeManager:
         Returns:
             The detected base branch name
         """
+        # 0. Check for special '__ACTIVE__' value
+        if self.base_branch == "__ACTIVE__":
+            try:
+                return self._get_current_branch()
+            except Exception as e:
+                print(f"Warning: Failed to get current branch for '__ACTIVE__': {e}")
+
         # 1. Check for DEFAULT_BRANCH env var
         env_branch = os.getenv("DEFAULT_BRANCH")
         if env_branch:
