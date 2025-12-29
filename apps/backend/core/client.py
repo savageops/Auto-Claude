@@ -326,9 +326,11 @@ def create_client(
     if should_use_claude_md():
         claude_md_content = load_claude_md(project_dir)
         if claude_md_content:
-            print("   - CLAUDE.md: loaded project instructions")
+            print("   - CLAUDE.md: included in system prompt")
         else:
-            print("   - CLAUDE.md: enabled but file not found")
+            print("   - CLAUDE.md: not found in project root")
+    else:
+        print("   - CLAUDE.md: disabled by project settings")
     print()
 
     # Configure MCP servers

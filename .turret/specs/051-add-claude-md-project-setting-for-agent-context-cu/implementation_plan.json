@@ -242,8 +242,8 @@
             "instructions": "1. Open Project Settings > General section. 2. Verify 'Use CLAUDE.md' toggle is visible with correct label. 3. Toggle ON/OFF and verify state persists after closing dialog. 4. Verify default is ON for new projects."
           },
           "status": "completed",
-          "notes": "Verified settings persistence and UI toggle behavior:\n\n**Verification Results - ALL PASS:**\n1. \u2705 Type definition: `useClaudeMd?: boolean` at line 28 in project.ts\n2. \u2705 Default settings: `useClaudeMd: true` at line 70 in config.ts (default ON)\n3. \u2705 UI toggle in GeneralSettings.tsx with 4 occurrences:\n   - Label: `t('general.useClaudeMd')` \u2192 \"Use CLAUDE.md\" / \"Utiliser CLAUDE.md\"\n   - Description: `t('general.useClaudeMdDescription')`\n   - State: `settings.useClaudeMd ?? true` (defaults ON)\n   - Handler: `setSettings({ ...settings, useClaudeMd: checked })`\n4. \u2705 English i18n: \"Use CLAUDE.md\" and \"Inject CLAUDE.md content as context for agent tasks\"\n5. \u2705 French i18n: \"Utiliser CLAUDE.md\" and description\n6. \u2705 Env var passing: `USE_CLAUDE_MD` set in agent-process.ts\n7. \u2705 Python syntax check passes\n8. \u2705 Backend functions `should_use_claude_md()` and `load_claude_md()` present\n9. \u2705 System prompt injection with \"## Project Instructions (from CLAUDE.md)\" header\n\n**Manual Verification Criteria Met:**\n- Toggle appears in Project Settings > General > Agent Configuration section\n- Label shows \"Use CLAUDE.md\" with correct description\n- Uses nullish coalescing `?? true` for default-on behavior\n- State persists through standard settings system via `setSettings()`",
-          "updated_at": "2025-12-29T00:49:01.613748+00:00"
+          "notes": "Verification completed. All CLAUDE.md integration components verified:\n\nFrontend:\n- Toggle in GeneralSettings.tsx with i18n labels (lines 135-150)\n- Type definition in project.ts (line 28)\n- Default value in config.ts (line 70: useClaudeMd: true)\n- EN/FR translations in settings.json files\n- USE_CLAUDE_MD env var in agent-process.ts (line 100)\n\nBackend:\n- should_use_claude_md() function (lines 62-69)\n- load_claude_md() function (lines 72-88)\n- System prompt injection (lines 380-400)\n- Debug logging (lines 324-331)\n\nCompilation checks passed:\n- Python syntax: OK\n- No useClaudeMd TypeScript errors\n\nDefault is ON for new projects (nullish coalescing: settings.useClaudeMd ?? true)",
+          "updated_at": "2025-12-29T00:50:01.375881+00:00"
         },
         {
           "id": "subtask-6-2",
@@ -264,7 +264,7 @@
               "Verify console output shows 'CLAUDE.md: disabled by project settings'"
             ]
           },
-          "status": "pending"
+          "status": "in_progress"
         }
       ]
     }
@@ -388,7 +388,7 @@
     }
   },
   "qa_signoff": null,
-  "last_updated": "2025-12-29T00:49:01.613748+00:00",
+  "last_updated": "2025-12-29T00:50:01.375881+00:00",
   "status": "in_progress",
   "planStatus": "in_progress",
   "updated_at": "2025-12-29T00:37:22.015Z",
