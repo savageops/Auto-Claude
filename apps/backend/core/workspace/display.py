@@ -97,7 +97,7 @@ def print_merge_success(
         if keep_worktree and spec_name:
             lines.append("")
             lines.append("Worktree kept for testing. Delete when satisfied:")
-            lines.append(f"  python auto-claude/run.py --spec {spec_name} --discard")
+            lines.append(f"  python turret/run.py --spec {spec_name} --discard")
 
         content = lines
     else:
@@ -132,7 +132,7 @@ def print_merge_success(
             )
             if spec_name:
                 lines.append(
-                    f"  python auto-claude/run.py --spec {spec_name} --discard"
+                    f"  python turret/run.py --spec {spec_name} --discard"
                 )
         else:
             lines.extend(
@@ -162,12 +162,29 @@ def print_conflict_info(result: dict) -> None:
             f"  {len(conflicts)} file{'s' if len(conflicts) != 1 else ''} had conflicts:"
         )
     )
-    for conflict_file in conflicts:
-        print(f"    {highlight(conflict_file)}")
+    
+    # Extract file paths from conflicts (which may be dicts or strings)
+    conflict_files = []
+    for conflict in conflicts:
+        if isinstance(conflict, dict):
+            file_path = conflict.get("file", "")
+            reason = conflict.get("reason", "")
+            severity = conflict.get("severity", "")
+            conflict_files.append(file_path)
+            conflict_info = f"{highlight(file_path)}"
+            if reason:
+                conflict_info += f" ({reason})"
+            print(f"    {conflict_info}")
+        else:
+            # Handle legacy string format
+            conflict_files.append(str(conflict))
+            print(f"    {highlight(conflict)}")
+    
     print()
     print(muted("  These files have conflict markers (<<<<<<< =======  >>>>>>>)"))
     print(muted("  Review and resolve them, then run:"))
-    print(f"    git add {' '.join(conflicts)}")
+    if conflict_files:
+        print(f"    git add {' '.join(conflict_files)}")
     print("    git commit")
     print()
 

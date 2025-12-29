@@ -61,6 +61,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             return result.stdout.strip()
@@ -86,6 +88,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 return result.stdout
@@ -116,6 +120,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             return [f for f in result.stdout.strip().split("\n") if f]
@@ -140,6 +146,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 info["message"] = result.stdout.strip()
@@ -150,6 +158,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 info["author"] = result.stdout.strip()
@@ -160,6 +170,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 info["diff_summary"] = (
@@ -219,6 +231,8 @@ class TimelineGitHelper:
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             if result.returncode != 0:
@@ -252,6 +266,8 @@ class TimelineGitHelper:
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             if result.returncode != 0:
@@ -284,6 +300,8 @@ class TimelineGitHelper:
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 upstream = result.stdout.strip()
@@ -302,6 +320,8 @@ class TimelineGitHelper:
                     cwd=worktree_path,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 if result.returncode == 0:
                     return branch
@@ -328,6 +348,8 @@ class TimelineGitHelper:
                 cwd=self.project_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             if result.returncode == 0:

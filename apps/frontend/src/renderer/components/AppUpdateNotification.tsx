@@ -4,7 +4,7 @@ import {
   RefreshCw,
   CheckCircle2,
   AlertCircle
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import {
@@ -140,7 +140,7 @@ export function AppUpdateNotification() {
             App Update Available
           </DialogTitle>
           <DialogDescription>
-            A new version of Auto Claude is ready to download
+            A new version of Turret is ready to download
           </DialogDescription>
         </DialogHeader>
 

@@ -9,6 +9,7 @@
  * - task/execution-handlers.ts - Start, Stop, Review, Status management, Recovery
  * - task/worktree-handlers.ts - Worktree management (status, diff, merge, discard, list)
  * - task/logs-handlers.ts - Task logs management (get, watch, unwatch)
+ * - task/refinement-handlers.ts - AI-powered task refinement using Claude Haiku
  * - task/shared.ts - Shared utilities and helper functions
  *
  * This modular structure improves:

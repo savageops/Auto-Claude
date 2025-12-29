@@ -1,0 +1,13 @@
+{
+  "feature": "Add skeleton loading states for KanbanBoard and WelcomeScreen",
+  "description": "Implement skeleton loading components for the main content areas (KanbanBoard columns, WelcomeScreen recent projects list) to provide visual feedback during data loading, similar to the existing IdeaSkeletonCard pattern.",
+  "created_at": "2025-12-26T17:54:48.831Z",
+  "updated_at": "2025-12-26T17:54:48.831Z",
+  "status": "backlog",
+  "planStatus": "pending",
+  "phases": [],
+  "workflow_type": "development",
+  "services_involved": [],
+  "final_acceptance": [],
+  "spec_file": "spec.md"
+}

@@ -43,7 +43,7 @@ def handle_batch_create_command(batch_file: str, project_dir: str) -> bool:
     print_status(f"Creating {len(tasks)} tasks from batch file", "info")
     print()
 
-    specs_dir = Path(project_dir) / ".auto-claude" / "specs"
+    specs_dir = Path(project_dir) / ".turret" / "specs"
     specs_dir.mkdir(parents=True, exist_ok=True)
 
     # Find next spec ID
@@ -119,7 +119,7 @@ def handle_batch_status_command(project_dir: str) -> bool:
     Returns:
         True if successful
     """
-    specs_dir = Path(project_dir) / ".auto-claude" / "specs"
+    specs_dir = Path(project_dir) / ".turret" / "specs"
 
     if not specs_dir.exists():
         print_status("No specs found in project", "warning")
@@ -183,7 +183,7 @@ def handle_batch_cleanup_command(project_dir: str, dry_run: bool = True) -> bool
     Returns:
         True if successful
     """
-    specs_dir = Path(project_dir) / ".auto-claude" / "specs"
+    specs_dir = Path(project_dir) / ".turret" / "specs"
     worktrees_dir = Path(project_dir) / ".worktrees"
 
     if not specs_dir.exists():

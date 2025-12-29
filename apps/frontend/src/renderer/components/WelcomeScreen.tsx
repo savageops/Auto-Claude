@@ -1,4 +1,4 @@
-import { FolderOpen, FolderPlus, Clock, ChevronRight, Folder } from 'lucide-react';
+import { FolderOpen, FolderPlus, Clock, ChevronRight, Folder } from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Card } from './ui/card';

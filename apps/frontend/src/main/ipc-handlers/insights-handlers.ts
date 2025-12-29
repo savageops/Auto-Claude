@@ -76,7 +76,7 @@ export function registerInsightsHandlers(
       }
 
       if (!project.autoBuildPath) {
-        return { success: false, error: 'Auto Claude not initialized for this project' };
+        return { success: false, error: 'Turret not initialized for this project' };
       }
 
       try {

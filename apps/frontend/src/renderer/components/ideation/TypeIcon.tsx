@@ -6,7 +6,7 @@ import {
   Shield,
   Gauge,
   Code2
-} from 'lucide-react';
+} from '@/lib/icons';
 import type { IdeationType } from '../../../shared/types';
 
 interface TypeIconProps {

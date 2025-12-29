@@ -1,0 +1,8 @@
+{
+  "feature": "Advanced Conflict Analysis",
+  "description": "# Advanced Conflict Analysis\n\nReplace placeholder TODO checks in conflict analysis with real implementation. Provide semantic understanding of conflicts, not just line-based detection. Analyze code structure, variable renames, and functional changes.\n\n## Rationale\nAddresses known technical gap (placeholder TODOs in conflict analysis). Current placeholder implementation limits conflict resolution quality. Semantic analysis enables smarter resolutions and reduces developer intervention.\n\n## User Stories\n- As a developer, I want conflicts analyzed semantically so the AI makes smarter resolution choices\n- As a developer, I want to understand why conflicts occurred so I can approve resolutions confidently\n\n## Acceptance Criteria\n- [ ] Conflict analysis identifies semantic conflicts (not just line conflicts)\n- [ ] Analysis provides context about conflicting changes (intent, scope)\n- [ ] Resolution suggestions are ranked by confidence\n- [ ] Handles complex scenarios: rename + modify, structural changes\n- [ ] Tests verify correct handling of various conflict types\n",
+  "created_at": "2025-12-27T03:48:21.862Z",
+  "updated_at": "2025-12-27T03:48:21.862Z",
+  "status": "pending",
+  "phases": []
+}

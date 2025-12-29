@@ -20,7 +20,7 @@ export const DEFAULT_APP_SETTINGS = {
   theme: 'system' as const,
   colorTheme: 'default' as const,
   defaultModel: 'opus',
-  agentFramework: 'auto-claude',
+  agentFramework: 'turret',
   pythonPath: undefined as string | undefined,
   autoBuildPath: undefined as string | undefined,
   autoUpdateAutoBuild: true,
@@ -46,7 +46,28 @@ export const DEFAULT_APP_SETTINGS = {
   // Beta updates opt-in (receive pre-release versions)
   betaUpdates: false,
   // Language preference (default to English)
-  language: 'en' as const
+  language: 'en' as const,
+  // Prompt configuration (defaults match current backend prompts)
+  promptConfig: {
+    merge: {
+      systemPrompt: "You are an expert code merge assistant. Your primary goal is to preserve ALL functionality from ALL tasks being merged. Never remove features or reduce code quality. When in doubt, include more rather than less.",
+      preventDeletion: true,
+      preventFeatureReduction: true,
+      preserveAllImports: true,
+      preserveAllHooks: true,
+      preserveAllProps: true,
+      preserveAllState: true,
+      combineConflicts: true,
+      includeMoreWhenUncertain: true,
+      customInstructions: undefined
+    },
+    taskExecution: {
+      plannerInstructions: undefined,
+      coderInstructions: undefined,
+      qaInstructions: undefined
+    },
+    globalInstructions: undefined
+  }
 };
 
 // ============================================
@@ -75,11 +96,11 @@ export const DEFAULT_PROJECT_SETTINGS = {
 // ============================================
 
 // File paths relative to project
-// IMPORTANT: All paths use .auto-claude/ (the installed instance), NOT auto-claude/ (source code)
+// IMPORTANT: All paths use .turret/ (the installed instance), NOT turret/ (source code)
 export const AUTO_BUILD_PATHS = {
-  SPECS_DIR: '.auto-claude/specs',
-  ROADMAP_DIR: '.auto-claude/roadmap',
-  IDEATION_DIR: '.auto-claude/ideation',
+  SPECS_DIR: '.turret/specs',
+  ROADMAP_DIR: '.turret/roadmap',
+  IDEATION_DIR: '.turret/ideation',
   IMPLEMENTATION_PLAN: 'implementation_plan.json',
   SPEC_FILE: 'spec.md',
   QA_REPORT: 'qa_report.md',
@@ -91,15 +112,15 @@ export const AUTO_BUILD_PATHS = {
   COMPETITOR_ANALYSIS: 'competitor_analysis.json',
   IDEATION_FILE: 'ideation.json',
   IDEATION_CONTEXT: 'ideation_context.json',
-  PROJECT_INDEX: '.auto-claude/project_index.json',
+  PROJECT_INDEX: '.turret/project_index.json',
   GRAPHITI_STATE: '.graphiti_state.json'
 } as const;
 
 /**
  * Get the specs directory path.
- * All specs go to .auto-claude/specs/ (the project's data directory).
+ * All specs go to .turret/specs/ (the project's data directory).
  */
 export function getSpecsDir(autoBuildPath: string | undefined): string {
-  const basePath = autoBuildPath || '.auto-claude';
+  const basePath = autoBuildPath || '.turret';
   return `${basePath}/specs`;
 }

@@ -24,7 +24,7 @@ def run_discovery_script(
         (success, output_message)
     """
     spec_index = spec_dir / "project_index.json"
-    auto_build_index = project_dir / "auto-claude" / "project_index.json"
+    auto_build_index = project_dir / "turret" / "project_index.json"
 
     # Check if project_index already exists
     if auto_build_index.exists() and not spec_index.exists():
@@ -48,6 +48,8 @@ def run_discovery_script(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=300,
         )
 

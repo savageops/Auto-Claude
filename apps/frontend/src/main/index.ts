@@ -9,6 +9,7 @@ import { pythonEnvManager } from './python-env-manager';
 import { getUsageMonitor } from './claude-profile/usage-monitor';
 import { initializeUsageMonitorForwarding } from './ipc-handlers/terminal-handlers';
 import { initializeAppUpdater } from './app-updater';
+import { projectStore } from './project-store';
 import { DEFAULT_APP_SETTINGS } from '../shared/constants';
 import { readSettingsFile } from './settings-utils';
 import type { AppSettings } from '../shared/types';
@@ -100,16 +101,16 @@ function createWindow(): void {
 }
 
 // Set app name before ready (for dock tooltip on macOS in dev mode)
-app.setName('Auto Claude');
+app.setName('Turret');
 if (process.platform === 'darwin') {
   // Force the name to appear in dock on macOS
-  app.name = 'Auto Claude';
+  app.name = 'Turret';
 }
 
 // Initialize the application
 app.whenReady().then(() => {
   // Set app user model id for Windows
-  electronApp.setAppUserModelId('com.autoclaude.ui');
+  electronApp.setAppUserModelId('com.turret.ui');
 
   // Set dock icon on macOS
   if (process.platform === 'darwin') {
@@ -133,7 +134,7 @@ app.whenReady().then(() => {
   // Initialize agent manager
   agentManager = new AgentManager();
 
-  // Load settings and configure agent manager with Python and auto-claude paths
+  // Load settings and configure agent manager with Python and turret paths
   try {
     const settingsPath = join(app.getPath('userData'), 'settings.json');
     if (existsSync(settingsPath)) {
@@ -179,6 +180,10 @@ app.whenReady().then(() => {
     const usageMonitor = getUsageMonitor();
     usageMonitor.start();
     console.warn('[main] Usage monitor initialized and started');
+
+    // Start the task monitor for auto-recovery of stuck tasks
+    agentManager.startTaskMonitoring(projectStore, () => mainWindow);
+    console.warn('[main] Task monitor initialized and started');
 
     // Log debug mode status
     const isDebugMode = process.env.DEBUG === 'true';
@@ -228,6 +233,12 @@ app.on('window-all-closed', () => {
 
 // Cleanup before quit
 app.on('before-quit', async () => {
+  // Stop task monitor
+  if (agentManager) {
+    agentManager.stopTaskMonitoring();
+    console.warn('[main] Task monitor stopped');
+  }
+
   // Stop usage monitor
   const usageMonitor = getUsageMonitor();
   usageMonitor.stop();

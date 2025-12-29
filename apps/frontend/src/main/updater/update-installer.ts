@@ -15,7 +15,7 @@ import { GitHubRelease, AutoBuildUpdateResult, UpdateProgressCallback, UpdateMet
 import { debugLog } from '../../shared/utils/debug-logger';
 
 /**
- * Download and apply the latest auto-claude update from GitHub Releases
+ * Download and apply the latest turret update from GitHub Releases
  *
  * Note: In production, this updates the bundled source in userData.
  * For packaged apps, we can't modify resourcesPath directly,
@@ -53,13 +53,13 @@ export async function downloadAndApplyUpdate(
     }
 
     // Use explicit tag reference URL to avoid HTTP 300 when branch/tag names collide
-    // See: https://github.com/AndyMik90/Auto-Claude/issues/78
+    // See: https://github.com/savageops/Turret/issues/78
     const tarballUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/tarball/refs/tags/${release.tag_name}`;
     const releaseVersion = parseVersionFromTag(release.tag_name);
     debugLog('[Update] Release version:', releaseVersion);
     debugLog('[Update] Tarball URL:', tarballUrl);
 
-    const tarballPath = path.join(cachePath, 'auto-claude-update.tar.gz');
+    const tarballPath = path.join(cachePath, 'turret-update.tar.gz');
     const extractPath = path.join(cachePath, 'extracted');
 
     // Clean up previous extraction
@@ -99,7 +99,7 @@ export async function downloadAndApplyUpdate(
 
     debugLog('[Update] Extraction complete');
 
-    // Find the auto-claude folder in extracted content
+    // Find the turret folder in extracted content
     // GitHub tarballs have a root folder like "owner-repo-hash/"
     const extractedDirs = readdirSync(extractPath);
     if (extractedDirs.length === 0) {
@@ -110,7 +110,7 @@ export async function downloadAndApplyUpdate(
     const autoBuildSource = path.join(rootDir, GITHUB_CONFIG.autoBuildPath);
 
     if (!existsSync(autoBuildSource)) {
-      throw new Error('auto-claude folder not found in download');
+      throw new Error('turret folder not found in download');
     }
 
     // Determine where to install the update

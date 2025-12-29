@@ -29,7 +29,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     if (pythonPath) {
@@ -48,7 +48,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Get the auto-claude source path (detects automatically if not configured)
+   * Get the turret source path (detects automatically if not configured)
    */
   getAutoBuildSourcePath(): string | null {
     // Use runners/spec_runner.py as the validation marker - this is the file actually needed
@@ -106,7 +106,7 @@ export class AgentProcessManager {
   }
 
   /**
-   * Load environment variables from auto-claude .env file
+   * Load environment variables from turret .env file
    */
   loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();

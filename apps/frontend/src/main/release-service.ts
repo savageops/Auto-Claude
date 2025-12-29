@@ -343,7 +343,7 @@ export class ReleaseService extends EventEmitter {
     const unmerged: UnmergedWorktreeInfo[] = [];
 
     // Get worktrees directory
-    const worktreesDir = path.join(projectPath, '.worktrees', 'auto-claude');
+    const worktreesDir = path.join(projectPath, '.worktrees', 'turret');
 
     if (!existsSync(worktreesDir)) {
       // No worktrees exist at all - all clear
@@ -493,7 +493,7 @@ export class ReleaseService extends EventEmitter {
           message: 'Stashing current changes...'
         });
 
-        execSync('git stash push -m "auto-claude-release-temp"', {
+        execSync('git stash push -m "turret-release-temp"', {
           cwd: projectPath,
           encoding: 'utf-8'
         });

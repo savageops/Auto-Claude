@@ -1,4 +1,4 @@
-import { Zap, Import, Radio } from 'lucide-react';
+import { Zap, Import, Radio } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { StatusBadge } from './StatusBadge';
 import { PasswordInput } from './PasswordInput';

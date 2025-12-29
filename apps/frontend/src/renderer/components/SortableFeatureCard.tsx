@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from './ui/tooltip';
-import { Play, ExternalLink, TrendingUp, Layers, ThumbsUp } from 'lucide-react';
+import { Play, ExternalLink, TrendingUp, Layers, ThumbsUp } from '@/lib/icons';
 import {
   ROADMAP_PRIORITY_COLORS,
   ROADMAP_PRIORITY_LABELS,
@@ -72,7 +72,7 @@ export function SortableFeatureCard({
       {...listeners}
     >
       <Card
-        className="p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+        className="p-3 hover:bg-secondary cursor-pointer transition-colors"
         onClick={onClick}
       >
         {/* Header - Title with priority badge and action button */}

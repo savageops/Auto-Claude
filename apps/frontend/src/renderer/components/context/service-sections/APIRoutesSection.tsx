@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Route, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { Route, ChevronDown, ChevronRight, Lock } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import {
   Collapsible,

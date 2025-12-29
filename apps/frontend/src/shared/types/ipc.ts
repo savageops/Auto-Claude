@@ -31,12 +31,14 @@ import type {
   WorktreeDiff,
   WorktreeMergeResult,
   WorktreeDiscardResult,
+  WorktreeDiscardFileResult,
   WorktreeListResult,
   TaskRecoveryResult,
   TaskRecoveryOptions,
   TaskMetadata,
   TaskLogs,
-  TaskLogStreamChunk
+  TaskLogStreamChunk,
+  TaskRefinementResult
 } from './task';
 import type {
   TerminalCreateOptions,
@@ -137,10 +139,20 @@ export interface ElectronAPI {
   updateTask: (taskId: string, updates: { title?: string; description?: string }) => Promise<IPCResult<Task>>;
   startTask: (taskId: string, options?: TaskStartOptions) => void;
   stopTask: (taskId: string) => void;
+  restartTask: (taskId: string) => Promise<IPCResult>;
   submitReview: (taskId: string, approved: boolean, feedback?: string) => Promise<IPCResult>;
   updateTaskStatus: (taskId: string, status: TaskStatus) => Promise<IPCResult>;
   recoverStuckTask: (taskId: string, options?: TaskRecoveryOptions) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
+  refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
+  saveUserRedirect: (taskId: string, instruction: string) => Promise<IPCResult>;
+
+  // Task Phase Logs
+  getTaskLogs: (projectId: string, specId: string) => Promise<IPCResult<TaskLogs | null>>;
+  watchTaskLogs: (projectId: string, specId: string) => Promise<IPCResult>;
+  unwatchTaskLogs: (specId: string) => Promise<IPCResult>;
+  onTaskLogsChanged: (callback: (specId: string, logs: TaskLogs) => void) => () => void;
+  onTaskLogsStream: (callback: (specId: string, chunk: TaskLogStreamChunk) => void) => () => void;
 
   // Workspace management (for human review)
   // Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
@@ -149,6 +161,8 @@ export interface ElectronAPI {
   mergeWorktree: (taskId: string, options?: { noCommit?: boolean }) => Promise<IPCResult<WorktreeMergeResult>>;
   mergeWorktreePreview: (taskId: string) => Promise<IPCResult<WorktreeMergeResult>>;
   discardWorktree: (taskId: string) => Promise<IPCResult<WorktreeDiscardResult>>;
+  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<WorktreeDiscardFileResult>>;
+  getWorktreeConflictDiff: (taskId: string, filePath: string) => Promise<IPCResult<string>>;
   listWorktrees: (projectId: string) => Promise<IPCResult<WorktreeListResult>>;
 
   // Task archive operations
@@ -328,280 +342,71 @@ export interface ElectronAPI {
 
   // GitHub OAuth operations (gh CLI)
   checkGitHubCli: () => Promise<IPCResult<{ installed: boolean; version?: string }>>;
-  checkGitHubAuth: () => Promise<IPCResult<{ authenticated: boolean; username?: string }>>;
-  startGitHubAuth: () => Promise<IPCResult<{
-    success: boolean;
-    message?: string;
-    deviceCode?: string;
-    authUrl?: string;
-    browserOpened?: boolean;
-    fallbackUrl?: string;
-  }>>;
-  getGitHubToken: () => Promise<IPCResult<{ token: string }>>;
-  getGitHubUser: () => Promise<IPCResult<{ username: string; name?: string }>>;
-  listGitHubUserRepos: () => Promise<IPCResult<{ repos: Array<{ fullName: string; description: string | null; isPrivate: boolean }> }>>;
-  detectGitHubRepo: (projectPath: string) => Promise<IPCResult<string>>;
-  getGitHubBranches: (repo: string, token: string) => Promise<IPCResult<string[]>>;
-  createGitHubRepo: (
-    repoName: string,
-    options: { description?: string; isPrivate?: boolean; projectPath: string; owner?: string }
-  ) => Promise<IPCResult<{ fullName: string; url: string }>>;
-  addGitRemote: (
-    projectPath: string,
-    repoFullName: string
-  ) => Promise<IPCResult<{ remoteUrl: string }>>;
-  listGitHubOrgs: () => Promise<IPCResult<{ orgs: Array<{ login: string; avatarUrl?: string }> }>>;
-
-  // GitHub OAuth device code event (streams device code during auth flow)
-  onGitHubAuthDeviceCode: (
-    callback: (data: { deviceCode: string; authUrl: string; browserOpened: boolean }) => void
-  ) => () => void;
-
-  // GitHub event listeners
-  onGitHubInvestigationProgress: (
-    callback: (projectId: string, status: GitHubInvestigationStatus) => void
-  ) => () => void;
-  onGitHubInvestigationComplete: (
-    callback: (projectId: string, result: GitHubInvestigationResult) => void
-  ) => () => void;
-  onGitHubInvestigationError: (
-    callback: (projectId: string, error: string) => void
-  ) => () => void;
-
-  // Release operations
-  getReleaseableVersions: (projectId: string) => Promise<IPCResult<ReleaseableVersion[]>>;
-  runReleasePreflightCheck: (projectId: string, version: string) => Promise<IPCResult<ReleasePreflightStatus>>;
-  createRelease: (request: CreateReleaseRequest) => void;
-
-  // Release event listeners
-  onReleaseProgress: (
-    callback: (projectId: string, progress: ReleaseProgress) => void
-  ) => () => void;
-  onReleaseComplete: (
-    callback: (projectId: string, result: CreateReleaseResult) => void
-  ) => () => void;
-  onReleaseError: (
-    callback: (projectId: string, error: string) => void
-  ) => () => void;
-
-  // Ideation operations
-  getIdeation: (projectId: string) => Promise<IPCResult<IdeationSession | null>>;
-  generateIdeation: (projectId: string, config: IdeationConfig) => void;
-  refreshIdeation: (projectId: string, config: IdeationConfig) => void;
-  stopIdeation: (projectId: string) => Promise<IPCResult>;
-  updateIdeaStatus: (projectId: string, ideaId: string, status: IdeationStatus) => Promise<IPCResult>;
-  convertIdeaToTask: (projectId: string, ideaId: string) => Promise<IPCResult<Task>>;
-  dismissIdea: (projectId: string, ideaId: string) => Promise<IPCResult>;
-  dismissAllIdeas: (projectId: string) => Promise<IPCResult>;
-  archiveIdea: (projectId: string, ideaId: string) => Promise<IPCResult>;
-  deleteIdea: (projectId: string, ideaId: string) => Promise<IPCResult>;
-  deleteMultipleIdeas: (projectId: string, ideaIds: string[]) => Promise<IPCResult>;
-
-  // Ideation event listeners
-  onIdeationProgress: (
-    callback: (projectId: string, status: IdeationGenerationStatus) => void
-  ) => () => void;
-  onIdeationLog: (
-    callback: (projectId: string, log: string) => void
-  ) => () => void;
-  onIdeationComplete: (
-    callback: (projectId: string, session: IdeationSession) => void
-  ) => () => void;
-  onIdeationError: (
-    callback: (projectId: string, error: string) => void
-  ) => () => void;
-  onIdeationStopped: (
-    callback: (projectId: string) => void
-  ) => () => void;
-  onIdeationTypeComplete: (
-    callback: (projectId: string, ideationType: string, ideas: Idea[]) => void
-  ) => () => void;
-  onIdeationTypeFailed: (
-    callback: (projectId: string, ideationType: string) => void
-  ) => () => void;
-
-  // Auto Claude source update operations
-  checkAutoBuildSourceUpdate: () => Promise<IPCResult<AutoBuildSourceUpdateCheck>>;
-  downloadAutoBuildSourceUpdate: () => void;
-  getAutoBuildSourceVersion: () => Promise<IPCResult<string>>;
-
-  // Auto Claude source update event listeners
-  onAutoBuildSourceUpdateProgress: (
-    callback: (progress: AutoBuildSourceUpdateProgress) => void
-  ) => () => void;
-
-  // Electron app update operations
-  checkAppUpdate: () => Promise<IPCResult<AppUpdateInfo | null>>;
-  downloadAppUpdate: () => Promise<IPCResult>;
-  installAppUpdate: () => void;
-
-  // Electron app update event listeners
-  onAppUpdateAvailable: (
-    callback: (info: AppUpdateAvailableEvent) => void
-  ) => () => void;
-  onAppUpdateDownloaded: (
-    callback: (info: AppUpdateDownloadedEvent) => void
-  ) => () => void;
-  onAppUpdateProgress: (
-    callback: (progress: AppUpdateProgress) => void
-  ) => () => void;
-
-  // Shell operations
-  openExternal: (url: string) => Promise<void>;
-
-  // Auto Claude source environment operations
-  getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
-  updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
-  checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
-
-  // Changelog operations
-  getChangelogDoneTasks: (projectId: string, tasks?: Task[]) => Promise<IPCResult<ChangelogTask[]>>;
-  loadTaskSpecs: (projectId: string, taskIds: string[]) => Promise<IPCResult<TaskSpecContent[]>>;
-  generateChangelog: (request: ChangelogGenerationRequest) => void; // Async with progress events
-  saveChangelog: (request: ChangelogSaveRequest) => Promise<IPCResult<ChangelogSaveResult>>;
-  readExistingChangelog: (projectId: string) => Promise<IPCResult<ExistingChangelog>>;
-  suggestChangelogVersion: (
-    projectId: string,
-    taskIds: string[]
-  ) => Promise<IPCResult<{ version: string; reason: string }>>;
-  suggestChangelogVersionFromCommits: (
-    projectId: string,
-    commits: import('./changelog').GitCommit[]
-  ) => Promise<IPCResult<{ version: string; reason: string }>>;
-
-  // Changelog git operations (for git-based changelog generation)
-  getChangelogBranches: (projectId: string) => Promise<IPCResult<GitBranchInfo[]>>;
-  getChangelogTags: (projectId: string) => Promise<IPCResult<GitTagInfo[]>>;
-  getChangelogCommitsPreview: (
-    projectId: string,
-    options: GitHistoryOptions | BranchDiffOptions,
-    mode: 'git-history' | 'branch-diff'
-  ) => Promise<IPCResult<GitCommit[]>>;
-  saveChangelogImage: (
-    projectId: string,
-    imageData: string,
-    filename: string
-  ) => Promise<IPCResult<{ relativePath: string; url: string }>>;
-  readLocalImage: (
-    projectPath: string,
-    relativePath: string
-  ) => Promise<IPCResult<string>>;
-
-  // Changelog event listeners
-  onChangelogGenerationProgress: (
-    callback: (projectId: string, progress: ChangelogGenerationProgress) => void
-  ) => () => void;
-  onChangelogGenerationComplete: (
-    callback: (projectId: string, result: ChangelogGenerationResult) => void
-  ) => () => void;
-  onChangelogGenerationError: (
-    callback: (projectId: string, error: string) => void
-  ) => () => void;
+  checkGitHubAuth: () => Promise<IPCResult<{ authenticated: boolean }>>;
+  getGitHubAuthStatus: (projectId: string) => Promise<IPCResult<GitHubSyncStatus>>;
+  setupGitHubIntegration: (projectId: string) => void;
+  onGitHubAuthComplete: (callback: (status: GitHubSyncStatus) => void) => () => void;
 
   // Insights operations
-  getInsightsSession: (projectId: string) => Promise<IPCResult<InsightsSession | null>>;
-  sendInsightsMessage: (projectId: string, message: string, modelConfig?: InsightsModelConfig) => void;
-  clearInsightsSession: (projectId: string) => Promise<IPCResult>;
-  createTaskFromInsights: (
-    projectId: string,
-    title: string,
-    description: string,
-    metadata?: TaskMetadata
-  ) => Promise<IPCResult<Task>>;
-  listInsightsSessions: (projectId: string) => Promise<IPCResult<InsightsSessionSummary[]>>;
-  newInsightsSession: (projectId: string) => Promise<IPCResult<InsightsSession>>;
-  switchInsightsSession: (projectId: string, sessionId: string) => Promise<IPCResult<InsightsSession | null>>;
-  deleteInsightsSession: (projectId: string, sessionId: string) => Promise<IPCResult>;
-  renameInsightsSession: (projectId: string, sessionId: string, newTitle: string) => Promise<IPCResult>;
-  updateInsightsModelConfig: (projectId: string, sessionId: string, modelConfig: InsightsModelConfig) => Promise<IPCResult>;
+  startInsightsSession: (projectId: string, config: IdeationConfig) => Promise<IPCResult<IdeationSession>>;
+  stopInsightsSession: (sessionId: string) => Promise<IPCResult>;
+  chatInsights: (sessionId: string, message: string) => Promise<IPCResult<InsightsStreamChunk[]>>;
+  getInsightsHistory: (projectId: string) => Promise<IPCResult<InsightsSession[]>>;
 
   // Insights event listeners
-  onInsightsStreamChunk: (
-    callback: (projectId: string, chunk: InsightsStreamChunk) => void
-  ) => () => void;
-  onInsightsStatus: (
-    callback: (projectId: string, status: InsightsChatStatus) => void
-  ) => () => void;
-  onInsightsError: (
-    callback: (projectId: string, error: string) => void
-  ) => () => void;
+  onInsightsProgress: (callback: (sessionId: string, status: InsightsChatStatus) => void) => () => void;
 
-  // Task logs operations
-  getTaskLogs: (projectId: string, specId: string) => Promise<IPCResult<TaskLogs | null>>;
-  watchTaskLogs: (projectId: string, specId: string) => Promise<IPCResult>;
-  unwatchTaskLogs: (specId: string) => Promise<IPCResult>;
+  // Changelog operations
+  getChangelog: (projectId: string) => Promise<IPCResult<ExistingChangelog | null>>;
+  generateChangelog: (request: ChangelogGenerationRequest) => void;
+  saveChangelog: (request: ChangelogSaveRequest) => Promise<IPCResult<ChangelogSaveResult>>;
+  getGitHistory: (projectId: string, options: GitHistoryOptions) => Promise<IPCResult<GitCommit[]>>;
+  getGitBranches: (projectId: string) => Promise<IPCResult<GitBranchInfo[]>>;
+  getGitTags: (projectId: string) => Promise<IPCResult<GitTagInfo[]>>;
+  compareBranches: (projectId: string, options: BranchDiffOptions) => Promise<IPCResult<{ commits: GitCommit[]; diffStat: string }>>;
+  getReleaseableVersions: (projectId: string) => Promise<IPCResult<ReleaseableVersion[]>>;
+  checkReleasePreflightStatus: (projectId: string, version: string) => Promise<IPCResult<ReleasePreflightStatus>>;
+  createRelease: (request: CreateReleaseRequest) => void;
+  getChangelogGenerationStatus: (projectId: string) => Promise<IPCResult<{ isRunning: boolean }>>;
 
-  // Task logs event listeners
-  onTaskLogsChanged: (
-    callback: (specId: string, logs: TaskLogs) => void
-  ) => () => void;
-  onTaskLogsStream: (
-    callback: (specId: string, chunk: TaskLogStreamChunk) => void
-  ) => () => void;
+  // Changelog event listeners
+  onChangelogProgress: (callback: (projectId: string, progress: ChangelogGenerationProgress) => void) => () => void;
+  onChangelogComplete: (callback: (projectId: string, changelog: ExistingChangelog) => void) => () => void;
+  onChangelogError: (callback: (projectId: string, error: string) => void) => () => void;
+  onReleaseProgress: (callback: (projectId: string, progress: ReleaseProgress) => void) => () => void;
+  onReleaseComplete: (callback: (projectId: string, result: CreateReleaseResult) => void) => () => void;
+  onReleaseError: (callback: (projectId: string, error: string) => void) => () => void;
 
-  // File explorer operations
-  listDirectory: (dirPath: string) => Promise<IPCResult<FileNode[]>>;
+  // Ideation operations
+  startIdeationSession: (projectId: string, config: IdeationConfig) => Promise<IPCResult<IdeationSession>>;
+  stopIdeationSession: (sessionId: string) => Promise<IPCResult>;
+  generateIdeas: (sessionId: string, prompt?: string) => void;
+  chatIdeation: (sessionId: string, message: string) => void;
+  getIdeationHistory: (projectId: string) => Promise<IPCResult<IdeationSession[]>>;
 
-  // Git operations
-  getGitBranches: (projectPath: string) => Promise<IPCResult<string[]>>;
-  getCurrentGitBranch: (projectPath: string) => Promise<IPCResult<string | null>>;
-  detectMainBranch: (projectPath: string) => Promise<IPCResult<string | null>>;
-  checkGitStatus: (projectPath: string) => Promise<IPCResult<GitStatus>>;
-  initializeGit: (projectPath: string) => Promise<IPCResult<InitializationResult>>;
+  // Ideation event listeners
+  onIdeationProgress: (callback: (sessionId: string, status: IdeationGenerationStatus) => void) => () => void;
+  onIdea: (callback: (sessionId: string, idea: Idea) => void) => () => void;
+  onIdeationMessage: (callback: (sessionId: string, message: string) => void) => () => void;
+  onIdeationError: (callback: (sessionId: string, error: string) => void) => () => void;
+  onIdeationComplete: (callback: (sessionId: string, session: IdeationSession) => void) => () => void;
 
-  // Ollama model detection operations
-  checkOllamaStatus: (baseUrl?: string) => Promise<IPCResult<{
-    running: boolean;
-    url: string;
-    version?: string;
-    message?: string;
-  }>>;
-  listOllamaModels: (baseUrl?: string) => Promise<IPCResult<{
-    models: Array<{
-      name: string;
-      size_bytes: number;
-      size_gb: number;
-      modified_at: string;
-      is_embedding: boolean;
-      embedding_dim?: number | null;
-      description?: string;
-    }>;
-    count: number;
-  }>>;
-  listOllamaEmbeddingModels: (baseUrl?: string) => Promise<IPCResult<{
-    embedding_models: Array<{
-      name: string;
-      embedding_dim: number | null;
-      description: string;
-      size_bytes: number;
-      size_gb: number;
-    }>;
-    count: number;
-  }>>;
-  pullOllamaModel: (modelName: string, baseUrl?: string) => Promise<IPCResult<{
-    model: string;
-    status: 'completed' | 'failed';
-    output: string[];
-  }>>;
+  // App update operations
+  checkForUpdates: () => void;
+  downloadUpdate: () => Promise<IPCResult>;
+  quitAndInstall: () => void;
+  isUpdateAvailable: () => Promise<boolean>;
+  getUpdateInfo: () => Promise<IPCResult<AppUpdateInfo | null>>;
 
-  // Ollama download progress listener
-  onDownloadProgress: (
-    callback: (data: {
-      modelName: string;
-      status: string;
-      completed: number;
-      total: number;
-      percentage: number;
-    }) => void
-  ) => () => void;
-
-  // GitHub API (nested for organized access)
-  github: import('../../preload/api/modules/github-api').GitHubAPI;
+  // App update event listeners
+  onUpdateAvailable: (callback: (info: AppUpdateAvailableEvent) => void) => () => void;
+  onUpdateProgress: (callback: (progress: AppUpdateProgress) => void) => () => void;
+  onUpdateDownloaded: (callback: (info: AppUpdateDownloadedEvent) => void) => () => void;
 }
 
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-    DEBUG: boolean;
-  }
+// Event-driven updates from main process
+export interface FrontendAPI {
+  onTaskLogsStream: (callback: (taskId: string, chunk: TaskLogStreamChunk) => void) => () => void;
+  onTaskStatusUpdate: (callback: (status: TaskStatus) => void) => () => void;
+  onGitStatusUpdate: (callback: (status: GitStatus) => void) => () => void;
 }

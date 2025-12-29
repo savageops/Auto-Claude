@@ -1,4 +1,4 @@
-import { PartyPopper, Check } from 'lucide-react';
+import { PartyPopper, Check } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { GitHubReleaseCard } from './GitHubReleaseCard';
 import { ArchiveTasksCard } from './ArchiveTasksCard';

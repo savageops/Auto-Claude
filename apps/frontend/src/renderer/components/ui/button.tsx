@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:scale-[0.98]',
         outline:
-          'border border-border bg-transparent hover:bg-accent hover:text-accent-foreground active:scale-[0.98]',
+          'bg-transparent hover:bg-accent hover:text-accent-foreground active:scale-[0.98]',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.98]',
         ghost:
@@ -26,10 +26,10 @@ const buttonVariants = cva(
           'bg-warning text-warning-foreground hover:bg-warning/90 active:scale-[0.98]',
       },
       size: {
-        default: 'h-10 px-4 py-2 text-sm rounded-lg',
-        sm: 'h-8 px-3 text-xs rounded-md',
-        lg: 'h-12 px-6 text-base rounded-lg',
-        icon: 'h-10 w-10 rounded-lg',
+        default: 'h-10 px-2 py-1 text-sm rounded-md',
+        sm: 'h-8 px-2 text-xs rounded-md',
+        lg: 'h-12 px-3 text-base rounded-md',
+        icon: 'h-10 w-10 rounded-md',
       },
     },
     defaultVariants: {

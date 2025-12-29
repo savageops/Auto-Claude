@@ -1,4 +1,4 @@
-import { FolderOpen } from 'lucide-react';
+import { FolderOpen } from '@/lib/icons';
 
 /**
  * Shows an empty state when no project is selected in settings.

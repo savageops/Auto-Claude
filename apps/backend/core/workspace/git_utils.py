@@ -125,6 +125,8 @@ def detect_file_renames(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         if result.returncode == 0:
@@ -180,6 +182,8 @@ def get_merge_base(project_dir: Path, ref1: str, ref2: str) -> str | None:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             return result.stdout.strip()
@@ -195,6 +199,8 @@ def has_uncommitted_changes(project_dir: Path) -> bool:
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return bool(result.stdout.strip())
 
@@ -206,6 +212,8 @@ def get_current_branch(project_dir: Path) -> str:
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return result.stdout.strip()
 
@@ -237,6 +245,8 @@ def get_file_content_from_ref(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if result.returncode == 0:
         return result.stdout
@@ -247,7 +257,7 @@ def get_changed_files_from_branch(
     project_dir: Path,
     base_branch: str,
     spec_branch: str,
-    exclude_auto_claude: bool = True,
+    exclude_turret: bool = True,
 ) -> list[tuple[str, str]]:
     """
     Get list of changed files between branches.
@@ -256,7 +266,7 @@ def get_changed_files_from_branch(
         project_dir: Project directory
         base_branch: Base branch name
         spec_branch: Spec branch name
-        exclude_auto_claude: If True, exclude .auto-claude directory files (default True)
+        exclude_turret: If True, exclude .turret directory files (default True)
 
     Returns:
         List of (file_path, status) tuples
@@ -266,6 +276,8 @@ def get_changed_files_from_branch(
         cwd=project_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
     files = []
@@ -275,19 +287,19 @@ def get_changed_files_from_branch(
                 parts = line.split("\t", 1)
                 if len(parts) == 2:
                     file_path = parts[1]
-                    # Exclude .auto-claude directory files from merge
-                    if exclude_auto_claude and _is_auto_claude_file(file_path):
+                    # Exclude .turret directory files from merge
+                    if exclude_turret and _is_turret_file(file_path):
                         continue
                     files.append((file_path, parts[0]))  # (file_path, status)
     return files
 
 
-def _is_auto_claude_file(file_path: str) -> bool:
-    """Check if a file is in the .auto-claude or auto-claude/specs directory."""
+def _is_turret_file(file_path: str) -> bool:
+    """Check if a file is in the .turret or turret/specs directory."""
     # These patterns cover the internal spec/build files that shouldn't be merged
     excluded_patterns = [
-        ".auto-claude/",
-        "auto-claude/specs/",
+        ".turret/",
+        "turret/specs/",
     ]
     for pattern in excluded_patterns:
         if file_path.startswith(pattern):
@@ -390,6 +402,8 @@ def validate_merged_syntax(
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=15,  # esbuild is fast, 15s is plenty
                 )
 
@@ -489,6 +503,8 @@ def create_conflict_file_with_git(
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
 
             # Read the merged content

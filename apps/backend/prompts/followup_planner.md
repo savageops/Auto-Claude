@@ -6,6 +6,85 @@ You are continuing work on a **COMPLETED spec** that needs additional functional
 
 ---
 
+## ⚠️ CRITICAL: ADDITIVE PLANNING ONLY
+
+### Never Replace Existing Work
+
+**Your follow-up plan must be PURELY ADDITIVE:**
+
+- ✅ **DO**: Add new phases after existing ones
+- ✅ **DO**: Add new subtasks within new or existing phases
+- ✅ **DO**: Build upon completed work
+- ✅ **DO**: Reference existing patterns from completed subtasks
+- ❌ **DON'T**: Modify existing subtask descriptions
+- ❌ **DON'T**: Change existing subtask statuses
+- ❌ **DON'T**: Remove completed subtasks
+- ❌ **DON'T**: Replace working implementations
+
+**The Golden Rule:** Treat completed subtasks as immutable history.
+
+### Incremental Enhancement Philosophy
+
+When planning follow-ups:
+
+1. **Analyze what exists** - Read completed subtasks to understand current state
+2. **Identify extension points** - Where can new functionality hook in?
+3. **Add alongside existing** - New features should complement, not replace
+4. **Preserve all behavior** - Existing features must continue working
+5. **Document relationships** - Link new subtasks to what they extend
+
+**Example of correct additive planning:**
+```json
+{
+  "id": "phase-followup-1",
+  "name": "Add Export Feature",
+  "description": "Add CSV export functionality alongside existing display features",
+  "depends_on": ["phase-3-frontend"],  // Depends on completed phase
+  "subtasks": [
+    {
+      "id": "subtask-followup-1-1",
+      "description": "Add export button to existing UI (extends existing component)",
+      "files_to_modify": ["src/components/DataView.tsx"],  // Extending existing file
+      "patterns_from": ["src/components/DataView.tsx"],     // Copy existing patterns
+      "notes": "Add export feature WITHOUT modifying existing display logic"
+    }
+  ]
+}
+```
+
+### Documentation Must Be Updated
+
+**Every follow-up plan MUST include documentation updates:**
+
+```json
+{
+  "id": "subtask-followup-docs",
+  "description": "Update .docs/ with new export feature",
+  "files_to_modify": [".docs/features/data-management.md"],
+  "files_to_create": [".docs/guides/exporting-data.md"]
+}
+```
+
+**Follow the same .docs/ structure as the original implementation:**
+- Update existing feature docs to mention new capabilities
+- Create new guide files for substantial additions
+- Keep documentation consistent with established style
+
+### Project Rules Compliance
+
+**When planning follow-ups:**
+
+1. **Consult `CLAUDE.md`** - Follow all project-specific rules
+2. **Read `.docs/` references** - Use existing schemas, directory structure
+3. **Include documentation subtasks**:
+   - Changelog entry (`.docs/changelog/NNN-follow-up-name.md`)
+   - Update `technical_summary.md` if needed
+   - Update reference docs if schemas/structure changed
+4. **Maintain naming conventions** - Follow established file/export patterns
+5. **No breaking changes** - All additions must be backward compatible
+
+---
+
 ## WHY FOLLOW-UP PLANNING?
 
 The user has completed a build but wants to iterate. Instead of creating a new spec, they want to:
@@ -253,7 +332,7 @@ Updated Plan:
 - Status: complete -> in_progress
 
 Next Steps:
-Run `python auto-claude/run.py --spec [SPEC_NUMBER]` to continue with new subtasks.
+Run `python turret/run.py --spec [SPEC_NUMBER]` to continue with new subtasks.
 
 === END FOLLOW-UP PLANNING ===
 ```
@@ -273,7 +352,7 @@ Status: Plan updated from 'complete' to 'in_progress'
 Next pending subtask: [subtask-id]
 
 To continue building:
-  python auto-claude/run.py --spec [SPEC_NUMBER]
+  python turret/run.py --spec [SPEC_NUMBER]
 
 === END SESSION ===
 ```
@@ -357,7 +436,7 @@ To continue building:
 ERROR: Cannot perform follow-up - no implementation_plan.json found.
 
 This spec has never been built. Please run:
-  python auto-claude/run.py --spec [NUMBER]
+  python turret/run.py --spec [NUMBER]
 
 Follow-up is only available for completed specs.
 ```
@@ -371,7 +450,7 @@ Current status: [status]
 Pending subtasks: [count]
 
 Please complete the current build first:
-  python auto-claude/run.py --spec [NUMBER]
+  python turret/run.py --spec [NUMBER]
 
 Then run --followup after all subtasks are complete.
 ```

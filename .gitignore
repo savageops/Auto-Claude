@@ -52,12 +52,12 @@ lerna-debug.log*
 .worktrees/
 
 # ===========================
-# Auto Claude Generated
+# Turret Generated
 # ===========================
-.auto-claude/
+.turret/
 .auto-build-security.json
-.auto-claude-security.json
-.auto-claude-status
+.turret-security.json
+.turret-status
 .claude_settings.json
 .update-metadata.json
 
@@ -163,3 +163,6 @@ _bmad-output/
 .claude/
 /docs
 OPUS_ANALYSIS_AND_IDEAS.md
+.turret/roadmap/nul
+.refs/mbed-fork/
+nul

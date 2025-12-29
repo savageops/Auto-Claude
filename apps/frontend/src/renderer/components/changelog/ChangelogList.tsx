@@ -1,4 +1,4 @@
-import { FileText, GitCommit, Loader2, ArrowRight } from 'lucide-react';
+import { FileText, GitCommit, RefreshCw, ArrowRight } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
@@ -128,7 +128,7 @@ export function ChangelogList({
                 {previewCommits.length} commit{previewCommits.length !== 1 ? 's' : ''} found
               </span>
               {isLoadingCommits && (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
               )}
             </div>
           </div>
@@ -138,7 +138,7 @@ export function ChangelogList({
             {isLoadingCommits ? (
               <div className="flex h-full items-center justify-center">
                 <div className="text-center py-12">
-                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                  <RefreshCw className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                   <p className="mt-4 text-sm text-muted-foreground">Loading commits...</p>
                 </div>
               </div>

@@ -26,11 +26,11 @@ The AI considers:
 - Risk factors and edge cases
 
 Usage:
-    python auto-claude/spec_runner.py --task "Add user authentication"
-    python auto-claude/spec_runner.py --interactive
-    python auto-claude/spec_runner.py --continue 001-feature
-    python auto-claude/spec_runner.py --task "Fix button color" --complexity simple
-    python auto-claude/spec_runner.py --task "Simple fix" --no-ai-assessment
+    python turret/spec_runner.py --task "Add user authentication"
+    python turret/spec_runner.py --interactive
+    python turret/spec_runner.py --continue 001-feature
+    python turret/spec_runner.py --task "Fix button color" --complexity simple
+    python turret/spec_runner.py --task "Simple fix" --no-ai-assessment
 """
 
 import sys
@@ -38,7 +38,7 @@ import sys
 # Python version check - must be before any imports using 3.10+ syntax
 if sys.version_info < (3, 10):  # noqa: UP036
     sys.exit(
-        f"Error: Auto Claude requires Python 3.10 or higher.\n"
+        f"Error: Turret requires Python 3.10 or higher.\n"
         f"You are running Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}\n"
         f"\n"
         f"Please upgrade Python: https://www.python.org/downloads/"
@@ -78,14 +78,14 @@ if sys.platform == "win32":
     if "_new_stream" in dir():
         del _new_stream
 
-# Add auto-claude to path (parent of runners/)
+# Add turret to path (parent of runners/)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Load .env file
 from dotenv import load_dotenv
 
 env_file = Path(__file__).parent.parent / ".env"
-dev_env_file = Path(__file__).parent.parent.parent / "dev" / "auto-claude" / ".env"
+dev_env_file = Path(__file__).parent.parent.parent / "dev" / "turret" / ".env"
 if env_file.exists():
     load_dotenv(env_file)
 elif dev_env_file.exists():
@@ -221,25 +221,25 @@ Examples:
         # Sanitize null bytes which could cause issues
         task_description = task_description.replace("\x00", "")
 
-    # Find project root (look for auto-claude folder)
+    # Find project root (look for turret folder)
     project_dir = args.project_dir
 
-    # Auto-detect if running from within auto-claude directory (the source code)
-    if project_dir.name == "auto-claude" and (project_dir / "run.py").exists():
-        # Running from within auto-claude/ source directory, go up 1 level
+    # Auto-detect if running from within turret directory (the source code)
+    if project_dir.name == "turret" and (project_dir / "run.py").exists():
+        # Running from within turret/ source directory, go up 1 level
         project_dir = project_dir.parent
-    elif not (project_dir / ".auto-claude").exists():
-        # No .auto-claude folder found - try to find project root
-        # First check for .auto-claude (installed instance)
+    elif not (project_dir / ".turret").exists():
+        # No .turret folder found - try to find project root
+        # First check for .turret (installed instance)
         for parent in project_dir.parents:
-            if (parent / ".auto-claude").exists():
+            if (parent / ".turret").exists():
                 project_dir = parent
                 break
 
     # Note: --dev flag is deprecated but kept for API compatibility
     if args.dev:
         print(
-            f"\n{icon(Icons.GEAR)} Note: --dev flag is deprecated. All specs now go to .auto-claude/specs/\n"
+            f"\n{icon(Icons.GEAR)} Note: --dev flag is deprecated. All specs now go to .turret/specs/\n"
         )
 
     # Resolve model shorthand to full model ID
@@ -301,14 +301,14 @@ Examples:
                 print()
                 print(f"  {muted('To approve the spec, run:')}")
                 print(
-                    f"  {highlight(f'python auto-claude/review.py --spec-dir {orchestrator.spec_dir}')}"
+                    f"  {highlight(f'python turret/review.py --spec-dir {orchestrator.spec_dir}')}"
                 )
                 print()
                 print(
                     f"  {muted('Or re-run spec_runner with --auto-approve to skip review:')}"
                 )
                 example_cmd = (
-                    'python auto-claude/spec_runner.py --task "..." --auto-approve'
+                    'python turret/spec_runner.py --task "..." --auto-approve'
                 )
                 print(f"  {highlight(example_cmd)}")
                 sys.exit(1)
@@ -355,7 +355,7 @@ Examples:
         debug_error("spec_runner", "Spec creation interrupted by user")
         print("\n\nSpec creation interrupted.")
         print(
-            f"To continue: python auto-claude/spec_runner.py --continue {orchestrator.spec_dir.name}"
+            f"To continue: python turret/spec_runner.py --continue {orchestrator.spec_dir.name}"
         )
         sys.exit(1)
 

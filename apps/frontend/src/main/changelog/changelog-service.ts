@@ -91,7 +91,7 @@ export class ChangelogService extends EventEmitter {
 
   /**
    * Check if debug mode is enabled
-   * Checks DEBUG from auto-claude/.env and DEBUG from process.env
+   * Checks DEBUG from turret/.env and DEBUG from process.env
    */
   private isDebugEnabled(): boolean {
     // Cache the result after first check
@@ -110,14 +110,14 @@ export class ChangelogService extends EventEmitter {
       return true;
     }
 
-    // Check auto-claude .env file
+    // Check turret .env file
     const env = this.loadAutoBuildEnv();
     this.debugEnabled = env.DEBUG === 'true' || env.DEBUG === '1';
     return this.debugEnabled;
   }
 
   /**
-   * Debug logging - only logs when DEBUG=true in auto-claude/.env or DEBUG is set
+   * Debug logging - only logs when DEBUG=true in turret/.env or DEBUG is set
    */
   private debug(...args: unknown[]): void {
     if (this.isDebugEnabled()) {
@@ -126,7 +126,7 @@ export class ChangelogService extends EventEmitter {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     if (pythonPath) {
@@ -138,7 +138,7 @@ export class ChangelogService extends EventEmitter {
   }
 
   /**
-   * Get the auto-claude source path (detects automatically if not configured)
+   * Get the turret source path (detects automatically if not configured)
    */
   private getAutoBuildSourcePath(): string | null {
     if (this.autoBuildSourcePath && existsSync(this.autoBuildSourcePath)) {
@@ -161,7 +161,7 @@ export class ChangelogService extends EventEmitter {
   }
 
   /**
-   * Load environment variables from auto-claude .env file
+   * Load environment variables from turret .env file
    */
   private loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();

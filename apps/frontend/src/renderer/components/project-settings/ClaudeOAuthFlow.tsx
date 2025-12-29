@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Info,
   Sparkles
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 
@@ -128,7 +128,7 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
                     Authenticate with Claude
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Auto Claude requires Claude AI authentication for AI-powered features like
+                    Turret requires Claude AI authentication for AI-powered features like
                     Roadmap generation, Task automation, and Ideation.
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -155,7 +155,7 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Loader2 className="h-6 w-6 animate-spin text-info shrink-0" />
+                <RefreshCw className="h-6 w-6 animate-spin text-info shrink-0" />
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-foreground">
                     Authenticating...
@@ -176,7 +176,7 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
                       <li>Your browser should open to authenticate with Claude</li>
                       <li>Complete the OAuth flow in your browser</li>
                       <li>The terminal will display your token (starts with sk-ant-oat01-...)</li>
-                      <li>Auto Claude will automatically detect and save it</li>
+                      <li>Turret will automatically detect and save it</li>
                     </ol>
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
                 </p>
                 <div className="flex items-center gap-2 mt-3 text-xs text-success/70">
                   <Sparkles className="h-3 w-3" />
-                  <span>You can now use all Auto Claude AI features</span>
+                  <span>You can now use all Turret AI features</span>
                 </div>
               </div>
             </div>

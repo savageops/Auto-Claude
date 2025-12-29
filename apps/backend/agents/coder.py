@@ -7,6 +7,7 @@ Main autonomous agent loop that runs the coder agent to implement subtasks.
 
 import asyncio
 import logging
+import time
 from pathlib import Path
 
 from core.client import create_client
@@ -62,9 +63,12 @@ from .utils import (
     get_latest_commit,
     load_implementation_plan,
     sync_plan_to_source,
+    update_subtask_status,
 )
 
 logger = logging.getLogger(__name__)
+
+REDIRECT_INSTRUCTION_FILE = "redirect_instruction.md"
 
 
 async def run_autonomous_agent(
@@ -83,7 +87,7 @@ async def run_autonomous_agent(
 
     Args:
         project_dir: Root directory for the project
-        spec_dir: Directory containing the spec (auto-claude/specs/001-name/)
+        spec_dir: Directory containing the spec (turret/specs/001-name/)
         model: Claude model to use
         max_iterations: Maximum number of iterations (None for unlimited)
         verbose: Whether to show detailed output
@@ -203,7 +207,7 @@ async def run_autonomous_agent(
             print("\nTo resume, delete the PAUSE file:")
             print(f"  rm {pause_file}")
             print("\nThen run again:")
-            print(f"  python auto-claude/run.py --spec {spec_dir.name}")
+            print(f"  python turret/run.py --spec {spec_dir.name}")
             return
 
         # Check max iterations
@@ -216,6 +220,12 @@ async def run_autonomous_agent(
         next_subtask = get_next_subtask(spec_dir)
         subtask_id = next_subtask.get("id") if next_subtask else None
         phase_name = next_subtask.get("phase_name") if next_subtask else None
+
+        # Auto-mark as in_progress if currently pending (immediate UI feedback)
+        if subtask_id and next_subtask.get("status") == "pending":
+            update_subtask_status(spec_dir, subtask_id, "in_progress")
+            # Sync back to source immediately so UI updates
+            sync_plan_to_source(spec_dir, source_spec_dir)
 
         # Update status for this session
         status_manager.update_session(iteration)
@@ -328,6 +338,33 @@ async def run_autonomous_agent(
             if attempt_count > 0:
                 print_status(f"Previous attempts: {attempt_count}", "warning")
             print()
+
+        # Check for user redirect instruction (applies to both Planner and Coder phases)
+        redirect_file = spec_dir / REDIRECT_INSTRUCTION_FILE
+        if redirect_file.exists():
+            try:
+                user_redirect_content = redirect_file.read_text().strip()
+                # Rename to mark as processed
+                timestamp = int(time.time())
+                redirect_file.rename(spec_dir / f"{REDIRECT_INSTRUCTION_FILE}.{timestamp}.processed")
+
+                if user_redirect_content:
+                    print("\n" + "=" * 70)
+                    print("  USER REDIRECT INSTRUCTION RECEIVED")
+                    print("=" * 70)
+                    print(f"\nInstruction: {user_redirect_content}\n")
+                    print_status("Injecting user instruction into next prompt", "info")
+
+                    # Log to task logger so it appears in UI logs
+                    if task_logger:
+                        task_logger.log_info(f"User Redirect: {user_redirect_content}")
+
+                    # Inject into prompt
+                    prompt += f"\n\n## USER REDIRECT INSTRUCTION\n\nIMPORTANT: The user has provided the following specific instruction. Priority: HIGH.\n\n{user_redirect_content}"
+            except Exception as e:
+                logger.error(f"Failed to read/process redirect file: {e}")
+                if task_logger:
+                    task_logger.log_error(f"Failed to process user redirect: {e}")
 
         # Set subtask info in logger
         if task_logger and subtask_id:
@@ -469,14 +506,14 @@ async def run_autonomous_agent(
             bold(f"{icon(Icons.PLAY)} NEXT STEPS"),
             "",
             f"{total - completed} subtasks remaining.",
-            f"Run again: {highlight(f'python auto-claude/run.py --spec {spec_dir.name}')}",
+            f"Run again: {highlight(f'python turret/run.py --spec {spec_dir.name}')}",
         ]
     else:
         content = [
             bold(f"{icon(Icons.SUCCESS)} NEXT STEPS"),
             "",
             "All subtasks completed!",
-            "  1. Review the auto-claude/* branch",
+            "  1. Review the turret/* branch",
             "  2. Run manual tests",
             "  3. Merge to main",
         ]

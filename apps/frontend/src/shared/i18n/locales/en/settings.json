@@ -7,7 +7,7 @@
   "sections": {
     "appearance": {
       "title": "Appearance",
-      "description": "Customize how Auto Claude looks"
+      "description": "Customize how Turret looks"
     },
     "display": {
       "title": "Display",
@@ -29,9 +29,13 @@
       "title": "Integrations",
       "description": "API keys & Claude accounts"
     },
+    "prompts": {
+      "title": "Prompts",
+      "description": "Customize AI prompts"
+    },
     "updates": {
       "title": "Updates",
-      "description": "Auto Claude updates"
+      "description": "Turret updates"
     },
     "notifications": {
       "title": "Notifications",
@@ -57,7 +61,7 @@
     "otherAgentSettingsDescription": "Additional agent configuration options",
     "agentFramework": "Agent Framework",
     "agentFrameworkDescription": "The coding framework used for autonomous tasks",
-    "agentFrameworkAutoClaude": "Auto Claude",
+    "agentFrameworkTurret": "Turret",
     "aiTerminalNaming": "AI Terminal Naming",
     "aiTerminalNamingDescription": "Automatically name terminals based on commands (uses Haiku)",
     "featureModelSettings": "Feature Model Settings",
@@ -69,9 +73,9 @@
     "pythonPath": "Python Path",
     "pythonPathDescription": "Path to Python executable (leave empty for default)",
     "pythonPathPlaceholder": "python3 (default)",
-    "autoClaudePath": "Auto Claude Path",
-    "autoClaudePathDescription": "Relative path to auto-claude directory in projects",
-    "autoClaudePathPlaceholder": "auto-claude (default)",
+    "turretPath": "Turret Path",
+    "turretPathDescription": "Relative path to turret directory in projects",
+    "turretPathPlaceholder": "turret (default)",
     "autoNameTerminals": "Automatically name terminals",
     "autoNameTerminalsDescription": "Use AI to generate descriptive names for terminal tabs based on their activity",
     "useClaudeMd": "Use CLAUDE.md",
@@ -79,7 +83,7 @@
   },
   "theme": {
     "title": "Appearance",
-    "description": "Customize how Auto Claude looks",
+    "description": "Customize how Turret looks",
     "mode": "Mode",
     "modeDescription": "Choose between light and dark themes",
     "light": "Light",
@@ -90,7 +94,7 @@
   },
   "updates": {
     "title": "Updates",
-    "description": "Manage Auto Claude updates",
+    "description": "Manage Turret updates",
     "appUpdateReady": "App Update Ready",
     "newVersion": "New Version",
     "released": "Released",
@@ -107,7 +111,7 @@
     "unableToCheck": "Unable to check for updates",
     "checkForUpdates": "Check for Updates",
     "autoUpdateProjects": "Auto-Update Projects",
-    "autoUpdateProjectsDescription": "Automatically update Auto Claude in projects when a new version is available",
+    "autoUpdateProjectsDescription": "Automatically update Turret in projects when a new version is available",
     "betaUpdates": "Beta Updates",
     "betaUpdatesDescription": "Receive pre-release beta versions with new features (may be less stable)"
   },
@@ -199,6 +203,61 @@
       "other": "Other"
     }
   },
+  "merge": {
+    "systemPrompt": {
+      "label": "System Prompt",
+      "description": "The overall behavior and philosophy for the AI merge assistant"
+    },
+    "criticalRules": {
+      "title": "Critical Rules",
+      "description": "Strict rules that the AI must never violate during merges"
+    },
+    "preventDeletion": {
+      "label": "Prevent Code Deletion",
+      "description": "NEVER remove existing functions, methods, or features from any task"
+    },
+    "preventFeatureReduction": {
+      "label": "Prevent Feature Reduction",
+      "description": "NEVER reduce the total count of features, imports, or capabilities"
+    },
+    "preservationRules": {
+      "title": "Preservation Rules",
+      "description": "Specific code elements that must be preserved from all tasks"
+    },
+    "preserveAllImports": {
+      "label": "All Imports"
+    },
+    "preserveAllHooks": {
+      "label": "All Hooks"
+    },
+    "preserveAllProps": {
+      "label": "All Props"
+    },
+    "preserveAllState": {
+      "label": "All State"
+    },
+    "conflictStrategy": {
+      "title": "Conflict Resolution Strategy",
+      "description": "How the AI should approach conflicting changes"
+    },
+    "combineConflicts": {
+      "label": "Combine Conflicting Approaches",
+      "description": "When tasks conflict, include BOTH approaches instead of choosing one"
+    },
+    "includeMoreWhenUncertain": {
+      "label": "Include More When Uncertain",
+      "description": "When in doubt about what to keep, include MORE code rather than less"
+    },
+    "customInstructions": {
+      "label": "Custom Instructions",
+      "description": "Additional project-specific merge instructions for the AI",
+      "placeholder": "e.g., Always preserve TypeScript types, never convert to any..."
+    },
+    "info": {
+      "title": "How This Works",
+      "description": "These settings control the AI prompts used when merging multiple task branches. Changes apply to all future merges."
+    }
+  },
   "integrations": {
     "title": "Integrations",
     "description": "Manage Claude accounts and API keys",
@@ -238,5 +297,120 @@
     "apiKeysInfo": "Keys set here are used as defaults. Individual projects can override these in their settings.",
     "openaiKey": "OpenAI API Key",
     "openaiKeyDescription": "Required for Graphiti memory backend (embeddings)"
+  },
+  "prompts": {
+    "info": {
+      "title": "How This Works",
+      "description": "These settings control the AI prompts used throughout Turret. Changes apply to all future operations."
+    },
+    "merge": {
+      "title": "Merge Prompts",
+      "sectionDescription": "Controls how AI resolves code conflicts when merging task branches",
+      "systemPrompt": {
+        "label": "System Prompt",
+        "description": "The overall behavior and philosophy for the AI merge assistant"
+      },
+      "criticalRules": {
+        "title": "Critical Rules",
+        "description": "Strict rules that the AI must never violate during merges"
+      },
+      "preventDeletion": {
+        "label": "Prevent Code Deletion",
+        "description": "NEVER remove existing functions, methods, or features from any task"
+      },
+      "preventFeatureReduction": {
+        "label": "Prevent Feature Reduction",
+        "description": "NEVER reduce the total count of features, imports, or capabilities"
+      },
+      "preservationRules": {
+        "title": "Preservation Rules",
+        "description": "Specific code elements that must be preserved from all tasks"
+      },
+      "preserveAllImports": {
+        "label": "All Imports"
+      },
+      "preserveAllHooks": {
+        "label": "All Hooks"
+      },
+      "preserveAllProps": {
+        "label": "All Props"
+      },
+      "preserveAllState": {
+        "label": "All State"
+      },
+      "conflictStrategy": {
+        "title": "Conflict Resolution Strategy",
+        "description": "How the AI should approach conflicting changes"
+      },
+      "combineConflicts": {
+        "label": "Combine Conflicting Approaches",
+        "description": "When tasks conflict, include BOTH approaches instead of choosing one"
+      },
+      "includeMoreWhenUncertain": {
+        "label": "Include More When Uncertain",
+        "description": "When in doubt about what to keep, include MORE code rather than less"
+      },
+      "customInstructions": {
+        "label": "Custom Merge Instructions",
+        "description": "Additional project-specific merge instructions for the AI",
+        "placeholder": "e.g., Always preserve TypeScript types, never convert to any..."
+      }
+    },
+    "taskExecution": {
+      "title": "Task Execution Prompts",
+      "sectionDescription": "Configure base prompts and additional instructions for Planner, Coder, and QA phases",
+      "basePrompt": "Base Prompt",
+      "basePromptDescription": "The core system prompt loaded from .md file (editable, saved back to file)",
+      "basePromptPlaceholder": "Loading base prompt from file...",
+      "additionalInstructions": "Additional Instructions",
+      "planner": {
+        "title": "Planner",
+        "subtitle": "Spec creation and implementation planning",
+        "description": "Additional instructions appended to the planner base prompt",
+        "placeholder": "e.g., Always break down features into small, testable chunks. Consider edge cases early..."
+      },
+      "coder": {
+        "title": "Coder",
+        "subtitle": "Code implementation phase",
+        "description": "Additional instructions appended to the coder base prompt",
+        "placeholder": "e.g., Always add comprehensive error handling. Prefer composition over inheritance..."
+      },
+      "qa": {
+        "title": "QA Reviewer",
+        "subtitle": "Quality assurance and validation",
+        "description": "Additional instructions appended to the QA reviewer base prompt",
+        "placeholder": "e.g., Focus on edge cases and error conditions. Verify all user-facing changes..."
+      }
+    },
+    "ideation": {
+      "title": "Ideation Prompts",
+      "sectionDescription": "Prompts used for generating ideas across different categories",
+      "code_improvements": "Code Improvements",
+      "ui_ux_improvements": "UI/UX Improvements",
+      "documentation_gaps": "Documentation",
+      "security_hardening": "Security",
+      "performance_optimizations": "Performance",
+      "code_quality": "Code Quality"
+    },
+    "roadmap": {
+      "title": "Roadmap Prompts",
+      "sectionDescription": "Prompts used for roadmap generation",
+      "discovery": "Discovery Phase",
+      "features": "Feature Planning"
+    },
+    "insights": {
+      "title": "Insights Prompt",
+      "sectionDescription": "Prompt used for extracting insights from coding sessions"
+    },
+    "global": {
+      "title": "Global Instructions",
+      "sectionDescription": "Instructions applied to all AI prompts across the application",
+      "instructions": {
+        "label": "Global Custom Instructions",
+        "description": "These instructions will be appended to every AI prompt across the application",
+        "placeholder": "e.g., Always follow our coding standards. Use TypeScript strict mode. Write tests for new features...",
+        "note": "Applied to merge, planning, coding, QA, and all other AI operations"
+      }
+    }
   }
 }

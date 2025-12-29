@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import '@xterm/xterm/css/xterm.css';
-import { FileDown } from 'lucide-react';
+import { FileDown } from '@/lib/icons';
 import { cn } from '../lib/utils';
 import { useTerminalStore } from '../stores/terminal-store';
 import type { TerminalProps } from './terminal/types';

@@ -24,7 +24,7 @@ ccstatusline Configuration:
         "widgets": [
             {
                 "type": "custom_command",
-                "command": "python /path/to/auto-claude/statusline.py",
+                "command": "python /path/to/turret/statusline.py",
                 "refresh": 5000
             }
         ]
@@ -36,7 +36,7 @@ import json
 import sys
 from pathlib import Path
 
-# Add auto-claude to path
+# Add turret to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from ui import (
@@ -50,20 +50,20 @@ from ui import (
 
 
 def find_project_root() -> Path:
-    """Find the project root by looking for .auto-claude or .auto-claude-status."""
+    """Find the project root by looking for .turret or .turret-status."""
     cwd = Path.cwd()
 
-    # Check current directory - prioritize .auto-claude (installed instance)
-    if (cwd / ".auto-claude").exists():
+    # Check current directory - prioritize .turret (installed instance)
+    if (cwd / ".turret").exists():
         return cwd
-    if (cwd / ".auto-claude-status").exists():
+    if (cwd / ".turret-status").exists():
         return cwd
 
     # Walk up to find project root
     for parent in cwd.parents:
-        if (parent / ".auto-claude").exists():
+        if (parent / ".turret").exists():
             return parent
-        if (parent / ".auto-claude-status").exists():
+        if (parent / ".turret-status").exists():
             return parent
 
     return cwd

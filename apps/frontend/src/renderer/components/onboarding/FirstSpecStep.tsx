@@ -8,7 +8,7 @@ import {
   ListChecks,
   Target,
   Sparkles
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 
@@ -97,7 +97,7 @@ export function FirstSpecStep({ onNext, onBack, onSkip, onOpenTaskCreator }: Fir
             Create Your First Task
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Describe what you want to build and let Auto Claude handle the rest
+            Describe what you want to build and let Turret handle the rest
           </p>
         </div>
 

@@ -1,0 +1,68 @@
+{
+  "file_path": ".turret/specs/030-add-file-discard-to-review-workflow/requirements.json",
+  "main_branch_history": [],
+  "task_views": {
+    "030-add-file-discard-to-review-workflow": {
+      "task_id": "030-add-file-discard-to-review-workflow",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "",
+        "timestamp": "2025-12-29T02:02:43.458355"
+      },
+      "worktree_state": {
+        "content": "{\n  \"task_description\": \"Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.\",\n  \"workflow_type\": \"feature\"\n}",
+        "last_modified": "2025-12-29T02:02:44.327883"
+      },
+      "task_intent": {
+        "title": "030-add-file-discard-to-review-workflow",
+        "description": "Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    },
+    "054-fix-sidebar-item-visual-alignment-and-styling-inco": {
+      "task_id": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "",
+        "timestamp": "2025-12-29T02:26:33.307267"
+      },
+      "worktree_state": {
+        "content": "{\n  \"task_description\": \"Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.\",\n  \"workflow_type\": \"feature\"\n}",
+        "last_modified": "2025-12-29T02:29:28.503652"
+      },
+      "task_intent": {
+        "title": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
+        "description": "Add missing agentTools translation key to navigation.json files causing the sidebar item to display incorrectly",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    },
+    "052-implement-github-commit-siphoning-extension-for-ta": {
+      "task_id": "052-implement-github-commit-siphoning-extension-for-ta",
+      "branch_point": {
+        "commit_hash": "c0a02a453da8aa6592e8d319eafe93d735bba0a0",
+        "content": "",
+        "timestamp": "2025-12-29T02:42:14.454379"
+      },
+      "worktree_state": {
+        "content": "{\n  \"task_description\": \"Add selective file discard functionality to the human review workflow, enabling users to exclude unwanted files (e.g., CSS changes) from task changes before merging/staging. This feature extends the existing DiffViewDialog with per-file discard actions that use git restore to revert specific files in the worktree without affecting other changes.\",\n  \"workflow_type\": \"feature\"\n}",
+        "last_modified": "2025-12-29T02:46:11.900804"
+      },
+      "task_intent": {
+        "title": "052-implement-github-commit-siphoning-extension-for-ta",
+        "description": "Develop a new vampiric extension in the extensions library that scrapes GitHub repository commits to automatically generate contextual tasks. The extension will analyze commit messages, identifying underlying strategies and methodologies, particularly for security fixes and complex bug resolutions, and transform them into actionable tasks for our own codebase.",
+        "from_plan": true
+      },
+      "commits_behind_main": 0,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2025-12-27T03:02:59.456628",
+  "last_updated": "2025-12-29T02:45:02.955798"
+}

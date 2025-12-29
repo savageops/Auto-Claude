@@ -2,7 +2,7 @@
  * Error banner for displaying error messages
  */
 
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from '@/lib/icons';
 
 interface ErrorBannerProps {
   error: string;

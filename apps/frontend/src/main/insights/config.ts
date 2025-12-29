@@ -14,7 +14,7 @@ export class InsightsConfig {
   private autoBuildSourcePath: string = '';
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     if (pythonPath) {
@@ -33,7 +33,7 @@ export class InsightsConfig {
   }
 
   /**
-   * Get the auto-claude source path (detects automatically if not configured)
+   * Get the turret source path (detects automatically if not configured)
    */
   getAutoBuildSourcePath(): string | null {
     if (this.autoBuildSourcePath && existsSync(this.autoBuildSourcePath)) {
@@ -56,7 +56,7 @@ export class InsightsConfig {
   }
 
   /**
-   * Load environment variables from auto-claude .env file
+   * Load environment variables from turret .env file
    */
   loadAutoBuildEnv(): Record<string, string> {
     const autoBuildSource = this.getAutoBuildSourcePath();
@@ -96,7 +96,7 @@ export class InsightsConfig {
 
   /**
    * Get complete environment for process execution
-   * Includes system env, auto-claude env, and active Claude profile
+   * Includes system env, turret env, and active Claude profile
    */
   getProcessEnv(): Record<string, string> {
     const autoBuildEnv = this.loadAutoBuildEnv();

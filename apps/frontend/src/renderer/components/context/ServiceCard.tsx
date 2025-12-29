@@ -1,4 +1,4 @@
-import { Database, CheckCircle, FileCode, Globe, Code, Package } from 'lucide-react';
+import { Database, CheckCircle, FileCode, Globe, Code, Package } from '@/lib/icons';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';

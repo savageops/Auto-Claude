@@ -1,0 +1,11 @@
+{
+  "sourceType": "insights",
+  "category": "bug_fix",
+  "complexity": "medium",
+  "impact": "high",
+  "model": "opus",
+  "thinkingLevel": "ultrathink",
+  "isAutoProfile": false,
+  "requireReviewBeforeCoding": false,
+  "archivedAt": "2025-12-26T21:11:48.791Z"
+}

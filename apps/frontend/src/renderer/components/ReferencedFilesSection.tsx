@@ -1,4 +1,4 @@
-import { X, Folder, File, FileCode, FileJson, FileText, FileImage } from 'lucide-react';
+import { X, Folder, File, FileCode, FileJson, FileText, FileImage } from '@/lib/icons';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 import type { ReferencedFile } from '../../shared/types';

@@ -74,6 +74,18 @@ export const taskMock = {
 
   checkTaskRunning: async () => ({ success: true, data: false }),
 
+  refineTask: async (briefDescription: string) => ({
+    success: true,
+    data: {
+      title: `Implement ${briefDescription}`,
+      description: `This task involves implementing ${briefDescription}. The implementation should be well-tested and follow existing code patterns.`,
+      category: 'feature',
+      priority: 'medium',
+      complexity: 'moderate',
+      impact: 'medium'
+    }
+  }),
+
   // Task logs operations
   getTaskLogs: async () => ({
     success: true,

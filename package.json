@@ -1,9 +1,9 @@
 {
-  "name": "auto-claude",
+  "name": "turret",
   "version": "2.7.2",
   "description": "Autonomous multi-agent coding framework powered by Claude AI",
   "license": "AGPL-3.0",
-  "author": "Auto Claude Team",
+  "author": "Turret Team",
   "scripts": {
     "install:backend": "node scripts/install-backend.js",
     "install:frontend": "cd apps/frontend && npm install",
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/AndyMik90/Auto-Claude.git"
+    "url": "https://github.com/savageops/turret.git"
   },
   "keywords": [
     "ai",
@@ -36,5 +36,9 @@
     "coding",
     "agents",
     "electron"
-  ]
+  ],
+  "dependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.54.0",
+    "vite-plugin-svgr": "^4.5.0"
+  }
 }

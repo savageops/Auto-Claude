@@ -226,7 +226,7 @@ class TestElectronToolScoping:
         monkeypatch.setenv("ELECTRON_MCP_ENABLED", "true")
 
         # Re-import to pick up env change
-        from auto_claude_tools import get_allowed_tools, ELECTRON_TOOLS
+        from turret_tools import get_allowed_tools, ELECTRON_TOOLS
 
         qa_tools = get_allowed_tools("qa_reviewer")
 
@@ -245,7 +245,7 @@ class TestElectronToolScoping:
         """QA fixer gets Electron tools when ELECTRON_MCP_ENABLED=true."""
         monkeypatch.setenv("ELECTRON_MCP_ENABLED", "true")
 
-        from auto_claude_tools import get_allowed_tools, ELECTRON_TOOLS
+        from turret_tools import get_allowed_tools, ELECTRON_TOOLS
 
         qa_fixer_tools = get_allowed_tools("qa_fixer")
 
@@ -262,7 +262,7 @@ class TestElectronToolScoping:
         """Coder should NOT get Electron tools even when enabled."""
         monkeypatch.setenv("ELECTRON_MCP_ENABLED", "true")
 
-        from auto_claude_tools import get_allowed_tools
+        from turret_tools import get_allowed_tools
 
         coder_tools = get_allowed_tools("coder")
 
@@ -276,7 +276,7 @@ class TestElectronToolScoping:
         """Planner should NOT get Electron tools even when enabled."""
         monkeypatch.setenv("ELECTRON_MCP_ENABLED", "true")
 
-        from auto_claude_tools import get_allowed_tools
+        from turret_tools import get_allowed_tools
 
         planner_tools = get_allowed_tools("planner")
 
@@ -290,7 +290,7 @@ class TestElectronToolScoping:
         """No agent gets Electron tools when ELECTRON_MCP_ENABLED is not set."""
         monkeypatch.delenv("ELECTRON_MCP_ENABLED", raising=False)
 
-        from auto_claude_tools import get_allowed_tools
+        from turret_tools import get_allowed_tools
 
         for agent_type in ["planner", "coder", "qa_reviewer", "qa_fixer"]:
             tools = get_allowed_tools(agent_type)

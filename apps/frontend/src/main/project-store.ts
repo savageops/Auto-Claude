@@ -75,10 +75,10 @@ export class ProjectStore {
     // Check if project already exists
     const existing = this.data.projects.find((p) => p.path === projectPath);
     if (existing) {
-      // Validate that .auto-claude folder still exists for existing project
+      // Validate that .turret folder still exists for existing project
       // If manually deleted, reset autoBuildPath so UI prompts for reinitialization
       if (existing.autoBuildPath && !isInitialized(existing.path)) {
-        console.warn(`[ProjectStore] .auto-claude folder was deleted for project "${existing.name}" - resetting autoBuildPath`);
+        console.warn(`[ProjectStore] .turret folder was deleted for project "${existing.name}" - resetting autoBuildPath`);
         existing.autoBuildPath = '';
         existing.updatedAt = new Date();
         this.save();
@@ -89,7 +89,7 @@ export class ProjectStore {
     // Derive name from path if not provided
     const projectName = name || path.basename(projectPath);
 
-    // Determine auto-claude path (supports both 'auto-claude' and '.auto-claude')
+    // Determine turret path (supports both 'turret' and '.turret')
     const autoBuildPath = getAutoBuildPath(projectPath) || '';
 
     const project: Project = {
@@ -170,41 +170,48 @@ export class ProjectStore {
   }
 
   /**
-   * Validate all projects to ensure their .auto-claude folders still exist.
-   * If a project has autoBuildPath set but the folder was deleted,
-   * reset autoBuildPath to empty string so the UI prompts for reinitialization.
+   * Validate all projects to ensure their .turret folders are in sync with autoBuildPath.
+   * Handles two cases:
+   * 1. autoBuildPath is set but .turret folder is missing → reset autoBuildPath
+   * 2. autoBuildPath is NOT set but .turret folder exists → set autoBuildPath (self-healing)
    *
-   * @returns Array of project IDs that were reset due to missing .auto-claude folder
+   * @returns Array of project IDs that were reset due to missing .turret folder
    */
   validateProjects(): string[] {
     const resetProjectIds: string[] = [];
     let hasChanges = false;
 
     for (const project of this.data.projects) {
-      // Skip projects that aren't initialized (autoBuildPath is empty)
-      if (!project.autoBuildPath) {
-        continue;
-      }
-
       // Check if the project path still exists
       if (!existsSync(project.path)) {
         console.warn(`[ProjectStore] Project path no longer exists: ${project.path}`);
         continue; // Don't reset - let user handle this case
       }
 
-      // Check if .auto-claude folder still exists
-      if (!isInitialized(project.path)) {
-        console.warn(`[ProjectStore] .auto-claude folder missing for project "${project.name}" at ${project.path}`);
+      const initialized = isInitialized(project.path);
+
+      // Case 1: autoBuildPath is set but .turret folder is missing
+      if (project.autoBuildPath && !initialized) {
+        console.warn(`[ProjectStore] .turret folder missing for project "${project.name}" at ${project.path} - resetting autoBuildPath`);
         project.autoBuildPath = '';
         project.updatedAt = new Date();
         resetProjectIds.push(project.id);
+        hasChanges = true;
+      }
+
+      // Case 2: autoBuildPath is NOT set but .turret folder exists (self-healing fix)
+      else if (!project.autoBuildPath && initialized) {
+        console.warn(`[ProjectStore] .turret folder exists but autoBuildPath not set for project "${project.name}" at ${project.path} - setting autoBuildPath`);
+        project.autoBuildPath = '.turret';
+        project.updatedAt = new Date();
+        // Don't add to resetProjectIds since this is a fix, not a reset
         hasChanges = true;
       }
     }
 
     if (hasChanges) {
       this.save();
-      console.warn(`[ProjectStore] Reset ${resetProjectIds.length} project(s) due to missing .auto-claude folder`);
+      console.warn(`[ProjectStore] Validated projects - reset ${resetProjectIds.length} project(s) due to missing .turret folder`);
     }
 
     return resetProjectIds;
@@ -237,28 +244,34 @@ export class ProjectStore {
    * Get tasks for a project by scanning specs directory
    */
   getTasks(projectId: string): Task[] {
-    console.warn('[ProjectStore] getTasks called with projectId:', projectId);
     const project = this.getProject(projectId);
     if (!project) {
       console.warn('[ProjectStore] Project not found for id:', projectId);
       return [];
     }
-    console.warn('[ProjectStore] Found project:', project.name, 'autoBuildPath:', project.autoBuildPath);
+    
+    // Consolidated start log
+    console.log(`[ProjectStore] Loading tasks for project: ${project.name} (${project.autoBuildPath})`);
 
     const allTasks: Task[] = [];
     const specsBaseDir = getSpecsDir(project.autoBuildPath);
 
     // 1. Scan main project specs directory
     const mainSpecsDir = path.join(project.path, specsBaseDir);
-    console.warn('[ProjectStore] Main specsDir:', mainSpecsDir, 'exists:', existsSync(mainSpecsDir));
     if (existsSync(mainSpecsDir)) {
       const mainTasks = this.loadTasksFromSpecsDir(mainSpecsDir, project.path, 'main', projectId, specsBaseDir);
       allTasks.push(...mainTasks);
-      console.warn('[ProjectStore] Loaded', mainTasks.length, 'tasks from main project');
+      // Only log main tasks count if > 0 to reduce noise
+      if (mainTasks.length > 0) {
+        console.log(`[ProjectStore] - Main: ${mainTasks.length} tasks`);
+      }
     }
 
     // 2. Scan worktree specs directories
     const worktreesDir = path.join(project.path, '.worktrees');
+    let worktreeTaskCount = 0;
+    let activeWorktrees = 0;
+
     if (existsSync(worktreesDir)) {
       try {
         const worktrees = readdirSync(worktreesDir, { withFileTypes: true });
@@ -274,13 +287,22 @@ export class ProjectStore {
               projectId,
               specsBaseDir
             );
-            allTasks.push(...worktreeTasks);
-            console.warn('[ProjectStore] Loaded', worktreeTasks.length, 'tasks from worktree:', worktree.name);
+            if (worktreeTasks.length > 0) {
+              allTasks.push(...worktreeTasks);
+              worktreeTaskCount += worktreeTasks.length;
+              activeWorktrees++;
+              // Optional: Log individual worktree if it has tasks? 
+              // User said "not so intense", so aggregating is better.
+            }
           }
         }
       } catch (error) {
         console.error('[ProjectStore] Error scanning worktrees:', error);
       }
+    }
+
+    if (worktreeTaskCount > 0) {
+      console.log(`[ProjectStore] - Worktrees: ${worktreeTaskCount} tasks across ${activeWorktrees} active worktrees`);
     }
 
     // 3. Deduplicate tasks by ID (prefer worktree version if exists in both)
@@ -293,7 +315,7 @@ export class ProjectStore {
     }
 
     const tasks = Array.from(taskMap.values());
-    console.warn('[ProjectStore] Returning', tasks.length, 'unique tasks (after deduplication)');
+    console.log(`[ProjectStore] Complete: Returning ${tasks.length} unique tasks`);
     return tasks;
   }
 
@@ -548,7 +570,10 @@ export class ProjectStore {
       if (storedStatus) {
         // Planning/coding status from the backend should be respected even if subtasks aren't in progress yet
         // This happens when a task is in planning phase (creating spec) but no subtasks have been started
-        const isActiveProcessStatus = (plan.status as string) === 'planning' || (plan.status as string) === 'coding';
+        // 'in_progress' is also valid (set by UI manual drag & drop)
+        const isActiveProcessStatus = (plan.status as string) === 'planning' || 
+                                      (plan.status as string) === 'coding' || 
+                                      (plan.status as string) === 'in_progress';
 
         // Check if this is a plan review (spec approval stage before coding starts)
         // planStatus: "review" indicates spec creation is complete and awaiting user approval
@@ -558,7 +583,7 @@ export class ProjectStore {
           (storedStatus === calculatedStatus) || // Matches calculated
           (storedStatus === 'human_review' && calculatedStatus === 'ai_review') || // Human review is more advanced than ai_review
           (storedStatus === 'human_review' && isPlanReviewStage) || // Plan review stage (awaiting spec approval)
-          (isActiveProcessStatus && storedStatus === 'in_progress'); // Planning/coding phases should show as in_progress
+          (isActiveProcessStatus && storedStatus === 'in_progress'); // Planning/coding/in_progress phases should show as in_progress
 
         if (isStoredStatusValid) {
           // Preserve reviewReason for human_review status

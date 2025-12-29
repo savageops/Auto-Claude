@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import {
   GitBranch,
   FileCode,
@@ -7,13 +8,13 @@ import {
   ExternalLink,
   GitMerge,
   FolderX,
-  Loader2,
+  RefreshCw,
   RotateCcw,
   AlertTriangle,
   CheckCircle,
   GitCommit,
   Terminal
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { cn } from '../../../lib/utils';
@@ -39,6 +40,12 @@ interface WorkspaceStatusProps {
 
 /**
  * Displays the workspace status including change summary, merge preview, and action buttons
+ *
+ * DESIGN RULE: No Component Pop-ins
+ * - ALL sections render immediately with full structure
+ * - Loading states show placeholder VALUES, not hidden components
+ * - Smooth transitions update values, never mount/unmount sections
+ * - This prevents jarring layout shifts and creates professional UX
  */
 export function WorkspaceStatus({
   task,
@@ -166,56 +173,67 @@ export function WorkspaceStatus({
           </div>
         )}
 
-        {/* Uncommitted Changes Warning */}
-        {hasUncommittedChanges && (
-          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20">
-            <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-warning">
-                {uncommittedCount} uncommitted {uncommittedCount === 1 ? 'change' : 'changes'} in main project
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Commit or stash them before staging to avoid conflicts.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const mainProjectPath = worktreeStatus.worktreePath?.replace('.worktrees/' + task.specId, '') || '';
-                  if (mainProjectPath) {
-                    openTerminal(`stash-${task.id}`, mainProjectPath);
-                  }
-                }}
-                className="text-xs h-6 mt-2"
-                disabled={isOpening}
-              >
-                <Terminal className="h-3 w-3 mr-1" />
-                {isOpening ? 'Opening...' : 'Open Terminal'}
-              </Button>
+        {/* Uncommitted Changes Warning - Structure ALWAYS identical */}
+        {isLoadingPreview || hasUncommittedChanges ? (
+          <div className={cn(
+            "flex items-start gap-2 p-2.5 rounded-lg border transition-all duration-300",
+            hasUncommittedChanges ? "bg-warning/10 border-warning/20" : "bg-muted/30 border-border"
+          )}>
+            <AlertTriangle className={cn(
+              "h-4 w-4 mt-0.5 flex-shrink-0",
+              hasUncommittedChanges ? "text-warning" : "text-muted-foreground/70"
+            )} />
+            <div className="flex-1 min-w-0 space-y-1.5">
+              {hasUncommittedChanges ? (
+                <>
+                  <p className="text-sm font-medium text-warning">
+                    {uncommittedCount} uncommitted {uncommittedCount === 1 ? 'change' : 'changes'} in main project
+                  </p>
+                  <p className="text-xs text-muted-foreground/80">
+                    Commit or stash them before staging to avoid conflicts.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const mainProjectPath = worktreeStatus.worktreePath?.replace('.worktrees/' + task.specId, '') || '';
+                      if (mainProjectPath) {
+                        openTerminal(`stash-${task.id}`, mainProjectPath);
+                      }
+                    }}
+                    className="text-xs h-6 mt-2"
+                    disabled={isOpening}
+                  >
+                    <Terminal className="h-3 w-3 mr-1" />
+                    {isOpening ? 'Opening...' : 'Open Terminal'}
+                  </Button>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground/80">Checking for uncommitted changes...</p>
+              )}
             </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Loading indicator */}
-        {isLoadingPreview && !mergePreview && (
-          <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Checking for conflicts...
-          </div>
-        )}
-
-        {/* Merge Status */}
-        {mergePreview && (
-          <div className={cn(
-            "flex items-center justify-between p-2.5 rounded-lg border",
-            hasGitConflicts || isBranchBehind || hasPathMappedMerges
+        {/* Merge Status - Structure ALWAYS identical, only content changes */}
+        <div className={cn(
+          "flex items-center justify-between p-2.5 rounded-lg border transition-all duration-300",
+          !mergePreview || isLoadingPreview
+            ? "bg-muted/30 border-border"
+            : hasGitConflicts || isBranchBehind || hasPathMappedMerges
               ? "bg-warning/10 border-warning/20"
               : !hasAIConflicts
                 ? "bg-success/10 border-success/20"
                 : "bg-warning/10 border-warning/20"
-          )}>
+        )}>
+          <div className="flex-1 space-y-1.5">
             <div className="flex items-center gap-2">
-              {hasGitConflicts ? (
+              {isLoadingPreview ? (
+                <>
+                  <RefreshCw className="h-4 w-4 text-muted-foreground animate-spin" />
+                  <span className="text-sm text-muted-foreground/80">Analyzing merge conflicts...</span>
+                </>
+              ) : mergePreview && hasGitConflicts ? (
                 <>
                   <AlertTriangle className="h-4 w-4 text-warning" />
                   <div>
@@ -223,7 +241,7 @@ export function WorkspaceStatus({
                     <span className="text-xs text-muted-foreground ml-2">AI will resolve</span>
                   </div>
                 </>
-              ) : isBranchBehind || hasPathMappedMerges ? (
+              ) : mergePreview && (isBranchBehind || hasPathMappedMerges) ? (
                 <>
                   <AlertTriangle className="h-4 w-4 text-warning" />
                   <div>
@@ -235,7 +253,7 @@ export function WorkspaceStatus({
                     </span>
                   </div>
                 </>
-              ) : !hasAIConflicts ? (
+              ) : mergePreview && !hasAIConflicts ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-success" />
                   <span className="text-sm font-medium text-success">Ready to merge</span>
@@ -243,43 +261,65 @@ export function WorkspaceStatus({
                     {mergePreview.summary.totalFiles} files
                   </span>
                 </>
-              ) : (
+              ) : mergePreview ? (
                 <>
                   <AlertTriangle className="h-4 w-4 text-warning" />
                   <span className="text-sm font-medium text-warning">
                     {mergePreview.conflicts.length} conflict{mergePreview.conflicts.length !== 1 ? 's' : ''}
                   </span>
                 </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-sm text-muted-foreground/80">Ready to merge</span>
+                </>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              {(hasGitConflicts || isBranchBehind || hasPathMappedMerges || hasAIConflicts) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onShowConflictDialog(true)}
-                  className="h-7 text-xs"
-                >
-                  Details
-                </Button>
-              )}
+
+            {/* Progress bar - visible when loading, matching RoadmapGenerationProgress */}
+            {isLoadingPreview && (
+              <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <motion.div
+                  className="absolute h-full w-1/3 rounded-sm bg-primary"
+                  animate={{ x: ['-100%', '400%'] }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                  style={{ opacity: 0.7 }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 ml-2">
+            {mergePreview && (hasGitConflicts || isBranchBehind || hasPathMappedMerges || hasAIConflicts) && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onLoadMergePreview}
-                disabled={isLoadingPreview}
-                className="h-7 px-2"
-                title="Refresh"
+                onClick={() => onShowConflictDialog(true)}
+                className="h-7 text-xs"
               >
-                {isLoadingPreview ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-3.5 w-3.5" />
-                )}
+                Details
               </Button>
-            </div>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLoadMergePreview}
+              disabled={isLoadingPreview}
+              className="h-7 px-2"
+              title="Refresh"
+            >
+              {isLoadingPreview ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="h-3.5 w-3.5" />
+              )}
+            </Button>
           </div>
-        )}
+        </div>
 
         {/* Git Conflicts Details */}
         {hasGitConflicts && mergePreview?.gitConflicts && (
@@ -335,7 +375,7 @@ export function WorkspaceStatus({
           >
             {isMerging ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 {hasGitConflicts || isBranchBehind || hasPathMappedMerges ? 'Resolving...' : stageOnly ? 'Staging...' : 'Merging...'}
               </>
             ) : (

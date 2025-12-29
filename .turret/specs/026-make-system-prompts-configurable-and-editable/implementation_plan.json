@@ -1,0 +1,8 @@
+{
+  "feature": "Make System Prompts Configurable and Editable",
+  "description": "Enhance the prompting system to allow users to view, edit, and customize system prompts used for Claude API calls. This includes:\n\n1. Extract system prompts to configurable template files\n2. Add UI interface to view/edit system prompts for different use cases (insights, title generation, terminal naming)\n3. Support prompt variables and template interpolation\n4. Add prompt versioning/history\n5. Include prompt best practices and examples\n6. Allow per-project prompt customization\n7. Add prompt testing/preview functionality\n\nKey locations to modify:\n- apps/backend/runners/insights_runner.py (build_system_prompt)\n- apps/frontend/src/main/title-generator.ts (createTitlePrompt)\n- apps/frontend/src/main/terminal-name-generator.ts (createNamePrompt)\n- Add new settings UI for prompt management",
+  "created_at": "2025-12-26T18:57:14.297Z",
+  "updated_at": "2025-12-26T19:40:53.986Z",
+  "status": "pending",
+  "phases": []
+}

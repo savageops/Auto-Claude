@@ -1,7 +1,7 @@
 """
 Debug module facade.
 
-Provides debug logging utilities for the Auto-Claude framework.
+Provides debug logging utilities for the Turret framework.
 Re-exports from core.debug for clean imports.
 """
 

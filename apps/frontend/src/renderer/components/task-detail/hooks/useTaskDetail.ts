@@ -18,14 +18,19 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showRestartDialog, setShowRestartDialog] = useState(false);
+  const [isRestarting, setIsRestarting] = useState(false);
+  const [restartError, setRestartError] = useState<string | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [worktreeStatus, setWorktreeStatus] = useState<WorktreeStatus | null>(null);
   const [worktreeDiff, setWorktreeDiff] = useState<WorktreeDiff | null>(null);
   const [isLoadingWorktree, setIsLoadingWorktree] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
+  const [isDiscardingFile, setIsDiscardingFile] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [discardFileSuccess, setDiscardFileSuccess] = useState<string | null>(null);
   const [showDiffDialog, setShowDiffDialog] = useState(false);
   const [stageOnly, setStageOnly] = useState(task.status === 'human_review');
   const [stagedSuccess, setStagedSuccess] = useState<string | null>(null);
@@ -159,7 +164,7 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     window.electronAPI.watchTaskLogs(selectedProject.id, task.specId);
 
     // Listen for log changes
-    const unsubscribe = window.electronAPI.onTaskLogsChanged((specId, logs) => {
+    const unsubscribe = window.electronAPI.onTaskLogsChanged((specId: string, logs: TaskLogs) => {
       if (specId === task.specId) {
         setPhaseLogs(logs);
         // Auto-expand newly active phase
@@ -195,6 +200,14 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     });
   }, []);
 
+  // Refresh worktree diff (used after discarding individual files)
+  const refreshDiff = useCallback(async () => {
+    const diffResult = await window.electronAPI.getWorktreeDiff(task.id);
+    if (diffResult.success && diffResult.data) {
+      setWorktreeDiff(diffResult.data);
+    }
+  }, [task.id]);
+
   // Clear merge preview cache when task changes to ensure fresh data is fetched
   // This invalidates any stale cached data (e.g., old uncommitted changes status)
   useEffect(() => {
@@ -212,13 +225,9 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     try {
       console.warn('[useTaskDetail] Calling mergeWorktreePreview...');
       const result = await window.electronAPI.mergeWorktreePreview(task.id);
-      console.warn('%c[useTaskDetail] mergeWorktreePreview result:', 'color: lime; font-weight: bold;', JSON.stringify(result, null, 2));
+      console.warn('[useTaskDetail] mergeWorktreePreview completed:', result.success ? `${result.data?.preview?.files?.length || 0} files` : 'failed');
       if (result.success && result.data?.preview) {
         const previewData = result.data.preview;
-        console.warn('%c[useTaskDetail] Setting merge preview:', 'color: lime; font-weight: bold;', previewData);
-        console.warn('  - files:', previewData.files);
-        console.warn('  - conflicts:', previewData.conflicts);
-        console.warn('  - summary:', previewData.summary);
         setMergePreview(previewData);
         // Persist to sessionStorage to survive HMR reloads
         sessionStorage.setItem(`mergePreview-${task.id}`, JSON.stringify(previewData));
@@ -263,14 +272,19 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     showDeleteDialog,
     isDeleting,
     deleteError,
+    showRestartDialog,
+    isRestarting,
+    restartError,
     isEditDialogOpen,
     worktreeStatus,
     worktreeDiff,
     isLoadingWorktree,
     isMerging,
     isDiscarding,
+    isDiscardingFile,
     showDiscardDialog,
     workspaceError,
+    discardFileSuccess,
     showDiffDialog,
     stageOnly,
     stagedSuccess,
@@ -303,14 +317,19 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     setShowDeleteDialog,
     setIsDeleting,
     setDeleteError,
+    setShowRestartDialog,
+    setIsRestarting,
+    setRestartError,
     setIsEditDialogOpen,
     setWorktreeStatus,
     setWorktreeDiff,
     setIsLoadingWorktree,
     setIsMerging,
     setIsDiscarding,
+    setIsDiscardingFile,
     setShowDiscardDialog,
     setWorkspaceError,
+    setDiscardFileSuccess,
     setShowDiffDialog,
     setStageOnly,
     setStagedSuccess,
@@ -327,5 +346,6 @@ export function useTaskDetail({ task }: UseTaskDetailOptions) {
     handleLogsScroll,
     togglePhase,
     loadMergePreview,
+    refreshDiff,
   };
 }

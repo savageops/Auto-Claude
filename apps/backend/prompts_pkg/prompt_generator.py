@@ -27,7 +27,7 @@ def get_relative_spec_path(spec_dir: Path, project_dir: Path) -> str:
         project_dir: Absolute path to project/working directory
 
     Returns:
-        Relative path string (e.g., "./auto-claude/specs/003-new-spec")
+        Relative path string (e.g., "./turret/specs/003-new-spec")
     """
     try:
         # Try to make path relative to project_dir
@@ -36,7 +36,7 @@ def get_relative_spec_path(spec_dir: Path, project_dir: Path) -> str:
     except ValueError:
         # If spec_dir is not under project_dir, return the name only
         # This shouldn't happen if workspace.py correctly copies spec files
-        return f"./auto-claude/specs/{spec_dir.name}"
+        return f"./turret/specs/{spec_dir.name}"
 
 
 def generate_environment_context(project_dir: Path, spec_dir: Path) -> str:
@@ -82,7 +82,7 @@ def generate_subtask_prompt(
     recovery_hints: list[str] | None = None,
 ) -> str:
     """
-    Generate a minimal, focused prompt for implementing a single subtask.
+    Generate a focused systems quality prompt for implementing a single subtask.
 
     Args:
         spec_dir: Directory containing spec files
@@ -93,7 +93,7 @@ def generate_subtask_prompt(
         recovery_hints: Hints from previous failed attempts
 
     Returns:
-        A focused prompt string (~100 lines instead of 900)
+        A focused prompt string (~200 lines instead of 900)
     """
     subtask_id = subtask.get("id", "unknown")
     description = subtask.get("description", "No description")
@@ -140,6 +140,23 @@ You MUST use a DIFFERENT approach than previous attempts.
 
     # Files section
     sections.append("## Files\n")
+
+    # Check for redirect instructions (High Priority)
+    redirect_file = spec_dir / "redirect_instruction.md"
+    if redirect_file.exists():
+        try:
+            content = redirect_file.read_text(encoding="utf-8").strip()
+            if content:
+                sections.append(f"""## 🛑 USER REDIRECT INSTRUCTIONS
+
+The user has intervened with specific instructions. You must prioritize these over the original plan if they conflict.
+
+{content}
+
+---
+""")
+        except Exception:
+            pass
 
     if files_to_modify:
         sections.append("**Files to Modify:**")
@@ -200,32 +217,45 @@ Verify:""")
         instructions = verification.get("instructions", "Manual verification required")
         sections.append(f"**Manual Verification:**\n{instructions}\n")
 
+    # Critical Rules - Enforce "Read Before Write"
+    sections.append("""## CRITICAL RULES
+
+1. **READ BEFORE EDIT**: You MUST read the file content immediately before editing it. Do NOT rely on the truncated context provided in this prompt. The context below is for reference only and may be outdated or incomplete.
+2. **NO BLIND EDITS**: Editing a file without reading it first is a violation of safety protocols.
+3. **REFRESH CONTEXT**: Even if you think you know the file content, things may have changed. ALWAYS read the file again right before applying edits.
+""")
+
     # Instructions
     sections.append(f"""## Instructions
 
 1. **Read the pattern files** to understand code style and conventions
-2. **Read the files to modify** (if any) to understand current implementation
-3. **Implement the subtask** following the patterns exactly
-4. **Run verification** and fix any issues
+2. **Read the files to modify** (if any) to understand current implementation and refresh your context.
+3. **Implement the subtask** following the patterns exactly.
+   - Verify imports are correct and available.
+   - Verify that the code is correct and does not break existing functionality.
+   - Maintain gold standards (DRY, STEP, LEVER, UNIFORM, YAGNI, MODULAR, SINGLE SOURCES OF TRUTH, REUSABLE, [add 12 more here]).
+   - Use type hints and docstrings.
+4. **Run verification** and fix any issues.
 5. **Commit your changes:**
    ```bash
    git add .
-   git commit -m "auto-claude: {subtask_id} - {description[:50]}"
+   git commit -m "turret: {subtask_id} - {description[:50]}"
    ```
 6. **Update the plan** - set this subtask's status to "completed" in implementation_plan.json
 
 ## Quality Checklist
 
 Before marking complete, verify:
+- [ ] Read files before editing (CRITICAL)
 - [ ] Follows patterns from reference files
 - [ ] No console.log/print debugging statements
 - [ ] Error handling in place
-- [ ] Verification passes
+- [ ] Verification passes, and are all subtasks completed?
 - [ ] Clean commit with descriptive message
 
 ## Important
 
-- Focus ONLY on this subtask - don't modify unrelated code
+- Focus ONLY on this subtask - don't touch unrelated code
 - If verification fails, FIX IT before committing
 - If you encounter a blocker, document it in build-progress.txt
 """)
@@ -261,7 +291,7 @@ def generate_planner_prompt(spec_dir: Path, project_dir: Path | None = None) -> 
 
     # Use project_dir for relative paths, or infer from spec_dir
     if project_dir is None:
-        # Infer: spec_dir is typically project/auto-claude/specs/XXX
+        # Infer: spec_dir is typically project/turret/specs/XXX
         project_dir = spec_dir.parent.parent.parent
 
     # Get relative path for spec directory
@@ -292,6 +322,48 @@ not in the spec directory.
     return header + prompt
 
 
+def _smart_load_file(path: Path, max_lines: int) -> str:
+    """
+    Safely load file content with binary detection and streaming truncation.
+
+    Args:
+        path: Path to file
+        max_lines: Maximum lines to read
+
+    Returns:
+        Content string or error message
+    """
+    if not path.exists():
+        return "(File not found)"
+
+    try:
+        # Check for binary content (read first chunk)
+        with open(path, "rb") as f:
+            chunk = f.read(1024)
+            if b"\x00" in chunk:
+                return "(Binary file - cannot display content)"
+
+        lines = []
+        truncated = False
+        
+        # Stream lines to avoid memory issues with large files
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for i, line in enumerate(f):
+                if i >= max_lines:
+                    truncated = True
+                    break
+                lines.append(line.rstrip("\n"))
+
+        content = "\n".join(lines)
+        if truncated:
+            content += f"\n\n... (truncated, {max_lines} lines shown. Read full file to see more.)"
+
+        return content
+
+    except Exception as e:
+        return f"(Error reading file: {e})"
+
+
 def load_subtask_context(
     spec_dir: Path,
     project_dir: Path,
@@ -316,39 +388,17 @@ def load_subtask_context(
         "spec_excerpt": None,
     }
 
-    # Load pattern files (truncated)
+    # Load pattern files
     for pattern_path in subtask.get("patterns_from", []):
         full_path = project_dir / pattern_path
-        if full_path.exists():
-            try:
-                lines = full_path.read_text().split("\n")
-                if len(lines) > max_file_lines:
-                    content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
-                    )
-                else:
-                    content = "\n".join(lines)
-                context["patterns"][pattern_path] = content
-            except Exception:
-                context["patterns"][pattern_path] = "(Could not read file)"
+        context["patterns"][pattern_path] = _smart_load_file(full_path, max_file_lines)
 
-    # Load files to modify (truncated)
+    # Load files to modify
     for file_path in subtask.get("files_to_modify", []):
         full_path = project_dir / file_path
-        if full_path.exists():
-            try:
-                lines = full_path.read_text().split("\n")
-                if len(lines) > max_file_lines:
-                    content = "\n".join(lines[:max_file_lines])
-                    content += (
-                        f"\n\n... (truncated, {len(lines) - max_file_lines} more lines)"
-                    )
-                else:
-                    content = "\n".join(lines)
-                context["files_to_modify"][file_path] = content
-            except Exception:
-                context["files_to_modify"][file_path] = "(Could not read file)"
+        context["files_to_modify"][file_path] = _smart_load_file(
+            full_path, max_file_lines
+        )
 
     return context
 
@@ -373,6 +423,33 @@ def format_context_for_prompt(context: dict) -> str:
     if context.get("files_to_modify"):
         sections.append("## Current File Contents (To Modify)\n")
         for path, content in context["files_to_modify"].items():
-            sections.append(f"### `{path}`\n```\n{content}\n```\n")
+            # Add truncation warning with clear instruction
+            is_truncated = "truncated" in content.lower() or "more lines" in content
+            truncation_warning = ""
+            if is_truncated:
+                truncation_warning = (
+                    f"\nCRITICAL: This file was truncated ({_count_truncated_lines(content)} more lines below).\n"
+                    f"YOU MUST use the Read tool to get the COMPLETE file before editing.\n"
+                    f"Example: Read {path}\n"
+                )
+            sections.append(f"### `{path}`\n```\n{content}\n```{truncation_warning}\n")
 
     return "\n".join(sections)
+
+
+def _count_truncated_lines(content: str) -> str:
+    """
+    Extract the truncated line count from content if present.
+
+    Args:
+        content: File content that may contain truncation message
+
+    Returns:
+        String with line count or default message
+    """
+    import re
+
+    match = re.search(r"(\d+) more lines", content)
+    if match:
+        return match.group(1)
+    return "many"

@@ -18,7 +18,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { Plus, Inbox, Loader2, Eye, CheckCircle2, Archive } from 'lucide-react';
+import { Plus, Inbox, RefreshCw, Eye, CheckCircle2, Archive } from '@/lib/icons';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
@@ -28,6 +28,7 @@ import { SortableTaskCard } from './SortableTaskCard';
 import { TASK_STATUS_COLUMNS, TASK_STATUS_LABELS } from '../../shared/constants';
 import { cn } from '../lib/utils';
 import { persistTaskStatus, archiveTasks } from '../stores/task-store';
+import { useToast } from '../hooks/useToast';
 import type { Task, TaskStatus } from '../../shared/types';
 
 interface KanbanBoardProps {
@@ -56,7 +57,7 @@ const getEmptyStateContent = (status: TaskStatus, t: (key: string) => string): {
       };
     case 'in_progress':
       return {
-        icon: <Loader2 className="h-6 w-6 text-muted-foreground/50" />,
+        icon: <RefreshCw className="h-6 w-6 text-muted-foreground/50" />,
         message: t('kanban.emptyInProgress'),
         subtext: t('kanban.emptyInProgressHint')
       };
@@ -94,32 +95,13 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 
   const taskIds = tasks.map((t) => t.id);
 
-  const getColumnBorderColor = (): string => {
-    switch (status) {
-      case 'backlog':
-        return 'column-backlog';
-      case 'in_progress':
-        return 'column-in-progress';
-      case 'ai_review':
-        return 'column-ai-review';
-      case 'human_review':
-        return 'column-human-review';
-      case 'done':
-        return 'column-done';
-      default:
-        return 'border-t-muted-foreground/30';
-    }
-  };
-
   const emptyState = getEmptyStateContent(status, t);
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        'flex w-72 shrink-0 flex-col rounded-xl border border-white/5 bg-linear-to-b from-secondary/30 to-transparent backdrop-blur-sm transition-all duration-200',
-        getColumnBorderColor(),
-        'border-t-2',
+        'flex flex-1 min-w-64 flex-col rounded-xl border border-white/5 bg-secondary/30 backdrop-blur-sm transition-all duration-200',
         isOver && 'drop-zone-highlight'
       )}
     >
@@ -200,6 +182,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
                     key={task.id}
                     task={task}
                     onClick={() => onTaskClick(task)}
+                    isCollapsible={status === 'done'}
                   />
                 ))
               )}
@@ -213,6 +196,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 
 export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardProps) {
   const { t } = useTranslation('tasks');
+  const { toast } = useToast();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -316,7 +300,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
     setOverColumnId(null);
@@ -333,7 +317,14 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
 
       if (task && task.status !== newStatus) {
         // Persist status change to file and update local state
-        persistTaskStatus(activeTaskId, newStatus);
+        const result = await persistTaskStatus(activeTaskId, newStatus);
+        if (!result.success) {
+          toast({
+            variant: "destructive",
+            title: t('errors.statusUpdateFailed', "Status Update Failed"),
+            description: result.error || "Could not move task."
+          });
+        }
       }
       return;
     }
@@ -344,7 +335,14 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
       const task = tasks.find((t) => t.id === activeTaskId);
       if (task && task.status !== overTask.status) {
         // Persist status change to file and update local state
-        persistTaskStatus(activeTaskId, overTask.status);
+        const result = await persistTaskStatus(activeTaskId, overTask.status);
+        if (!result.success) {
+          toast({
+            variant: "destructive",
+            title: t('errors.statusUpdateFailed', "Status Update Failed"),
+            description: result.error || "Could not move task."
+          });
+        }
       }
     }
   };
@@ -400,7 +398,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
         <DragOverlay>
           {activeTask ? (
             <div className="drag-overlay-card">
-              <TaskCard task={activeTask} onClick={() => {}} />
+              <TaskCard task={activeTask} onClick={() => { }} />
             </div>
           ) : null}
         </DragOverlay>

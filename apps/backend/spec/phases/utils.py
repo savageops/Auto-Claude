@@ -22,7 +22,7 @@ def run_script(project_dir: Path, script: str, args: list[str]) -> tuple[bool, s
     Returns:
         Tuple of (success: bool, output: str)
     """
-    script_path = project_dir / "auto-claude" / script
+    script_path = project_dir / "turret" / script
 
     if not script_path.exists():
         return False, f"Script not found: {script_path}"
@@ -35,6 +35,8 @@ def run_script(project_dir: Path, script: str, args: list[str]) -> tuple[bool, s
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=300,
         )
 

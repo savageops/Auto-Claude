@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw, X } from '@/lib/icons';
 import { Button } from './ui/button';
 
 interface SwapNotification {

@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
   arrayMove
 } from '@dnd-kit/sortable';
-import { Plus, Inbox, Eye, Calendar, Play, Check } from 'lucide-react';
+import { Plus, Inbox, Eye, Calendar, Play, Check } from '@/lib/icons';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
@@ -84,9 +84,7 @@ function DroppableStatusColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        'flex min-w-80 w-80 shrink-0 flex-col rounded-xl border border-white/5 bg-linear-to-b from-secondary/30 to-transparent backdrop-blur-sm transition-all duration-200',
-        column.color,
-        'border-t-2',
+        'flex flex-1 min-w-64 flex-col rounded-xl border border-white/5 bg-secondary/30 backdrop-blur-sm transition-all duration-200',
         isOver && 'drop-zone-highlight'
       )}
     >

@@ -86,7 +86,17 @@ export function findPythonCommand(): string | null {
   // Build candidate list prioritizing Homebrew Python on macOS
   let candidates: string[];
   if (isWindows) {
-    candidates = ['py -3', 'python', 'python3', 'py'];
+    // Windows: Check common installation paths first, then fallback to launcher
+    const commonPaths = [
+      path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python312', 'python.exe'),
+      path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python311', 'python.exe'),
+      path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python310', 'python.exe'),
+      'C:\\Python312\\python.exe',
+      'C:\\Python311\\python.exe',
+      'C:\\Python310\\python.exe'
+    ].filter(p => existsSync(p));
+
+    candidates = [...commonPaths, 'python', 'python3', 'py -3', 'py'];
   } else {
     const homebrewPython = findHomebrewPython();
     candidates = homebrewPython

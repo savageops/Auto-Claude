@@ -1,0 +1,114 @@
+{
+  "security_hardening": [
+    {
+      "id": "sec-001",
+      "type": "security_hardening",
+      "title": "Add Path Validation to File Explorer IPC Handler",
+      "description": "The file explorer IPC handler in `apps/frontend/src/main/ipc-handlers/file-handlers.ts` accepts arbitrary directory paths from the renderer via `listDirectory(dirPath)` and reads directory contents without validating the path is within allowed project boundaries. This could allow listing files outside intended directories.",
+      "rationale": "Defense-in-depth requires validating paths in the main process even with context isolation enabled. While exploitation requires renderer compromise, the impact of unrestricted file listing could expose sensitive system files or other user data.",
+      "category": "input_validation",
+      "severity": "medium",
+      "affectedFiles": ["apps/frontend/src/main/ipc-handlers/file-handlers.ts", "apps/frontend/src/preload/api/file-api.ts"],
+      "vulnerability": "CWE-22: Path Traversal",
+      "currentRisk": "A compromised renderer could request listing of arbitrary directories, potentially exposing system files, credentials, or sensitive data outside project scope.",
+      "remediation": "Add path validation to ensure requested paths are within allowed project directories:\n```typescript\nfunction isPathWithinProject(requestedPath: string, projectPath: string): boolean {\n  const resolved = path.resolve(requestedPath);\n  const projectResolved = path.resolve(projectPath);\n  return resolved.startsWith(projectResolved + path.sep);\n}\n```\nMaintain a list of allowed base paths from registered projects and reject requests outside these boundaries. The existing `isPathSafe()` utility in shell-escape.ts can be extended for this purpose.",
+      "references": ["https://owasp.org/www-community/attacks/Path_Traversal", "https://cwe.mitre.org/data/definitions/22.html"],
+      "compliance": ["SOC2", "OWASP"]
+    },
+    {
+      "id": "sec-002",
+      "type": "security_hardening",
+      "title": "Add User-Facing Warning for Unencrypted Token Storage Fallback",
+      "description": "In `apps/frontend/src/main/claude-profile/token-encryption.ts`, when Electron's safeStorage encryption is unavailable, OAuth tokens fallback to plaintext storage with only a console.warn. Users receive no notification that their credentials are stored insecurely.",
+      "rationale": "OAuth tokens provide access to Claude AI services. Silent fallback to plaintext storage without user notification is a security anti-pattern. Users should make informed decisions about credential security, especially on systems without OS keychain support.",
+      "category": "data_protection",
+      "severity": "high",
+      "affectedFiles": ["apps/frontend/src/main/claude-profile/token-encryption.ts", "apps/frontend/src/main/claude-profile/profile-storage.ts"],
+      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
+      "currentRisk": "On systems where safeStorage is unavailable (certain Linux configurations without a keyring daemon), OAuth tokens are stored in plaintext in settings.json, readable by any process with file access to the user's config directory.",
+      "remediation": "1) Emit an IPC event when encryption fails to show a persistent UI warning in settings. 2) Add `isTokenStoredSecurely()` method for the UI to display security status badges. 3) Consider a fallback encryption mechanism using device-derived keys. 4) Log security events when plaintext fallback occurs for audit compliance:\n```typescript\nif (!safeStorage.isEncryptionAvailable()) {\n  mainWindow?.webContents.send('security-warning', {\n    type: 'token-plaintext',\n    message: 'Credentials stored without encryption'\n  });\n}\n```",
+      "references": ["https://www.electronjs.org/docs/latest/api/safe-storage", "https://cwe.mitre.org/data/definitions/312.html"],
+      "compliance": ["SOC2", "GDPR"]
+    },
+    {
+      "id": "sec-003",
+      "type": "security_hardening",
+      "title": "Integrate npm Audit into CI Security Pipeline",
+      "description": "The `.github/workflows/quality-security.yml` runs CodeQL and Bandit for code analysis but lacks npm dependency vulnerability scanning. The frontend has 35+ runtime dependencies (electron, xterm, @radix-ui components) that could contain known CVEs.",
+      "rationale": "Supply chain attacks via npm packages are common. The project uses Electron v39, @xterm/xterm v6.0, react-markdown, and numerous UI libraries that should be continuously monitored. New CVEs are published regularly for popular packages.",
+      "category": "dependencies",
+      "severity": "medium",
+      "affectedFiles": [".github/workflows/quality-security.yml", "apps/frontend/package.json"],
+      "vulnerability": "CWE-1104: Use of Unmaintained Third Party Components",
+      "currentRisk": "Vulnerable npm dependencies could exist without automated detection. Electron updates frequently have security fixes that might be missed without automated monitoring.",
+      "remediation": "Add npm audit job to the security workflow:\n```yaml\nnpm-security:\n  name: NPM Dependency Audit\n  runs-on: ubuntu-latest\n  steps:\n    - uses: actions/checkout@v4\n    - uses: actions/setup-node@v4\n      with:\n        node-version: '24'\n    - run: cd apps/frontend && npm ci\n    - run: cd apps/frontend && npm audit --audit-level=high\n```\nConsider using `npm audit --omit=dev` for production-only scanning and GitHub's built-in Dependabot alerts for continuous monitoring.",
+      "references": ["https://docs.npmjs.com/cli/v10/commands/npm-audit", "https://owasp.org/www-project-dependency-check/", "https://github.com/features/security"],
+      "compliance": ["SOC2", "PCI-DSS", "SLSA"]
+    },
+    {
+      "id": "sec-004",
+      "type": "security_hardening",
+      "title": "Use DOMPurify or rehype-sanitize for Release Notes Rendering",
+      "description": "Two components use dangerouslySetInnerHTML with custom regex-based HTML escaping: `AppUpdateNotification.tsx` and `AdvancedSettings.tsx`. While the current implementation escapes <, >, & before processing markdown, regex-based sanitization is prone to bypass vulnerabilities.",
+      "rationale": "Release notes content comes from external sources (GitHub releases API via electron-updater). Custom regex sanitizers often miss edge cases like malformed UTF-8, SVG-based XSS, or mutation-based attacks. Battle-tested libraries like DOMPurify have been tested against thousands of XSS vectors.",
+      "category": "input_validation",
+      "severity": "low",
+      "affectedFiles": ["apps/frontend/src/renderer/components/AppUpdateNotification.tsx", "apps/frontend/src/renderer/components/settings/AdvancedSettings.tsx"],
+      "vulnerability": "CWE-79: Improper Neutralization of Input During Web Page Generation",
+      "currentRisk": "If a crafted release note bypasses the regex sanitization (e.g., via mXSS), code could execute in the Electron renderer context. The current approach escapes &<> first which is good practice, but a whitelist approach is more robust.",
+      "remediation": "Since react-markdown is already installed, use it with rehype-sanitize:\n```tsx\nimport ReactMarkdown from 'react-markdown';\nimport rehypeSanitize from 'rehype-sanitize';\n\n<ReactMarkdown rehypePlugins={[rehypeSanitize]}>\n  {updateInfo.releaseNotes}\n</ReactMarkdown>\n```\nAlternatively, install DOMPurify and use a strict allowlist:\n```tsx\nimport DOMPurify from 'dompurify';\nconst clean = DOMPurify.sanitize(html, {\n  ALLOWED_TAGS: ['h3','h4','strong','code','li','ul','br','div'],\n  ALLOWED_ATTR: ['class']\n});\n```",
+      "references": ["https://github.com/cure53/DOMPurify", "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"],
+      "compliance": ["OWASP Top 10"]
+    },
+    {
+      "id": "sec-005",
+      "type": "security_hardening",
+      "title": "Implement Python Dependency Hash Pinning for Supply Chain Security",
+      "description": "The `apps/backend/requirements.txt` specifies dependencies with version ranges but lacks cryptographic hash pinning. This leaves the project vulnerable to supply chain attacks where a compromised package version could replace a legitimate one without detection.",
+      "rationale": "Critical packages like claude-agent-sdk and graphiti-core handle AI credentials and execute in the backend context. Supply chain attacks on Python packages are increasing. Hash pinning ensures only verified, known-good package contents are installed.",
+      "category": "dependencies",
+      "severity": "medium",
+      "affectedFiles": ["apps/backend/requirements.txt", "tests/requirements-test.txt"],
+      "vulnerability": "CWE-494: Download of Code Without Integrity Check",
+      "currentRisk": "Dependencies are installed without cryptographic verification. A compromised PyPI package (via account takeover, typosquatting, or dependency confusion) could inject malicious code into builds.",
+      "remediation": "Use pip-compile from pip-tools to generate hashed requirements:\n```bash\npip install pip-tools\npip-compile --generate-hashes requirements.in -o requirements.txt\npip install --require-hashes -r requirements.txt\n```\nAdd pip-audit to CI for vulnerability scanning:\n```yaml\n- run: pip install pip-audit\n- run: pip-audit -r apps/backend/requirements.txt\n```\nConsider adopting Poetry or PDM with lockfiles for better dependency resolution and security.",
+      "references": ["https://pip.pypa.io/en/stable/topics/secure-installs/", "https://slsa.dev/spec/v1.0/requirements", "https://github.com/pypa/pip-audit"],
+      "compliance": ["SOC2", "SLSA Level 2"]
+    }
+  ],
+  "metadata": {
+    "dependenciesScanned": 52,
+    "knownVulnerabilities": 0,
+    "filesAnalyzed": 156,
+    "criticalIssues": 0,
+    "highIssues": 1,
+    "mediumIssues": 3,
+    "lowIssues": 1,
+    "generatedAt": "2025-12-27T05:45:00Z",
+    "scanners": {
+      "codeAnalysis": true,
+      "dependencyAudit": false,
+      "secretsScanning": true,
+      "configReview": true
+    },
+    "securityPositives": [
+      "Electron configured with contextIsolation: true and nodeIntegration: false",
+      "Content Security Policy defined in index.html limiting script and resource sources",
+      "OAuth tokens use Electron safeStorage API when available",
+      "GitHub Actions workflow includes CodeQL and Bandit security scanning",
+      "Comprehensive secret scanning patterns in apps/backend/security/scan_secrets.py",
+      "Shell escaping utilities for both POSIX and Windows in shell-escape.ts",
+      "subprocess.spawn() uses array arguments (not shell=True) throughout codebase",
+      "Filtered environment variables in subprocess-runner.ts prevent secret leakage",
+      "External links routed through shell.openExternal with URL validation",
+      "HTML escaping applied before dangerouslySetInnerHTML in markdown rendering"
+    ],
+    "analysisNotes": [
+      "sandbox: false is required for node-pty terminal integration - documented tradeoff",
+      "CSP includes 'unsafe-inline' for styles - acceptable for Tailwind CSS usage",
+      "No high-severity CVEs detected in current dependency versions at time of scan",
+      "GitHub API calls go through gh CLI, inheriting its authentication model",
+      "IPC handlers use proper Electron invoke/handle patterns for async operations"
+    ]
+  }
+}

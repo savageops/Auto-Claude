@@ -1,5 +1,5 @@
 """
-Authentication helpers for Auto Claude.
+Authentication helpers for Turret.
 
 Provides centralized authentication token resolution with fallback support
 for multiple environment variables, and SDK environment variable passthrough
@@ -13,7 +13,7 @@ import subprocess
 
 # Priority order for auth token resolution
 # NOTE: We intentionally do NOT fall back to ANTHROPIC_API_KEY.
-# Auto Claude is designed to use Claude Code OAuth tokens only.
+# Turret is designed to use Claude Code OAuth tokens only.
 # This prevents silent billing to user's API credits when OAuth fails.
 AUTH_TOKEN_ENV_VARS = [
     "CLAUDE_CODE_OAUTH_TOKEN",  # OAuth token from Claude Code CLI
@@ -58,6 +58,8 @@ def get_token_from_keychain() -> str | None:
             ],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=5,
         )
 
@@ -138,7 +140,7 @@ def require_auth_token() -> str:
     if not token:
         error_msg = (
             "No OAuth token found.\n\n"
-            "Auto Claude requires Claude Code OAuth authentication.\n"
+            "Turret requires Claude Code OAuth authentication.\n"
             "Direct API keys (ANTHROPIC_API_KEY) are not supported.\n\n"
         )
         # Provide platform-specific guidance
@@ -166,6 +168,9 @@ def get_sdk_env_vars() -> dict[str, str]:
     Collects relevant env vars (ANTHROPIC_BASE_URL, etc.) that should
     be passed through to the claude-agent-sdk subprocess.
 
+    Also adds UTF-8 encoding support for Windows to prevent UnicodeDecodeError
+    when subprocess output contains non-ASCII characters.
+
     Returns:
         Dict of env var name -> value for non-empty vars
     """
@@ -174,6 +179,13 @@ def get_sdk_env_vars() -> dict[str, str]:
         value = os.environ.get(var)
         if value:
             env[var] = value
+    
+    # Add UTF-8 encoding support for Windows subprocesses
+    # This prevents UnicodeDecodeError when subprocess output contains
+    # non-ASCII characters (Windows defaults to cp1252 encoding)
+    env["PYTHONUTF8"] = "1"  # Enable Python UTF-8 mode on Windows
+    env["PYTHONIOENCODING"] = "utf-8:replace"  # Set encoding with error handler
+    
     return env
 
 

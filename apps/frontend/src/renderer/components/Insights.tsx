@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   MessageSquare,
   Send,
-  Loader2,
+  RefreshCw,
   Plus,
   Sparkles,
   User,
@@ -14,7 +14,7 @@ import {
   FolderSearch,
   PanelLeftClose,
   PanelLeft
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
@@ -49,11 +49,11 @@ interface InsightsProps {
 }
 
 export function Insights({ projectId }: InsightsProps) {
-  const session = useInsightsStore((state) => state.session);
+  const session = useInsightsStore((state) => state.getCurrentSession(projectId));
   const sessions = useInsightsStore((state) => state.sessions);
   const status = useInsightsStore((state) => state.status);
-  const streamingContent = useInsightsStore((state) => state.streamingContent);
-  const currentTool = useInsightsStore((state) => state.currentTool);
+  const streamingContent = useInsightsStore((state) => state.streamingByProject[projectId]?.content ?? '');
+  const currentTool = useInsightsStore((state) => state.streamingByProject[projectId]?.currentTool ?? null);
   const isLoadingSessions = useInsightsStore((state) => state.isLoadingSessions);
 
   const [inputValue, setInputValue] = useState('');
@@ -68,7 +68,15 @@ export function Insights({ projectId }: InsightsProps) {
   useEffect(() => {
     loadInsightsSession(projectId);
     const cleanup = setupInsightsListeners();
-    return cleanup;
+
+    // Layer 2: Clear streaming state for this project when unmounting or switching projects
+    return () => {
+      cleanup();
+      const store = useInsightsStore.getState();
+      store.clearStreamingContent(projectId);
+      store.clearToolsUsed(projectId);
+      store.setCurrentTool(projectId, null);
+    };
   }, [projectId]);
 
   // Auto-scroll to bottom when messages change
@@ -291,7 +299,7 @@ export function Insights({ projectId }: InsightsProps) {
                   <Bot className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                   Thinking...
                 </div>
               </div>
@@ -328,7 +336,7 @@ export function Insights({ projectId }: InsightsProps) {
             className="self-end"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
@@ -436,7 +444,7 @@ function MessageBubble({
               >
                 {isCreatingTask ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : taskCreated ? (
@@ -581,7 +589,7 @@ function ToolIndicator({ name, input }: ToolIndicatorProps) {
         };
       default:
         return {
-          icon: Loader2,
+          icon: RefreshCw,
           label: toolName,
           color: 'text-primary bg-primary/10'
         };

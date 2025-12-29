@@ -1,4 +1,4 @@
-import { Map, Sparkles } from 'lucide-react';
+import { Map, Sparkles } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import type { RoadmapEmptyStateProps } from './types';

@@ -1,9 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   GitBranch,
-  RefreshCw,
   Trash2,
-  Loader2,
   AlertCircle,
   FolderOpen,
   GitMerge,
@@ -12,12 +10,9 @@ import {
   Minus,
   ChevronRight,
   Check,
-  X
-} from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
+  X,
+  RefreshCw
+} from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +31,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from './ui/alert-dialog';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { ScrollArea } from './ui/scroll-area';
 import { useProjectStore } from '../stores/project-store';
 import { useTaskStore } from '../stores/task-store';
 import type { WorktreeListItem, WorktreeMergeResult } from '../../shared/types';
@@ -45,7 +44,7 @@ interface WorktreesProps {
 }
 
 export function Worktrees({ projectId }: WorktreesProps) {
-  const projects = useProjectStore((state) => state.projects);
+  const projects = useProjectStore((state) => state.projects) || [];
   const selectedProject = projects.find((p) => p.id === projectId);
   const tasks = useTaskStore((state) => state.tasks);
 
@@ -189,7 +188,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
             Worktrees
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage isolated workspaces for your Auto Claude tasks
+            Manage isolated workspaces for your Turret tasks
           </p>
         </div>
         <Button
@@ -219,7 +218,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
       {/* Loading state */}
       {isLoading && worktrees.length === 0 && (
         <div className="flex h-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
@@ -231,7 +230,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
           </div>
           <h3 className="text-lg font-semibold text-foreground">No Worktrees</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            Worktrees are created automatically when Auto Claude builds features.
+            Worktrees are created automatically when Turret builds features.
             They provide isolated workspaces for each task.
           </p>
         </div>
@@ -422,7 +421,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
               >
                 {isMerging ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Merging...
                   </>
                 ) : (
@@ -461,7 +460,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Deleting...
                 </>
               ) : (

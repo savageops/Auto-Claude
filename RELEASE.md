@@ -1,10 +1,10 @@
 # Release Process
 
-This document describes how releases are created for Auto Claude.
+This document describes how releases are created for Turret.
 
 ## Overview
 
-Auto Claude uses an automated release pipeline that ensures releases are only published after all builds succeed. This prevents version mismatches between documentation and actual releases.
+Turret uses an automated release pipeline that ensures releases are only published after all builds succeed. This prevents version mismatches between documentation and actual releases.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -56,7 +56,7 @@ On your development branch (typically `develop` or a feature branch):
 
 ```bash
 # Navigate to project root
-cd /path/to/auto-claude
+cd /path/to/turret
 
 # Bump version (choose one)
 node scripts/bump-version.js patch   # 2.7.1 -> 2.7.2 (bug fixes)
@@ -101,9 +101,9 @@ Once the PR is approved and merged to `main`, GitHub Actions will automatically:
 ### Step 4: Verify
 
 After merging, check:
-- [GitHub Actions](https://github.com/AndyMik90/Auto-Claude/actions) - ensure all workflows pass
-- [Releases](https://github.com/AndyMik90/Auto-Claude/releases) - verify release was created
-- [README](https://github.com/AndyMik90/Auto-Claude#download) - confirm version updated
+- [GitHub Actions](https://github.com/savageops/Turret/actions) - ensure all workflows pass
+- [Releases](https://github.com/savageops/Turret/releases) - verify release was created
+- [README](https://github.com/savageops/Turret#download) - confirm version updated
 
 ## Version Numbering
 

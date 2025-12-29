@@ -33,6 +33,7 @@ from ui import (
     print_status,
 )
 
+from .file_tracker import reset_file_tracker
 from .memory_manager import save_session_memory
 from .utils import (
     find_subtask_in_plan,
@@ -77,6 +78,10 @@ async def post_session_processing(
     Returns:
         True if subtask was completed successfully
     """
+    from .file_tracker import get_file_tracker
+    tracker = get_file_tracker()
+    session_metrics = tracker.get_summary()
+
     print()
     print(muted("--- Post-Session Processing ---"))
 
@@ -96,6 +101,29 @@ async def post_session_processing(
         return False
 
     subtask_status = subtask.get("status", "pending")
+
+    # CRITICAL: Check for safety violations (Read Before Write)
+    if session_metrics and session_metrics.get("violations_count", 0) > 0:
+        print_status("SAFETY VIOLATION DETECTED", "error")
+        for v in session_metrics.get("violations", []):
+            print(f"  {v}")
+        
+        # Consider this a failure regardless of what the agent claims
+        if subtask_status == "completed":
+            print_status("Rejecting completion due to safety violations", "error")
+            subtask_status = "failed"
+            # Revert status in plan if needed? 
+            # Ideally the agent should have updated the plan file. 
+            # But since we are failing here, we should record it as failure.
+        
+        recovery_manager.record_attempt(
+            subtask_id=subtask_id,
+            session=session_num,
+            success=False,
+            approach="Rejected due to safety violations",
+            error=f"Safety Violations: {session_metrics.get('violations')}",
+        )
+        return False
 
     # Check for new commits
     commit_after = get_latest_commit(project_dir)
@@ -283,7 +311,7 @@ async def post_session_processing(
                 spec_dir=spec_dir,
                 project_dir=project_dir,
                 subtask_id=subtask_id,
-                session_num=session_num,
+session_num=session_num,
                 commit_before=commit_before,
                 commit_after=commit_after,
                 success=False,
@@ -316,7 +344,7 @@ async def run_agent_session(
     spec_dir: Path,
     verbose: bool = False,
     phase: LogPhase = LogPhase.CODING,
-) -> tuple[str, str]:
+) -> tuple[str, str, dict]:
     """
     Run a single agent session using Claude Agent SDK.
 
@@ -328,11 +356,17 @@ async def run_agent_session(
         phase: Current execution phase for logging
 
     Returns:
-        (status, response_text) where status is:
+        (status, response_text, metrics) where status is:
         - "continue" if agent should continue working
         - "complete" if all subtasks complete
         - "error" if an error occurred
     """
+    # Reset file tracker for session-scoped state
+    # This ensures each session starts with clean file tracking,
+    # and the file_edit_blocking_hook will require files to be
+    # read before being edited within this session.
+    reset_file_tracker()
+
     debug_section("session", f"Agent Session - {phase.value}")
     debug(
         "session",
@@ -405,146 +439,166 @@ async def run_agent_session(
                                     if len(cmd) > 50:
                                         cmd = cmd[:47] + "..."
                                     tool_input = cmd
-                                elif "path" in inp:
-                                    tool_input = inp["path"]
+                                # For other tools, just show the dict as string if needed
+                                else:
+                                    tool_input = str(inp)[:100]
 
-                        debug(
+                        current_tool = tool_name
+                        
+                        debug_detailed(
                             "session",
-                            f"Tool call #{tool_count}: {tool_name}",
+                            f"Tool Use Block #{tool_count}",
+                            tool_name=tool_name,
                             tool_input=tool_input,
-                            full_input=str(block.input)[:500]
-                            if hasattr(block, "input")
-                            else None,
                         )
 
-                        # Log tool start (handles printing too)
+                        # Log tool start to task logger
                         if task_logger:
                             task_logger.tool_start(
-                                tool_name, tool_input, phase, print_to_console=True
+                                tool_name=tool_name,
+                                tool_input=tool_input,
+                                phase=phase,
+                                print_to_console=False,
                             )
-                        else:
-                            print(f"\n[Tool: {tool_name}]", flush=True)
 
-                        if verbose and hasattr(block, "input"):
-                            input_str = str(block.input)
-                            if len(input_str) > 300:
-                                print(f"   Input: {input_str[:300]}...", flush=True)
+            # Handle ToolResultMessage
+            elif msg_type == "ToolResultMessage":
+                print(f"[SESSION DEBUG] Received ToolResultMessage for {current_tool}", flush=True)
+                if hasattr(msg, "content"):
+                    result_content = ""
+                    # Content is typically a list of blocks in SDK
+                    if isinstance(msg.content, list):
+                        for block in msg.content:
+                            block_type = type(block).__name__
+                            if hasattr(block, "text"):
+                                result_content += block.text
+                            elif hasattr(block, "content"): # Some blocks might wrap content
+                                result_content += str(block.content)
+                            elif block_type == "ToolResultBlock": # Direct block access
+                                result_content += getattr(block, "content", "")
                             else:
-                                print(f"   Input: {input_str}", flush=True)
-                        current_tool = tool_name
+                                result_content += str(block)
+                    else:
+                        result_content = str(msg.content)
 
-            # Handle UserMessage (tool results)
-            elif msg_type == "UserMessage" and hasattr(msg, "content"):
-                for block in msg.content:
-                    block_type = type(block).__name__
+                    print(f"[SESSION DEBUG] Tool result content preview: {str(result_content)[:100]}", flush=True)
 
-                    if block_type == "ToolResultBlock":
-                        result_content = getattr(block, "content", "")
-                        is_error = getattr(block, "is_error", False)
-
-                        # Check if command was blocked by security hook
-                        if "blocked" in str(result_content).lower():
-                            debug_error(
-                                "session",
-                                f"Tool BLOCKED: {current_tool}",
-                                result=str(result_content)[:300],
+                    # Check if command was blocked by security hook
+                    # Handle generic "blocked" and specific safety patterns
+                    res_lower = str(result_content).lower()
+                    is_blocked = any(p in res_lower for p in [
+                        "blocked", 
+                        "must be read",
+                        "modified since last read",
+                        "read it first"
+                    ])
+                    
+                    print(f"[SESSION DEBUG] is_blocked detection: {is_blocked}", flush=True)
+                    
+                    if is_blocked:
+                        debug_error(
+                            "session",
+                            f"Tool BLOCKED: {current_tool}",
+                            result=str(result_content)[:300],
+                        )
+                        print(f"   [BLOCKED] {result_content}", flush=True)
+                        if task_logger and current_tool:
+                            # Log as an explicit error for pink styling in UI
+                            task_logger.log_error(
+                                f"Blocked {current_tool} operation: {result_content}",
+                                phase=phase
                             )
-                            print(f"   [BLOCKED] {result_content}", flush=True)
-                            if task_logger and current_tool:
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=False,
-                                    result="BLOCKED",
-                                    detail=str(result_content),
-                                    phase=phase,
-                                )
-                        elif is_error:
-                            # Show errors (truncated)
-                            error_str = str(result_content)[:500]
-                            debug_error(
-                                "session",
-                                f"Tool error: {current_tool}",
-                                error=error_str[:200],
+                            # Still record tool end for state tracking
+                            task_logger.tool_end(
+                                current_tool,
+                                success=False,
+                                result="BLOCKED",
+                                detail=str(result_content),
+                                phase=phase,
+                                print_to_console=False,
                             )
-                            print(f"   [Error] {error_str}", flush=True)
-                            if task_logger and current_tool:
-                                # Store full error in detail for expandable view
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=False,
-                                    result=error_str[:100],
-                                    detail=str(result_content),
-                                    phase=phase,
-                                )
-                        else:
-                            # Tool succeeded
-                            debug_detailed(
-                                "session",
-                                f"Tool success: {current_tool}",
-                                result_length=len(str(result_content)),
+                    else:
+                        # Standard result logging
+                        debug_detailed(
+                            "session",
+                            f"Tool Result for {current_tool}",
+                            result_length=len(result_content)
+                        )
+
+                        # Log tool result
+                        if task_logger and current_tool:
+                            # Determine success/failure from content (heuristic)
+                            success = "Error:" not in result_content[:50] 
+                            
+                            result_preview = result_content.strip()
+                            if len(result_preview) > 100:
+                                result_preview = result_preview[:97] + "..."
+                                
+                            # Optimize storage for large outputs
+                            detail_content = None
+                            if current_tool in ("Read", "Grep", "Bash", "Edit", "Write"):
+                                # Only store if not too large (50KB limit)
+                                if len(result_content) < 50000:
+                                    detail_content = result_content
+
+                            task_logger.tool_end(
+                                tool_name=current_tool,
+                                success=success,
+                                result=result_preview,
+                                detail=detail_content or result_content,
+                                phase=phase,
+                                print_to_console=False,
                             )
-                            if verbose:
-                                result_str = str(result_content)[:200]
-                                print(f"   [Done] {result_str}", flush=True)
-                            else:
-                                print("   [Done]", flush=True)
-                            if task_logger and current_tool:
-                                # Store full result in detail for expandable view (only for certain tools)
-                                # Skip storing for very large outputs like Glob results
-                                detail_content = None
-                                if current_tool in (
-                                    "Read",
-                                    "Grep",
-                                    "Bash",
-                                    "Edit",
-                                    "Write",
-                                ):
-                                    result_str = str(result_content)
-                                    # Only store if not too large (detail truncation happens in logger)
-                                    if (
-                                        len(result_str) < 50000
-                                    ):  # 50KB max before truncation
-                                        detail_content = result_str
-                                task_logger.tool_end(
-                                    current_tool,
-                                    success=True,
-                                    detail=detail_content,
-                                    phase=phase,
-                                )
 
-                        current_tool = None
+                    current_tool = None
 
-        print("\n" + "-" * 70 + "\n")
+        debug_success("session", "Response stream completed")
 
-        # Check if build is complete
-        if is_build_complete(spec_dir):
-            debug_success(
-                "session",
-                "Session completed - build is complete",
-                message_count=message_count,
-                tool_count=tool_count,
-                response_length=len(response_text),
-            )
-            return "complete", response_text
+    except Exception as e:
+        logger.error(f"Error during agent session: {e}")
+        debug_error("session", f"Session error: {e}")
+        return "error", f"Session error: {e}", {}
 
+    # Parse response to determine status
+    response_lower = response_text.lower()
+
+    if "completed" in response_lower or "finished" in response_lower:
+        status = "complete"
+    elif "continue" in response_lower or "next" in response_lower:
+        status = "continue"
+    else:
+        status = "continue"
+
+    debug_detailed(
+        "session",
+        "Session analysis",
+        detected_status=status,
+        message_count=message_count,
+        tool_count=tool_count,
+    )
+
+    # Check if build is complete
+    if is_build_complete(spec_dir):
         debug_success(
             "session",
-            "Session completed - continuing",
+            "Session completed - build is complete",
             message_count=message_count,
             tool_count=tool_count,
             response_length=len(response_text),
         )
-        return "continue", response_text
+        return "complete", response_text
 
-    except Exception as e:
-        debug_error(
-            "session",
-            f"Session error: {e}",
-            exception_type=type(e).__name__,
-            message_count=message_count,
-            tool_count=tool_count,
-        )
-        print(f"Error during agent session: {e}")
-        if task_logger:
-            task_logger.log_error(f"Session error: {e}", phase)
-        return "error", str(e)
+    # If build is not complete but agent said complete (e.g. "subtask completed"),
+    # force continue so we pick up the next subtask.
+    if status == "complete":
+        debug("session", "Agent said complete but build is incomplete - continuing to next subtask")
+        status = "continue"
+
+    debug_success(
+        "session",
+        "Session completed - continuing",
+        message_count=message_count,
+        tool_count=tool_count,
+        response_length=len(response_text),
+    )
+    return status, response_text

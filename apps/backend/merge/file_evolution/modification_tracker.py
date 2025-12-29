@@ -163,6 +163,8 @@ class ModificationTracker:
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             changed_files = [f for f in result.stdout.strip().split("\n") if f]
@@ -182,6 +184,8 @@ class ModificationTracker:
                     cwd=worktree_path,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     check=True,
                 )
 
@@ -192,6 +196,8 @@ class ModificationTracker:
                         cwd=worktree_path,
                         capture_output=True,
                         text=True,
+                        encoding="utf-8",
+                        errors="replace",
                         check=True,
                     )
                     old_content = show_result.stdout
@@ -266,6 +272,8 @@ class ModificationTracker:
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 upstream = result.stdout.strip()
@@ -284,6 +292,8 @@ class ModificationTracker:
                     cwd=worktree_path,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 if result.returncode == 0:
                     return branch

@@ -16,31 +16,37 @@ interface ToolUsage {
   input?: string;
 }
 
+interface StreamingState {
+  content: string;
+  currentTool: ToolUsage | null;
+  toolsUsed: InsightsToolUsage[];
+}
+
 interface InsightsState {
-  // Data
-  session: InsightsSession | null;
-  sessions: InsightsSessionSummary[]; // List of all sessions
+  // Data - scoped by projectId
+  sessionsByProject: Record<string, InsightsSession | null>;
+  currentProjectId: string | null;
+  sessions: InsightsSessionSummary[]; // List of all sessions for current project
   status: InsightsChatStatus;
   pendingMessage: string;
-  streamingContent: string; // Accumulates streaming response
-  currentTool: ToolUsage | null; // Currently executing tool
-  toolsUsed: InsightsToolUsage[]; // Tools used during current response
+  streamingByProject: Record<string, StreamingState>; // Streaming state scoped by project
   isLoadingSessions: boolean;
 
   // Actions
-  setSession: (session: InsightsSession | null) => void;
+  setSession: (projectId: string, session: InsightsSession | null) => void;
+  getCurrentSession: (projectId: string) => InsightsSession | null;
   setSessions: (sessions: InsightsSessionSummary[]) => void;
   setStatus: (status: InsightsChatStatus) => void;
   setPendingMessage: (message: string) => void;
-  addMessage: (message: InsightsChatMessage) => void;
-  updateLastAssistantMessage: (content: string) => void;
-  appendStreamingContent: (content: string) => void;
-  clearStreamingContent: () => void;
-  setCurrentTool: (tool: ToolUsage | null) => void;
-  addToolUsage: (tool: ToolUsage) => void;
-  clearToolsUsed: () => void;
-  finalizeStreamingMessage: (suggestedTask?: InsightsChatMessage['suggestedTask']) => void;
-  clearSession: () => void;
+  addMessage: (projectId: string, message: InsightsChatMessage) => void;
+  updateLastAssistantMessage: (projectId: string, content: string) => void;
+  appendStreamingContent: (projectId: string, content: string) => void;
+  clearStreamingContent: (projectId: string) => void;
+  setCurrentTool: (projectId: string, tool: ToolUsage | null) => void;
+  addToolUsage: (projectId: string, tool: ToolUsage) => void;
+  clearToolsUsed: (projectId: string) => void;
+  finalizeStreamingMessage: (projectId: string, suggestedTask?: InsightsChatMessage['suggestedTask']) => void;
+  clearSession: (projectId: string) => void;
   setLoadingSessions: (loading: boolean) => void;
 }
 
@@ -49,19 +55,36 @@ const initialStatus: InsightsChatStatus = {
   message: ''
 };
 
-export const useInsightsStore = create<InsightsState>((set, _get) => ({
+const getEmptyStreamingState = (): StreamingState => ({
+  content: '',
+  currentTool: null,
+  toolsUsed: []
+});
+
+export const useInsightsStore = create<InsightsState>((set, get) => ({
   // Initial state
-  session: null,
+  sessionsByProject: {},
+  currentProjectId: null,
   sessions: [],
   status: initialStatus,
   pendingMessage: '',
-  streamingContent: '',
-  currentTool: null,
-  toolsUsed: [],
+  streamingByProject: {},
   isLoadingSessions: false,
 
   // Actions
-  setSession: (session) => set({ session }),
+  setSession: (projectId, session) =>
+    set((state) => ({
+      sessionsByProject: {
+        ...state.sessionsByProject,
+        [projectId]: session
+      },
+      currentProjectId: projectId
+    })),
+
+  getCurrentSession: (projectId) => {
+    const state = get();
+    return state.sessionsByProject[projectId] ?? null;
+  },
 
   setSessions: (sessions) => set({ sessions }),
 
@@ -71,35 +94,58 @@ export const useInsightsStore = create<InsightsState>((set, _get) => ({
 
   setPendingMessage: (message) => set({ pendingMessage: message }),
 
-  addMessage: (message) =>
+  addMessage: (projectId, message) =>
     set((state) => {
-      if (!state.session) {
+      // Layer 3: Validate projectId
+      if (state.currentProjectId && state.currentProjectId !== projectId) {
+        console.warn(`[InsightsStore] Rejecting addMessage for wrong project. Current: ${state.currentProjectId}, Attempted: ${projectId}`);
+        return state;
+      }
+
+      const currentSession = state.sessionsByProject[projectId];
+
+      if (!currentSession) {
         // Create new session if none exists
+        const newSession: InsightsSession = {
+          id: `session-${Date.now()}`,
+          projectId,
+          messages: [message],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
         return {
-          session: {
-            id: `session-${Date.now()}`,
-            projectId: '',
-            messages: [message],
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
+          sessionsByProject: {
+            ...state.sessionsByProject,
+            [projectId]: newSession
+          },
+          currentProjectId: projectId
         };
       }
 
       return {
-        session: {
-          ...state.session,
-          messages: [...state.session.messages, message],
-          updatedAt: new Date()
+        sessionsByProject: {
+          ...state.sessionsByProject,
+          [projectId]: {
+            ...currentSession,
+            messages: [...currentSession.messages, message],
+            updatedAt: new Date()
+          }
         }
       };
     }),
 
-  updateLastAssistantMessage: (content) =>
+  updateLastAssistantMessage: (projectId, content) =>
     set((state) => {
-      if (!state.session || state.session.messages.length === 0) return state;
+      // Layer 3: Validate projectId
+      if (state.currentProjectId && state.currentProjectId !== projectId) {
+        console.warn(`[InsightsStore] Rejecting updateLastAssistantMessage for wrong project`);
+        return state;
+      }
 
-      const messages = [...state.session.messages];
+      const currentSession = state.sessionsByProject[projectId];
+      if (!currentSession || currentSession.messages.length === 0) return state;
+
+      const messages = [...currentSession.messages];
       const lastIndex = messages.length - 1;
       const lastMessage = messages[lastIndex];
 
@@ -108,44 +154,124 @@ export const useInsightsStore = create<InsightsState>((set, _get) => ({
       }
 
       return {
-        session: {
-          ...state.session,
-          messages,
-          updatedAt: new Date()
+        sessionsByProject: {
+          ...state.sessionsByProject,
+          [projectId]: {
+            ...currentSession,
+            messages,
+            updatedAt: new Date()
+          }
         }
       };
     }),
 
-  appendStreamingContent: (content) =>
-    set((state) => ({
-      streamingContent: state.streamingContent + content
-    })),
-
-  clearStreamingContent: () => set({ streamingContent: '' }),
-
-  setCurrentTool: (tool) => set({ currentTool: tool }),
-
-  addToolUsage: (tool) =>
-    set((state) => ({
-      toolsUsed: [
-        ...state.toolsUsed,
-        {
-          name: tool.name,
-          input: tool.input,
-          timestamp: new Date()
-        }
-      ]
-    })),
-
-  clearToolsUsed: () => set({ toolsUsed: [] }),
-
-  finalizeStreamingMessage: (suggestedTask) =>
+  appendStreamingContent: (projectId, content) =>
     set((state) => {
-      const content = state.streamingContent;
-      const toolsUsed = state.toolsUsed.length > 0 ? [...state.toolsUsed] : undefined;
+      // Layer 3: Validate projectId
+      if (state.currentProjectId && state.currentProjectId !== projectId) {
+        console.warn(`[InsightsStore] Rejecting appendStreamingContent for wrong project`);
+        return state;
+      }
 
-      if (!content && !suggestedTask && !toolsUsed) {
-        return { streamingContent: '', toolsUsed: [] };
+      const currentStreaming = state.streamingByProject[projectId] ?? getEmptyStreamingState();
+      return {
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: {
+            ...currentStreaming,
+            content: currentStreaming.content + content
+          }
+        }
+      };
+    }),
+
+  clearStreamingContent: (projectId) =>
+    set((state) => {
+      const currentStreaming = state.streamingByProject[projectId];
+      if (!currentStreaming) return state;
+
+      return {
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: {
+            ...currentStreaming,
+            content: ''
+          }
+        }
+      };
+    }),
+
+  setCurrentTool: (projectId, tool) =>
+    set((state) => {
+      const currentStreaming = state.streamingByProject[projectId] ?? getEmptyStreamingState();
+      return {
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: {
+            ...currentStreaming,
+            currentTool: tool
+          }
+        }
+      };
+    }),
+
+  addToolUsage: (projectId, tool) =>
+    set((state) => {
+      const currentStreaming = state.streamingByProject[projectId] ?? getEmptyStreamingState();
+      return {
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: {
+            ...currentStreaming,
+            toolsUsed: [
+              ...currentStreaming.toolsUsed,
+              {
+                name: tool.name,
+                input: tool.input,
+                timestamp: new Date()
+              }
+            ]
+          }
+        }
+      };
+    }),
+
+  clearToolsUsed: (projectId) =>
+    set((state) => {
+      const currentStreaming = state.streamingByProject[projectId];
+      if (!currentStreaming) return state;
+
+      return {
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: {
+            ...currentStreaming,
+            toolsUsed: []
+          }
+        }
+      };
+    }),
+
+  finalizeStreamingMessage: (projectId, suggestedTask) =>
+    set((state) => {
+      // Layer 3: Validate projectId
+      if (state.currentProjectId && state.currentProjectId !== projectId) {
+        console.warn(`[InsightsStore] Rejecting finalizeStreamingMessage for wrong project`);
+        return state;
+      }
+
+      const currentStreaming = state.streamingByProject[projectId] ?? getEmptyStreamingState();
+      const { content, toolsUsed } = currentStreaming;
+      const toolsUsedArray = toolsUsed.length > 0 ? [...toolsUsed] : undefined;
+
+      if (!content && !suggestedTask && !toolsUsedArray) {
+        // Nothing to finalize, just clear streaming state
+        return {
+          streamingByProject: {
+            ...state.streamingByProject,
+            [projectId]: getEmptyStreamingState()
+          }
+        };
       }
 
       const newMessage: InsightsChatMessage = {
@@ -154,43 +280,60 @@ export const useInsightsStore = create<InsightsState>((set, _get) => ({
         content,
         timestamp: new Date(),
         suggestedTask,
-        toolsUsed
+        toolsUsed: toolsUsedArray
       };
 
-      if (!state.session) {
+      const currentSession = state.sessionsByProject[projectId];
+
+      if (!currentSession) {
+        const newSession: InsightsSession = {
+          id: `session-${Date.now()}`,
+          projectId,
+          messages: [newMessage],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
         return {
-          streamingContent: '',
-          toolsUsed: [],
-          session: {
-            id: `session-${Date.now()}`,
-            projectId: '',
-            messages: [newMessage],
-            createdAt: new Date(),
-            updatedAt: new Date()
+          streamingByProject: {
+            ...state.streamingByProject,
+            [projectId]: getEmptyStreamingState()
+          },
+          sessionsByProject: {
+            ...state.sessionsByProject,
+            [projectId]: newSession
           }
         };
       }
 
       return {
-        streamingContent: '',
-        toolsUsed: [],
-        session: {
-          ...state.session,
-          messages: [...state.session.messages, newMessage],
-          updatedAt: new Date()
+        streamingByProject: {
+          ...state.streamingByProject,
+          [projectId]: getEmptyStreamingState()
+        },
+        sessionsByProject: {
+          ...state.sessionsByProject,
+          [projectId]: {
+            ...currentSession,
+            messages: [...currentSession.messages, newMessage],
+            updatedAt: new Date()
+          }
         }
       };
     }),
 
-  clearSession: () =>
-    set({
-      session: null,
+  clearSession: (projectId) =>
+    set((state) => ({
+      sessionsByProject: {
+        ...state.sessionsByProject,
+        [projectId]: null
+      },
+      streamingByProject: {
+        ...state.streamingByProject,
+        [projectId]: getEmptyStreamingState()
+      },
       status: initialStatus,
-      pendingMessage: '',
-      streamingContent: '',
-      currentTool: null,
-      toolsUsed: []
-    })
+      pendingMessage: ''
+    }))
 }));
 
 // Helper functions
@@ -214,9 +357,9 @@ export async function loadInsightsSessions(projectId: string): Promise<void> {
 export async function loadInsightsSession(projectId: string): Promise<void> {
   const result = await window.electronAPI.getInsightsSession(projectId);
   if (result.success && result.data) {
-    useInsightsStore.getState().setSession(result.data);
+    useInsightsStore.getState().setSession(projectId, result.data);
   } else {
-    useInsightsStore.getState().setSession(null);
+    useInsightsStore.getState().setSession(projectId, null);
   }
   // Also load the sessions list
   await loadInsightsSessions(projectId);
@@ -224,7 +367,7 @@ export async function loadInsightsSession(projectId: string): Promise<void> {
 
 export function sendMessage(projectId: string, message: string, modelConfig?: InsightsModelConfig): void {
   const store = useInsightsStore.getState();
-  const session = store.session;
+  const session = store.getCurrentSession(projectId);
 
   // Add user message to session
   const userMessage: InsightsChatMessage = {
@@ -233,12 +376,12 @@ export function sendMessage(projectId: string, message: string, modelConfig?: In
     content: message,
     timestamp: new Date()
   };
-  store.addMessage(userMessage);
+  store.addMessage(projectId, userMessage);
 
   // Clear pending and set status
   store.setPendingMessage('');
-  store.clearStreamingContent();
-  store.clearToolsUsed(); // Clear tools from previous response
+  store.clearStreamingContent(projectId);
+  store.clearToolsUsed(projectId); // Clear tools from previous response
   store.setStatus({
     phase: 'thinking',
     message: 'Processing your message...'
@@ -254,7 +397,7 @@ export function sendMessage(projectId: string, message: string, modelConfig?: In
 export async function clearSession(projectId: string): Promise<void> {
   const result = await window.electronAPI.clearInsightsSession(projectId);
   if (result.success) {
-    useInsightsStore.getState().clearSession();
+    useInsightsStore.getState().clearSession(projectId);
     // Reload sessions list and current session
     await loadInsightsSession(projectId);
   }
@@ -263,7 +406,7 @@ export async function clearSession(projectId: string): Promise<void> {
 export async function newSession(projectId: string): Promise<void> {
   const result = await window.electronAPI.newInsightsSession(projectId);
   if (result.success && result.data) {
-    useInsightsStore.getState().setSession(result.data);
+    useInsightsStore.getState().setSession(projectId, result.data);
     // Reload sessions list
     await loadInsightsSessions(projectId);
   }
@@ -272,11 +415,11 @@ export async function newSession(projectId: string): Promise<void> {
 export async function switchSession(projectId: string, sessionId: string): Promise<void> {
   const result = await window.electronAPI.switchInsightsSession(projectId, sessionId);
   if (result.success && result.data) {
-    useInsightsStore.getState().setSession(result.data);
-    // Reset streaming state when switching sessions
-    useInsightsStore.getState().clearStreamingContent();
-    useInsightsStore.getState().clearToolsUsed();
-    useInsightsStore.getState().setCurrentTool(null);
+    useInsightsStore.getState().setSession(projectId, result.data);
+    // Layer 2: Reset streaming state when switching sessions (atomic operation)
+    useInsightsStore.getState().clearStreamingContent(projectId);
+    useInsightsStore.getState().clearToolsUsed(projectId);
+    useInsightsStore.getState().setCurrentTool(projectId, null);
     useInsightsStore.getState().setStatus({ phase: 'idle', message: '' });
   }
 }
@@ -306,9 +449,10 @@ export async function updateModelConfig(projectId: string, sessionId: string, mo
   if (result.success) {
     // Update local session state
     const store = useInsightsStore.getState();
-    if (store.session?.id === sessionId) {
-      store.setSession({
-        ...store.session,
+    const currentSession = store.getCurrentSession(projectId);
+    if (currentSession?.id === sessionId) {
+      store.setSession(projectId, {
+        ...currentSession,
         modelConfig,
         updatedAt: new Date()
       });
@@ -345,12 +489,12 @@ export function setupInsightsListeners(): () => void {
 
   // Listen for streaming chunks
   const unsubStreamChunk = window.electronAPI.onInsightsStreamChunk(
-    (_projectId, chunk: InsightsStreamChunk) => {
+    (projectId, chunk: InsightsStreamChunk) => {
       switch (chunk.type) {
         case 'text':
           if (chunk.content) {
-            store().appendStreamingContent(chunk.content);
-            store().setCurrentTool(null); // Clear tool when receiving text
+            store().appendStreamingContent(projectId, chunk.content);
+            store().setCurrentTool(projectId, null); // Clear tool when receiving text
             store().setStatus({
               phase: 'streaming',
               message: 'Receiving response...'
@@ -359,12 +503,12 @@ export function setupInsightsListeners(): () => void {
           break;
         case 'tool_start':
           if (chunk.tool) {
-            store().setCurrentTool({
+            store().setCurrentTool(projectId, {
               name: chunk.tool.name,
               input: chunk.tool.input
             });
             // Record this tool usage for history
-            store().addToolUsage({
+            store().addToolUsage(projectId, {
               name: chunk.tool.name,
               input: chunk.tool.input
             });
@@ -375,24 +519,24 @@ export function setupInsightsListeners(): () => void {
           }
           break;
         case 'tool_end':
-          store().setCurrentTool(null);
+          store().setCurrentTool(projectId, null);
           break;
         case 'task_suggestion':
           // Finalize the message with task suggestion
-          store().setCurrentTool(null);
-          store().finalizeStreamingMessage(chunk.suggestedTask);
+          store().setCurrentTool(projectId, null);
+          store().finalizeStreamingMessage(projectId, chunk.suggestedTask);
           break;
         case 'done':
           // Finalize any remaining content
-          store().setCurrentTool(null);
-          store().finalizeStreamingMessage();
+          store().setCurrentTool(projectId, null);
+          store().finalizeStreamingMessage(projectId);
           store().setStatus({
             phase: 'complete',
             message: ''
           });
           break;
         case 'error':
-          store().setCurrentTool(null);
+          store().setCurrentTool(projectId, null);
           store().setStatus({
             phase: 'error',
             error: chunk.error

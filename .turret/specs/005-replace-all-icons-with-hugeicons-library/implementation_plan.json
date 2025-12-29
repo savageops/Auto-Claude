@@ -1,0 +1,470 @@
+{
+  "spec_id": "005-replace-all-icons-with-hugeicons-library",
+  "title": "Replace All Icons with Hugeicons Library",
+  "description": "Comprehensive migration from Lucide React icons to Hugeicons Duotone icons across the entire frontend codebase",
+  "created_at": "2025-12-26T17:47:50.803Z",
+  "updated_at": "2025-12-26T20:03:00.000Z",
+  "status": "human_review",
+  "planStatus": "review",
+  "estimated_duration": "6-8 hours",
+  "total_subtasks": 25,
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Setup & Configuration",
+      "description": "Install dependencies, configure SVGR, and set up icon infrastructure",
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Install vite-plugin-svgr dependency",
+          "description": "Add vite-plugin-svgr to devDependencies in apps/frontend/package.json",
+          "file": "apps/frontend/package.json",
+          "status": "completed",
+          "acceptance_criteria": [
+            "vite-plugin-svgr is added to devDependencies",
+            "npm install runs successfully"
+          ],
+          "notes": "vite-plugin-svgr v4.5.0 was already added to devDependencies in package.json. Ran npm install to update package-lock.json and committed the lockfile changes.",
+          "updated_at": "2025-12-26T18:09:33.338923+00:00"
+        },
+        {
+          "id": "1.2",
+          "title": "Configure SVGR in electron.vite.config.ts",
+          "description": "Add SVGR plugin to renderer config with proper settings for React component imports using ?react suffix",
+          "file": "apps/frontend/electron.vite.config.ts",
+          "status": "completed",
+          "acceptance_criteria": [
+            "svgr plugin added to renderer plugins array",
+            "SVG imports with ?react suffix work as React components",
+            "@icons alias configured for processed icons directory"
+          ],
+          "notes": "SVGR plugin configured in electron.vite.config.ts with:\n- Import added: vite-plugin-svgr\n- Plugin added to renderer plugins array with ?react suffix support\n- svgrOptions configured: titleProp, ref forwarding, SVGO optimization, viewBox preservation\n- @icons alias added pointing to src/renderer/assets/icons\nCommitted as 2e4980e.",
+          "updated_at": "2025-12-26T18:11:51.558914+00:00"
+        },
+        {
+          "id": "1.3",
+          "title": "Create TypeScript declarations for SVG imports",
+          "description": "Add TypeScript declaration file for ?react SVG imports to enable proper type checking",
+          "file": "apps/frontend/src/renderer/types/svg.d.ts",
+          "status": "completed",
+          "acceptance_criteria": [
+            "TypeScript recognizes SVG?react imports as React components",
+            "No type errors when importing SVGs"
+          ],
+          "notes": "TypeScript declaration file created at apps/frontend/src/renderer/types/svg.d.ts. Includes:\n- Module declaration for *.svg?react imports\n- Module declaration for @icons/*.svg?react alias imports\n- ForwardRefExoticComponent type with SVGProps and ref support\n- SVGRProps interface with title and titleId props for accessibility\n- TypeScript compiles successfully with no errors\nCommitted as 3296d1f.",
+          "updated_at": "2025-12-26T18:14:31.321450+00:00"
+        },
+        {
+          "id": "1.4",
+          "title": "Create processed icons directory structure",
+          "description": "Create apps/frontend/src/renderer/assets/icons/ directory for preprocessed Hugeicons SVGs",
+          "file": "apps/frontend/src/renderer/assets/icons/",
+          "status": "completed",
+          "acceptance_criteria": [
+            "Directory structure created",
+            "Ready to receive preprocessed SVGs"
+          ],
+          "notes": "Created apps/frontend/src/renderer/assets/icons/ directory with improved .gitkeep documentation. The .gitkeep file now includes:\\n- Description of the directory's purpose\\n- Color transformation details (fill=#D4D7E0 -> var(--icon-fill), stroke=#141B34 -> currentColor)\\n- Import pattern example for React components\\nCommitted as e179096.",
+          "updated_at": "2025-12-26T18:16:20.611167+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "SVG Processing Pipeline",
+      "description": "Create preprocessing script and process all Hugeicons SVGs for theme compatibility",
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": "2.1",
+          "title": "Create SVG preprocessing script",
+          "description": "Build a Node.js script that reads SVGs from source, replaces hardcoded colors with CSS variables/currentColor, and outputs to destination directory",
+          "file": "apps/frontend/scripts/process-icons.js",
+          "status": "completed",
+          "acceptance_criteria": [
+            "Script reads from .refs/icons/hugeicons/Duotone/",
+            "Replaces fill=#D4D7E0 with fill=var(--icon-fill, currentColor)",
+            "Replaces stroke=#141B34 with stroke=currentColor",
+            "Flattens category directories into single icons directory",
+            "Handles kebab-case naming convention"
+          ],
+          "notes": "SVG preprocessing script (process-icons.cjs) is complete and committed. Features:\\n- Reads SVGs from .refs/icons/hugeicons/Duotone/ (3670 icons in 57 categories)\\n- Replaces fill=\\\"#D4D7E0\\\" with fill=\\\"var(--icon-fill, currentColor)\\\"\\n- Replaces stroke=\\\"#141B34\\\" with stroke=\\\"currentColor\\\"\\n- Flattens category directories into single output directory\\n- Supports mapping file (--mapping) or all icons (--all)\\n- Includes --dry-run and --verbose options\\n- Committed as 44b06cf",
+          "updated_at": "2025-12-26T18:21:30.110990+00:00"
+        },
+        {
+          "id": "2.2",
+          "title": "Create icon mapping configuration",
+          "description": "Create a JSON file mapping Lucide icon names to their Hugeicons equivalents with exact filenames verified",
+          "file": "apps/frontend/scripts/icon-mapping.json",
+          "status": "completed",
+          "acceptance_criteria": [
+            "All 126 Lucide icons mapped to Hugeicons equivalents",
+            "Exact Hugeicons filenames verified against source",
+            "Missing icons documented with alternatives"
+          ],
+          "notes": "Created and validated icon-mapping.json with 125 Lucide to Hugeicons mappings. All filenames verified to exist in the Hugeicons Duotone source directory. Added validate-icon-mapping.cjs script for future verification.",
+          "updated_at": "2025-12-26T18:32:11.115283+00:00"
+        },
+        {
+          "id": "2.3",
+          "title": "Process all required Hugeicons SVGs",
+          "description": "Run preprocessing script to copy and transform only the needed icons based on mapping",
+          "file": "apps/frontend/src/renderer/assets/icons/*.svg",
+          "status": "completed",
+          "acceptance_criteria": [
+            "All mapped icons processed and available",
+            "Colors replaced with theme-aware values",
+            "Files use consistent naming convention"
+          ],
+          "notes": "Processed all 125 Hugeicons SVGs with complete color replacement:\\n- fill=\"#D4D7E0\" -> fill=\"var(--icon-fill, currentColor)\" for duotone background\\n- stroke=\"#141B34\" -> stroke=\"currentColor\" for stroke paths\\n- fill=\"#141B34\" -> fill=\"currentColor\" for solid fill paths\\n\\nAdded --icon-fill CSS variable to globals.css for all themes (light, dark, neutral, forest).\\n\\nAll icons now properly support theme switching. No hardcoded colors remain in the processed icons.\\n\\nCommitted as ca56eda.",
+          "updated_at": "2025-12-26T18:36:07.922523+00:00"
+        },
+        {
+          "id": "2.4",
+          "title": "Add CSS variables for icon theming",
+          "description": "Add --icon-fill CSS variable to light and dark theme CSS for proper duotone effect",
+          "file": "apps/frontend/src/renderer/index.css",
+          "status": "completed",
+          "acceptance_criteria": [
+            "--icon-fill defined for :root (light theme)",
+            "--icon-fill defined for .dark class (dark theme)",
+            "Icons render with appropriate fill/stroke contrast"
+          ],
+          "notes": "Added --icon-fill CSS variable to all theme sections in globals.css:\n- :root (light): #D4D7E0 (original Hugeicons duotone fill)\n- .dark: #3A3A45 (muted dark gray for Oscura Midnight)\n- dusk light/dark: #D4D7E0 / #3A3B42\n- lime light/dark: #D4D7E0 / #3A3A50\n- ocean light/dark: #BAE6FD / #164E63 (blue tones)\n- retro light/dark: #FDE68A / #57534E (amber/stone)\n- neo light/dark: #F0ABFC / #581C87 (pink/purple)\n- forest light/dark: #86EFAC / #166534 (green tones)\n\nThis enables proper duotone effect where SVG fill uses var(--icon-fill, currentColor) for the background layer while stroke uses currentColor for the foreground layer.\n\nCommitted as bd36b33.",
+          "updated_at": "2025-12-26T18:38:19.664570+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Icon Library Migration",
+      "description": "Update centralized icons.ts to export Hugeicons components",
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": "3.1",
+          "title": "Create new icons.ts with Hugeicons imports",
+          "description": "Replace all lucide-react imports with Hugeicons SVG imports using ?react suffix while maintaining same export names",
+          "file": "apps/frontend/src/renderer/lib/icons.ts",
+          "status": "completed",
+          "acceptance_criteria": [
+            "All 126 icons imported from processed SVGs",
+            "Same export names maintained for backwards compatibility",
+            "Alphabetical ordering preserved",
+            "ImageIcon alias still works"
+          ],
+          "notes": "Replaced all lucide-react imports with Hugeicons SVG imports:\n\n- Updated icons.ts to import all 125 icons from @icons/ alias using ?react suffix\n- Each icon imported from its corresponding processed SVG file (e.g., @icons/activity.svg?react)\n- All icons exported with same names for backwards compatibility (Activity, AlertCircle, etc.)\n- ImageIcon alias maintained as export { Image as ImageIcon }\n- Added @icons/* path alias to tsconfig.json for TypeScript path resolution\n- Added vite-plugin-svgr/client types to tsconfig.json for proper SVG module typing\n- Updated svg.d.ts with explicit module declarations for all 125 icon imports\n- TypeScript compiles without errors\n\nCommitted as db39360.",
+          "updated_at": "2025-12-26T18:45:52.913540+00:00"
+        },
+        {
+          "id": "3.2",
+          "title": "Create Icon wrapper component for consistent sizing",
+          "description": "Create a wrapper component that provides consistent size prop behavior similar to Lucide icons",
+          "file": "apps/frontend/src/renderer/lib/IconWrapper.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "IconWrapper supports size prop (number or string)",
+            "Supports className prop for styling",
+            "Passes through other SVG props",
+            "Defaults to 24x24 like Lucide"
+          ],
+          "notes": "Updated IconWrapper component to default to 24x24 like Lucide icons:\\n\\n- Changed wrapIcon function to set size=24 as default parameter\\n- Updated priority logic: explicit width/height > size prop > default (24)\\n- All acceptance criteria met:\\n  - \u2713 IconWrapper supports size prop (number or string)\\n  - \u2713 Supports className prop for styling\\n  - \u2713 Passes through other SVG props\\n  - \u2713 Defaults to 24x24 like Lucide\\n- TypeScript compiles without errors\\n- Committed as 454abf1",
+          "updated_at": "2025-12-26T18:49:43.503628+00:00"
+        },
+        {
+          "id": "3.3",
+          "title": "Export wrapped icon components",
+          "description": "Update icons.ts exports to use wrapped components that support the same API as Lucide icons",
+          "file": "apps/frontend/src/renderer/lib/icons.ts",
+          "status": "completed",
+          "acceptance_criteria": [
+            "All exports use IconWrapper",
+            "size prop works: <Icon size={16} />",
+            "className prop works: <Icon className='text-red-500' />",
+            "API matches Lucide behavior"
+          ],
+          "notes": "Subtask 3.3 was already completed and committed (ce940ef). Verified implementation:\n\n- icons.ts imports wrapIcon from './IconWrapper'\n- All 125 icons wrapped with wrapIcon() and exported\n- size prop works: wrapIcon defaults to 24x24, accepts number or string\n- className prop passes through to SVG element\n- ImageIcon alias maintained: export { Image as ImageIcon }\n- Types re-exported: IconProps, IconComponent, IconType\n- TypeScript compiles without errors (npm run typecheck passes)\n\nAPI matches Lucide React behavior completely.",
+          "updated_at": "2025-12-26T18:51:56.859079+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Component Migration",
+      "description": "Update all 169 component files to use centralized @/lib/icons imports",
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": "4.1",
+          "title": "Migrate settings components (12 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/settings/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/settings/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "Migrated all 11 settings component files to import from @/lib/icons:\n\n- AgentProfileSettings.tsx - Already migrated\n- AppSettings.tsx - Already migrated  \n- AdvancedSettings.tsx - Already migrated\n- DisplaySettings.tsx - Migrated (added ZoomIn/ZoomOut to icon library)\n- IntegrationSettings.tsx - Already migrated\n- LanguageSettings.tsx - Already migrated\n- ProjectSelector.tsx - Already migrated\n- ThemeSelector.tsx - Already migrated\n- common/EmptyProjectState.tsx - Already migrated\n- integrations/GitHubIntegration.tsx - Already migrated\n- integrations/LinearIntegration.tsx - Already migrated\n\nAdded ZoomIn and ZoomOut icons to the Hugeicons library (using zoom-in-area.svg and zoom-out-area.svg from Search category). Updated icon-mapping.json, icons.ts, and svg.d.ts.\n\nZero lucide-react imports remain in settings directory.\nTypeScript compiles without errors.\n\nCommitted as 990f445.",
+          "updated_at": "2025-12-26T19:02:39.203389+00:00"
+        },
+        {
+          "id": "4.2",
+          "title": "Migrate task-detail components (15 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/task-detail/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/task-detail/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "Migrated 17 files in task-detail directory to import from @/lib/icons:\\n\\n- TaskActions.tsx\\n- TaskDetailModal.tsx\\n- TaskHeader.tsx\\n- TaskLogs.tsx\\n- TaskMetadata.tsx\\n- TaskProgress.tsx\\n- TaskSubtasks.tsx\\n- TaskWarnings.tsx\\n- task-review/ConflictDetailsDialog.tsx\\n- task-review/DiffViewDialog.tsx\\n- task-review/DiscardDialog.tsx\\n- task-review/MergePreviewSummary.tsx\\n- task-review/QAFeedbackSection.tsx\\n- task-review/StagedSuccessMessage.tsx\\n- task-review/WorkspaceMessages.tsx\\n- task-review/WorkspaceStatus.tsx\\n- task-review/utils.tsx\\n\\nNo lucide-react imports remain. TypeScript compiles without errors. Committed as cd36acd.",
+          "updated_at": "2025-12-26T19:01:03.256277+00:00"
+        },
+        {
+          "id": "4.3",
+          "title": "Migrate project-settings components (15 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/project-settings/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/project-settings/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "All 16 files in apps/frontend/src/renderer/components/project-settings/ verified to be importing from @/lib/icons. Files already migrated: GeneralSettings.tsx, IntegrationSettings.tsx, SecuritySettings.tsx, LinearIntegrationSection.tsx, InfrastructureStatus.tsx, EnvironmentSettings.tsx, PasswordInput.tsx, ConnectionStatus.tsx, ProjectSettings.tsx, MemoryBackendSection.tsx, CollapsibleSection.tsx, AutoBuildIntegration.tsx, GitHubOAuthFlow.tsx, ClaudeOAuthFlow.tsx, GitHubIntegrationSection.tsx, ClaudeAuthSection.tsx. TypeScript compilation verified with no errors.",
+          "updated_at": "2025-12-26T19:06:30.751240+00:00"
+        },
+        {
+          "id": "4.4",
+          "title": "Migrate ideation components (12 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/ideation/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/ideation/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "Migrated all 15 files in apps/frontend/src/renderer/components/ideation/ to import from @/lib/icons instead of lucide-react:\n\n- GenerationProgressScreen.tsx\n- IdeaCard.tsx\n- IdeaDetailPanel.tsx\n- IdeationDialogs.tsx\n- IdeationEmptyState.tsx\n- IdeationFilters.tsx\n- IdeationHeader.tsx\n- TypeIcon.tsx\n- TypeStateIcon.tsx\n- details/CodeImprovementDetails.tsx\n- details/CodeQualityDetails.tsx\n- details/DocumentationGapDetails.tsx\n- details/PerformanceOptimizationDetails.tsx\n- details/SecurityHardeningDetails.tsx\n- details/UIUXDetails.tsx\n\nZero lucide-react imports remain in ideation directory.\nTypeScript compiles without errors.\nCommitted as 25cb2d8.",
+          "updated_at": "2025-12-26T19:10:19.165825+00:00"
+        },
+        {
+          "id": "4.5",
+          "title": "Migrate onboarding components (9 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/onboarding/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/onboarding/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "All 9 files in apps/frontend/src/renderer/components/onboarding/ have been updated to import from @/lib/icons instead of lucide-react. Files migrated: CompletionStep.tsx, FirstSpecStep.tsx, GraphitiStep.tsx, MemoryStep.tsx, OAuthStep.tsx, OllamaModelSelector.tsx, OnboardingWizard.tsx, WelcomeStep.tsx, WizardProgress.tsx. Committed in 369715e.",
+          "updated_at": "2025-12-26T19:13:17.952143+00:00"
+        },
+        {
+          "id": "4.6",
+          "title": "Migrate github-related components (15 files)",
+          "description": "Update all files in github-issues, github-prs directories to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/github-*/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "All files in github-issues (8 files) and github-prs (7 files) directories now import icons from @/lib/icons. Added 4 missing icons to the icon library: CheckCheck, FileDiff, GitPullRequest, and MinusSquare. TypeScript compilation verified. No more lucide-react imports in these directories.",
+          "updated_at": "2025-12-26T19:24:28.882844+00:00"
+        },
+        {
+          "id": "4.7",
+          "title": "Migrate changelog components (10 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/changelog/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/changelog/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "Updated all 10 files in apps/frontend/src/renderer/components/changelog/ to import icons from @/lib/icons instead of lucide-react. All files now use centralized icon exports. TypeScript check passed.",
+          "updated_at": "2025-12-26T19:21:47.157976+00:00"
+        },
+        {
+          "id": "4.8",
+          "title": "Migrate roadmap components (7 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/roadmap/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/roadmap/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "Updated all 6 files in apps/frontend/src/renderer/components/roadmap/ to import from @/lib/icons instead of lucide-react. Files updated: FeatureCard.tsx, FeatureDetailPanel.tsx, PhaseCard.tsx, RoadmapEmptyState.tsx, RoadmapHeader.tsx, RoadmapTabs.tsx. Verified no lucide-react imports remain and TypeScript compiles successfully.",
+          "updated_at": "2025-12-26T19:24:00.578551+00:00"
+        },
+        {
+          "id": "4.9",
+          "title": "Migrate UI components (6 files)",
+          "description": "Update all files in apps/frontend/src/renderer/components/ui/ to import from @/lib/icons",
+          "file": "apps/frontend/src/renderer/components/ui/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "All icons import from @/lib/icons",
+            "Components render correctly"
+          ],
+          "notes": "All 6 files in apps/frontend/src/renderer/components/ui/ that use icons are already importing from @/lib/icons instead of lucide-react. Files verified:\\n\\n- checkbox.tsx - imports Check from @/lib/icons\\n- dialog.tsx - imports X from @/lib/icons\\n- dropdown-menu.tsx - imports Check, ChevronRight, Circle from @/lib/icons\\n- full-screen-dialog.tsx - imports X from @/lib/icons\\n- radio-group.tsx - imports Circle from @/lib/icons\\n- select.tsx - imports Check, ChevronDown, ChevronUp from @/lib/icons\\n\\nZero lucide-react imports remain in UI directory. TypeScript compiles without errors. No changes needed - migration was already completed in a previous session.",
+          "updated_at": "2025-12-26T19:26:46.218389+00:00"
+        },
+        {
+          "id": "4.10",
+          "title": "Migrate remaining component files (~70 files)",
+          "description": "Update all remaining files in components root and subdirectories (context, linear-import, terminal, etc.)",
+          "file": "apps/frontend/src/renderer/components/*.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react in any component",
+            "All icons import from @/lib/icons",
+            "All components render correctly"
+          ],
+          "notes": "Migrated all remaining component files from lucide-react to @/lib/icons. Added missing link.svg and building.svg icons for GitHubSetupModal. TypeScript compilation verified.",
+          "updated_at": "2025-12-26T19:38:17.973568+00:00"
+        },
+        {
+          "id": "4.11",
+          "title": "Update App.tsx and root files",
+          "description": "Update main App.tsx and any other root-level files that import from lucide-react",
+          "file": "apps/frontend/src/renderer/App.tsx",
+          "status": "completed",
+          "acceptance_criteria": [
+            "No imports from lucide-react",
+            "Application starts without errors"
+          ],
+          "notes": "Verified App.tsx and main.tsx. App.tsx already uses @/lib/icons (completed in previous subtasks). Updated test file comment and README.md to reference @/lib/icons instead of lucide-react. Confirmed zero imports from lucide-react remain in src folder.",
+          "updated_at": "2025-12-26T19:40:26.689386+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Cleanup & Verification",
+      "description": "Remove lucide-react dependency and verify all icons work correctly",
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": "5.1",
+          "title": "Remove lucide-react dependency",
+          "description": "Remove lucide-react from package.json dependencies and run npm install",
+          "file": "apps/frontend/package.json",
+          "status": "completed",
+          "acceptance_criteria": [
+            "lucide-react removed from dependencies",
+            "No remaining imports from lucide-react in codebase",
+            "npm install succeeds"
+          ],
+          "notes": "Removed lucide-react from package.json dependencies. npm install confirmed \"removed 1 package\". Build verified successfully - all 1268 modules built without errors.",
+          "updated_at": "2025-12-26T19:40:56.222003+00:00"
+        },
+        {
+          "id": "5.2",
+          "title": "Run TypeScript type checking",
+          "description": "Execute npm run typecheck to verify no type errors",
+          "file": "N/A",
+          "status": "completed",
+          "acceptance_criteria": [
+            "TypeScript compiles without errors",
+            "All icon imports properly typed"
+          ],
+          "notes": "TypeScript typecheck (npm run typecheck) executed successfully with no errors. All icon migrations and component updates pass type checking.",
+          "updated_at": "2025-12-26T19:41:57.016856+00:00"
+        },
+        {
+          "id": "5.3",
+          "title": "Run existing test suite",
+          "description": "Execute npm run test to verify no regressions",
+          "file": "N/A",
+          "status": "completed",
+          "acceptance_criteria": [
+            "All existing tests pass",
+            "No test failures related to icons"
+          ],
+          "notes": "All 507 tests passed across 19 test files. No regressions from icon migration. Test duration: 3.65s",
+          "updated_at": "2025-12-26T19:43:28.336597+00:00"
+        }
+      ]
+    }
+  ],
+  "qa_signoff": {
+    "status": "approved",
+    "qa_session": 0,
+    "issues_found": [
+      {
+        "description": "None"
+      }
+    ],
+    "tests_passed": {},
+    "timestamp": "2025-12-26T19:49:26.556377+00:00",
+    "ready_for_qa_revalidation": false
+  },
+  "dependencies": {
+    "external": [
+      "vite-plugin-svgr",
+      "Hugeicons Duotone SVGs (from .refs/icons/hugeicons/Duotone/)"
+    ],
+    "internal": [
+      "apps/frontend/electron.vite.config.ts",
+      "apps/frontend/src/renderer/lib/icons.ts",
+      "apps/frontend/src/renderer/index.css"
+    ]
+  },
+  "risks": [
+    {
+      "risk": "Missing Hugeicons equivalents",
+      "mitigation": "Use closest visual alternative or create custom SVG if needed",
+      "severity": "medium"
+    },
+    {
+      "risk": "Icon sizing/styling differences",
+      "mitigation": "Create IconWrapper component to normalize behavior",
+      "severity": "medium"
+    },
+    {
+      "risk": "Theme compatibility issues",
+      "mitigation": "Test thoroughly in both light and dark modes",
+      "severity": "low"
+    },
+    {
+      "risk": "Hugeicons source not available in worktree",
+      "mitigation": "Copy icons from main repo or download from source",
+      "severity": "high"
+    }
+  ],
+  "notes": [
+    "169 files currently import from lucide-react",
+    "126 unique icons need to be mapped and replaced",
+    "Icon wrapper needed for consistent size prop behavior",
+    "CSS variables required for duotone theming",
+    "Preprocessing script should be reusable for future icon updates"
+  ],
+  "last_updated": "2025-12-26T19:49:26.556377+00:00",
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-26T19:49:42.065216+00:00",
+      "issues": [],
+      "duration_seconds": 328.26
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 1,
+    "last_iteration": 1,
+    "last_status": "approved",
+    "issues_by_type": {}
+  }
+}

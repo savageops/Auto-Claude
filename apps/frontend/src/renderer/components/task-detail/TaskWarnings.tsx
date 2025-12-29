@@ -1,4 +1,4 @@
-import { AlertTriangle, Play, RotateCcw, Loader2 } from 'lucide-react';
+import { AlertTriangle, Play, RotateCcw, RefreshCw } from '@/lib/icons';
 import { Button } from '../ui/button';
 
 interface TaskWarningsProps {
@@ -36,15 +36,15 @@ export function TaskWarnings({
                 This can happen if the app crashed or the process was terminated unexpectedly.
               </p>
               <Button
-                variant="warning"
+                variant="ghost"
                 size="sm"
                 onClick={onRecover}
                 disabled={isRecovering}
-                className="w-full"
+                className="w-full bg-primary/20 hover:bg-primary/30 text-primary"
               >
                 {isRecovering ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Recovering...
                   </>
                 ) : (
@@ -73,10 +73,10 @@ export function TaskWarnings({
                 The process likely crashed during spec creation. Click Resume to continue implementation.
               </p>
               <Button
-                variant="default"
+                variant="ghost"
                 size="sm"
                 onClick={onResume}
-                className="w-full"
+                className="w-full bg-primary/80 hover:bg-primary/90 text-background"
               >
                 <Play className="mr-2 h-4 w-4" />
                 Resume Task

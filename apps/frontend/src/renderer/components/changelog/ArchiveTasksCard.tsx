@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Archive, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { Archive, RefreshCw, CheckCircle, AlertCircle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import type { ChangelogTask } from '../../../shared/types';

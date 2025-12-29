@@ -9,7 +9,7 @@ import {
   Wrench,
   FileCode,
   AlertTriangle
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { Card } from '../../ui/card';
 import {

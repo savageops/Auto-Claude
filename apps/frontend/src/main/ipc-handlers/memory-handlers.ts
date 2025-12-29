@@ -64,7 +64,7 @@ interface OllamaEmbeddingModel {
 
 /**
  * Recommended Embedding Model Card
- * Pre-curated models suitable for Auto Claude memory system
+ * Pre-curated models suitable for Turret memory system
  */
 interface OllamaRecommendedModel {
   name: string;          // Model identifier
@@ -269,7 +269,7 @@ export function registerMemoryHandlers(): void {
 
         const service = getMemoryService({
           dbPath: dbPath || getDefaultDbPath(),
-          database: database || 'auto_claude_memory',
+          database: database || 'turret_memory',
         });
 
         const result = await service.testConnection();
@@ -350,7 +350,7 @@ export function registerMemoryHandlers(): void {
         } else {
           const service = getMemoryService({
             dbPath: config.dbPath || getDefaultDbPath(),
-            database: config.database || 'auto_claude_memory',
+            database: config.database || 'turret_memory',
           });
           databaseResult = await service.testConnection();
         }

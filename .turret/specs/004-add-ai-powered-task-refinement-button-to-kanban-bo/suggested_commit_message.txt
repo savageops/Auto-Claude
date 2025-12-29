@@ -1,0 +1,3 @@
+feat(tasks): add AI-powered task refinement button
+
+Add "Refine with AI" button to task creation form that uses Claude Haiku to automatically expand minimal user input into comprehensive, well-structured task details. Improves user experience by reducing manual effort required for detailed task specification.

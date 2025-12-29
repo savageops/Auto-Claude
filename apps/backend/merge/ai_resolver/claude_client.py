@@ -25,7 +25,7 @@ def create_claude_resolver() -> AIResolver:
     """
     Create an AIResolver configured to use Claude via the Agent SDK.
 
-    Uses the same OAuth token pattern as the rest of the auto-claude framework.
+    Uses the same OAuth token pattern as the rest of the turret framework.
 
     Returns:
         Configured AIResolver instance

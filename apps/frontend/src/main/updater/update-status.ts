@@ -16,7 +16,7 @@ export function hasPendingSourceUpdate(): boolean {
     return false;
   }
 
-  const overridePath = path.join(app.getPath('userData'), 'auto-claude-source');
+  const overridePath = path.join(app.getPath('userData'), 'turret-source');
   const metadataPath = path.join(overridePath, '.update-metadata.json');
 
   if (!existsSync(metadataPath)) {
@@ -36,7 +36,7 @@ export function hasPendingSourceUpdate(): boolean {
  * Get update metadata if available
  */
 export function getUpdateMetadata(): UpdateMetadata | null {
-  const overridePath = path.join(app.getPath('userData'), 'auto-claude-source');
+  const overridePath = path.join(app.getPath('userData'), 'turret-source');
   const metadataPath = path.join(overridePath, '.update-metadata.json');
 
   if (!existsSync(metadataPath)) {

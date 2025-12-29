@@ -1,4 +1,4 @@
-import { Loader2, CheckCircle2, AlertCircle, Database } from 'lucide-react';
+import { RefreshCw, CheckCircle2, AlertCircle, Database } from '@/lib/icons';
 import type { InfrastructureStatus as InfrastructureStatusType } from '../../../shared/types';
 
 interface InfrastructureStatusProps {
@@ -19,7 +19,7 @@ export function InfrastructureStatus({
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">Memory Infrastructure</span>
         {isCheckingInfrastructure && (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
         )}
       </div>
 

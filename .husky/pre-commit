@@ -41,7 +41,7 @@ if git diff --cached --name-only | grep -q "^package.json$"; then
       # Update version badge
       sed -i.bak "s/version-[0-9]*\.[0-9]*\.[0-9]*-blue/version-$VERSION-blue/g" README.md
       # Update download links
-      sed -i.bak "s/Auto-Claude-[0-9]*\.[0-9]*\.[0-9]*/Auto-Claude-$VERSION/g" README.md
+      sed -i.bak "s/turret-[0-9]*\.[0-9]*\.[0-9]*/turret-$VERSION/g" README.md
       rm -f README.md.bak
       git add README.md
       echo "  Updated README.md to $VERSION"

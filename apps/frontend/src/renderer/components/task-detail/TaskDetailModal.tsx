@@ -22,11 +22,11 @@ import {
   CheckCircle2,
   RotateCcw,
   Trash2,
-  Loader2,
+  RefreshCw,
   AlertTriangle,
   Pencil,
   X
-} from 'lucide-react';
+} from '@/lib/icons';
 import { cn } from '../../lib/utils';
 import { calculateProgress } from '../../lib/utils';
 import { startTask, stopTask, submitReview, recoverStuckTask, deleteTask } from '../../stores/task-store';
@@ -147,6 +147,46 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     state.setIsDiscarding(false);
   };
 
+  const handleDiscardFile = async (filePath: string) => {
+    state.setWorkspaceError(null);
+    state.setDiscardFileSuccess(null);
+    state.setIsDiscardingFile(true);
+
+    try {
+      const result = await window.electronAPI.discardWorktreeFile(task.id, filePath);
+      if (result.success && result.data?.success) {
+        // Show success feedback with the file path
+        state.setDiscardFileSuccess(filePath);
+
+        // Refresh the diff view to reflect the discarded file
+        const diffResult = await window.electronAPI.getWorktreeDiff(task.id);
+        if (diffResult.success && diffResult.data) {
+          state.setWorktreeDiff(diffResult.data);
+        }
+        // Also refresh the worktree status since file count may have changed
+        const statusResult = await window.electronAPI.getWorktreeStatus(task.id);
+        if (statusResult.success && statusResult.data) {
+          state.setWorktreeStatus(statusResult.data);
+        }
+        // Refresh merge preview if it was loaded
+        if (state.mergePreview) {
+          state.loadMergePreview();
+        }
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          state.setDiscardFileSuccess(null);
+        }, 3000);
+      } else {
+        state.setWorkspaceError(result.data?.message || result.error || 'Failed to discard file changes');
+      }
+    } catch (error) {
+      state.setWorkspaceError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      state.setIsDiscardingFile(false);
+    }
+  };
+
   const handleClose = () => {
     onOpenChange(false);
   };
@@ -156,13 +196,14 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     if (state.isStuck) {
       return (
         <Button
-          variant="warning"
+          variant="ghost"
           onClick={handleRecover}
           disabled={state.isRecovering}
+          className="bg-primary/20 hover:bg-primary/30 text-primary"
         >
           {state.isRecovering ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               Recovering...
             </>
           ) : (
@@ -177,7 +218,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
     if (state.isIncomplete) {
       return (
-        <Button variant="default" onClick={handleStartStop}>
+        <Button variant="ghost" onClick={handleStartStop} className="bg-primary/80 hover:bg-primary/90 text-background">
           <Play className="mr-2 h-4 w-4" />
           Resume Task
         </Button>
@@ -187,8 +228,9 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
     if (task.status === 'backlog' || task.status === 'in_progress') {
       return (
         <Button
-          variant={state.isRunning ? 'destructive' : 'default'}
+          variant="ghost"
           onClick={handleStartStop}
+          className={state.isRunning ? 'bg-primary/30 hover:bg-primary/40 text-primary' : 'bg-primary/80 hover:bg-primary/90 text-background'}
         >
           {state.isRunning ? (
             <>
@@ -258,13 +300,13 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                         {task.specId}
                       </Badge>
                       {state.isStuck ? (
-                        <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
+                        <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30 animate-pulse">
                           <AlertTriangle className="h-3 w-3" />
                           Stuck
                         </Badge>
                       ) : state.isIncomplete ? (
                         <>
-                          <Badge variant="warning" className="text-xs flex items-center gap-1">
+                          <Badge variant="outline" className="text-xs flex items-center gap-1 bg-primary/20 text-primary border-primary/30">
                             <AlertTriangle className="h-3 w-3" />
                             Incomplete
                           </Badge>
@@ -279,7 +321,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                           </Badge>
                           {task.status === 'human_review' && task.reviewReason && (
                             <Badge
-                              variant={task.reviewReason === 'completed' ? 'success' : task.reviewReason === 'errors' ? 'destructive' : 'warning'}
+                              variant={task.reviewReason === 'completed' ? 'success' :task.reviewReason === 'errors' ? 'destructive' : 'warning'}
                               className="text-xs"
                             >
                               {task.reviewReason === 'completed' ? 'Completed' :
@@ -388,9 +430,11 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             isLoadingWorktree={state.isLoadingWorktree}
                             isMerging={state.isMerging}
                             isDiscarding={state.isDiscarding}
+                            isDiscardingFile={state.isDiscardingFile}
                             showDiscardDialog={state.showDiscardDialog}
                             showDiffDialog={state.showDiffDialog}
                             workspaceError={state.workspaceError}
+                            discardFileSuccess={state.discardFileSuccess}
                             stageOnly={state.stageOnly}
                             stagedSuccess={state.stagedSuccess}
                             stagedProjectPath={state.stagedProjectPath}
@@ -402,11 +446,54 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             onReject={handleReject}
                             onMerge={handleMerge}
                             onDiscard={handleDiscard}
+                            onDiscardFile={handleDiscardFile}
                             onShowDiscardDialog={state.setShowDiscardDialog}
                             onShowDiffDialog={state.setShowDiffDialog}
                             onStageOnlyChange={state.setStageOnly}
                             onShowConflictDialog={state.setShowConflictDialog}
                             onLoadMergePreview={state.loadMergePreview}
+                            onRefreshDiff={state.refreshDiff}
+                            onClose={handleClose}
+                          />
+                        </>
+                      )}
+
+                      {/* Workspace Changes (when not in review) */}
+                      {!state.needsReview && state.worktreeStatus && (
+                        <>
+                          <Separator />
+                          <TaskReview
+                            task={task}
+                            feedback={state.feedback}
+                            isSubmitting={state.isSubmitting}
+                            worktreeStatus={state.worktreeStatus}
+                            worktreeDiff={state.worktreeDiff}
+                            isLoadingWorktree={state.isLoadingWorktree}
+                            isMerging={state.isMerging}
+                            isDiscarding={state.isDiscarding}
+                            isDiscardingFile={state.isDiscardingFile}
+                            showDiscardDialog={state.showDiscardDialog}
+                            showDiffDialog={state.showDiffDialog}
+                            workspaceError={state.workspaceError}
+                            discardFileSuccess={state.discardFileSuccess}
+                            stageOnly={state.stageOnly}
+                            stagedSuccess={state.stagedSuccess}
+                            stagedProjectPath={state.stagedProjectPath}
+                            suggestedCommitMessage={state.suggestedCommitMessage}
+                            mergePreview={state.mergePreview}
+                            isLoadingPreview={state.isLoadingPreview}
+                            showConflictDialog={state.showConflictDialog}
+                            onFeedbackChange={state.setFeedback}
+                            onReject={handleReject}
+                            onMerge={handleMerge}
+                            onDiscard={handleDiscard}
+                            onDiscardFile={handleDiscardFile}
+                            onShowDiscardDialog={state.setShowDiscardDialog}
+                            onShowDiffDialog={state.setShowDiffDialog}
+                            onStageOnlyChange={state.setStageOnly}
+                            onShowConflictDialog={state.setShowConflictDialog}
+                            onLoadMergePreview={state.loadMergePreview}
+                            onRefreshDiff={state.refreshDiff}
                             onClose={handleClose}
                           />
                         </>
@@ -417,7 +504,11 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
                 {/* Subtasks Tab */}
                 <TabsContent value="subtasks" className="flex-1 min-h-0 overflow-hidden mt-0">
-                  <TaskSubtasks task={task} />
+                  <ScrollArea className="h-full">
+                    <div className="p-5">
+                      <TaskSubtasks task={task} />
+                    </div>
+                  </ScrollArea>
                 </TabsContent>
 
                 {/* Logs Tab */}
@@ -437,84 +528,66 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
               </Tabs>
             </div>
 
-            {/* Footer - Actions */}
-            <div className="flex items-center gap-3 px-5 py-3 border-t border-border shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                onClick={() => state.setShowDeleteDialog(true)}
-                disabled={state.isRunning && !state.isStuck}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Task
-              </Button>
-              <div className="flex-1" />
-              {renderPrimaryAction()}
-              <Button variant="outline" onClick={handleClose}>
-                Close
-              </Button>
+            {/* Footer with Action Buttons */}
+            <div className="shrink-0 border-t border-border px-5 py-4 flex items-center justify-between bg-card">
+              <div className="flex items-center gap-3 flex-1">
+                {state.isEditDialogOpen && (
+                  <TaskEditDialog
+                    task={task}
+                    open={state.isEditDialogOpen}
+                    onOpenChange={state.setIsEditDialogOpen}
+                  />
+                )}
+
+                {/* Delete Button */}
+                <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => state.setShowDeleteDialog(true)}
+                    disabled={state.isDeleting}
+                  >
+                    {state.isDeleting ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Task
+                      </>
+                    )}
+                  </Button>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the task and its associated worktree.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {state.deleteError && (
+                  <div className="text-sm text-destructive flex-1">{state.deleteError}</div>
+                )}
+              </div>
+
+              {/* Primary action button on the right */}
+              <div className="flex items-center gap-3 ml-auto">
+                {renderPrimaryAction()}
+              </div>
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
-
-      {/* Edit Task Dialog */}
-      <TaskEditDialog
-        task={task}
-        open={state.isEditDialogOpen}
-        onOpenChange={state.setIsEditDialogOpen}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={state.showDeleteDialog} onOpenChange={state.setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Task
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="text-sm text-muted-foreground space-y-3">
-                <p>
-                  Are you sure you want to delete <strong className="text-foreground">"{task.title}"</strong>?
-                </p>
-                <p className="text-destructive">
-                  This action cannot be undone. All task files, including the spec, implementation plan, and any generated code will be permanently deleted from the project.
-                </p>
-                {state.deleteError && (
-                  <p className="text-destructive bg-destructive/10 px-3 py-2 rounded-lg text-sm">
-                    {state.deleteError}
-                  </p>
-                )}
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={state.isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-              disabled={state.isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {state.isDeleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Permanently
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </TooltipProvider>
   );
 }

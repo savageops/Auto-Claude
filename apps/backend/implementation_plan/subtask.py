@@ -29,6 +29,8 @@ class Subtask:
     # Files
     files_to_modify: list[str] = field(default_factory=list)
     files_to_create: list[str] = field(default_factory=list)
+    files_to_delete: list[str] = field(default_factory=list)  # Files to DELETE (if any)
+    dependencies_to_remove: list[str] = field(default_factory=list)  # npm/pip packages to uninstall
     patterns_from: list[str] = field(default_factory=list)
 
     # Verification
@@ -61,6 +63,10 @@ class Subtask:
             result["files_to_modify"] = self.files_to_modify
         if self.files_to_create:
             result["files_to_create"] = self.files_to_create
+        if self.files_to_delete:
+            result["files_to_delete"] = self.files_to_delete
+        if self.dependencies_to_remove:
+            result["dependencies_to_remove"] = self.dependencies_to_remove
         if self.patterns_from:
             result["patterns_from"] = self.patterns_from
         if self.verification:
@@ -94,6 +100,8 @@ class Subtask:
             all_services=data.get("all_services", False),
             files_to_modify=data.get("files_to_modify", []),
             files_to_create=data.get("files_to_create", []),
+            files_to_delete=data.get("files_to_delete", []),
+            dependencies_to_remove=data.get("dependencies_to_remove", []),
             patterns_from=data.get("patterns_from", []),
             verification=verification,
             expected_output=data.get("expected_output"),

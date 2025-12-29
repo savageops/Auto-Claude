@@ -1,4 +1,4 @@
-import { Zap, Loader2 } from 'lucide-react';
+import { Zap, RefreshCw } from '@/lib/icons';
 import { Progress } from '../ui/progress';
 import { cn, calculateProgress } from '../../lib/utils';
 import { EXECUTION_PHASE_BADGE_COLORS, EXECUTION_PHASE_LABELS } from '../../../shared/constants';
@@ -23,7 +23,7 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
           'rounded-xl border p-3 flex items-center gap-3 mb-5',
           EXECUTION_PHASE_BADGE_COLORS[executionPhase]
         )}>
-          <Loader2 className="h-5 w-5 animate-spin shrink-0" />
+          <RefreshCw className="h-5 w-5 animate-spin shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">

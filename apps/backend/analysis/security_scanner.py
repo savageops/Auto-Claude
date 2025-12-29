@@ -257,6 +257,8 @@ class SecurityScanner:
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=120,
             )
 
@@ -315,6 +317,8 @@ class SecurityScanner:
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=120,
             )
 
@@ -369,6 +373,8 @@ class SecurityScanner:
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=120,
             )
 
@@ -416,6 +422,8 @@ class SecurityScanner:
                 subprocess.run(
                     ["bandit", "--version"],
                     capture_output=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=5,
                 )
                 self._bandit_available = True

@@ -1,7 +1,8 @@
+import * as React from 'react';
 import { useState } from 'react';
 import {
   Terminal,
-  Loader2,
+  RefreshCw,
   Pencil,
   FileCode,
   FlaskConical,
@@ -17,12 +18,14 @@ import {
   Info,
   Brain,
   Cpu
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../ui/collapsible';
 import { cn } from '../../lib/utils';
 import type { Task, TaskLogs, TaskLogPhase, TaskPhaseLog, TaskLogEntry, TaskMetadata } from '../../../shared/types';
 import type { PhaseModelConfig, PhaseThinkingConfig, ThinkingLevel, ModelTypeShort } from '../../../shared/types/settings';
+import { InsertButton } from './InsertButton';
+import { InsertModal } from './InsertModal';
 
 interface TaskLogsProps {
   task: Task;
@@ -119,6 +122,41 @@ export function TaskLogs({
   onLogsScroll,
   onTogglePhase
 }: TaskLogsProps) {
+  const [isInsertModalOpen, setIsInsertModalOpen] = useState(false);
+
+  // Find which phase has the bottom-most (newest) entry
+  const bottomPhase = React.useMemo<TaskLogPhase | null>(() => {
+    if (!phaseLogs) return null;
+
+    // Check phases in reverse order (validation > coding > planning)
+    const phaseOrder: TaskLogPhase[] = ['validation', 'coding', 'planning'];
+    for (const phase of phaseOrder) {
+      const phaseLog = phaseLogs.phases[phase];
+      if (phaseLog && phaseLog.entries.length > 0) {
+        return phase;
+      }
+    }
+    return null;
+  }, [phaseLogs]);
+
+  const handleInsertInstruction = async (instruction: string) => {
+    try {
+      const result = await window.electronAPI.saveUserRedirect(task.id, instruction);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save redirect');
+      }
+
+      // TODO: Show success toast
+      // toast.success('Instruction queued for next iteration');
+      console.log('Instruction queued successfully:', instruction);
+    } catch (error) {
+      // TODO: Show error toast
+      // toast.error('Failed to save redirect');
+      console.error('Failed to save redirect:', error);
+      throw error;
+    }
+  };
+
   return (
     <div
       ref={logsContainerRef}
@@ -128,7 +166,7 @@ export function TaskLogs({
       <div className="p-4 space-y-2">
         {isLoadingLogs ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : phaseLogs ? (
           <>
@@ -142,11 +180,14 @@ export function TaskLogs({
                 onToggle={() => onTogglePhase(phase)}
                 isTaskStuck={isStuck}
                 phaseConfig={getPhaseConfig(task.metadata, phase)}
+                taskId={task.id}
+                isBottomPhase={phase === bottomPhase}
+                onInsertClick={() => setIsInsertModalOpen(true)}
               />
             ))}
             <div ref={logsEndRef} />
           </>
-        ) : task.logs && task.logs.length > 0 ? (
+        ) : task?.logs && task.logs.length > 0 ? (
           // Fallback to legacy raw logs if no phase logs exist
           <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
             {task.logs.join('')}
@@ -160,6 +201,12 @@ export function TaskLogs({
           </div>
         )}
       </div>
+
+      <InsertModal
+        isOpen={isInsertModalOpen}
+        onClose={() => setIsInsertModalOpen(false)}
+        onSubmit={handleInsertInstruction}
+      />
     </div>
   );
 }
@@ -172,9 +219,12 @@ interface PhaseLogSectionProps {
   onToggle: () => void;
   isTaskStuck?: boolean;
   phaseConfig?: { model: string; thinking: string } | null;
+  taskId: string;
+  isBottomPhase: boolean;
+  onInsertClick: () => void;
 }
 
-function PhaseLogSection({ phase, phaseLog, isExpanded, onToggle, isTaskStuck, phaseConfig }: PhaseLogSectionProps) {
+function PhaseLogSection({ phase, phaseLog, isExpanded, onToggle, isTaskStuck, phaseConfig, taskId, isBottomPhase, onInsertClick }: PhaseLogSectionProps) {
   const Icon = PHASE_ICONS[phase];
   const status = phaseLog?.status || 'pending';
   const hasEntries = (phaseLog?.entries.length || 0) > 0;
@@ -192,7 +242,7 @@ function PhaseLogSection({ phase, phaseLog, isExpanded, onToggle, isTaskStuck, p
         }
         return (
           <Badge variant="outline" className="text-xs bg-info/10 text-info border-info/30 flex items-center gap-1">
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <RefreshCw className="h-3 w-3 animate-spin" />
             Running
           </Badge>
         );
@@ -273,9 +323,17 @@ function PhaseLogSection({ phase, phaseLog, isExpanded, onToggle, isTaskStuck, p
           {!hasEntries ? (
             <p className="text-xs text-muted-foreground italic">No logs yet</p>
           ) : (
-            phaseLog?.entries.map((entry, idx) => (
-              <LogEntry key={`${entry.timestamp}-${idx}`} entry={entry} />
-            ))
+            <>
+              {phaseLog?.entries.map((entry, idx) => (
+                <LogEntry key={`${entry.timestamp}-${idx}`} entry={entry} />
+              ))}
+              {/* Insert button appears after the last entry in the bottom-most phase */}
+              {isBottomPhase && (
+                <div className="flex items-start gap-2 text-xs text-muted-foreground py-0.5 pl-12">
+                  <InsertButton taskId={taskId} onClick={onInsertClick} />
+                </div>
+              )}
+            </>
           )}
         </div>
       </CollapsibleContent>

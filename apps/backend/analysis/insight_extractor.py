@@ -91,6 +91,8 @@ def get_session_diff(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=30,
         )
         diff = result.stdout
@@ -136,6 +138,8 @@ def get_changed_files(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=10,
         )
         files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
@@ -161,6 +165,8 @@ def get_commit_messages(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=10,
         )
         return result.stdout.strip() if result.stdout.strip() else "(No commits)"

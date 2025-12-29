@@ -1,17 +1,23 @@
-import { FileText, History, GitBranch, Tag, Calendar, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
-import { Badge } from '../ui/badge';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import {
   CHANGELOG_SOURCE_MODE_LABELS,
   CHANGELOG_SOURCE_MODE_DESCRIPTIONS
 } from '../../../shared/constants';
+import { FileText, GitBranch, Tag, Calendar, History, AlertCircle, RefreshCw } from '@/lib/icons';
 import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
+import { Checkbox } from '../ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../ui/select';
 import type { ChangelogSourceMode, GitBranchInfo, GitTagInfo } from '../../../shared/types';
 
 interface ChangelogFiltersProps {
@@ -312,7 +318,7 @@ export function ChangelogFilters({
               >
                 {isLoadingCommits ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Loading...
                   </>
                 ) : (
@@ -397,7 +403,7 @@ export function ChangelogFilters({
               >
                 {isLoadingCommits ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                     Loading...
                   </>
                 ) : (

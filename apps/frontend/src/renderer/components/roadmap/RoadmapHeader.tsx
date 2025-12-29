@@ -1,4 +1,4 @@
-import { Target, Users, BarChart3, RefreshCw, Plus, TrendingUp } from 'lucide-react';
+import { Target, Users, BarChart3, RefreshCw, Plus, TrendingUp } from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';

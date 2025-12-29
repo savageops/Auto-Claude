@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Sparkles, FileCode, Square } from 'lucide-react';
+import { Sparkles, FileCode, Square } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';

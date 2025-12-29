@@ -25,7 +25,7 @@
  * ```
  */
 import { useState, useEffect, useCallback, useRef, type ClipboardEvent, type DragEvent } from 'react';
-import { Loader2, Image as ImageIcon, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { RefreshCw, Image as ImageIcon, ChevronDown, ChevronUp, X } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -742,7 +742,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           >
             {isSaving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (

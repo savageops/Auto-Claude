@@ -189,7 +189,7 @@ export function getRunnerPath(backendPath: string): string {
 }
 
 /**
- * Get the auto-claude backend path for a project
+ * Get the turret backend path for a project
  *
  * Auto-detects the backend location using multiple strategies:
  * 1. Development repo structure (apps/backend)

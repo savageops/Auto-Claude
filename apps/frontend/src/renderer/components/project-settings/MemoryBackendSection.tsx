@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Database, Globe, RefreshCw, CheckCircle2, AlertCircle,  } from '@/lib/icons';
 import { CollapsibleSection } from './CollapsibleSection';
 import { InfrastructureStatus } from './InfrastructureStatus';
 import { PasswordInput } from './PasswordInput';
@@ -349,7 +349,7 @@ export function MemoryBackendSection({
                 <div className="flex items-center gap-2">
                   {ollamaStatus === 'checking' && (
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                       Checking...
                     </span>
                   )}
@@ -478,10 +478,10 @@ export function MemoryBackendSection({
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">Database Name</Label>
             <p className="text-xs text-muted-foreground">
-              Name for the memory database (stored in ~/.auto-claude/memories/)
+              Name for the memory database (stored in ~/.turret/memories/)
             </p>
             <Input
-              placeholder="auto_claude_memory"
+              placeholder="turret_memory"
               value={envConfig.graphitiDatabase || ''}
               onChange={(e) => onUpdateConfig({ graphitiDatabase: e.target.value })}
             />
@@ -490,10 +490,10 @@ export function MemoryBackendSection({
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">Database Path (Optional)</Label>
             <p className="text-xs text-muted-foreground">
-              Custom storage location. Default: ~/.auto-claude/memories/
+              Custom storage location. Default: ~/.turret/memories/
             </p>
             <Input
-              placeholder="~/.auto-claude/memories"
+              placeholder="~/.turret/memories"
               value={envConfig.graphitiDbPath || ''}
               onChange={(e) => onUpdateConfig({ graphitiDbPath: e.target.value || undefined })}
             />

@@ -1,12 +1,12 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS, AUTO_BUILD_PATHS } from '../../../shared/constants';
-import type { IPCResult, WorktreeStatus, WorktreeDiff, WorktreeDiffFile, WorktreeMergeResult, WorktreeDiscardResult, WorktreeListResult, WorktreeListItem } from '../../../shared/types';
+import type { IPCResult, WorktreeStatus, WorktreeDiff, WorktreeDiffFile, WorktreeMergeResult, WorktreeDiscardResult, WorktreeDiscardFileResult, WorktreeListResult, WorktreeListItem } from '../../../shared/types';
 import path from 'path';
 import { existsSync, readdirSync, statSync, readFileSync } from 'fs';
 import { execSync, spawn, spawnSync } from 'child_process';
 import { projectStore } from '../../project-store';
 import { PythonEnvManager } from '../../python-env-manager';
-import { getEffectiveSourcePath } from '../../auto-claude-updater';
+import { getEffectiveSourcePath } from '../../turret-updater';
 import { getProfileEnv } from '../../rate-limit-detector';
 import { findTaskAndProject } from './shared';
 import { findPythonCommand, parsePythonCommand } from '../../python-detector';
@@ -247,396 +247,7 @@ export function registerWorktreeHandlers(
   );
 
   /**
-   * Merge the worktree changes into the main branch
-   */
-  ipcMain.handle(
-    IPC_CHANNELS.TASK_WORKTREE_MERGE,
-    async (_, taskId: string, options?: { noCommit?: boolean }): Promise<IPCResult<WorktreeMergeResult>> => {
-      // Always log merge operations for debugging
-      const debug = (...args: unknown[]) => {
-        console.warn('[MERGE DEBUG]', ...args);
-      };
-
-      try {
-        console.warn('[MERGE] Handler called with taskId:', taskId, 'options:', options);
-        debug('Starting merge for taskId:', taskId, 'options:', options);
-
-        // Ensure Python environment is ready
-        if (!pythonEnvManager.isEnvReady()) {
-          const autoBuildSource = getEffectiveSourcePath();
-          if (autoBuildSource) {
-            const status = await pythonEnvManager.initialize(autoBuildSource);
-            if (!status.ready) {
-              return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
-            }
-          } else {
-            return { success: false, error: 'Python environment not ready and Auto Claude source not found' };
-          }
-        }
-
-        const { task, project } = findTaskAndProject(taskId);
-        if (!task || !project) {
-          debug('Task or project not found');
-          return { success: false, error: 'Task not found' };
-        }
-
-        debug('Found task:', task.specId, 'project:', project.path);
-
-        // Use run.py --merge to handle the merge
-        const sourcePath = getEffectiveSourcePath();
-        if (!sourcePath) {
-          return { success: false, error: 'Auto Claude source not found' };
-        }
-
-        const runScript = path.join(sourcePath, 'run.py');
-        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
-
-        if (!existsSync(specDir)) {
-          debug('Spec directory not found:', specDir);
-          return { success: false, error: 'Spec directory not found' };
-        }
-
-        // Check worktree exists before merge
-        const worktreePath = path.join(project.path, '.worktrees', task.specId);
-        debug('Worktree path:', worktreePath, 'exists:', existsSync(worktreePath));
-
-        // Check if changes are already staged (for stage-only mode)
-        if (options?.noCommit) {
-          const stagedResult = spawnSync('git', ['diff', '--staged', '--name-only'], {
-            cwd: project.path,
-            encoding: 'utf-8'
-          });
-
-          if (stagedResult.status === 0 && stagedResult.stdout?.trim()) {
-            const stagedFiles = stagedResult.stdout.trim().split('\n');
-            debug('Changes already staged:', stagedFiles.length, 'files');
-            // Return success - changes are already staged
-            return {
-              success: true,
-              data: {
-                success: true,
-                merged: false,
-                message: `Changes already staged (${stagedFiles.length} files). Review with git diff --staged.`,
-                staged: true,
-                alreadyStaged: true,
-                projectPath: project.path
-              }
-            };
-          }
-        }
-
-        // Get git status before merge
-        try {
-          const gitStatusBefore = execSync('git status --short', { cwd: project.path, encoding: 'utf-8' });
-          debug('Git status BEFORE merge in main project:\n', gitStatusBefore || '(clean)');
-          const gitBranch = execSync('git branch --show-current', { cwd: project.path, encoding: 'utf-8' }).trim();
-          debug('Current branch:', gitBranch);
-        } catch (e) {
-          debug('Failed to get git status before:', e);
-        }
-
-        const args = [
-          runScript,
-          '--spec', task.specId,
-          '--project-dir', project.path,
-          '--merge'
-        ];
-
-        // Add --no-commit flag if requested (stage changes without committing)
-        if (options?.noCommit) {
-          args.push('--no-commit');
-        }
-
-        // Add --base-branch if task was created with a specific base branch
-        const taskBaseBranch = getTaskBaseBranch(specDir);
-        if (taskBaseBranch) {
-          args.push('--base-branch', taskBaseBranch);
-          debug('Using stored base branch:', taskBaseBranch);
-        }
-
-        const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
-        debug('Running command:', pythonPath, args.join(' '));
-        debug('Working directory:', sourcePath);
-
-        // Get profile environment with OAuth token for AI merge resolution
-        const profileEnv = getProfileEnv();
-        debug('Profile env for merge:', {
-          hasOAuthToken: !!profileEnv.CLAUDE_CODE_OAUTH_TOKEN,
-          hasConfigDir: !!profileEnv.CLAUDE_CONFIG_DIR
-        });
-
-        return new Promise((resolve) => {
-          const MERGE_TIMEOUT_MS = 600000; // 10 minutes timeout for AI merge operations with many files
-          let timeoutId: NodeJS.Timeout | null = null;
-          let resolved = false;
-
-          // Parse Python command to handle space-separated commands like "py -3"
-          const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
-          const mergeProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
-            cwd: sourcePath,
-            env: {
-              ...process.env,
-              ...profileEnv, // Include active Claude profile OAuth token
-              PYTHONUNBUFFERED: '1',
-              PYTHONIOENCODING: 'utf-8',
-              PYTHONUTF8: '1'
-            },
-            stdio: ['ignore', 'pipe', 'pipe'] // Don't connect stdin to avoid blocking
-          });
-
-          let stdout = '';
-          let stderr = '';
-
-          // Set up timeout to kill hung processes
-          timeoutId = setTimeout(() => {
-            if (!resolved) {
-              debug('TIMEOUT: Merge process exceeded', MERGE_TIMEOUT_MS, 'ms, killing...');
-              resolved = true;
-              mergeProcess.kill('SIGTERM');
-              // Give it a moment to clean up, then force kill
-              setTimeout(() => {
-                try {
-                  mergeProcess.kill('SIGKILL');
-                } catch {
-                  // Process may already be dead
-                }
-              }, 5000);
-
-              // Check if merge might have succeeded before the hang
-              // Look for success indicators in the output
-              const mayHaveSucceeded = stdout.includes('staged') ||
-                                       stdout.includes('Successfully merged') ||
-                                       stdout.includes('Changes from');
-
-              if (mayHaveSucceeded) {
-                debug('TIMEOUT: Process hung but merge may have succeeded based on output');
-                const isStageOnly = options?.noCommit === true;
-                resolve({
-                  success: true,
-                  data: {
-                    success: true,
-                    message: 'Changes staged (process timed out but merge appeared successful)',
-                    staged: isStageOnly,
-                    projectPath: isStageOnly ? project.path : undefined
-                  }
-                });
-              } else {
-                resolve({
-                  success: false,
-                  error: 'Merge process timed out. Check git status to see if merge completed.'
-                });
-              }
-            }
-          }, MERGE_TIMEOUT_MS);
-
-          mergeProcess.stdout.on('data', (data: Buffer) => {
-            const chunk = data.toString();
-            stdout += chunk;
-            debug('STDOUT:', chunk);
-          });
-
-          mergeProcess.stderr.on('data', (data: Buffer) => {
-            const chunk = data.toString();
-            stderr += chunk;
-            debug('STDERR:', chunk);
-          });
-
-          // Handler for when process exits
-          const handleProcessExit = (code: number | null, signal: string | null = null) => {
-            if (resolved) return; // Prevent double-resolution
-            resolved = true;
-            if (timeoutId) clearTimeout(timeoutId);
-
-            debug('Process exited with code:', code, 'signal:', signal);
-            debug('Full stdout:', stdout);
-            debug('Full stderr:', stderr);
-
-            // Get git status after merge
-            try {
-              const gitStatusAfter = execSync('git status --short', { cwd: project.path, encoding: 'utf-8' });
-              debug('Git status AFTER merge in main project:\n', gitStatusAfter || '(clean)');
-              const gitDiffStaged = execSync('git diff --staged --stat', { cwd: project.path, encoding: 'utf-8' });
-              debug('Staged changes:\n', gitDiffStaged || '(none)');
-            } catch (e) {
-              debug('Failed to get git status after:', e);
-            }
-
-            if (code === 0) {
-              const isStageOnly = options?.noCommit === true;
-
-              // Verify changes were actually staged when stage-only mode is requested
-              // This prevents false positives when merge was already committed previously
-              let hasActualStagedChanges = false;
-              let mergeAlreadyCommitted = false;
-
-              if (isStageOnly) {
-                try {
-                  const gitDiffStaged = execSync('git diff --staged --stat', { cwd: project.path, encoding: 'utf-8' });
-                  hasActualStagedChanges = gitDiffStaged.trim().length > 0;
-                  debug('Stage-only verification: hasActualStagedChanges:', hasActualStagedChanges);
-
-                  if (!hasActualStagedChanges) {
-                    // Check if worktree branch was already merged (merge commit exists)
-                    const specBranch = `auto-claude/${task.specId}`;
-                    try {
-                      // Check if current branch contains all commits from spec branch
-                      // git merge-base --is-ancestor returns exit code 0 if true, 1 if false
-                      execSync(
-                        `git merge-base --is-ancestor ${specBranch} HEAD`,
-                        { cwd: project.path, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
-                      );
-                      // If we reach here, the command succeeded (exit code 0) - branch is merged
-                      mergeAlreadyCommitted = true;
-                      debug('Merge already committed check:', mergeAlreadyCommitted);
-                    } catch {
-                      // Exit code 1 means not merged, or branch may not exist
-                      mergeAlreadyCommitted = false;
-                      debug('Could not check merge status, assuming not merged');
-                    }
-                  }
-                } catch (e) {
-                  debug('Failed to verify staged changes:', e);
-                }
-              }
-
-              // Determine actual status based on verification
-              let newStatus: string;
-              let planStatus: string;
-              let message: string;
-              let staged: boolean;
-
-              if (isStageOnly && !hasActualStagedChanges && mergeAlreadyCommitted) {
-                // Stage-only was requested but merge was already committed previously
-                // Mark as done since changes are already in the branch
-                newStatus = 'done';
-                planStatus = 'completed';
-                message = 'Changes were already merged and committed. Task marked as done.';
-                staged = false;
-                debug('Stage-only requested but merge already committed. Marking as done.');
-              } else if (isStageOnly && !hasActualStagedChanges) {
-                // Stage-only was requested but no changes to stage (and not committed)
-                // This could mean nothing to merge or an error - keep in human_review for investigation
-                newStatus = 'human_review';
-                planStatus = 'review';
-                message = 'No changes to stage. The worktree may have no differences from the current branch.';
-                staged = false;
-                debug('Stage-only requested but no changes to stage.');
-              } else if (isStageOnly) {
-                // Stage-only with actual staged changes - expected success case
-                newStatus = 'human_review';
-                planStatus = 'review';
-                message = 'Changes staged in main project. Review with git status and commit when ready.';
-                staged = true;
-              } else {
-                // Full merge (not stage-only)
-                newStatus = 'done';
-                planStatus = 'completed';
-                message = 'Changes merged successfully';
-                staged = false;
-              }
-
-              debug('Merge result. isStageOnly:', isStageOnly, 'newStatus:', newStatus, 'staged:', staged);
-
-              // Read suggested commit message if staging succeeded
-              let suggestedCommitMessage: string | undefined;
-              if (staged) {
-                const commitMsgPath = path.join(specDir, 'suggested_commit_message.txt');
-                try {
-                  if (existsSync(commitMsgPath)) {
-                    const { readFileSync } = require('fs');
-                    suggestedCommitMessage = readFileSync(commitMsgPath, 'utf-8').trim();
-                    debug('Read suggested commit message:', suggestedCommitMessage?.substring(0, 100));
-                  }
-                } catch (e) {
-                  debug('Failed to read suggested commit message:', e);
-                }
-              }
-
-              // Persist the status change to implementation_plan.json
-              const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
-              try {
-                if (existsSync(planPath)) {
-                  const { readFileSync, writeFileSync } = require('fs');
-                  const planContent = readFileSync(planPath, 'utf-8');
-                  const plan = JSON.parse(planContent);
-                  plan.status = newStatus;
-                  plan.planStatus = planStatus;
-                  plan.updated_at = new Date().toISOString();
-                  if (staged) {
-                    plan.stagedAt = new Date().toISOString();
-                    plan.stagedInMainProject = true;
-                  }
-                  writeFileSync(planPath, JSON.stringify(plan, null, 2));
-                }
-              } catch (persistError) {
-                console.error('Failed to persist task status:', persistError);
-              }
-
-              const mainWindow = getMainWindow();
-              if (mainWindow) {
-                mainWindow.webContents.send(IPC_CHANNELS.TASK_STATUS_CHANGE, taskId, newStatus);
-              }
-
-              resolve({
-                success: true,
-                data: {
-                  success: true,
-                  message,
-                  staged,
-                  projectPath: staged ? project.path : undefined,
-                  suggestedCommitMessage
-                }
-              });
-            } else {
-              // Check if there were conflicts
-              const hasConflicts = stdout.includes('conflict') || stderr.includes('conflict');
-              debug('Merge failed. hasConflicts:', hasConflicts);
-
-              resolve({
-                success: true,
-                data: {
-                  success: false,
-                  message: hasConflicts ? 'Merge conflicts detected' : `Merge failed: ${stderr || stdout}`,
-                  conflictFiles: hasConflicts ? [] : undefined
-                }
-              });
-            }
-          };
-
-          mergeProcess.on('close', (code: number | null, signal: string | null) => {
-            handleProcessExit(code, signal);
-          });
-
-          // Also listen to 'exit' event in case 'close' doesn't fire
-          mergeProcess.on('exit', (code: number | null, signal: string | null) => {
-            // Give close event a chance to fire first with complete output
-            setTimeout(() => handleProcessExit(code, signal), 100);
-          });
-
-          mergeProcess.on('error', (err: Error) => {
-            if (resolved) return;
-            resolved = true;
-            if (timeoutId) clearTimeout(timeoutId);
-            console.error('[MERGE] Process spawn error:', err);
-            resolve({
-              success: false,
-              error: `Failed to run merge: ${err.message}`
-            });
-          });
-        });
-      } catch (error) {
-        console.error('[MERGE] Exception in merge handler:', error);
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to merge worktree'
-        };
-      }
-    }
-  );
-
-  /**
-   * Preview merge conflicts before actually merging
-   * Uses the smart merge system to analyze potential conflicts
+   * Preview merge conflicts before merging
    */
   ipcMain.handle(
     IPC_CHANNELS.TASK_WORKTREE_MERGE_PREVIEW,
@@ -654,8 +265,8 @@ export function registerWorktreeHandlers(
               return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
             }
           } else {
-            console.error('[IPC] Auto Claude source not found');
-            return { success: false, error: 'Python environment not ready and Auto Claude source not found' };
+            console.error('[IPC] Turret source not found');
+            return { success: false, error: 'Python environment not ready and Turret source not found' };
           }
         }
 
@@ -691,12 +302,12 @@ export function registerWorktreeHandlers(
 
         const sourcePath = getEffectiveSourcePath();
         if (!sourcePath) {
-          console.error('[IPC] Auto Claude source not found');
-          return { success: false, error: 'Auto Claude source not found' };
+          console.error('[IPC] Turret source not found');
+          return { success: false, error: 'Turret source not found' };
         }
 
         const runScript = path.join(sourcePath, 'run.py');
-        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
         const args = [
           runScript,
           '--spec', task.specId,
@@ -811,8 +422,386 @@ export function registerWorktreeHandlers(
   );
 
   /**
-   * Discard the worktree changes
-   * Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
+   * Merge the worktree changes into the main branch
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_MERGE,
+    async (_, taskId: string, options?: { noCommit?: boolean }): Promise<IPCResult<WorktreeMergeResult>> => {
+      // Always log merge operations for debugging
+      const debug = (...args: unknown[]) => {
+        console.warn('[MERGE DEBUG]', ...args);
+      };
+
+      try {
+        console.warn('[MERGE] Handler called with taskId:', taskId, 'options:', options);
+        debug('Starting merge for taskId:', taskId, 'options:', options);
+
+        // Ensure Python environment is ready
+        if (!pythonEnvManager.isEnvReady()) {
+          const autoBuildSource = getEffectiveSourcePath();
+          if (autoBuildSource) {
+            const status = await pythonEnvManager.initialize(autoBuildSource);
+            if (!status.ready) {
+              return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
+            }
+          } else {
+            return { success: false, error: 'Python environment not ready and Turret source not found' };
+          }
+        }
+
+        const { task, project } = findTaskAndProject(taskId);
+        if (!task || !project) {
+          debug('Task or project not found');
+          return { success: false, error: 'Task not found' };
+        }
+
+        debug('Found task:', task.specId, 'project:', project.path);
+
+        // Use run.py --merge to handle the merge
+        const sourcePath = getEffectiveSourcePath();
+        if (!sourcePath) {
+          return { success: false, error: 'Turret source not found' };
+        }
+
+        const runScript = path.join(sourcePath, 'run.py');
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
+
+        if (!existsSync(specDir)) {
+          debug('Spec directory not found:', specDir);
+          return { success: false, error: 'Spec directory not found' };
+        }
+
+        // Check worktree exists before merge
+        const worktreePath = path.join(project.path, '.worktrees', task.specId);
+        debug('Worktree path:', worktreePath, 'exists:', existsSync(worktreePath));
+
+        // Check if changes are already staged (for stage-only mode)
+        if (options?.noCommit) {
+          const stagedResult = spawnSync('git', ['diff', '--staged', '--name-only'], {
+            cwd: project.path,
+            encoding: 'utf-8'
+          });
+
+          if (stagedResult.status === 0 && stagedResult.stdout?.trim()) {
+            const stagedFiles = stagedResult.stdout.trim().split('\n');
+            debug('Changes already staged:', stagedFiles.length, 'files');
+            // Return success - changes are already staged
+            return {
+              success: true,
+              data: {
+                success: true,
+                merged: false,
+                message: `Changes already staged (${stagedFiles.length} files). Review with git diff --staged.`,
+                staged: true,
+                alreadyStaged: true,
+                projectPath: project.path
+              }
+            };
+          }
+        }
+
+        // Get git status before merge
+        try {
+          const gitStatusBefore = execSync('git status --short', { cwd: project.path, encoding: 'utf-8' });
+          debug('Git status BEFORE merge in main project:\n', gitStatusBefore || '(clean)');
+          const gitBranch = execSync('git branch --show-current', { cwd: project.path, encoding: 'utf-8' }).trim();
+          debug('Current branch:', gitBranch);
+        } catch (e) {
+          debug('Failed to get git status before:', e);
+        }
+
+        const args = [
+          runScript,
+          '--spec', task.specId,
+          '--project-dir', project.path,
+          '--merge'
+        ];
+
+        // Add --no-commit flag if requested (stage changes without committing)
+        if (options?.noCommit) {
+          args.push('--no-commit');
+        }
+
+        // Add --base-branch if task was created with a specific base branch
+        const taskBaseBranch = getTaskBaseBranch(specDir);
+        if (taskBaseBranch) {
+          args.push('--base-branch', taskBaseBranch);
+          debug('Using stored base branch:', taskBaseBranch);
+        }
+
+        const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
+        debug('Running command:', pythonPath, args.join(' '));
+        debug('Working directory:', sourcePath);
+
+        // Get profile environment with OAuth token for AI merge resolution
+        const profileEnv = getProfileEnv();
+        debug('Profile env for merge:', {
+          hasOAuthToken: !!profileEnv.CLAUDE_CODE_OAUTH_TOKEN,
+          hasConfigDir: !!profileEnv.CLAUDE_CONFIG_DIR
+        });
+
+        return new Promise((resolve) => {
+          const MERGE_TIMEOUT_MS = 600000; // 10 minutes timeout for AI merge operations with many files
+          let timeoutId: NodeJS.Timeout | null = null;
+          let resolved = false;
+
+          // Parse Python command to handle space-separated commands like "py -3"
+          const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
+          const mergeProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
+            cwd: sourcePath,
+            env: {
+              ...process.env,
+              ...profileEnv, // Include active Claude profile OAuth token
+              PYTHONUNBUFFERED: '1',
+              PYTHONIOENCODING: 'utf-8',
+              PYTHONUTF8: '1'
+            },
+            stdio: ['ignore', 'pipe', 'pipe'] // Don't connect stdin to avoid blocking
+          });
+
+          let stdout = '';
+          let stderr = '';
+
+          // Set up timeout to kill hung processes
+          timeoutId = setTimeout(() => {
+            if (!resolved) {
+              debug('TIMEOUT: Merge process exceeded', MERGE_TIMEOUT_MS, 'ms, killing...');
+              resolved = true;
+              mergeProcess.kill('SIGTERM');
+              setTimeout(() => {
+                if (!mergeProcess.killed) {
+                  debug('FORCE KILL: Process still running, sending SIGKILL...');
+                  mergeProcess.kill('SIGKILL');
+                }
+              }, 5000);
+              resolve({
+                success: false,
+                error: 'Merge operation timed out after 10 minutes',
+                data: {
+                  success: false,
+                  merged: false,
+                  message: 'Merge operation timed out',
+                  projectPath: project.path
+                }
+              });
+            }
+          }, MERGE_TIMEOUT_MS);
+
+          mergeProcess.stdout?.on('data', (data: Buffer) => {
+            const chunk = data.toString('utf-8');
+            stdout += chunk;
+            debug('STDOUT:', chunk);
+          });
+
+          mergeProcess.stderr?.on('data', (data: Buffer) => {
+            const chunk = data.toString('utf-8');
+            stderr += chunk;
+            debug('STDERR:', chunk);
+          });
+
+          // Consolidated exit handler
+          const handleProcessExit = (code: number) => {
+            if (resolved) return; // Already timed out
+            resolved = true;
+            if (timeoutId) clearTimeout(timeoutId);
+
+            debug('Merge process exited with code:', code);
+            debug('FINAL STDOUT:', stdout);
+            debug('FINAL STDERR:', stderr);
+
+            // Determine merge result
+            let newStatus: string | undefined;
+            let planStatus: string | undefined;
+            let message = '';
+            let staged = false;
+
+            if (code === 0) {
+              // Verify git status after merge
+              try {
+                const gitStatusAfter = execSync('git status --short', { cwd: project.path, encoding: 'utf-8' });
+                debug('Git status AFTER merge:\n', gitStatusAfter || '(clean)');
+
+                // For stage-only mode, verify changes were actually staged
+                if (options?.noCommit) {
+                  const stagedResult = spawnSync('git', ['diff', '--staged', '--name-only'], {
+                    cwd: project.path,
+                    encoding: 'utf-8'
+                  });
+
+                  if (stagedResult.status === 0 && stagedResult.stdout?.trim()) {
+                    const stagedFiles = stagedResult.stdout.trim().split('\n');
+                    debug('Verified staged files:', stagedFiles);
+                    staged = true;
+                    newStatus = 'human_review';
+                    planStatus = 'review';
+                    message = `Changes staged successfully (${stagedFiles.length} files). Review with git diff --staged.`;
+                  } else {
+                    // Merge reported success but nothing staged - might be already committed or no changes
+                    const commitCheckResult = spawnSync('git', ['log', '-1', '--oneline'], {
+                      cwd: project.path,
+                      encoding: 'utf-8'
+                    });
+
+                    if (commitCheckResult.stdout?.includes(task.specId) ||
+                      commitCheckResult.stdout?.toLowerCase().includes('merge')) {
+                      // Looks like merge was already committed
+                      debug('Merge appears to be already committed');
+                      newStatus = 'done';
+                      planStatus = 'completed';
+                      message = 'Merge already committed';
+                    } else {
+                      debug('Warning: Merge succeeded but no changes staged');
+                      message = 'Merge completed but no changes detected';
+                    }
+                  }
+                } else {
+                  // Regular merge with commit
+                  newStatus = 'done';
+                  planStatus = 'completed';
+                  message = 'Merge completed successfully';
+                }
+              } catch (statusError) {
+                debug('Failed to get git status after merge:', statusError);
+              }
+
+              // Try to parse JSON output for additional info
+              try {
+                const output = stdout.trim();
+                const jsonMatch = output.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                  const result = JSON.parse(jsonMatch[0]);
+                  debug('Parsed merge result:', result);
+
+                  // Override message if provided in result
+                  if (result.message) {
+                    message = result.message;
+                  }
+
+                  // Read suggested commit message if available
+                  let suggestedCommitMessage: string | undefined;
+                  const commitMsgPath = path.join(specDir, 'suggested_commit_message.txt');
+                  if (existsSync(commitMsgPath)) {
+                    try {
+                      suggestedCommitMessage = readFileSync(commitMsgPath, 'utf-8');
+                      debug('Read suggested commit message:', suggestedCommitMessage);
+                    } catch (e) {
+                      debug('Failed to read suggested commit message:', e);
+                    }
+                  }
+
+                  // Update implementation_plan.json with status
+                  if (newStatus && planStatus) {
+                    const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+                    try {
+                      if (existsSync(planPath)) {
+                        const planContent = readFileSync(planPath, 'utf-8');
+                        const plan = JSON.parse(planContent);
+
+                        plan.status = newStatus;
+                        plan.planStatus = planStatus;
+                        plan.updated_at = new Date().toISOString();
+
+                        const { writeFileSync } = require('fs');
+                        writeFileSync(planPath, JSON.stringify(plan, null, 2));
+                        debug('Updated implementation_plan.json with status:', newStatus);
+
+                        // Notify UI of status change
+                        const mainWindow = getMainWindow();
+                        if (mainWindow) {
+                          mainWindow.webContents.send(
+                            IPC_CHANNELS.TASK_STATUS_CHANGE,
+                            taskId,
+                            newStatus
+                          );
+                          debug('Sent status change event to UI:', newStatus);
+                        }
+                      }
+                    } catch (planError) {
+                      debug('Failed to update implementation plan:', planError);
+                    }
+                  }
+
+                  return resolve({
+                    success: true,
+                    data: {
+                      success: true,
+                      merged: true,
+                      message,
+                      staged,
+                      projectPath: project.path,
+                      suggestedCommitMessage,
+                      ...result
+                    }
+                  });
+                }
+              } catch (parseError) {
+                debug('Error parsing merge output:', parseError);
+              }
+
+              // Fallback response if no JSON
+              resolve({
+                success: true,
+                data: {
+                  success: true,
+                  merged: !options?.noCommit,
+                  message: message || 'Merge completed successfully',
+                  staged,
+                  projectPath: project.path
+                }
+              });
+            } else {
+              // Merge failed - check for conflicts vs general failure
+              const errorMessage = stderr || stdout || `Merge failed with exit code ${code}`;
+              const hasConflicts = errorMessage.toLowerCase().includes('conflict');
+
+              debug('Merge error:', errorMessage);
+              debug('Has conflicts:', hasConflicts);
+
+              resolve({
+                success: false,
+                error: errorMessage,
+                data: {
+                  success: false,
+                  merged: false,
+                  message: `Merge failed: ${errorMessage}`,
+                  projectPath: project.path
+                }
+              });
+            }
+          };
+
+          mergeProcess.on('close', handleProcessExit);
+
+          mergeProcess.on('error', (error: Error) => {
+            if (resolved) return;
+            resolved = true;
+            if (timeoutId) clearTimeout(timeoutId);
+
+            debug('Process error:', error);
+            resolve({
+              success: false,
+              error: error.message,
+              data: {
+                success: false,
+                merged: false,
+                message: `Failed to execute merge: ${error.message}`,
+                projectPath: project.path
+              }
+            });
+          });
+        });
+      } catch (error) {
+        console.error('Failed to merge worktree:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to merge worktree'
+        };
+      }
+    }
+  );
+
+  /**
+   * Discard all changes from a task's worktree
    */
   ipcMain.handle(
     IPC_CHANNELS.TASK_WORKTREE_DISCARD,
@@ -823,61 +812,117 @@ export function registerWorktreeHandlers(
           return { success: false, error: 'Task not found' };
         }
 
-        // Per-spec worktree path: .worktrees/{spec-name}/
-        const worktreePath = path.join(project.path, '.worktrees', task.specId);
-
-        if (!existsSync(worktreePath)) {
-          return {
-            success: true,
-            data: {
-              success: true,
-              message: 'No worktree to discard'
-            }
-          };
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
+        if (!existsSync(specDir)) {
+          return { success: false, error: 'Spec directory not found' };
         }
 
-        try {
-          // Get the branch name before removing
-          const branch = execSync('git rev-parse --abbrev-ref HEAD', {
-            cwd: worktreePath,
-            encoding: 'utf-8'
-          }).trim();
+        // Call run.py --discard to handle cleanup
+        const sourcePath = getEffectiveSourcePath();
+        if (!sourcePath) {
+          return { success: false, error: 'Turret source not found' };
+        }
 
-          // Remove the worktree
-          execSync(`git worktree remove --force "${worktreePath}"`, {
-            cwd: project.path,
-            encoding: 'utf-8'
+        const runScript = path.join(sourcePath, 'run.py');
+        const args = [
+          runScript,
+          '--spec', task.specId,
+          '--project-dir', project.path,
+          '--discard'
+        ];
+
+        // Add --base-branch if task was created with a specific base branch
+        const taskBaseBranch = getTaskBaseBranch(specDir);
+        if (taskBaseBranch) {
+          args.push('--base-branch', taskBaseBranch);
+        }
+
+        // Add --force to skip confirmation prompt (IPC calls are non-interactive)
+        args.push('--force');
+
+        const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
+
+        return new Promise((resolve) => {
+          const DISCARD_TIMEOUT_MS = 120000; // 2 minutes timeout for discard operations
+          let timeoutId: NodeJS.Timeout | null = null;
+          let resolved = false;
+
+          const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
+          const discardProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
+            cwd: sourcePath,
+            env: {
+              ...process.env,
+              PYTHONUNBUFFERED: '1',
+              PYTHONIOENCODING: 'utf-8',
+              PYTHONUTF8: '1'
+            },
+            stdio: ['ignore', 'pipe', 'pipe']
           });
 
-          // Delete the branch
-          try {
-            execSync(`git branch -D "${branch}"`, {
-              cwd: project.path,
-              encoding: 'utf-8'
-            });
-          } catch {
-            // Branch might already be deleted or not exist
-          }
+          let stdout = '';
+          let stderr = '';
 
-          const mainWindow = getMainWindow();
-          if (mainWindow) {
-            mainWindow.webContents.send(IPC_CHANNELS.TASK_STATUS_CHANGE, taskId, 'backlog');
-          }
-
-          return {
-            success: true,
-            data: {
-              success: true,
-              message: 'Worktree discarded successfully'
+          timeoutId = setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              discardProcess.kill('SIGTERM');
+              setTimeout(() => {
+                if (!resolved) {
+                  discardProcess.kill('SIGKILL');
+                }
+              }, 5000);
             }
-          };
-        } catch (gitError) {
-          console.error('Git error discarding worktree:', gitError);
-          return {
-            success: false,
-            error: `Failed to discard worktree: ${gitError instanceof Error ? gitError.message : 'Unknown error'}`
-          };
-        }
+          }, DISCARD_TIMEOUT_MS);
+
+          discardProcess.stdout?.on('data', (data: Buffer) => {
+            stdout += data.toString('utf-8');
+          });
+
+          discardProcess.stderr?.on('data', (data: Buffer) => {
+            stderr += data.toString('utf-8');
+          });
+
+          discardProcess.on('close', (code: number) => {
+            if (resolved) return;
+            resolved = true;
+            if (timeoutId) clearTimeout(timeoutId);
+
+            if (code === 0) {
+              resolve({
+                success: true,
+                data: {
+                  success: true,
+                  message: 'Changes discarded successfully'
+                }
+              });
+            } else {
+              const errorMessage = stderr || stdout || `Discard failed with exit code ${code}`;
+              resolve({
+                success: false,
+                error: errorMessage,
+                data: {
+                  success: false,
+                  message: `Discard failed: ${errorMessage}`
+                }
+              });
+            }
+          });
+
+          discardProcess.on('error', (error: Error) => {
+            if (resolved) return;
+            resolved = true;
+            if (timeoutId) clearTimeout(timeoutId);
+
+            resolve({
+              success: false,
+              error: error.message,
+              data: {
+                success: false,
+                message: `Failed to execute discard: ${error.message}`
+              }
+            });
+          });
+        });
       } catch (error) {
         console.error('Failed to discard worktree:', error);
         return {
@@ -889,8 +934,170 @@ export function registerWorktreeHandlers(
   );
 
   /**
-   * List all spec worktrees for a project
-   * Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
+   * Discard individual file from a task's worktree
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILE,
+    async (_, taskId: string, filePath: string): Promise<IPCResult<WorktreeDiscardFileResult>> => {
+      try {
+        const { task, project } = findTaskAndProject(taskId);
+        if (!task || !project) {
+          return { success: false, error: 'Task not found' };
+        }
+
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
+        if (!existsSync(specDir)) {
+          return { success: false, error: 'Spec directory not found' };
+        }
+
+        // Get the worktree path
+        const worktreePath = path.join(project.path, '.worktrees', task.specId);
+        if (!existsSync(worktreePath)) {
+          return { success: false, error: 'Worktree not found for this task' };
+        }
+
+        // Get base branch
+        let baseBranch = 'main';
+        try {
+          baseBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+            cwd: project.path,
+            encoding: 'utf-8'
+          }).trim();
+        } catch {
+          baseBranch = 'main';
+        }
+
+        // Use git checkout to discard the file from the base branch
+        try {
+          execSync(`git checkout ${baseBranch} -- "${filePath}"`, {
+            cwd: worktreePath,
+            encoding: 'utf-8'
+          });
+
+          return {
+            success: true,
+            data: {
+              success: true,
+              message: `File ${filePath} discarded successfully`,
+              filePath
+            }
+          };
+        } catch (gitError) {
+          console.error('Failed to discard file:', gitError);
+          return {
+            success: false,
+            error: `Failed to discard file: ${gitError instanceof Error ? gitError.message : 'Unknown error'}`,
+            data: {
+              success: false,
+              message: `Failed to discard file ${filePath}`,
+              error: gitError instanceof Error ? gitError.message : 'Unknown error',
+              filePath
+            }
+          };
+        }
+      } catch (error) {
+        console.error('Failed to discard file from worktree:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to discard file from worktree',
+          data: {
+            success: false,
+            message: 'Failed to discard file from worktree',
+            error: error instanceof Error ? error.message : 'Failed to discard file from worktree',
+            filePath
+          }
+        };
+      }
+    }
+  );
+
+  /**
+   * Get the diff content for a specific conflict file
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_CONFLICT_DIFF,
+    async (_, taskId: string, filePath: string): Promise<IPCResult<string>> => {
+      try {
+        const { project, task } = findTaskAndProject(taskId);
+        if (!project || !task) {
+          return { success: false, error: 'Task not found' };
+        }
+
+        // Spec directory is stored under the project's autoBuildPath (.turret by default)
+        const specDir = path.join(project.path, project.autoBuildPath || '.turret', 'specs', task.specId);
+
+        // Determine base branch:
+        // 1) task_metadata.json (most accurate)
+        // 2) project.settings.mainBranch (project-configured)
+        // 3) origin/HEAD (git-configured default)
+        // 4) 'main' (last resort)
+        let baseBranch =
+          getTaskBaseBranch(specDir) ||
+          project.settings?.mainBranch ||
+          project.settings?.mainBranch; // (kept explicit for safety; settings is always present on Project)
+
+        if (!baseBranch) {
+          try {
+            const originHead = execSync('git symbolic-ref --short refs/remotes/origin/HEAD', {
+              cwd: project.path,
+              encoding: 'utf8',
+            }).trim(); // e.g. "origin/development_acc_3"
+            baseBranch = originHead.startsWith('origin/') ? originHead.slice('origin/'.length) : originHead;
+          } catch {
+            baseBranch = 'main';
+          }
+        }
+        const worktreePath = path.join(project.path, '.worktrees', taskId);
+
+        if (!existsSync(worktreePath)) {
+          return { success: false, error: 'Worktree not found' };
+        }
+
+        // Get file contents from base branch and worktree for side-by-side diff
+        let oldContent = '';
+        let newContent = '';
+
+        // Get base branch version
+        try {
+          oldContent = execSync(
+            `git show "${baseBranch}:${filePath}"`,
+            {
+              cwd: worktreePath,
+              encoding: 'utf8',
+              maxBuffer: 10 * 1024 * 1024
+            }
+          );
+        } catch {
+          // File doesn't exist in base branch (new file)
+          oldContent = '';
+        }
+
+        // Get worktree version
+        const worktreeFilePath = path.join(worktreePath, filePath);
+        try {
+          if (existsSync(worktreeFilePath)) {
+            newContent = readFileSync(worktreeFilePath, 'utf8');
+          }
+        } catch {
+          // File doesn't exist in worktree (deleted file)
+          newContent = '';
+        }
+
+        return {
+          success: true,
+          data: JSON.stringify({ oldContent, newContent })
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to get conflict diff'
+        };
+      }
+    }
+  );
+
+  /**
+   * List all worktrees for a project
    */
   ipcMain.handle(
     IPC_CHANNELS.TASK_LIST_WORKTREES,

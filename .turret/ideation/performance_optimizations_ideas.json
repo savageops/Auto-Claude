@@ -1,0 +1,64 @@
+{
+  "performance_optimizations": [
+    {
+      "id": "perf-001",
+      "type": "performance_optimizations",
+      "title": "Implement React Component Memoization",
+      "description": "Add React.memo and useMemo/useCallback hooks to prevent unnecessary re-renders in the frontend components, especially for components that receive complex objects as props or perform expensive computations.",
+      "priority": "medium",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": ["frontend"],
+      "tags": ["react", "rendering", "optimization"],
+      "created_at": "2025-12-26T19:15:00.000000"
+    },
+    {
+      "id": "perf-002",
+      "type": "performance_optimizations",
+      "title": "Add Code Splitting and Lazy Loading",
+      "description": "Implement React.lazy and Suspense for route-based code splitting in the Vite/React frontend to reduce initial bundle size and improve first contentful paint.",
+      "priority": "high",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": ["frontend"],
+      "tags": ["vite", "bundle-size", "lazy-loading"],
+      "created_at": "2025-12-26T19:15:00.000000"
+    },
+    {
+      "id": "perf-003",
+      "type": "performance_optimizations",
+      "title": "Optimize Zustand Store Subscriptions",
+      "description": "Review Zustand store selectors to ensure components only subscribe to the specific state slices they need, preventing unnecessary re-renders when unrelated state changes.",
+      "priority": "medium",
+      "effort": "low",
+      "impact": "medium",
+      "affected_services": ["frontend"],
+      "tags": ["zustand", "state-management", "subscriptions"],
+      "created_at": "2025-12-26T19:15:00.000000"
+    },
+    {
+      "id": "perf-004",
+      "type": "performance_optimizations",
+      "title": "Add API Response Caching",
+      "description": "Implement caching strategies for backend API responses to reduce redundant computations and improve response times for frequently accessed endpoints.",
+      "priority": "medium",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": ["backend"],
+      "tags": ["caching", "api", "python"],
+      "created_at": "2025-12-26T19:15:00.000000"
+    },
+    {
+      "id": "perf-005",
+      "type": "performance_optimizations",
+      "title": "Optimize Electron IPC Communication",
+      "description": "Review and optimize Electron IPC calls between main and renderer processes, batch multiple small requests where possible, and consider using shared memory for large data transfers.",
+      "priority": "medium",
+      "effort": "high",
+      "impact": "medium",
+      "affected_services": ["frontend"],
+      "tags": ["electron", "ipc", "desktop"],
+      "created_at": "2025-12-26T19:15:00.000000"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Localized UI enhancement touching 3-4 files within a single frontend service. Uses existing Radix UI library without new dependencies. No infrastructure changes but requires careful integration with existing kanban functionality.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 4,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Changes contained to kanban task card component and related files. Only affects 'done' column rendering."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Radix UI Collapsible already exists in project dependencies. Well-documented component with clear API."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure frontend UI change with no backend or infrastructure impact."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Project already uses Radix UI components. Standard React state management and CSS transitions."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Must preserve existing drag-drop functionality",
+        "Must maintain accessibility (ARIA, keyboard navigation)",
+        "Animation performance with many collapsed tasks",
+        "State persistence for user's collapse preferences"
+      ],
+      "notes": "Medium risk due to need to integrate carefully with existing kanban behaviors. Requires thorough testing of drag-drop and accessibility."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "UI change requires unit tests for component collapse/expand logic and integration tests to verify it doesn't break existing drag-drop or accessibility features. No security-sensitive areas touched."
+  },
+
+  "created_at": "2025-12-26T19:28:15.000Z"
+}

@@ -13,7 +13,7 @@ function createTestProject(overrides: Partial<Project> = {}): Project {
     id: `project-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     name: 'Test Project',
     path: '/path/to/test-project',
-    autoBuildPath: '/path/to/test-project/.auto-claude',
+    autoBuildPath: '/path/to/test-project/.turret',
     settings: {
       model: 'claude-3-haiku-20240307',
       memoryBackend: 'file',
@@ -282,7 +282,7 @@ describe('ProjectTabBar', () => {
     });
 
     it('should render Plus icon in add button', () => {
-      // Component uses Plus from lucide-react
+      // Component uses Plus from @/lib/icons
       const iconClass = 'h-4 w-4';
       expect(iconClass).toBe('h-4 w-4');
     });

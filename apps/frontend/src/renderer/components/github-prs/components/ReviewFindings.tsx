@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   CheckSquare,
   Square,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 import type { PRReviewFinding } from '../hooks/useGitHubPRs';

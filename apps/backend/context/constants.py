@@ -20,7 +20,7 @@ SKIP_DIRS = {
     "vendor",
     ".idea",
     ".vscode",
-    "auto-claude",
+    "turret",
     ".pytest_cache",
     ".mypy_cache",
     "coverage",

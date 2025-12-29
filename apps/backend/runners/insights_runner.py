@@ -12,10 +12,10 @@ import json
 import sys
 from pathlib import Path
 
-# Add auto-claude to path
+# Add turret to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Load .env file from auto-claude/ directory
+# Load .env file from turret/ directory
 from dotenv import load_dotenv
 
 env_file = Path(__file__).parent.parent / ".env"
@@ -45,8 +45,8 @@ def load_project_context(project_dir: str) -> str:
     """Load project context for the AI."""
     context_parts = []
 
-    # Load project index if available (from .auto-claude - the installed instance)
-    index_path = Path(project_dir) / ".auto-claude" / "project_index.json"
+    # Load project index if available (from .turret - the installed instance)
+    index_path = Path(project_dir) / ".turret" / "project_index.json"
     if index_path.exists():
         try:
             with open(index_path) as f:
@@ -65,7 +65,7 @@ def load_project_context(project_dir: str) -> str:
             pass
 
     # Load roadmap if available
-    roadmap_path = Path(project_dir) / ".auto-claude" / "roadmap" / "roadmap.json"
+    roadmap_path = Path(project_dir) / ".turret" / "roadmap" / "roadmap.json"
     if roadmap_path.exists():
         try:
             with open(roadmap_path) as f:
@@ -83,7 +83,7 @@ def load_project_context(project_dir: str) -> str:
             pass
 
     # Load existing tasks
-    tasks_path = Path(project_dir) / ".auto-claude" / "specs"
+    tasks_path = Path(project_dir) / ".turret" / "specs"
     if tasks_path.exists():
         try:
             task_dirs = [d for d in tasks_path.iterdir() if d.is_dir()]
@@ -299,6 +299,8 @@ Assistant:"""
             ["claude", "--print", "-p", full_prompt],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             cwd=project_dir,
             timeout=120,
         )

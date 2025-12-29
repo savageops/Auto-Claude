@@ -1,6 +1,6 @@
 # GitHub Issues Module
 
-A well-structured, modular implementation of the GitHub Issues feature for the Auto Claude UI.
+A well-structured, modular implementation of the GitHub Issues feature for the Turret UI.
 
 ## Quick Stats
 
@@ -149,7 +149,7 @@ The module uses a hybrid state management approach:
 
 ### External Dependencies
 - React (hooks: useState, useEffect, useCallback, useMemo)
-- lucide-react (icons)
+- @/lib/icons (centralized icon exports using Hugeicons)
 - UI components (button, input, badge, card, etc.)
 
 ## Development
@@ -279,4 +279,4 @@ When contributing to this module:
 
 ## License
 
-Part of the Auto Claude project.
+Part of the Turret project.

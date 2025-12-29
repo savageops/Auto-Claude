@@ -1,0 +1,15 @@
+{
+  "id": "session-1766773604374",
+  "projectId": "c09e4f52-3d72-49ac-a3ba-bc2687a3f054",
+  "title": "a new feature to self heal / self recover interrup...",
+  "messages": [
+    {
+      "id": "msg-1766773643626",
+      "role": "user",
+      "content": "a new feature to self heal / self recover interrupted tasks/agents. can be configured in settings, default 3 times.",
+      "timestamp": "2025-12-26T18:27:23.626Z"
+    }
+  ],
+  "createdAt": "2025-12-26T18:26:44.374Z",
+  "updatedAt": "2025-12-26T18:27:23.626Z"
+}

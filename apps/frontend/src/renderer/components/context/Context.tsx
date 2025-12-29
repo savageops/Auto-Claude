@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderTree, Brain } from 'lucide-react';
+import { FolderTree, Brain } from '@/lib/icons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useContextStore } from '../../stores/context-store';
 import { useProjectContext, useRefreshIndex, useMemorySearch } from './hooks';

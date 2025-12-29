@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Key, ChevronDown, ChevronRight } from 'lucide-react';
+import { Key, ChevronDown, ChevronRight } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import {
   Collapsible,

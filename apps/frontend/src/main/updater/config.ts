@@ -1,14 +1,14 @@
 /**
- * Configuration for Auto Claude updater
+ * Configuration for Turret updater
  */
 
 /**
  * GitHub repository configuration
  */
 export const GITHUB_CONFIG = {
-  owner: 'AndyMik90',
-  repo: 'Auto-Claude',
-  autoBuildPath: 'apps/backend' // Path within repo where auto-claude backend lives
+  owner: 'savageops',
+  repo: 'Turret',
+  autoBuildPath: 'apps/backend' // Path within repo where turret backend lives
 } as const;
 
 /**

@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, Field, ValidationError
+
 try:
     from .rate_limiter import RateLimiter, RateLimitExceeded
 except (ImportError, ValueError, SystemError):
@@ -27,6 +29,146 @@ except (ImportError, ValueError, SystemError):
 
 # Configure logger
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# GitHub API Response Models (Pydantic)
+# =============================================================================
+
+
+class GitHubUser(BaseModel):
+    """GitHub user/author reference."""
+
+    login: str
+    id: int | None = None
+    type: str | None = None
+
+
+class GitHubLabel(BaseModel):
+    """GitHub issue/PR label."""
+
+    name: str
+    color: str | None = None
+    description: str | None = None
+
+
+class GitHubFile(BaseModel):
+    """GitHub file change in PR."""
+
+    path: str
+    additions: int | None = None
+    deletions: int | None = None
+    changes: int | None = None
+    status: str | None = None
+
+
+class PRSummary(BaseModel):
+    """Pull request summary from pr_list()."""
+
+    number: int
+    title: str
+    state: str
+    author: GitHubUser
+    headRefName: str = Field(alias="headRefName")
+    baseRefName: str = Field(alias="baseRefName")
+
+    class Config:
+        populate_by_name = True
+
+
+class PRDetail(BaseModel):
+    """Full pull request details from pr_get()."""
+
+    number: int
+    title: str
+    body: str | None = None
+    state: str
+    headRefName: str = Field(alias="headRefName")
+    baseRefName: str = Field(alias="baseRefName")
+    author: GitHubUser
+    files: list[GitHubFile] | None = None
+    additions: int | None = None
+    deletions: int | None = None
+    changedFiles: int = Field(default=0, alias="changedFiles")
+
+    class Config:
+        populate_by_name = True
+
+
+class IssueSummary(BaseModel):
+    """Issue summary from issue_list()."""
+
+    number: int
+    title: str
+    body: str | None = None
+    labels: list[GitHubLabel] | None = None
+    author: GitHubUser
+    createdAt: str = Field(alias="createdAt")
+    updatedAt: str = Field(alias="updatedAt")
+    comments: int | None = None
+
+    class Config:
+        populate_by_name = True
+
+
+class IssueDetail(BaseModel):
+    """Full issue details from issue_get()."""
+
+    number: int
+    title: str
+    body: str | None = None
+    state: str
+    labels: list[GitHubLabel] | None = None
+    author: GitHubUser
+    comments: int | None = None
+    createdAt: str = Field(alias="createdAt")
+    updatedAt: str = Field(alias="updatedAt")
+
+    class Config:
+        populate_by_name = True
+
+
+class GitHubCommit(BaseModel):
+    """GitHub commit in comparison."""
+
+    sha: str
+    oid: str | None = None
+    message: str | None = None
+    author: dict[str, Any] | None = None
+
+
+class CommitComparison(BaseModel):
+    """Result of compare_commits()."""
+
+    commits: list[GitHubCommit]
+    files: list[GitHubFile] | None = None
+    ahead_by: int = 0
+    behind_by: int = 0
+    total_commits: int = 0
+
+
+class GitHubComment(BaseModel):
+    """GitHub comment (review or issue)."""
+
+    id: int
+    body: str
+    user: GitHubUser
+    created_at: str
+    updated_at: str
+    path: str | None = None  # For review comments on specific files
+    position: int | None = None  # For review comments
+
+
+class CommentsSinceResult(BaseModel):
+    """Result of get_comments_since()."""
+
+    review_comments: list[GitHubComment]
+    issue_comments: list[GitHubComment]
+
+
+# =============================================================================
+# Exceptions
+# =============================================================================
 
 
 class GHTimeoutError(Exception):
@@ -194,8 +336,8 @@ class GHClient:
 
                 # Successful execution (no timeout)
                 total_time = asyncio.get_event_loop().time() - start_time
-                stdout_str = stdout.decode("utf-8")
-                stderr_str = stderr.decode("utf-8")
+                stdout_str = stdout.decode("utf-8", errors="replace")
+                stderr_str = stderr.decode("utf-8", errors="replace")
 
                 result = GHCommandResult(
                     stdout=stdout_str,
@@ -263,7 +405,7 @@ class GHClient:
         state: str = "open",
         limit: int = 100,
         json_fields: list[str] | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> list[PRSummary]:
         """
         List pull requests.
 
@@ -273,7 +415,10 @@ class GHClient:
             json_fields: Fields to include in JSON output
 
         Returns:
-            List of PR data dictionaries
+            List of validated PR summary objects
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         if json_fields is None:
             json_fields = [
@@ -297,11 +442,18 @@ class GHClient:
         ]
 
         result = await self.run(args)
-        return json.loads(result.stdout)
+        raw_data = json.loads(result.stdout)
+
+        # Validate with Pydantic
+        try:
+            return [PRSummary(**pr) for pr in raw_data]
+        except ValidationError as e:
+            logger.error(f"GitHub API response validation failed for pr_list: {e}")
+            raise
 
     async def pr_get(
         self, pr_number: int, json_fields: list[str] | None = None
-    ) -> dict[str, Any]:
+    ) -> PRDetail:
         """
         Get PR data by number.
 
@@ -310,7 +462,10 @@ class GHClient:
             json_fields: Fields to include in JSON output
 
         Returns:
-            PR data dictionary
+            Validated PR detail object
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         if json_fields is None:
             json_fields = [
@@ -336,7 +491,14 @@ class GHClient:
         ]
 
         result = await self.run(args)
-        return json.loads(result.stdout)
+        raw_data = json.loads(result.stdout)
+
+        # Validate with Pydantic
+        try:
+            return PRDetail(**raw_data)
+        except ValidationError as e:
+            logger.error(f"GitHub API response validation failed for pr_get: {e}")
+            raise
 
     async def pr_diff(self, pr_number: int) -> str:
         """
@@ -405,7 +567,7 @@ class GHClient:
         state: str = "open",
         limit: int = 100,
         json_fields: list[str] | None = None,
-    ) -> list[dict[str, Any]]:
+    ) -> list[IssueSummary]:
         """
         List issues.
 
@@ -415,7 +577,10 @@ class GHClient:
             json_fields: Fields to include in JSON output
 
         Returns:
-            List of issue data dictionaries
+            List of validated issue summary objects
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         if json_fields is None:
             json_fields = [
@@ -441,11 +606,18 @@ class GHClient:
         ]
 
         result = await self.run(args)
-        return json.loads(result.stdout)
+        raw_data = json.loads(result.stdout)
+
+        # Validate with Pydantic
+        try:
+            return [IssueSummary(**issue) for issue in raw_data]
+        except ValidationError as e:
+            logger.error(f"GitHub API response validation failed for issue_list: {e}")
+            raise
 
     async def issue_get(
         self, issue_number: int, json_fields: list[str] | None = None
-    ) -> dict[str, Any]:
+    ) -> IssueDetail:
         """
         Get issue data by number.
 
@@ -454,7 +626,10 @@ class GHClient:
             json_fields: Fields to include in JSON output
 
         Returns:
-            Issue data dictionary
+            Validated issue detail object
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         if json_fields is None:
             json_fields = [
@@ -478,7 +653,14 @@ class GHClient:
         ]
 
         result = await self.run(args)
-        return json.loads(result.stdout)
+        raw_data = json.loads(result.stdout)
+
+        # Validate with Pydantic
+        try:
+            return IssueDetail(**raw_data)
+        except ValidationError as e:
+            logger.error(f"GitHub API response validation failed for issue_get: {e}")
+            raise
 
     async def issue_comment(self, issue_number: int, body: str) -> None:
         """
@@ -625,7 +807,7 @@ class GHClient:
         ]
         await self.run(args)
 
-    async def compare_commits(self, base_sha: str, head_sha: str) -> dict[str, Any]:
+    async def compare_commits(self, base_sha: str, head_sha: str) -> CommitComparison:
         """
         Compare two commits to get changes between them.
 
@@ -636,22 +818,32 @@ class GHClient:
             head_sha: Head commit SHA (e.g., current PR HEAD)
 
         Returns:
-            Dict with:
+            Validated commit comparison object with:
             - commits: List of commits between base and head
             - files: List of changed files with patches
             - ahead_by: Number of commits head is ahead of base
             - behind_by: Number of commits head is behind base
             - total_commits: Total number of commits in comparison
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         endpoint = f"repos/{{owner}}/{{repo}}/compare/{base_sha}...{head_sha}"
         args = ["api", endpoint]
 
         result = await self.run(args, timeout=60.0)  # Longer timeout for large diffs
-        return json.loads(result.stdout)
+        raw_data = json.loads(result.stdout)
+
+        # Validate with Pydantic
+        try:
+            return CommitComparison(**raw_data)
+        except ValidationError as e:
+            logger.error(f"GitHub API response validation failed for compare_commits: {e}")
+            raise
 
     async def get_comments_since(
         self, pr_number: int, since_timestamp: str
-    ) -> dict[str, list[dict]]:
+    ) -> CommentsSinceResult:
         """
         Get all comments (review + issue) since a timestamp.
 
@@ -660,9 +852,12 @@ class GHClient:
             since_timestamp: ISO timestamp to filter from (e.g., "2025-12-25T10:30:00Z")
 
         Returns:
-            Dict with:
+            Validated result with:
             - review_comments: Inline review comments on files
             - issue_comments: General PR discussion comments
+
+        Raises:
+            ValidationError: If GitHub API response doesn't match expected schema
         """
         # Fetch inline review comments
         # Use query string syntax - the -f flag sends POST body fields, not query params
@@ -673,9 +868,14 @@ class GHClient:
         review_comments = []
         if review_result.returncode == 0:
             try:
-                review_comments = json.loads(review_result.stdout)
+                raw_review_comments = json.loads(review_result.stdout)
+                # Validate each comment
+                review_comments = [GitHubComment(**comment) for comment in raw_review_comments]
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse review comments for PR #{pr_number}")
+            except ValidationError as e:
+                logger.error(f"GitHub API response validation failed for review comments: {e}")
+                raise
 
         # Fetch general issue comments
         # Use query string syntax - the -f flag sends POST body fields, not query params
@@ -686,14 +886,19 @@ class GHClient:
         issue_comments = []
         if issue_result.returncode == 0:
             try:
-                issue_comments = json.loads(issue_result.stdout)
+                raw_issue_comments = json.loads(issue_result.stdout)
+                # Validate each comment
+                issue_comments = [GitHubComment(**comment) for comment in raw_issue_comments]
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse issue comments for PR #{pr_number}")
+            except ValidationError as e:
+                logger.error(f"GitHub API response validation failed for issue comments: {e}")
+                raise
 
-        return {
-            "review_comments": review_comments,
-            "issue_comments": issue_comments,
-        }
+        return CommentsSinceResult(
+            review_comments=review_comments,
+            issue_comments=issue_comments,
+        )
 
     async def get_pr_head_sha(self, pr_number: int) -> str | None:
         """

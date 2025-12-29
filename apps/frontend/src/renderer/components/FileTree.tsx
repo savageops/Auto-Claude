@@ -3,7 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { FileTreeItem } from './FileTreeItem';
 import { useFileExplorerStore } from '../stores/file-explorer-store';
 import { useVirtualizedTree } from '../hooks/useVirtualizedTree';
-import { Loader2, AlertCircle, FolderOpen } from 'lucide-react';
+import { RefreshCw, AlertCircle, FolderOpen } from '@/lib/icons';
 
 interface FileTreeProps {
   rootPath: string;
@@ -64,7 +64,7 @@ export function FileTree({ rootPath }: FileTreeProps) {
   if (isRootLoading && !hasRootFiles) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }

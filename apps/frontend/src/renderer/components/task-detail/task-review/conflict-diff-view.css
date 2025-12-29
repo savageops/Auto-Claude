@@ -1,0 +1,187 @@
+/* Custom Diff Viewer - using jsdiff */
+
+.conflict-diff-view {
+  font-size: 12px;
+  line-height: 1.6;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Mono', monospace;
+}
+
+/* Table layout */
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.diff-gutter-col {
+  width: 50px;
+}
+
+.diff-code-col {
+  width: calc(50% - 50px);
+}
+
+/* Header */
+.diff-header {
+  background: hsl(var(--muted));
+  border-bottom: 2px solid hsl(var(--border));
+}
+
+.diff-header-cell {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(var(--foreground));
+}
+
+.diff-header-cell:first-child {
+  border-right: 2px solid hsl(var(--border));
+  color: hsl(var(--destructive));
+}
+
+.diff-header-cell:last-child {
+  color: hsl(var(--success));
+}
+
+/* Rows */
+.diff-row {
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+}
+
+.diff-row:last-child {
+  border-bottom: none;
+}
+
+/* Gutter (line numbers) */
+.diff-gutter {
+  padding: 2px 8px;
+  text-align: right;
+  user-select: none;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted) / 0.5);
+  border-right: 1px solid hsl(var(--border) / 0.5);
+  vertical-align: top;
+  font-size: 10px;
+  min-width: 40px;
+}
+
+/* Code cells */
+.diff-code {
+  padding: 2px 8px 2px 6px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  vertical-align: top;
+  position: relative;
+}
+
+/* Marker (+/-) */
+.diff-marker {
+  display: inline-block;
+  width: 16px;
+  font-weight: 700;
+  user-select: none;
+  margin-right: 4px;
+}
+
+/* Normal (context) lines - visible but muted */
+.diff-code-normal {
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+}
+
+.diff-gutter-normal {
+  background: hsl(var(--muted) / 0.3);
+}
+
+/* Empty cells (unpaired) - striped pattern */
+.diff-code-empty {
+  background: repeating-linear-gradient(
+    45deg,
+    hsl(var(--muted) / 0.1),
+    hsl(var(--muted) / 0.1) 4px,
+    hsl(var(--muted) / 0.2) 4px,
+    hsl(var(--muted) / 0.2) 8px
+  );
+}
+
+.diff-gutter-empty {
+  background: hsl(var(--muted) / 0.2);
+}
+
+/* Delete lines (old side) - RED */
+.diff-code-delete {
+  background: hsl(0 70% 50% / 0.15) !important;
+  color: hsl(var(--foreground));
+}
+
+.diff-gutter-delete {
+  background: hsl(0 70% 50% / 0.25) !important;
+  color: hsl(0 70% 40%);
+}
+
+.diff-code-delete .diff-marker {
+  color: hsl(0 70% 45%);
+}
+
+/* Insert lines (new side) - GREEN */
+.diff-code-insert {
+  background: hsl(120 50% 40% / 0.15) !important;
+  color: hsl(var(--foreground));
+}
+
+.diff-gutter-insert {
+  background: hsl(120 50% 40% / 0.25) !important;
+  color: hsl(120 50% 35%);
+}
+
+.diff-code-insert .diff-marker {
+  color: hsl(120 50% 35%);
+}
+
+/* Word-level diff highlighting */
+.diff-word-delete {
+  background: hsl(0 80% 50% / 0.4) !important;
+  border-radius: 2px;
+  padding: 1px 2px;
+  color: hsl(0 70% 25%);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.diff-word-insert {
+  background: hsl(120 60% 40% / 0.4) !important;
+  border-radius: 2px;
+  padding: 1px 2px;
+  color: hsl(120 50% 20%);
+  font-weight: 600;
+}
+
+/* Divider between old/new sides */
+.diff-row td:nth-child(2) {
+  border-right: 2px solid hsl(var(--border));
+}
+
+/* Hover effect */
+.diff-row:hover {
+  background: hsl(var(--accent) / 0.1);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .diff-word-delete {
+    color: hsl(0 70% 75%);
+  }
+  
+  .diff-word-insert {
+    color: hsl(120 50% 80%);
+  }
+}
+
+/* Selection */
+.diff-code::selection,
+.diff-code *::selection {
+  background: hsl(var(--accent) / 0.4);
+}

@@ -368,6 +368,8 @@ def get_staged_files() -> list[str]:
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         files = [f.strip() for f in result.stdout.splitlines() if f.strip()]
@@ -383,6 +385,8 @@ def get_all_tracked_files() -> list[str]:
             ["git", "ls-files"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         files = [f.strip() for f in result.stdout.splitlines() if f.strip()]

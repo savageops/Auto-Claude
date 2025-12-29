@@ -1,4 +1,4 @@
-import { RefreshCw, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle2, AlertCircle,  } from '@/lib/icons';
 import { Button } from '../ui/button';
 import type { AutoBuildVersionInfo } from '../../../shared/types';
 
@@ -65,7 +65,7 @@ export function AutoBuildIntegration({
           </div>
           {isCheckingVersion ? (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" />
+              <RefreshCw className="h-3 w-3 animate-spin" />
               Checking status...
             </div>
           ) : versionInfo && (

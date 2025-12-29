@@ -1,0 +1,719 @@
+{
+  "description": "Mapping of Lucide React icon names to Hugeicons Duotone equivalents",
+  "version": "1.0.0",
+  "source_directory": ".refs/icons/hugeicons/Duotone",
+  "output_directory": "apps/frontend/src/renderer/assets/icons",
+  "icons": {
+    "Activity": {
+      "hugeicon_file": "chart-line-data-01.svg",
+      "category": "Business and Finance",
+      "notes": "Activity chart representation"
+    },
+    "AlertCircle": {
+      "hugeicon_file": "alert-circle.svg",
+      "category": "Alert Notification",
+      "notes": "Direct match"
+    },
+    "AlertTriangle": {
+      "hugeicon_file": "alert-02.svg",
+      "category": "Alert Notification",
+      "notes": "Triangle alert icon"
+    },
+    "Archive": {
+      "hugeicon_file": "archive-01.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "ArrowLeft": {
+      "hugeicon_file": "arrow-left-01-round.svg",
+      "category": "Arrows (Round)",
+      "notes": "Round style arrow"
+    },
+    "ArrowRight": {
+      "hugeicon_file": "arrow-right-01-round.svg",
+      "category": "Arrows (Round)",
+      "notes": "Round style arrow"
+    },
+    "BarChart3": {
+      "hugeicon_file": "chart-column.svg",
+      "category": "Business and Finance",
+      "notes": "Column chart equivalent"
+    },
+    "Bell": {
+      "hugeicon_file": "notification-01.svg",
+      "category": "Alert Notification",
+      "notes": "Bell notification icon"
+    },
+    "BookOpen": {
+      "hugeicon_file": "book-open-01.svg",
+      "category": "Education",
+      "notes": "Direct match"
+    },
+    "Bot": {
+      "hugeicon_file": "bot.svg",
+      "category": "Science Technology",
+      "notes": "Direct match - robot/AI icon"
+    },
+    "Box": {
+      "hugeicon_file": "package.svg",
+      "category": "E-Commerce",
+      "notes": "Package/box icon"
+    },
+    "Brain": {
+      "hugeicon_file": "brain.svg",
+      "category": "Education",
+      "notes": "Direct match"
+    },
+    "Bug": {
+      "hugeicon_file": "bug-01.svg",
+      "category": "Programming Language",
+      "notes": "Direct match"
+    },
+    "Building": {
+      "hugeicon_file": "building-01.svg",
+      "category": "Building Landmark Places",
+      "notes": "Building/organization icon"
+    },
+    "Calendar": {
+      "hugeicon_file": "calendar-01.svg",
+      "category": "Date and Time",
+      "notes": "Direct match"
+    },
+    "Check": {
+      "hugeicon_file": "tick-01.svg",
+      "category": "Check Validation",
+      "notes": "Checkmark/tick icon"
+    },
+    "CheckCheck": {
+      "hugeicon_file": "tick-double-01.svg",
+      "category": "Check Validation",
+      "notes": "Double checkmark icon"
+    },
+    "CheckCircle": {
+      "hugeicon_file": "checkmark-circle-01.svg",
+      "category": "Check Validation",
+      "notes": "Direct match"
+    },
+    "CheckCircle2": {
+      "hugeicon_file": "checkmark-circle-02.svg",
+      "category": "Check Validation",
+      "notes": "Direct match - alternate style"
+    },
+    "CheckSquare": {
+      "hugeicon_file": "checkmark-square-01.svg",
+      "category": "Check Validation",
+      "notes": "Direct match"
+    },
+    "ChevronDown": {
+      "hugeicon_file": "arrow-down-01-round.svg",
+      "category": "Arrows (Round)",
+      "notes": "Chevron/arrow down"
+    },
+    "ChevronRight": {
+      "hugeicon_file": "arrow-right-01-round.svg",
+      "category": "Arrows (Round)",
+      "notes": "Chevron/arrow right"
+    },
+    "ChevronUp": {
+      "hugeicon_file": "arrow-up-01-round.svg",
+      "category": "Arrows (Round)",
+      "notes": "Chevron/arrow up"
+    },
+    "Circle": {
+      "hugeicon_file": "circle.svg",
+      "category": "Geometric Shapes",
+      "notes": "Direct match"
+    },
+    "Clock": {
+      "hugeicon_file": "clock-01.svg",
+      "category": "Date and Time",
+      "notes": "Direct match"
+    },
+    "CloudDownload": {
+      "hugeicon_file": "cloud-download.svg",
+      "category": "Download Upload",
+      "notes": "Direct match"
+    },
+    "Code": {
+      "hugeicon_file": "code.svg",
+      "category": "Programming Language",
+      "notes": "Direct match"
+    },
+    "Code2": {
+      "hugeicon_file": "code-folder.svg",
+      "category": "Programming Language",
+      "notes": "Code folder variant"
+    },
+    "Cog": {
+      "hugeicon_file": "setting-01.svg",
+      "category": "Settings",
+      "notes": "Cog/gear settings icon"
+    },
+    "Copy": {
+      "hugeicon_file": "copy-01.svg",
+      "category": "Edit Formatting",
+      "notes": "Direct match"
+    },
+    "Cpu": {
+      "hugeicon_file": "cpu.svg",
+      "category": "Devices",
+      "notes": "Direct match"
+    },
+    "CreditCard": {
+      "hugeicon_file": "credit-card.svg",
+      "category": "Business and Finance",
+      "notes": "Direct match"
+    },
+    "Database": {
+      "hugeicon_file": "database.svg",
+      "category": "Programming Language",
+      "notes": "Direct match"
+    },
+    "Download": {
+      "hugeicon_file": "download-01.svg",
+      "category": "Download Upload",
+      "notes": "Direct match"
+    },
+    "ExternalLink": {
+      "hugeicon_file": "link-square-02.svg",
+      "category": "Link Unlink",
+      "notes": "External link icon"
+    },
+    "Eye": {
+      "hugeicon_file": "view.svg",
+      "category": "Edit Formatting",
+      "notes": "Eye/view icon"
+    },
+    "EyeOff": {
+      "hugeicon_file": "view-off.svg",
+      "category": "Edit Formatting",
+      "notes": "Eye off/hide icon"
+    },
+    "File": {
+      "hugeicon_file": "file-01.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "FileCode": {
+      "hugeicon_file": "file-script.svg",
+      "category": "Files Folders",
+      "notes": "Code/script file"
+    },
+    "FileDiff": {
+      "hugeicon_file": "file-edit.svg",
+      "category": "Files Folders",
+      "notes": "File diff/edit icon"
+    },
+    "FileDown": {
+      "hugeicon_file": "file-download.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "FileImage": {
+      "hugeicon_file": "image-01.svg",
+      "category": "Image Camera Video",
+      "notes": "Image file icon"
+    },
+    "FileJson": {
+      "hugeicon_file": "file-script.svg",
+      "category": "Files Folders",
+      "notes": "Script file for JSON"
+    },
+    "FileText": {
+      "hugeicon_file": "txt-01.svg",
+      "category": "Files Folders",
+      "notes": "Text file"
+    },
+    "Filter": {
+      "hugeicon_file": "filter.svg",
+      "category": "Filter Sorting",
+      "notes": "Direct match"
+    },
+    "FlaskConical": {
+      "hugeicon_file": "test-tube-01.svg",
+      "category": "Education",
+      "notes": "Lab flask/test tube"
+    },
+    "Folder": {
+      "hugeicon_file": "folder-01.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "FolderGit2": {
+      "hugeicon_file": "folder-details.svg",
+      "category": "Files Folders",
+      "notes": "Folder with git details - using folder-details as git-specific not available"
+    },
+    "FolderOpen": {
+      "hugeicon_file": "folder-open.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "FolderPlus": {
+      "hugeicon_file": "folder-add.svg",
+      "category": "Files Folders",
+      "notes": "Add folder"
+    },
+    "FolderSearch": {
+      "hugeicon_file": "folder-search.svg",
+      "category": "Files Folders",
+      "notes": "Direct match"
+    },
+    "FolderTree": {
+      "hugeicon_file": "folders.svg",
+      "category": "Files Folders",
+      "notes": "Multiple folders/tree"
+    },
+    "FolderX": {
+      "hugeicon_file": "folder-remove.svg",
+      "category": "Files Folders",
+      "notes": "Remove/delete folder"
+    },
+    "Gauge": {
+      "hugeicon_file": "dashboard-speed-01.svg",
+      "category": "Dashboard",
+      "notes": "Gauge/speedometer"
+    },
+    "GitBranch": {
+      "hugeicon_file": "git-branch.svg",
+      "category": "Git",
+      "notes": "Direct match"
+    },
+    "GitCommit": {
+      "hugeicon_file": "git-commit.svg",
+      "category": "Git",
+      "notes": "Direct match"
+    },
+    "Github": {
+      "hugeicon_file": "github.svg",
+      "category": "Git",
+      "notes": "Direct match (also in Brand Logo)"
+    },
+    "GitMerge": {
+      "hugeicon_file": "git-merge.svg",
+      "category": "Git",
+      "notes": "Direct match"
+    },
+    "GitPullRequest": {
+      "hugeicon_file": "git-pull-request.svg",
+      "category": "Git",
+      "notes": "Direct match"
+    },
+    "Globe": {
+      "hugeicon_file": "globe.svg",
+      "category": "Education",
+      "notes": "Direct match"
+    },
+    "Grid2X2": {
+      "hugeicon_file": "grid.svg",
+      "category": "Edit Formatting",
+      "notes": "Grid layout"
+    },
+    "HardDrive": {
+      "hugeicon_file": "hard-drive.svg",
+      "category": "Devices",
+      "notes": "Direct match"
+    },
+    "HelpCircle": {
+      "hugeicon_file": "help-circle.svg",
+      "category": "Alert Notification",
+      "notes": "Direct match"
+    },
+    "History": {
+      "hugeicon_file": "clock-01.svg",
+      "category": "Date and Time",
+      "notes": "Using clock for history representation"
+    },
+    "Image": {
+      "hugeicon_file": "image-01.svg",
+      "category": "Image Camera Video",
+      "notes": "Direct match"
+    },
+    "Import": {
+      "hugeicon_file": "file-import.svg",
+      "category": "Files Folders",
+      "notes": "Import file"
+    },
+    "Inbox": {
+      "hugeicon_file": "inbox.svg",
+      "category": "Communications",
+      "notes": "Direct match"
+    },
+    "Info": {
+      "hugeicon_file": "information-circle.svg",
+      "category": "Alert Notification",
+      "notes": "Info circle"
+    },
+    "Key": {
+      "hugeicon_file": "lock-key.svg",
+      "category": "Security",
+      "notes": "Key icon"
+    },
+    "KeyRound": {
+      "hugeicon_file": "lock-key.svg",
+      "category": "Security",
+      "notes": "Key icon - same as Key"
+    },
+    "Layers": {
+      "hugeicon_file": "layers-01.svg",
+      "category": "Edit Formatting",
+      "notes": "Direct match"
+    },
+    "LayoutGrid": {
+      "hugeicon_file": "layout-grid.svg",
+      "category": "Layout Borders",
+      "notes": "Direct match"
+    },
+    "Lightbulb": {
+      "hugeicon_file": "idea.svg",
+      "category": "Education",
+      "notes": "Lightbulb/idea icon"
+    },
+    "ListChecks": {
+      "hugeicon_file": "check-list.svg",
+      "category": "Edit Formatting",
+      "notes": "Checklist"
+    },
+    "ListTodo": {
+      "hugeicon_file": "task-01.svg",
+      "category": "Note Task",
+      "notes": "Todo/task list"
+    },
+    "Loader2": {
+      "hugeicon_file": "motion-01.svg",
+      "category": "Animation",
+      "notes": "Loading/motion animation"
+    },
+    "Link": {
+      "hugeicon_file": "link-01.svg",
+      "category": "Link Unlink",
+      "notes": "Link/chain icon"
+    },
+    "Lock": {
+      "hugeicon_file": "lock.svg",
+      "category": "Security",
+      "notes": "Direct match"
+    },
+    "LogIn": {
+      "hugeicon_file": "login-01.svg",
+      "category": "Login Logout",
+      "notes": "Direct match"
+    },
+    "Mail": {
+      "hugeicon_file": "mail-01.svg",
+      "category": "Communications",
+      "notes": "Direct match"
+    },
+    "Map": {
+      "hugeicon_file": "maps.svg",
+      "category": "Location Map",
+      "notes": "Map icon"
+    },
+    "MessageCircle": {
+      "hugeicon_file": "message-01.svg",
+      "category": "Communications",
+      "notes": "Message bubble"
+    },
+    "MessageSquare": {
+      "hugeicon_file": "message-02.svg",
+      "category": "Communications",
+      "notes": "Square message"
+    },
+    "Minus": {
+      "hugeicon_file": "minus-sign.svg",
+      "category": "Mathematics",
+      "notes": "Minus sign"
+    },
+    "MinusSquare": {
+      "hugeicon_file": "minus-sign-square.svg",
+      "category": "Mathematics",
+      "notes": "Minus sign in square"
+    },
+    "Monitor": {
+      "hugeicon_file": "computer.svg",
+      "category": "Devices",
+      "notes": "Monitor/computer display"
+    },
+    "Moon": {
+      "hugeicon_file": "moon.svg",
+      "category": "Weather",
+      "notes": "Direct match - for dark mode"
+    },
+    "MoreVertical": {
+      "hugeicon_file": "more-vertical.svg",
+      "category": "More Menu",
+      "notes": "Direct match"
+    },
+    "Package": {
+      "hugeicon_file": "package.svg",
+      "category": "E-Commerce",
+      "notes": "Direct match"
+    },
+    "Palette": {
+      "hugeicon_file": "colors.svg",
+      "category": "Edit Formatting",
+      "notes": "Color palette"
+    },
+    "PanelLeft": {
+      "hugeicon_file": "sidebar-left.svg",
+      "category": "Dashboard",
+      "notes": "Left sidebar panel"
+    },
+    "PanelLeftClose": {
+      "hugeicon_file": "sidebar-left.svg",
+      "category": "Dashboard",
+      "notes": "Left sidebar - using same as PanelLeft"
+    },
+    "PartyPopper": {
+      "hugeicon_file": "star-face.svg",
+      "category": "Smiley Emojis",
+      "notes": "Celebration - using star face emoji"
+    },
+    "Pencil": {
+      "hugeicon_file": "pencil.svg",
+      "category": "Education",
+      "notes": "Direct match"
+    },
+    "PenLine": {
+      "hugeicon_file": "quill-write-01.svg",
+      "category": "Edit Formatting",
+      "notes": "Pen/quill writing"
+    },
+    "Play": {
+      "hugeicon_file": "play.svg",
+      "category": "Media",
+      "notes": "Direct match"
+    },
+    "Plus": {
+      "hugeicon_file": "plus-sign.svg",
+      "category": "Mathematics",
+      "notes": "Plus sign"
+    },
+    "Radio": {
+      "hugeicon_file": "radio.svg",
+      "category": "Media",
+      "notes": "Direct match"
+    },
+    "RefreshCw": {
+      "hugeicon_file": "refresh.svg",
+      "category": "Edit Formatting",
+      "notes": "Refresh icon"
+    },
+    "Rocket": {
+      "hugeicon_file": "rocket.svg",
+      "category": "Transportation",
+      "notes": "Direct match"
+    },
+    "RotateCcw": {
+      "hugeicon_file": "rotate-01.svg",
+      "category": "Edit Formatting",
+      "notes": "Rotate counter-clockwise"
+    },
+    "Route": {
+      "hugeicon_file": "route-01.svg",
+      "category": "Location Map",
+      "notes": "Direct match"
+    },
+    "Save": {
+      "hugeicon_file": "floppy-disk.svg",
+      "category": "Devices",
+      "notes": "Save/floppy disk icon"
+    },
+    "Scale": {
+      "hugeicon_file": "justice-scale-01.svg",
+      "category": "Legal",
+      "notes": "Balance/justice scale"
+    },
+    "Search": {
+      "hugeicon_file": "search.svg",
+      "category": "Search",
+      "notes": "Direct match"
+    },
+    "Send": {
+      "hugeicon_file": "sent.svg",
+      "category": "Communications",
+      "notes": "Send message"
+    },
+    "Server": {
+      "hugeicon_file": "database-01.svg",
+      "category": "Devices",
+      "notes": "Server/database"
+    },
+    "Settings": {
+      "hugeicon_file": "setting-02.svg",
+      "category": "Settings",
+      "notes": "Settings gear"
+    },
+    "Settings2": {
+      "hugeicon_file": "setting-03.svg",
+      "category": "Settings",
+      "notes": "Settings alternate"
+    },
+    "Shield": {
+      "hugeicon_file": "security.svg",
+      "category": "Security",
+      "notes": "Shield/security"
+    },
+    "Sliders": {
+      "hugeicon_file": "preference-horizontal.svg",
+      "category": "Filter Sorting",
+      "notes": "Horizontal sliders/preferences"
+    },
+    "Sparkles": {
+      "hugeicon_file": "sparkles.svg",
+      "category": "Weather",
+      "notes": "Direct match - magic/sparkle effect"
+    },
+    "Square": {
+      "hugeicon_file": "square.svg",
+      "category": "Geometric Shapes",
+      "notes": "Direct match"
+    },
+    "Star": {
+      "hugeicon_file": "star.svg",
+      "category": "Bookmark Favorite",
+      "notes": "Direct match"
+    },
+    "Sun": {
+      "hugeicon_file": "sun-01.svg",
+      "category": "Weather",
+      "notes": "Direct match - for light mode"
+    },
+    "Tag": {
+      "hugeicon_file": "tag-01.svg",
+      "category": "Bookmark Favorite",
+      "notes": "Direct match"
+    },
+    "Target": {
+      "hugeicon_file": "target-01.svg",
+      "category": "Business and Finance",
+      "notes": "Direct match"
+    },
+    "Terminal": {
+      "hugeicon_file": "console.svg",
+      "category": "Programming Language",
+      "notes": "Terminal/console"
+    },
+    "TerminalSquare": {
+      "hugeicon_file": "command-line.svg",
+      "category": "Programming Language",
+      "notes": "Command line terminal"
+    },
+    "ThumbsUp": {
+      "hugeicon_file": "thumbs-up.svg",
+      "category": "Bookmark Favorite",
+      "notes": "Direct match"
+    },
+    "Trash2": {
+      "hugeicon_file": "delete-02.svg",
+      "category": "Add Remove Delete",
+      "notes": "Trash/delete icon"
+    },
+    "TrendingUp": {
+      "hugeicon_file": "analytics-up.svg",
+      "category": "Business and Finance",
+      "notes": "Trending/analytics up"
+    },
+    "Upload": {
+      "hugeicon_file": "upload-01.svg",
+      "category": "Download Upload",
+      "notes": "Direct match"
+    },
+    "User": {
+      "hugeicon_file": "user.svg",
+      "category": "Users",
+      "notes": "Direct match"
+    },
+    "Users": {
+      "hugeicon_file": "user-multiple.svg",
+      "category": "Users",
+      "notes": "Multiple users"
+    },
+    "Wand2": {
+      "hugeicon_file": "sparkles.svg",
+      "category": "Weather",
+      "notes": "Magic wand - using sparkles"
+    },
+    "Wifi": {
+      "hugeicon_file": "wifi-01.svg",
+      "category": "Wifi Signal",
+      "notes": "Direct match"
+    },
+    "Wrench": {
+      "hugeicon_file": "wrench-01.svg",
+      "category": "Settings",
+      "notes": "Direct match"
+    },
+    "X": {
+      "hugeicon_file": "cancel-01.svg",
+      "category": "Add Remove Delete",
+      "notes": "X/cancel icon"
+    },
+    "XCircle": {
+      "hugeicon_file": "cancel-circle.svg",
+      "category": "Add Remove Delete",
+      "notes": "Cancel circle"
+    },
+    "Zap": {
+      "hugeicon_file": "zap.svg",
+      "category": "Weather",
+      "notes": "Direct match - lightning bolt"
+    },
+    "ZoomIn": {
+      "hugeicon_file": "zoom-in-area.svg",
+      "category": "Search",
+      "notes": "Zoom in icon"
+    },
+    "ZoomOut": {
+      "hugeicon_file": "zoom-out-area.svg",
+      "category": "Search",
+      "notes": "Zoom out icon"
+    }
+  },
+  "aliases": {
+    "ImageIcon": "Image"
+  },
+  "summary": {
+    "total_icons": 131,
+    "total_aliases": 1,
+    "categories_used": [
+      "Add Remove Delete",
+      "Alert Notification",
+      "Animation",
+      "Arrows (Round)",
+      "Bookmark Favorite",
+      "Business and Finance",
+      "Check Validation",
+      "Communications",
+      "Dashboard",
+      "Date and Time",
+      "Devices",
+      "Download Upload",
+      "E-Commerce",
+      "Edit Formatting",
+      "Education",
+      "Files Folders",
+      "Filter Sorting",
+      "Geometric Shapes",
+      "Git",
+      "Layout Borders",
+      "Legal",
+      "Link Unlink",
+      "Location Map",
+      "Login Logout",
+      "Mathematics",
+      "Media",
+      "More Menu",
+      "Note Task",
+      "Programming Language",
+      "Search",
+      "Security",
+      "Settings",
+      "Smiley Emojis",
+      "Transportation",
+      "Users",
+      "Weather",
+      "Wifi Signal"
+    ]
+  }
+}

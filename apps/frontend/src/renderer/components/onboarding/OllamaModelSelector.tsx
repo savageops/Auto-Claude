@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Check,
   Download,
-  Loader2,
-  AlertCircle,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw,
+  AlertCircle
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 
@@ -24,7 +23,7 @@ interface OllamaModelSelectorProps {
   className?: string;
 }
 
-// Recommended embedding models for Auto Claude Memory
+// Recommended embedding models for Turret Memory
 // embeddinggemma is first as the recommended default
 const RECOMMENDED_MODELS: OllamaModel[] = [
   {
@@ -306,7 +305,7 @@ export function OllamaModelSelector({
   if (isLoading) {
     return (
       <div className={cn('flex items-center justify-center py-8', className)}>
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
         <span className="ml-2 text-sm text-muted-foreground">Checking Ollama models...</span>
       </div>
     );
@@ -410,7 +409,7 @@ export function OllamaModelSelector({
                    >
                      {isCurrentlyDownloading ? (
                        <>
-                         <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                         <RefreshCw className="h-3.5 w-3.5 animate-spin mr-1.5" />
                          Downloading...
                        </>
                      ) : (
@@ -434,11 +433,12 @@ export function OllamaModelSelector({
                    {/* Progress bar */}
                    <div className="w-full bg-muted rounded-full h-2">
                      <div
-                       className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-300"
+                       className="h-full rounded-full bg-primary transition-all duration-300"
                        style={{ width: `${Math.max(0, Math.min(100, progress.percentage))}%` }}
                      />
                    </div>
-                   {/* Progress info: percentage, speed, time remaining */}
+
+                   {/* Speed and time remaining info */}
                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                      <span className="font-medium text-foreground">
                        {Math.round(progress.percentage)}%

@@ -2,7 +2,7 @@
 Tool Registry
 =============
 
-Central registry for creating and managing auto-claude MCP tools.
+Central registry for creating and managing turret MCP tools.
 """
 
 from pathlib import Path
@@ -48,9 +48,9 @@ def create_all_tools(spec_dir: Path, project_dir: Path) -> list:
     return all_tools
 
 
-def create_auto_claude_mcp_server(spec_dir: Path, project_dir: Path):
+def create_turret_mcp_server(spec_dir: Path, project_dir: Path):
     """
-    Create an MCP server with auto-claude custom tools.
+    Create an MCP server with turret custom tools.
 
     Args:
         spec_dir: Path to the spec directory
@@ -64,7 +64,7 @@ def create_auto_claude_mcp_server(spec_dir: Path, project_dir: Path):
 
     tools = create_all_tools(spec_dir, project_dir)
 
-    return create_sdk_mcp_server(name="auto-claude", version="1.0.0", tools=tools)
+    return create_sdk_mcp_server(name="turret", version="1.0.0", tools=tools)
 
 
 def is_tools_available() -> bool:

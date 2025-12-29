@@ -5,7 +5,7 @@ import {
   Settings,
   BookOpen,
   ArrowRight
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';

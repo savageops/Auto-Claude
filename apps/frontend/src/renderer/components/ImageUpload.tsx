@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
-import { Upload, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, AlertCircle, Image as ImageIcon } from '@/lib/icons';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 import type { ImageAttachment } from '../../shared/types';
@@ -351,7 +351,7 @@ export function ImageUpload({
               </div>
 
               {/* File info overlay */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+              <div className="absolute inset-x-0 bottom-0 bg-black/70 p-2">
                 <p className="text-xs text-white font-medium truncate">{image.filename}</p>
                 <p className="text-[10px] text-white/70">{formatFileSize(image.size)}</p>
               </div>
@@ -359,11 +359,11 @@ export function ImageUpload({
               {/* Remove button */}
               {!disabled && (
                 <Button
-                  variant="destructive"
+                  variant="ghost"
                   size="icon"
                   className={cn(
                     'absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity',
-                    'rounded-full'
+                    'rounded-full bg-primary/30 hover:bg-primary/40 text-primary'
                   )}
                   onClick={(e) => {
                     e.stopPropagation();

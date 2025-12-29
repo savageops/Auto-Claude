@@ -31,7 +31,7 @@ def open_editor_for_input(field_name: str) -> str:
         editor_cmd.append(temp_path)
 
         # Open editor
-        result = subprocess.run(editor_cmd)
+        result = subprocess.run(editor_cmd, encoding="utf-8", errors="replace")
 
         if result.returncode != 0:
             return ""

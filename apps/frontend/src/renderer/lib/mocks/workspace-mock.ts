@@ -62,6 +62,15 @@ export const workspaceMock = {
     }
   }),
 
+  discardWorktreeFile: async (_taskId: string, filePath: string) => ({
+    success: true,
+    data: {
+      success: true,
+      message: `Successfully discarded changes to ${filePath}`,
+      filePath
+    }
+  }),
+
   listWorktrees: async () => ({
     success: true,
     data: {

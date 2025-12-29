@@ -1,4 +1,4 @@
-import { AlertCircle, RotateCcw, Loader2 } from 'lucide-react';
+import { AlertCircle, RotateCcw, RefreshCw } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 
@@ -35,14 +35,14 @@ export function QAFeedbackSection({
         rows={3}
       />
       <Button
-        variant="warning"
+        variant="ghost"
         onClick={onReject}
         disabled={isSubmitting || !feedback.trim()}
-        className="w-full"
+        className="w-full bg-primary/20 hover:bg-primary/30 text-primary"
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
             Submitting...
           </>
         ) : (

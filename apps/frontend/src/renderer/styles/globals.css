@@ -52,10 +52,10 @@
   /* Border radius - from design system */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-3xl: 24px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
   --radius-full: 9999px;
 
   /* Animations */
@@ -99,923 +99,1687 @@
 
 /* CSS variables for light mode (secondary consideration per design system) */
 :root {
-  /* Light Mode - Warm off-white tones */
+  /* Light Mode - Balanced neutral with soft sage accents */
   --background: #F2F2ED;
-  --foreground: #0B0B0F;
+  --foreground: #0F1014;
 
   --card: #FFFFFF;
-  --card-foreground: #0B0B0F;
+  --card-foreground: #0F1014;
 
-  /* Accent - Muted olive/yellow for light mode */
-  --primary: #A5A66A;
-  --primary-foreground: #0B0B0F;
+  /* Accent - Soft sage/olive for light mode */
+  --primary: #B8B978;
+  --primary-foreground: #0F1014;
 
   --secondary: #E8E8E3;
-  --secondary-foreground: #0B0B0F;
+  --secondary-foreground: #0F1014;
 
   --muted: #EDEDE8;
   --muted-foreground: #5C6974;
 
-  --accent: #EFEFE0;
-  --accent-foreground: #A5A66A;
+  --accent: #B8B978;
+  --accent-foreground: #0F1014;
 
-  --destructive: #D84F68;
+  --destructive: #B87878;
   --destructive-foreground: #FFFFFF;
 
-  --border: #DEDED9;
-  --input: #DEDED9;
-  --ring: #A5A66A;
+  --border: transparent;
+  --input: transparent;
+  --ring: #B8B978;
 
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0B0B0F;
+  --sidebar-foreground: #0F1014;
 
   --popover: #FFFFFF;
-  --popover-foreground: #0B0B0F;
+  --popover-foreground: #0F1014;
 
   /* Semantic colors */
-  --success: #4EBE96;
+  --success: #78B88A;
   --success-foreground: #FFFFFF;
-  --success-light: #E0F5ED;
-  --warning: #D2D714;
-  --warning-foreground: #0B0B0F;
-  --warning-light: #F5F5D0;
-  --info: #479FFA;
+  --success-light: #E8F0EA;
+  --warning: #B8B078;
+  --warning-foreground: #0F1014;
+  --warning-light: #F0F0E8;
+  --info: #788AB8;
   --info-foreground: #FFFFFF;
-  --info-light: #E8F4FF;
-  --error: #D84F68;
-  --error-light: #FCE8EC;
+  --info-light: #E8ECF0;
+  --error: #B87878;
+  --error-light: #F0E8E8;
 
   /* Shadows - soft and diffused for light mode */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(165, 166, 106, 0.2);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 
   /* Border radius */
   --radius: 12px;
 }
 
-/* Dark Mode - Oscura Midnight (Default/Primary theme per design system) */
+/* Dark Mode - Default theme */
 .dark {
-  /* Near-black backgrounds - OLED optimized */
-  --background: #0B0B0F;
+  /* Near-black backgrounds */
+  --background: #0F1014;
   --foreground: #E6E6E6;
 
   /* Card surfaces - subtle elevation */
-  --card: #121216;
+  --card: #16171C;
   --card-foreground: #E6E6E6;
 
-  /* Accent - Saturated yellow for vibrant contrast */
-  --primary: #D6D876;
-  --primary-foreground: #0B0B0F;
+  /* Accent - Sage/olive for dark mode */
+  --primary: #D4D79A;
+  --primary-foreground: #0F1014;
 
-  --secondary: #1A1A1F;
+  --secondary: #1C1D22;
   --secondary-foreground: #E6E6E6;
 
-  --muted: #1A1A1F;
+  --muted: #1C1D22;
   --muted-foreground: #868F97;
 
-  --accent: #2A2A1F;
-  --accent-foreground: #D6D876;
+  --accent: #D4D79A;
+  --accent-foreground: #0F1014;
 
-  --destructive: #FF5C5C;
-  --destructive-foreground: #0B0B0F;
+  --destructive: #C89898;
+  --destructive-foreground: #0F1014;
 
   /* Subtle dark borders for card definition */
-  --border: #232323;
-  --input: #232323;
-  --ring: #D6D876;
+  --border: transparent;
+  --input: transparent;
+  --ring: #D4D79A;
 
-  --sidebar: #0E0E12;
+  --sidebar: #12131A;
   --sidebar-foreground: #E6E6E6;
 
-  --popover: #1A1A1F;
+  --popover: #1C1D22;
   --popover-foreground: #E6E6E6;
 
   /* Semantic colors - muted for dark mode */
-  --success: #4EBE96;
-  --success-foreground: #0B0B0F;
-  --success-light: #1A2924;
-  --warning: #D2D714;
-  --warning-foreground: #0B0B0F;
-  --warning-light: #262618;
-  --info: #479FFA;
-  --info-foreground: #0B0B0F;
-  --info-light: #1A2230;
-  --error: #FF5C5C;
-  --error-light: #2A1A1A;
+  --success: #98C8A8;
+  --success-foreground: #0F1014;
+  --success-light: #1C1D22;
+  --warning: #C8C098;
+  --warning-foreground: #0F1014;
+  --warning-light: #1C1D22;
+  --info: #98A8C8;
+  --info-foreground: #0F1014;
+  --info-light: #1C1D22;
+  --error: #C89898;
+  --error-light: #1C1D22;
 
   /* Shadows - deeper for dark mode, but cards use borders primarily */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9);
-  --shadow-focus: 0 0 0 2px rgba(214, 216, 118, 0.2);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
    DUSK THEME (Light)
-   Warm, muted palette inspired by Fey/Oscura
+   Warm neutral with olive undertones
    ============================================ */
 [data-theme="dusk"] {
-  /* Backgrounds */
   --background: #F5F5F0;
   --foreground: #131419;
-
-  /* Card surfaces */
   --card: #FFFFFF;
   --card-foreground: #131419;
-
-  /* Primary accent - muted olive/yellow */
   --primary: #B8B978;
   --primary-foreground: #131419;
-
-  /* Secondary */
   --secondary: #EAEAE5;
   --secondary-foreground: #131419;
-
-  /* Muted */
   --muted: #F0F0EB;
   --muted-foreground: #5C6974;
-
-  /* Accent */
-  --accent: #F0F0E0;
-  --accent-foreground: #B8B978;
-
-  /* Destructive */
-  --destructive: #D84F68;
+  --accent: #B8B978;
+  --accent-foreground: #131419;
+  --destructive: #B85C5C;
   --destructive-foreground: #FFFFFF;
-
-  /* Borders and inputs */
-  --border: #E0E0DB;
-  --input: #E0E0DB;
+  --border: transparent;
+  --input: transparent;
   --ring: #B8B978;
-
-  /* Sidebar */
   --sidebar: #FFFFFF;
   --sidebar-foreground: #131419;
-
-  /* Popover */
   --popover: #FFFFFF;
   --popover-foreground: #131419;
-
-  /* Semantic colors */
-  --success: #4EBE96;
+  --success: #6B8B6B;
   --success-foreground: #FFFFFF;
-  --success-light: #E0F5ED;
-  --warning: #D2D714;
+  --success-light: #E8F0E8;
+  --warning: #B8A878;
   --warning-foreground: #131419;
-  --warning-light: #F5F5D0;
-  --info: #479FFA;
+  --warning-light: #F5F0E0;
+  --info: #6B7B8B;
   --info-foreground: #FFFFFF;
-  --info-light: #E8F4FF;
-  --error: #D84F68;
-  --error-light: #FCE8EC;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(184, 185, 120, 0.2);
+  --info-light: #E8EDF2;
+  --error: #B85C5C;
+  --error-light: #F5E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
-/* ============================================
-   DUSK THEME (Dark)
-   Fey-inspired dark theme
-   ============================================ */
 [data-theme="dusk"].dark {
-  /* Backgrounds */
   --background: #131419;
   --foreground: #E6E6E6;
-
-  /* Card surfaces */
   --card: #1A1B21;
   --card-foreground: #E6E6E6;
-
-  /* Primary accent - pale yellow */
-  --primary: #E6E7A3;
+  --primary: #D4D79A;
   --primary-foreground: #131419;
-
-  /* Secondary */
   --secondary: #222329;
   --secondary-foreground: #E6E6E6;
-
-  /* Muted */
-  --muted: #16171D;
+  --muted: #1A1B21;
   --muted-foreground: #868F97;
-
-  /* Accent */
-  --accent: #2A2B1F;
-  --accent-foreground: #E6E7A3;
-
-  /* Destructive */
-  --destructive: #D84F68;
+  --accent: #D4D79A;
+  --accent-foreground: #131419;
+  --destructive: #C87878;
   --destructive-foreground: #131419;
-
-  /* Borders and inputs */
-  --border: #282828;
-  --input: #282828;
-  --ring: #E6E7A3;
-
-  /* Sidebar */
+  --border: transparent;
+  --input: transparent;
+  --ring: #D4D79A;
   --sidebar: #16171D;
   --sidebar-foreground: #E6E6E6;
-
-  /* Popover */
   --popover: #222329;
   --popover-foreground: #E6E6E6;
-
-  /* Semantic colors */
-  --success: #4EBE96;
+  --success: #8BAB8B;
   --success-foreground: #131419;
   --success-light: #1A2E28;
-  --warning: #D2D714;
+  --warning: #C8B888;
   --warning-foreground: #131419;
   --warning-light: #2A2B1A;
-  --info: #479FFA;
+  --info: #8B9BAB;
   --info-foreground: #131419;
   --info-light: #1A2433;
-  --error: #D84F68;
+  --error: #C87878;
   --error-light: #2E1A1F;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
-  --shadow-focus: 0 0 0 2px rgba(230, 231, 163, 0.25);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
-   LIME THEME (Light)
-   Fresh, energetic lime/chartreuse theme
+   STEEL THEME
+   Blue-gray monochrome with topographic depth
    ============================================ */
-[data-theme="lime"] {
-  /* Backgrounds */
-  --background: #E8F5A3;
-  --foreground: #1A1A2E;
-
-  /* Card surfaces */
+[data-theme="steel"] {
+  --background: #F1F5F9;
+  --foreground: #0F172A;
   --card: #FFFFFF;
-  --card-foreground: #1A1A2E;
-
-  /* Primary accent - purple for contrast against lime */
-  --primary: #7C3AED;
+  --card-foreground: #0F172A;
+  --primary: #64748B;
   --primary-foreground: #FFFFFF;
-
-  /* Secondary */
-  --secondary: #F5F9E8;
-  --secondary-foreground: #1A1A2E;
-
-  /* Muted */
-  --muted: #F8FAFC;
+  --secondary: #E2E8F0;
+  --secondary-foreground: #0F172A;
+  --muted: #E2E8F0;
   --muted-foreground: #64748B;
-
-  /* Accent */
-  --accent: #EDE9FE;
-  --accent-foreground: #7C3AED;
-
-  /* Destructive */
-  --destructive: #DC2626;
+  --accent: #64748B;
+  --accent-foreground: #FFFFFF;
+  --destructive: #7C6B6B;
   --destructive-foreground: #FFFFFF;
-
-  /* Borders and inputs */
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #7C3AED;
-
-  /* Sidebar */
+  --border: transparent;
+  --input: transparent;
+  --ring: #64748B;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #1A1A2E;
-
-  /* Popover */
+  --sidebar-foreground: #0F172A;
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A2E;
-
-  /* Semantic colors */
-  --success: #059669;
+  --popover-foreground: #0F172A;
+  --success: #6B8B7C;
   --success-foreground: #FFFFFF;
-  --success-light: #D1FAE5;
-  --warning: #D97706;
-  --warning-foreground: #FFFFFF;
-  --warning-light: #FEF3C7;
-  --info: #2563EB;
+  --success-light: #E8F0EC;
+  --warning: #8B8B6B;
+  --warning-foreground: #0F172A;
+  --warning-light: #F0F0E8;
+  --info: #6B7C8B;
   --info-foreground: #FFFFFF;
-  --info-light: #DBEAFE;
-  --error: #DC2626;
-  --error-light: #FEE2E2;
+  --info-light: #E8ECF0;
+  --error: #7C6B6B;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.2);
+[data-theme="steel"].dark {
+  --background: #0F172A;
+  --foreground: #E2E8F0;
+  --card: #1E293B;
+  --card-foreground: #E2E8F0;
+  --primary: #94A3B8;
+  --primary-foreground: #0F172A;
+  --secondary: #334155;
+  --secondary-foreground: #E2E8F0;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #94A3B8;
+  --accent-foreground: #0F172A;
+  --destructive: #A89090;
+  --destructive-foreground: #0F172A;
+  --border: transparent;
+  --input: transparent;
+  --ring: #94A3B8;
+  --sidebar: #1E293B;
+  --sidebar-foreground: #E2E8F0;
+  --popover: #334155;
+  --popover-foreground: #E2E8F0;
+  --success: #90A898;
+  --success-foreground: #0F172A;
+  --success-light: #1E293B;
+  --warning: #A8A890;
+  --warning-foreground: #0F172A;
+  --warning-light: #1E293B;
+  --info: #9098A8;
+  --info-foreground: #0F172A;
+  --info-light: #1E293B;
+  --error: #A89090;
+  --error-light: #1E293B;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
-   LIME THEME (Dark)
-   Fresh lime theme with deep purple undertones
-   ============================================ */
-[data-theme="lime"].dark {
-  /* Backgrounds */
-  --background: #0F0F1A;
-  --foreground: #F8FAFC;
-
-  /* Card surfaces */
-  --card: #1E1E2E;
-  --card-foreground: #F8FAFC;
-
-  /* Primary accent - bright purple for dark mode */
-  --primary: #8B5CF6;
-  --primary-foreground: #0F0F1A;
-
-  /* Secondary */
-  --secondary: #1A1A2E;
-  --secondary-foreground: #F8FAFC;
-
-  /* Muted */
-  --muted: #13131F;
-  --muted-foreground: #A1A1B5;
-
-  /* Accent */
-  --accent: #2E2350;
-  --accent-foreground: #8B5CF6;
-
-  /* Destructive */
-  --destructive: #F87171;
-  --destructive-foreground: #0F0F1A;
-
-  /* Borders and inputs */
-  --border: #2E2E40;
-  --input: #2E2E40;
-  --ring: #8B5CF6;
-
-  /* Sidebar */
-  --sidebar: #13131F;
-  --sidebar-foreground: #F8FAFC;
-
-  /* Popover */
-  --popover: #262638;
-  --popover-foreground: #F8FAFC;
-
-  /* Semantic colors */
-  --success: #34D399;
-  --success-foreground: #0F0F1A;
-  --success-light: #134E4A;
-  --warning: #FBBF24;
-  --warning-foreground: #0F0F1A;
-  --warning-light: #451A03;
-  --info: #60A5FA;
-  --info-foreground: #0F0F1A;
-  --info-light: #1E3A8A;
-  --error: #F87171;
-  --error-light: #450A0A;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
-  --shadow-focus: 0 0 0 3px rgba(139, 92, 246, 0.3);
-}
-
-/* ============================================
-   OCEAN THEME (Light)
-   Calm, professional blue tones
+   OCEAN THEME
+   Muted blue monochrome with glass layers
    ============================================ */
 [data-theme="ocean"] {
-  /* Backgrounds */
-  --background: #E0F2FE;
-  --foreground: #0C4A6E;
-
-  /* Card surfaces */
+  --background: #F0F4F8;
+  --foreground: #0A1929;
   --card: #FFFFFF;
-  --card-foreground: #0C4A6E;
-
-  /* Primary accent - sky blue */
-  --primary: #0284C7;
+  --card-foreground: #0A1929;
+  --primary: #5B7C9D;
   --primary-foreground: #FFFFFF;
-
-  /* Secondary */
-  --secondary: #F0F9FF;
-  --secondary-foreground: #0C4A6E;
-
-  /* Muted */
-  --muted: #F8FAFC;
-  --muted-foreground: #64748B;
-
-  /* Accent */
-  --accent: #E0F2FE;
-  --accent-foreground: #0284C7;
-
-  /* Destructive */
-  --destructive: #DC2626;
+  --secondary: #E3EBF3;
+  --secondary-foreground: #0A1929;
+  --muted: #E3EBF3;
+  --muted-foreground: #5B7C9D;
+  --accent: #5B7C9D;
+  --accent-foreground: #FFFFFF;
+  --destructive: #8B6B6B;
   --destructive-foreground: #FFFFFF;
-
-  /* Borders and inputs */
-  --border: #BAE6FD;
-  --input: #BAE6FD;
-  --ring: #0284C7;
-
-  /* Sidebar */
+  --border: transparent;
+  --input: transparent;
+  --ring: #5B7C9D;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0C4A6E;
-
-  /* Popover */
+  --sidebar-foreground: #0A1929;
   --popover: #FFFFFF;
-  --popover-foreground: #0C4A6E;
-
-  /* Semantic colors */
-  --success: #059669;
+  --popover-foreground: #0A1929;
+  --success: #6B8B7C;
   --success-foreground: #FFFFFF;
-  --success-light: #D1FAE5;
-  --warning: #D97706;
-  --warning-foreground: #FFFFFF;
-  --warning-light: #FEF3C7;
-  --info: #2563EB;
+  --success-light: #E8F0EC;
+  --warning: #8B8B6B;
+  --warning-foreground: #0A1929;
+  --warning-light: #F0F0E8;
+  --info: #5B7C9D;
   --info-foreground: #FFFFFF;
-  --info-light: #DBEAFE;
-  --error: #DC2626;
-  --error-light: #FEE2E2;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(2, 132, 199, 0.2);
+  --info-light: #E8EDF2;
+  --error: #8B6B6B;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
-/* ============================================
-   OCEAN THEME (Dark)
-   Deep ocean blue tones
-   ============================================ */
 [data-theme="ocean"].dark {
-  /* Backgrounds */
-  --background: #082F49;
-  --foreground: #F0F9FF;
-
-  /* Card surfaces */
-  --card: #164E63;
-  --card-foreground: #F0F9FF;
-
-  /* Primary accent - bright sky blue */
-  --primary: #38BDF8;
-  --primary-foreground: #082F49;
-
-  /* Secondary */
-  --secondary: #0C4A6E;
-  --secondary-foreground: #F0F9FF;
-
-  /* Muted */
-  --muted: #0A3D5C;
-  --muted-foreground: #7DD3FC;
-
-  /* Accent */
-  --accent: #0C4A6E;
-  --accent-foreground: #38BDF8;
-
-  /* Destructive */
-  --destructive: #F87171;
-  --destructive-foreground: #082F49;
-
-  /* Borders and inputs */
-  --border: #0E7490;
-  --input: #0E7490;
-  --ring: #38BDF8;
-
-  /* Sidebar */
-  --sidebar: #0A3D5C;
-  --sidebar-foreground: #F0F9FF;
-
-  /* Popover */
-  --popover: #1E6B8A;
-  --popover-foreground: #F0F9FF;
-
-  /* Semantic colors */
-  --success: #34D399;
-  --success-foreground: #082F49;
-  --success-light: #134E4A;
-  --warning: #FBBF24;
-  --warning-foreground: #082F49;
-  --warning-light: #451A03;
-  --info: #60A5FA;
-  --info-foreground: #082F49;
-  --info-light: #1E3A8A;
-  --error: #F87171;
-  --error-light: #450A0A;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
-  --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.3);
+  --background: #0A1929;
+  --foreground: #E3EBF3;
+  --card: #132337;
+  --card-foreground: #E3EBF3;
+  --primary: #7A9BC4;
+  --primary-foreground: #0A1929;
+  --secondary: #1C3A52;
+  --secondary-foreground: #E3EBF3;
+  --muted: #132337;
+  --muted-foreground: #7A9BC4;
+  --accent: #7A9BC4;
+  --accent-foreground: #0A1929;
+  --destructive: #A89090;
+  --destructive-foreground: #0A1929;
+  --border: transparent;
+  --input: transparent;
+  --ring: #7A9BC4;
+  --sidebar: #132337;
+  --sidebar-foreground: #E3EBF3;
+  --popover: #1C3A52;
+  --popover-foreground: #E3EBF3;
+  --success: #90A898;
+  --success-foreground: #0A1929;
+  --success-light: #132337;
+  --warning: #A8A890;
+  --warning-foreground: #0A1929;
+  --warning-light: #132337;
+  --info: #7A9BC4;
+  --info-foreground: #0A1929;
+  --info-light: #132337;
+  --error: #A89090;
+  --error-light: #132337;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
-   RETRO THEME (Light)
-   Warm, nostalgic amber/orange vibes
+   STONE THEME
+   Warm taupe monochrome with subtle gradients
    ============================================ */
-[data-theme="retro"] {
-  /* Backgrounds */
-  --background: #FEF3C7;
-  --foreground: #78350F;
-
-  /* Card surfaces */
+[data-theme="stone"] {
+  --background: #F5F3F0;
+  --foreground: #1C1917;
   --card: #FFFFFF;
-  --card-foreground: #78350F;
-
-  /* Primary accent - warm amber/orange */
-  --primary: #D97706;
+  --card-foreground: #1C1917;
+  --primary: #8B7E74;
   --primary-foreground: #FFFFFF;
-
-  /* Secondary */
-  --secondary: #FFFBEB;
-  --secondary-foreground: #78350F;
-
-  /* Muted */
-  --muted: #FEFCE8;
-  --muted-foreground: #92400E;
-
-  /* Accent */
-  --accent: #FEF3C7;
-  --accent-foreground: #D97706;
-
-  /* Destructive */
-  --destructive: #B91C1C;
+  --secondary: #E7E2DC;
+  --secondary-foreground: #1C1917;
+  --muted: #E7E2DC;
+  --muted-foreground: #8B7E74;
+  --accent: #8B7E74;
+  --accent-foreground: #FFFFFF;
+  --destructive: #8B7474;
   --destructive-foreground: #FFFFFF;
-
-  /* Borders and inputs */
-  --border: #FDE68A;
-  --input: #FDE68A;
-  --ring: #D97706;
-
-  /* Sidebar */
+  --border: transparent;
+  --input: transparent;
+  --ring: #8B7E74;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #78350F;
-
-  /* Popover */
+  --sidebar-foreground: #1C1917;
   --popover: #FFFFFF;
-  --popover-foreground: #78350F;
-
-  /* Semantic colors */
-  --success: #15803D;
+  --popover-foreground: #1C1917;
+  --success: #748B7E;
   --success-foreground: #FFFFFF;
-  --success-light: #DCFCE7;
-  --warning: #CA8A04;
-  --warning-foreground: #78350F;
-  --warning-light: #FEF9C3;
-  --info: #1D4ED8;
-  --info-foreground: #FFFFFF;
-  --info-light: #DBEAFE;
-  --error: #B91C1C;
-  --error-light: #FEE2E2;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(217, 119, 6, 0.2);
-}
-
-/* ============================================
-   RETRO THEME (Dark)
-   Warm stone/brown tones with golden accents
-   ============================================ */
-[data-theme="retro"].dark {
-  /* Backgrounds */
-  --background: #1C1917;
-  --foreground: #FEFCE8;
-
-  /* Card surfaces */
-  --card: #44403C;
-  --card-foreground: #FEFCE8;
-
-  /* Primary accent - bright amber/gold */
-  --primary: #FBBF24;
-  --primary-foreground: #1C1917;
-
-  /* Secondary */
-  --secondary: #292524;
-  --secondary-foreground: #FEFCE8;
-
-  /* Muted */
-  --muted: #1C1917;
-  --muted-foreground: #FDE68A;
-
-  /* Accent */
-  --accent: #451A03;
-  --accent-foreground: #FBBF24;
-
-  /* Destructive */
-  --destructive: #F87171;
-  --destructive-foreground: #1C1917;
-
-  /* Borders and inputs */
-  --border: #78716C;
-  --input: #78716C;
-  --ring: #FBBF24;
-
-  /* Sidebar */
-  --sidebar: #1C1917;
-  --sidebar-foreground: #FEFCE8;
-
-  /* Popover */
-  --popover: #57534E;
-  --popover-foreground: #FEFCE8;
-
-  /* Semantic colors */
-  --success: #4ADE80;
-  --success-foreground: #1C1917;
-  --success-light: #14532D;
-  --warning: #FACC15;
+  --success-light: #EBF0EC;
+  --warning: #8B8574;
   --warning-foreground: #1C1917;
-  --warning-light: #422006;
-  --info: #60A5FA;
+  --warning-light: #F0EEE8;
+  --info: #748B8B;
+  --info-foreground: #FFFFFF;
+  --info-light: #EBEFF0;
+  --error: #8B7474;
+  --error-light: #F0EBEB;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="stone"].dark {
+  --background: #1C1917;
+  --foreground: #E7E2DC;
+  --card: #292524;
+  --card-foreground: #E7E2DC;
+  --primary: #A89C92;
+  --primary-foreground: #1C1917;
+  --secondary: #44403C;
+  --secondary-foreground: #E7E2DC;
+  --muted: #292524;
+  --muted-foreground: #A89C92;
+  --accent: #A89C92;
+  --accent-foreground: #1C1917;
+  --destructive: #A89898;
+  --destructive-foreground: #1C1917;
+  --border: transparent;
+  --input: transparent;
+  --ring: #A89C92;
+  --sidebar: #292524;
+  --sidebar-foreground: #E7E2DC;
+  --popover: #44403C;
+  --popover-foreground: #E7E2DC;
+  --success: #98A89C;
+  --success-foreground: #1C1917;
+  --success-light: #292524;
+  --warning: #A8A498;
+  --warning-foreground: #1C1917;
+  --warning-light: #292524;
+  --info: #98A8A8;
   --info-foreground: #1C1917;
-  --info-light: #1E3A8A;
-  --error: #F87171;
-  --error-light: #450A0A;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
-  --shadow-focus: 0 0 0 3px rgba(251, 191, 36, 0.3);
+  --info-light: #292524;
+  --error: #A89898;
+  --error-light: #292524;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
-   NEO THEME (Light)
-   Modern, cyberpunk-inspired pink/purple palette
+   MOSS THEME
+   Green-gray monochrome topographic layers
    ============================================ */
-[data-theme="neo"] {
+[data-theme="moss"] {
+  --background: #F2F4F1;
+  --foreground: #0F1512;
+  --card: #FFFFFF;
+  --card-foreground: #0F1512;
+  --primary: #6B7C6E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E4E8E2;
+  --secondary-foreground: #0F1512;
+  --muted: #E4E8E2;
+  --muted-foreground: #6B7C6E;
+  --accent: #6B7C6E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #7C6B6B;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #6B7C6E;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F1512;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F1512;
+  --success: #6B7C6E;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0E8;
+  --warning: #7C7C6B;
+  --warning-foreground: #0F1512;
+  --warning-light: #F0F0E8;
+  --info: #6B747C;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #7C6B6B;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="moss"].dark {
+  --background: #0F1512;
+  --foreground: #E4E8E2;
+  --card: #1A211D;
+  --card-foreground: #E4E8E2;
+  --primary: #8A9D8E;
+  --primary-foreground: #0F1512;
+  --secondary: #2A332C;
+  --secondary-foreground: #E4E8E2;
+  --muted: #1A211D;
+  --muted-foreground: #8A9D8E;
+  --accent: #8A9D8E;
+  --accent-foreground: #0F1512;
+  --destructive: #9D8A8A;
+  --destructive-foreground: #0F1512;
+  --border: transparent;
+  --input: transparent;
+  --ring: #8A9D8E;
+  --sidebar: #1A211D;
+  --sidebar-foreground: #E4E8E2;
+  --popover: #2A332C;
+  --popover-foreground: #E4E8E2;
+  --success: #8A9D8E;
+  --success-foreground: #0F1512;
+  --success-light: #1A211D;
+  --warning: #9D9D8A;
+  --warning-foreground: #0F1512;
+  --warning-light: #1A211D;
+  --info: #8A949D;
+  --info-foreground: #0F1512;
+  --info-light: #1A211D;
+  --error: #9D8A8A;
+  --error-light: #1A211D;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   FROST THEME
+   Cool blue-white monochrome with ice tones
+   ============================================ */
+[data-theme="frost"] {
+  --background: #F7F9FB;
+  --foreground: #0C1419;
+  --card: #FFFFFF;
+  --card-foreground: #0C1419;
+  --primary: #7C8A99;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8ECF0;
+  --secondary-foreground: #0C1419;
+  --muted: #E8ECF0;
+  --muted-foreground: #7C8A99;
+  --accent: #7C8A99;
+  --accent-foreground: #FFFFFF;
+  --destructive: #8A7C7C;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #7C8A99;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0C1419;
+  --popover: #FFFFFF;
+  --popover-foreground: #0C1419;
+  --success: #7C8A82;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EC;
+  --warning: #8A8A7C;
+  --warning-foreground: #0C1419;
+  --warning-light: #F0F0E8;
+  --info: #7C8A99;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #8A7C7C;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="frost"].dark {
+  --background: #0C1419;
+  --foreground: #E8ECF0;
+  --card: #161E26;
+  --card-foreground: #E8ECF0;
+  --primary: #9CAAB9;
+  --primary-foreground: #0C1419;
+  --secondary: #263038;
+  --secondary-foreground: #E8ECF0;
+  --muted: #161E26;
+  --muted-foreground: #9CAAB9;
+  --accent: #9CAAB9;
+  --accent-foreground: #0C1419;
+  --destructive: #AA9C9C;
+  --destructive-foreground: #0C1419;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9CAAB9;
+  --sidebar: #161E26;
+  --sidebar-foreground: #E8ECF0;
+  --popover: #263038;
+  --popover-foreground: #E8ECF0;
+  --success: #9CAAA2;
+  --success-foreground: #0C1419;
+  --success-light: #161E26;
+  --warning: #AAAA9C;
+  --warning-foreground: #0C1419;
+  --warning-light: #161E26;
+  --info: #9CAAB9;
+  --info-foreground: #0C1419;
+  --info-light: #161E26;
+  --error: #AA9C9C;
+  --error-light: #161E26;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   ASH THEME
+   Purple-gray monochrome with soft contrast
+   ============================================ */
+[data-theme="ash"] {
+  --background: #F4F3F6;
+  --foreground: #131218;
+  --card: #FFFFFF;
+  --card-foreground: #131218;
+  --primary: #7C7486;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8E6EC;
+  --secondary-foreground: #131218;
+  --muted: #E8E6EC;
+  --muted-foreground: #7C7486;
+  --accent: #7C7486;
+  --accent-foreground: #FFFFFF;
+  --destructive: #867474;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #7C7486;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #131218;
+  --popover: #FFFFFF;
+  --popover-foreground: #131218;
+  --success: #748678;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EA;
+  --warning: #86867C;
+  --warning-foreground: #131218;
+  --warning-light: #F0F0EA;
+  --info: #747C86;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #867474;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="ash"].dark {
+  --background: #131218;
+  --foreground: #E8E6EC;
+  --card: #1D1B24;
+  --card-foreground: #E8E6EC;
+  --primary: #9C94AE;
+  --primary-foreground: #131218;
+  --secondary: #2D2A38;
+  --secondary-foreground: #E8E6EC;
+  --muted: #1D1B24;
+  --muted-foreground: #9C94AE;
+  --accent: #9C94AE;
+  --accent-foreground: #131218;
+  --destructive: #AE9898;
+  --destructive-foreground: #131218;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9C94AE;
+  --sidebar: #1D1B24;
+  --sidebar-foreground: #E8E6EC;
+  --popover: #2D2A38;
+  --popover-foreground: #E8E6EC;
+  --success: #98AE9C;
+  --success-foreground: #131218;
+  --success-light: #1D1B24;
+  --warning: #AEAE9C;
+  --warning-foreground: #131218;
+  --warning-light: #1D1B24;
+  --info: #989CAE;
+  --info-foreground: #131218;
+  --info-light: #1D1B24;
+  --error: #AE9898;
+  --error-light: #1D1B24;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+
+
+/* ============================================
+   Subtle Theme
+   ============================================ */
+
+[data-theme="subtle"] {
   /* Backgrounds */
-  --background: #FDF4FF;
-  --foreground: #581C87;
+  --background: #FAFAF8;
+  --foreground: #232325;
 
   /* Card surfaces */
-  --card: #FFFFFF;
-  --card-foreground: #581C87;
+  --card: #FDFDFB;
+  --card-foreground: #232325;
 
-  /* Primary accent - fuchsia/magenta */
-  --primary: #D946EF;
-  --primary-foreground: #FFFFFF;
+  /* Primary accent */
+  --primary: #6B6B70;
+  --primary-foreground: #121213;
 
   /* Secondary */
-  --secondary: #FAF5FF;
-  --secondary-foreground: #581C87;
+  --secondary: #A8A8AD;
+  --secondary-foreground: #232325;
 
   /* Muted */
-  --muted: #F5F3FF;
-  --muted-foreground: #7C3AED;
+  --muted: #F0F0EE;
+  --muted-foreground: #4B4B4E;
 
   /* Accent */
-  --accent: #FAE8FF;
-  --accent-foreground: #D946EF;
+  --accent: #6B6B70;
+  --accent-foreground: #151516;
 
   /* Destructive */
-  --destructive: #E11D48;
+  --destructive: #BE4646;
   --destructive-foreground: #FFFFFF;
 
   /* Borders and inputs */
-  --border: #F0ABFC;
-  --input: #F0ABFC;
-  --ring: #D946EF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #6B6B7080;
 
   /* Sidebar */
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #581C87;
+  --sidebar: #FDFDFB;
+  --sidebar-foreground: #232325;
 
   /* Popover */
-  --popover: #FFFFFF;
-  --popover-foreground: #581C87;
+  --popover: #FFFFFD;
+  --popover-foreground: #232325;
 
   /* Semantic colors */
-  --success: #06B6D4;
-  --success-foreground: #FFFFFF;
-  --success-light: #CFFAFE;
-  --warning: #F59E0B;
-  --warning-foreground: #581C87;
-  --warning-light: #FEF3C7;
-  --info: #8B5CF6;
-  --info-foreground: #FFFFFF;
-  --info-light: #EDE9FE;
-  --error: #E11D48;
-  --error-light: #FFE4E6;
+  --success: #46B446;
+  --success-foreground: #232325;
+  --success-light: #F5FAF5;
+  --warning: #C8AA46;
+  --warning-foreground: #232325;
+  --warning-light: #FAF8F0;
+  --info: #4682C8;
+  --info-foreground: #232325;
+  --info-light: #F0F6FA;
+  --error: #BE4646;
+  --error-light: #FAF0F0;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(217, 70, 239, 0.2);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
-/* ============================================
-   NEO THEME (Dark)
-   Cyberpunk dark mode with neon pink/purple glow
-   ============================================ */
-[data-theme="neo"].dark {
+[data-theme="subtle"].dark {
   /* Backgrounds */
-  --background: #0F0720;
-  --foreground: #FAF5FF;
+  --background: #0A0A0B;
+  --foreground: #D2D2D4;
 
   /* Card surfaces */
-  --card: #2D1B4E;
-  --card-foreground: #FAF5FF;
+  --card: #19191A;
+  --card-foreground: #D2D2D4;
 
-  /* Primary accent - bright pink/fuchsia */
-  --primary: #F0ABFC;
-  --primary-foreground: #0F0720;
-
-  /* Secondary */
-  --secondary: #1A0A30;
-  --secondary-foreground: #FAF5FF;
-
-  /* Muted */
-  --muted: #150825;
-  --muted-foreground: #E879F9;
-
-  /* Accent */
-  --accent: #581C87;
-  --accent-foreground: #F0ABFC;
-
-  /* Destructive */
-  --destructive: #FB7185;
-  --destructive-foreground: #0F0720;
-
-  /* Borders and inputs */
-  --border: #581C87;
-  --input: #581C87;
-  --ring: #F0ABFC;
-
-  /* Sidebar */
-  --sidebar: #150825;
-  --sidebar-foreground: #FAF5FF;
-
-  /* Popover */
-  --popover: #3D2563;
-  --popover-foreground: #FAF5FF;
-
-  /* Semantic colors */
-  --success: #22D3EE;
-  --success-foreground: #0F0720;
-  --success-light: #164E63;
-  --warning: #FBBF24;
-  --warning-foreground: #0F0720;
-  --warning-light: #451A03;
-  --info: #A78BFA;
-  --info-foreground: #0F0720;
-  --info-light: #4C1D95;
-  --error: #FB7185;
-  --error-light: #4C0519;
-
-  /* Shadows - with subtle neon glow effect */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 0 20px rgba(217, 70, 239, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 0 30px rgba(217, 70, 239, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 0 40px rgba(217, 70, 239, 0.15);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 0 50px rgba(217, 70, 239, 0.2);
-  --shadow-focus: 0 0 0 3px rgba(240, 171, 252, 0.4);
-}
-
-/* ============================================
-   FOREST THEME (Light)
-   Natural, earthy green tones
-   ============================================ */
-[data-theme="forest"] {
-  /* Backgrounds */
-  --background: #DCFCE7;
-  --foreground: #14532D;
-
-  /* Card surfaces */
-  --card: #FFFFFF;
-  --card-foreground: #14532D;
-
-  /* Primary accent - natural green */
-  --primary: #16A34A;
-  --primary-foreground: #FFFFFF;
+  /* Primary accent */
+  --primary: #9A9AA0;
+  --primary-foreground: #E6E6E8;
 
   /* Secondary */
-  --secondary: #F0FDF4;
-  --secondary-foreground: #14532D;
+  --secondary: #28282A;
+  --secondary-foreground: #D2D2D4;
 
   /* Muted */
-  --muted: #ECFDF5;
-  --muted-foreground: #166534;
+  --muted: #282829;
+  --muted-foreground: #AEAEB2;
 
   /* Accent */
-  --accent: #DCFCE7;
-  --accent-foreground: #16A34A;
+  --accent: #9A9AA0;
+  --accent-foreground: #DCDCDE;
 
   /* Destructive */
-  --destructive: #DC2626;
+  --destructive: #B43C3C;
   --destructive-foreground: #FFFFFF;
 
   /* Borders and inputs */
-  --border: #86EFAC;
-  --input: #86EFAC;
-  --ring: #16A34A;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9A9AA066;
 
   /* Sidebar */
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #14532D;
+  --sidebar: #282829;
+  --sidebar-foreground: #D2D2D4;
 
   /* Popover */
-  --popover: #FFFFFF;
-  --popover-foreground: #14532D;
+  --popover: #23232A;
+  --popover-foreground: #D2D2D4;
 
   /* Semantic colors */
-  --success: #059669;
-  --success-foreground: #FFFFFF;
-  --success-light: #D1FAE5;
-  --warning: #CA8A04;
-  --warning-foreground: #14532D;
-  --warning-light: #FEF9C3;
-  --info: #0284C7;
-  --info-foreground: #FFFFFF;
-  --info-light: #E0F2FE;
-  --error: #DC2626;
-  --error-light: #FEE2E2;
+  --success: #3CAA3C;
+  --success-foreground: #0A0A0B;
+  --success-light: #28282A;
+  --warning: #BEA03C;
+  --warning-foreground: #0A0A0B;
+  --warning-light: #28282A;
+  --info: #3C78BE;
+  --info-foreground: #0A0A0B;
+  --info-light: #28282A;
+  --error: #B43C3C;
+  --error-light: #28282A;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.2);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* ============================================
-   FOREST THEME (Dark)
-   Deep forest green tones with bright green accents
+   Mono Theme
    ============================================ */
-[data-theme="forest"].dark {
+
+[data-theme="mono"] {
   /* Backgrounds */
-  --background: #052E16;
-  --foreground: #F0FDF4;
+  --background: #F8F8F8;
+  --foreground: #222222;
 
   /* Card surfaces */
-  --card: #166534;
-  --card-foreground: #F0FDF4;
+  --card: #FBFBFB;
+  --card-foreground: #222222;
 
-  /* Primary accent - bright green for dark mode */
-  --primary: #4ADE80;
-  --primary-foreground: #052E16;
+  /* Primary accent */
+  --primary: #666666;
+  --primary-foreground: #111111;
 
   /* Secondary */
-  --secondary: #14532D;
-  --secondary-foreground: #F0FDF4;
+  --secondary: #A3A3A3;
+  --secondary-foreground: #222222;
 
   /* Muted */
-  --muted: #0A3D1F;
-  --muted-foreground: #86EFAC;
+  --muted: #EEEEEE;
+  --muted-foreground: #474747;
 
   /* Accent */
-  --accent: #14532D;
-  --accent-foreground: #4ADE80;
+  --accent: #666666;
+  --accent-foreground: #141414;
 
   /* Destructive */
-  --destructive: #F87171;
-  --destructive-foreground: #052E16;
+  --destructive: #AA4646;
+  --destructive-foreground: #FFFFFF;
 
   /* Borders and inputs */
-  --border: #166534;
-  --input: #166534;
-  --ring: #4ADE80;
+  --border: transparent;
+  --input: transparent;
+  --ring: #66666680;
 
   /* Sidebar */
-  --sidebar: #0A3D1F;
-  --sidebar-foreground: #F0FDF4;
+  --sidebar: #FBFBFB;
+  --sidebar-foreground: #222222;
 
   /* Popover */
-  --popover: #15803D;
-  --popover-foreground: #F0FDF4;
+  --popover: #FDFDFD;
+  --popover-foreground: #222222;
 
   /* Semantic colors */
-  --success: #34D399;
-  --success-foreground: #052E16;
-  --success-light: #064E3B;
-  --warning: #FBBF24;
-  --warning-foreground: #052E16;
-  --warning-light: #451A03;
-  --info: #38BDF8;
-  --info-foreground: #052E16;
-  --info-light: #0C4A6E;
-  --error: #F87171;
-  --error-light: #450A0A;
+  --success: #46AA46;
+  --success-foreground: #222222;
+  --success-light: #F5F5F5;
+  --warning: #BEAA46;
+  --warning-foreground: #222222;
+  --warning-light: #F8F8F8;
+  --info: #467BBE;
+  --info-foreground: #222222;
+  --info-light: #F5F8FA;
+  --error: #AA4646;
+  --error-light: #FAF0F0;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
-  --shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.3);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="mono"].dark {
+  /* Backgrounds */
+  --background: #0D0D0D;
+  --foreground: #CCCCCC;
+
+  /* Card surfaces */
+  --card: #1C1C1C;
+  --card-foreground: #CCCCCC;
+
+  /* Primary accent */
+  --primary: #AAAAAA;
+  --primary-foreground: #E1E1E1;
+
+  /* Secondary */
+  --secondary: #2A2A2A;
+  --secondary-foreground: #CCCCCC;
+
+  /* Muted */
+  --muted: #2B2B2B;
+  --muted-foreground: #BBBBBB;
+
+  /* Accent */
+  --accent: #AAAAAA;
+  --accent-foreground: #D5D5D5;
+
+  /* Destructive */
+  --destructive: #A03C3C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #AAAAAA66;
+
+  /* Sidebar */
+  --sidebar: #2B2B2B;
+  --sidebar-foreground: #CCCCCC;
+
+  /* Popover */
+  --popover: #262626;
+  --popover-foreground: #CCCCCC;
+
+  /* Semantic colors */
+  --success: #3CA03C;
+  --success-foreground: #0D0D0D;
+  --success-light: #2A2A2A;
+  --warning: #B4963C;
+  --warning-foreground: #0D0D0D;
+  --warning-light: #2A2A2A;
+  --info: #3C6EB4;
+  --info-foreground: #0D0D0D;
+  --info-light: #2A2A2A;
+  --error: #A03C3C;
+  --error-light: #2A2A2A;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   Midnight Theme
+   ============================================ */
+
+[data-theme="midnight"] {
+  /* Backgrounds */
+  --background: #EFF6FF;
+  --foreground: #123159;
+
+  /* Card surfaces */
+  --card: #F4F9FF;
+  --card-foreground: #123159;
+
+  /* Primary accent */
+  --primary: #3B82F6;
+  --primary-foreground: #09182C;
+
+  /* Secondary */
+  --secondary: #93B8ED;
+  --secondary-foreground: #123159;
+
+  /* Muted */
+  --muted: #E5F1FF;
+  --muted-foreground: #295BAC;
+
+  /* Accent */
+  --accent: #3B82F6;
+  --accent-foreground: #0C203B;
+
+  /* Destructive */
+  --destructive: #DC5064;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #3B82F680;
+
+  /* Sidebar */
+  --sidebar: #F4F9FF;
+  --sidebar-foreground: #123159;
+
+  /* Popover */
+  --popover: #F8FBFF;
+  --popover-foreground: #123159;
+
+  /* Semantic colors */
+  --success: #50C878;
+  --success-foreground: #123159;
+  --success-light: #F0FAF4;
+  --warning: #E6B450;
+  --warning-foreground: #123159;
+  --warning-light: #FBF8F0;
+  --info: #3B82F6;
+  --info-foreground: #123159;
+  --info-light: #EFF6FF;
+  --error: #DC5064;
+  --error-light: #FAF0F2;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="midnight"].dark {
+  /* Backgrounds */
+  --background: #0A1628;
+  --foreground: #BDDCFA;
+
+  /* Card surfaces */
+  --card: #142032;
+  --card-foreground: #BDDCFA;
+
+  /* Primary accent */
+  --primary: #60A5FA;
+  --primary-foreground: #E0EFFC;
+
+  /* Secondary */
+  --secondary: #1E2A3C;
+  --secondary-foreground: #BDDCFA;
+
+  /* Muted */
+  --muted: #283446;
+  --muted-foreground: #7EB9FB;
+
+  /* Accent */
+  --accent: #60A5FA;
+  --accent-foreground: #CFE5FB;
+
+  /* Destructive */
+  --destructive: #C8465A;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: transparent;
+  --input: transparent;
+  --ring: #60A5FA66;
+
+  /* Sidebar */
+  --sidebar: #283446;
+  --sidebar-foreground: #BDDCFA;
+
+  /* Popover */
+  --popover: #1E2A3C;
+  --popover-foreground: #BDDCFA;
+
+  /* Semantic colors */
+  --success: #46BE6E;
+  --success-foreground: #0A1628;
+  --success-light: #1E2A3C;
+  --warning: #D2AA46;
+  --warning-foreground: #0A1628;
+  --warning-light: #1E2A3C;
+  --info: #60A5FA;
+  --info-foreground: #0A1628;
+  --info-light: #1E2A3C;
+  --error: #C8465A;
+  --error-light: #1E2A3C;
+
+  /* Shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   SAND THEME
+   Warm beige monochrome with layered depth
+   ============================================ */
+[data-theme="sand"] {
+  --background: #F8F6F3;
+  --foreground: #1A1714;
+  --card: #FFFFFF;
+  --card-foreground: #1A1714;
+  --primary: #9A8F7E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EBE7E2;
+  --secondary-foreground: #1A1714;
+  --muted: #EBE7E2;
+  --muted-foreground: #9A8F7E;
+  --accent: #9A8F7E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #8F7E7E;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9A8F7E;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1A1714;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1714;
+  --success: #7E8F82;
+  --success-foreground: #FFFFFF;
+  --success-light: #EBF0EC;
+  --warning: #8F8F7E;
+  --warning-foreground: #1A1714;
+  --warning-light: #F0F0E8;
+  --info: #7E8A8F;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #8F7E7E;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="sand"].dark {
+  --background: #1A1714;
+  --foreground: #EBE7E2;
+  --card: #262320;
+  --card-foreground: #EBE7E2;
+  --primary: #B8AD9C;
+  --primary-foreground: #1A1714;
+  --secondary: #3A3632;
+  --secondary-foreground: #EBE7E2;
+  --muted: #262320;
+  --muted-foreground: #B8AD9C;
+  --accent: #B8AD9C;
+  --accent-foreground: #1A1714;
+  --destructive: #AD9C9C;
+  --destructive-foreground: #1A1714;
+  --border: transparent;
+  --input: transparent;
+  --ring: #B8AD9C;
+  --sidebar: #262320;
+  --sidebar-foreground: #EBE7E2;
+  --popover: #3A3632;
+  --popover-foreground: #EBE7E2;
+  --success: #9CAD9C;
+  --success-foreground: #1A1714;
+  --success-light: #262320;
+  --warning: #ADAD9C;
+  --warning-foreground: #1A1714;
+  --warning-light: #262320;
+  --info: #9CA8AD;
+  --info-foreground: #1A1714;
+  --info-light: #262320;
+  --error: #AD9C9C;
+  --error-light: #262320;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   CHARCOAL THEME
+   Dark gray monochrome with topographic contrast
+   ============================================ */
+[data-theme="charcoal"] {
+  --background: #F3F4F6;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
+  --primary: #6B7280;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E5E7EB;
+  --secondary-foreground: #111827;
+  --muted: #E5E7EB;
+  --muted-foreground: #6B7280;
+  --accent: #6B7280;
+  --accent-foreground: #FFFFFF;
+  --destructive: #7B6B6B;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #6B7280;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111827;
+  --popover: #FFFFFF;
+  --popover-foreground: #111827;
+  --success: #6B7B70;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EA;
+  --warning: #7B7B6B;
+  --warning-foreground: #111827;
+  --warning-light: #F0F0E8;
+  --info: #6B7080;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8EBF0;
+  --error: #7B6B6B;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="charcoal"].dark {
+  --background: #111827;
+  --foreground: #E5E7EB;
+  --card: #1F2937;
+  --card-foreground: #E5E7EB;
+  --primary: #9CA3AF;
+  --primary-foreground: #111827;
+  --secondary: #374151;
+  --secondary-foreground: #E5E7EB;
+  --muted: #1F2937;
+  --muted-foreground: #9CA3AF;
+  --accent: #9CA3AF;
+  --accent-foreground: #111827;
+  --destructive: #AF9C9C;
+  --destructive-foreground: #111827;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9CA3AF;
+  --sidebar: #1F2937;
+  --sidebar-foreground: #E5E7EB;
+  --popover: #374151;
+  --popover-foreground: #E5E7EB;
+  --success: #9CAF9C;
+  --success-foreground: #111827;
+  --success-light: #1F2937;
+  --warning: #AFAF9C;
+  --warning-foreground: #111827;
+  --warning-light: #1F2937;
+  --info: #9CA3AF;
+  --info-foreground: #111827;
+  --info-light: #1F2937;
+  --error: #AF9C9C;
+  --error-light: #1F2937;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   SAGE THEME
+   Muted sage monochrome with natural layers
+   ============================================ */
+[data-theme="sage"] {
+  --background: #F4F5F3;
+  --foreground: #111613;
+  --card: #FFFFFF;
+  --card-foreground: #111613;
+  --primary: #7A8577;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E5E8E3;
+  --secondary-foreground: #111613;
+  --muted: #E5E8E3;
+  --muted-foreground: #7A8577;
+  --accent: #7A8577;
+  --accent-foreground: #FFFFFF;
+  --destructive: #85777A;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #7A8577;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111613;
+  --popover: #FFFFFF;
+  --popover-foreground: #111613;
+  --success: #7A8577;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0E8;
+  --warning: #85857A;
+  --warning-foreground: #111613;
+  --warning-light: #F0F0E8;
+  --info: #777A85;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8EAF0;
+  --error: #85777A;
+  --error-light: #F0E8EA;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="sage"].dark {
+  --background: #111613;
+  --foreground: #E5E8E3;
+  --card: #1C211E;
+  --card-foreground: #E5E8E3;
+  --primary: #9AAA97;
+  --primary-foreground: #111613;
+  --secondary: #2C332E;
+  --secondary-foreground: #E5E8E3;
+  --muted: #1C211E;
+  --muted-foreground: #9AAA97;
+  --accent: #9AAA97;
+  --accent-foreground: #111613;
+  --destructive: #AA979A;
+  --destructive-foreground: #111613;
+  --border: transparent;
+  --input: transparent;
+  --ring: #9AAA97;
+  --sidebar: #1C211E;
+  --sidebar-foreground: #E5E8E3;
+  --popover: #2C332E;
+  --popover-foreground: #E5E8E3;
+  --success: #9AAA97;
+  --success-foreground: #111613;
+  --success-light: #1C211E;
+  --warning: #AAAA9A;
+  --warning-foreground: #111613;
+  --warning-light: #1C211E;
+  --info: #979AAA;
+  --info-foreground: #111613;
+  --info-light: #1C211E;
+  --error: #AA979A;
+  --error-light: #1C211E;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   INK THEME
+   Blue-black monochrome with subtle depth
+   ============================================ */
+[data-theme="ink"] {
+  --background: #F2F4F6;
+  --foreground: #0D1117;
+  --card: #FFFFFF;
+  --card-foreground: #0D1117;
+  --primary: #5B6B7A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E3E8ED;
+  --secondary-foreground: #0D1117;
+  --muted: #E3E8ED;
+  --muted-foreground: #5B6B7A;
+  --accent: #5B6B7A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #7A6B6B;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #5B6B7A;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0D1117;
+  --popover: #FFFFFF;
+  --popover-foreground: #0D1117;
+  --success: #6B7A6E;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EA;
+  --warning: #7A7A6B;
+  --warning-foreground: #0D1117;
+  --warning-light: #F0F0E8;
+  --info: #5B6B7A;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #7A6B6B;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="ink"].dark {
+  --background: #0D1117;
+  --foreground: #E3E8ED;
+  --card: #161B22;
+  --card-foreground: #E3E8ED;
+  --primary: #7B8B9A;
+  --primary-foreground: #0D1117;
+  --secondary: #21262D;
+  --secondary-foreground: #E3E8ED;
+  --muted: #161B22;
+  --muted-foreground: #7B8B9A;
+  --accent: #7B8B9A;
+  --accent-foreground: #0D1117;
+  --destructive: #9A8B8B;
+  --destructive-foreground: #0D1117;
+  --border: transparent;
+  --input: transparent;
+  --ring: #7B8B9A;
+  --sidebar: #161B22;
+  --sidebar-foreground: #E3E8ED;
+  --popover: #21262D;
+  --popover-foreground: #E3E8ED;
+  --success: #8B9A8E;
+  --success-foreground: #0D1117;
+  --success-light: #161B22;
+  --warning: #9A9A8B;
+  --warning-foreground: #0D1117;
+  --warning-light: #161B22;
+  --info: #7B8B9A;
+  --info-foreground: #0D1117;
+  --info-light: #161B22;
+  --error: #9A8B8B;
+  --error-light: #161B22;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   PEARL THEME
+   Soft white-gray with iridescent glass layers
+   ============================================ */
+[data-theme="pearl"] {
+  --background: #FAFBFC;
+  --foreground: #16181A;
+  --card: #FFFFFF;
+  --card-foreground: #16181A;
+  --primary: #8A8E93;
+  --primary-foreground: #FFFFFF;
+  --secondary: #ECEFF2;
+  --secondary-foreground: #16181A;
+  --muted: #ECEFF2;
+  --muted-foreground: #8A8E93;
+  --accent: #8A8E93;
+  --accent-foreground: #FFFFFF;
+  --destructive: #938A8A;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #8A8E93;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #16181A;
+  --popover: #FFFFFF;
+  --popover-foreground: #16181A;
+  --success: #8A938C;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EA;
+  --warning: #93938A;
+  --warning-foreground: #16181A;
+  --warning-light: #F0F0E8;
+  --info: #8A8E93;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #938A8A;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="pearl"].dark {
+  --background: #16181A;
+  --foreground: #ECEFF2;
+  --card: #1E2024;
+  --card-foreground: #ECEFF2;
+  --primary: #AAAEBD;
+  --primary-foreground: #16181A;
+  --secondary: #2C2E32;
+  --secondary-foreground: #ECEFF2;
+  --muted: #1E2024;
+  --muted-foreground: #AAAEBD;
+  --accent: #AAAEBD;
+  --accent-foreground: #16181A;
+  --destructive: #BDAAAA;
+  --destructive-foreground: #16181A;
+  --border: transparent;
+  --input: transparent;
+  --ring: #AAAEBD;
+  --sidebar: #1E2024;
+  --sidebar-foreground: #ECEFF2;
+  --popover: #2C2E32;
+  --popover-foreground: #ECEFF2;
+  --success: #AABDAC;
+  --success-foreground: #16181A;
+  --success-light: #1E2024;
+  --warning: #BDBDAA;
+  --warning-foreground: #16181A;
+  --warning-light: #1E2024;
+  --info: #AAAEBD;
+  --info-foreground: #16181A;
+  --info-light: #1E2024;
+  --error: #BDAAAA;
+  --error-light: #1E2024;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   GRAPHITE THEME
+   Medium gray monochrome with metallic hints
+   ============================================ */
+[data-theme="graphite"] {
+  --background: #F5F6F7;
+  --foreground: #18191B;
+  --card: #FFFFFF;
+  --card-foreground: #18191B;
+  --primary: #71767A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E6E8EA;
+  --secondary-foreground: #18191B;
+  --muted: #E6E8EA;
+  --muted-foreground: #71767A;
+  --accent: #71767A;
+  --accent-foreground: #FFFFFF;
+  --destructive: #7A7171;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #71767A;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #18191B;
+  --popover: #FFFFFF;
+  --popover-foreground: #18191B;
+  --success: #717A74;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EA;
+  --warning: #7A7A71;
+  --warning-foreground: #18191B;
+  --warning-light: #F0F0E8;
+  --info: #71767A;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8EBF0;
+  --error: #7A7171;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="graphite"].dark {
+  --background: #18191B;
+  --foreground: #E6E8EA;
+  --card: #222426;
+  --card-foreground: #E6E8EA;
+  --primary: #91969A;
+  --primary-foreground: #18191B;
+  --secondary: #32363A;
+  --secondary-foreground: #E6E8EA;
+  --muted: #222426;
+  --muted-foreground: #91969A;
+  --accent: #91969A;
+  --accent-foreground: #18191B;
+  --destructive: #9A9191;
+  --destructive-foreground: #18191B;
+  --border: transparent;
+  --input: transparent;
+  --ring: #91969A;
+  --sidebar: #222426;
+  --sidebar-foreground: #E6E8EA;
+  --popover: #32363A;
+  --popover-foreground: #E6E8EA;
+  --success: #919A94;
+  --success-foreground: #18191B;
+  --success-light: #222426;
+  --warning: #9A9A91;
+  --warning-foreground: #18191B;
+  --warning-light: #222426;
+  --info: #91969A;
+  --info-foreground: #18191B;
+  --info-light: #222426;
+  --error: #9A9191;
+  --error-light: #222426;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+/* ============================================
+   SLATE THEME
+   Cool slate monochrome with glass effects
+   ============================================ */
+[data-theme="slate"] {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --primary: #64748B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E2E8F0;
+  --secondary-foreground: #0F172A;
+  --muted: #E2E8F0;
+  --muted-foreground: #64748B;
+  --accent: #64748B;
+  --accent-foreground: #FFFFFF;
+  --destructive: #8B7474;
+  --destructive-foreground: #FFFFFF;
+  --border: transparent;
+  --input: transparent;
+  --ring: #64748B;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --success: #748B7E;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0EC;
+  --warning: #8B8B74;
+  --warning-foreground: #0F172A;
+  --warning-light: #F0F0E8;
+  --info: #64748B;
+  --info-foreground: #FFFFFF;
+  --info-light: #E8ECF0;
+  --error: #8B7474;
+  --error-light: #F0E8E8;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
+}
+
+[data-theme="slate"].dark {
+  --background: #0F172A;
+  --foreground: #E2E8F0;
+  --card: #1E293B;
+  --card-foreground: #E2E8F0;
+  --primary: #94A3B8;
+  --primary-foreground: #0F172A;
+  --secondary: #334155;
+  --secondary-foreground: #E2E8F0;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #94A3B8;
+  --accent-foreground: #0F172A;
+  --destructive: #B89898;
+  --destructive-foreground: #0F172A;
+  --border: transparent;
+  --input: transparent;
+  --ring: #94A3B8;
+  --sidebar: #1E293B;
+  --sidebar-foreground: #E2E8F0;
+  --popover: #334155;
+  --popover-foreground: #E2E8F0;
+  --success: #98B8A2;
+  --success-foreground: #0F172A;
+  --success-light: #1E293B;
+  --warning: #B8B898;
+  --warning-foreground: #0F172A;
+  --warning-light: #1E293B;
+  --info: #94A3B8;
+  --info-foreground: #0F172A;
+  --info-light: #1E293B;
+  --error: #B89898;
+  --error-light: #1E293B;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-focus: none;
 }
 
 /* Base styles */
@@ -1040,8 +1804,9 @@ body {
 /* Card styles - following design system card-based modularity */
 .card-surface {
   background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: none;
 }
 
 .dark .card-surface {
@@ -1051,7 +1816,7 @@ body {
 
 :root .card-surface {
   /* Light mode can use subtle shadows */
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 /* Interactive card hover state */
@@ -1060,11 +1825,7 @@ body {
 }
 
 .card-interactive:hover {
-  border-color: var(--primary);
-}
-
-.dark .card-interactive:hover {
-  border-color: rgba(214, 216, 118, 0.5);
+  opacity: 0.9;
 }
 
 /* Surface elevated - for dropdowns, popovers */
@@ -1169,15 +1930,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(214, 216, 118, 0.4) 25%,
-    rgba(214, 216, 118, 0.7) 50%,
-    rgba(214, 216, 118, 0.4) 75%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
+  background: rgba(214, 216, 118, 0.2);
   animation: progress-glow-sweep 2s ease-in-out infinite;
   border-radius: inherit;
   pointer-events: none;
@@ -1185,15 +1938,7 @@ body {
 
 /* Light mode variant */
 :root .progress-working::after {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(165, 166, 106, 0.3) 25%,
-    rgba(165, 166, 106, 0.6) 50%,
-    rgba(165, 166, 106, 0.3) 75%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
+  background: rgba(165, 166, 106, 0.2);
 }
 
 /* ============================================
@@ -1226,12 +1971,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.15) 50%,
-    transparent 100%
-  );
+  background: rgba(255, 255, 255, 0.2);
   animation: progress-sweep 2s ease-in-out infinite;
 }
 
@@ -1260,11 +2000,7 @@ body {
 
 /* Drop zone highlight */
 .drop-zone-active {
-  background: linear-gradient(
-    to bottom,
-    rgba(214, 216, 118, 0.08),
-    transparent
-  );
+  background: rgba(214, 216, 118, 0.08);
   border-color: var(--primary);
 }
 
@@ -1354,56 +2090,12 @@ body {
 }
 
 .task-card-enhanced:hover {
-  border-color: rgba(214, 216, 118, 0.4);
-  box-shadow: 0 0 0 1px rgba(214, 216, 118, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-.dark .task-card-enhanced:hover {
-  box-shadow: 0 0 0 1px rgba(214, 216, 118, 0.15), 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-/* Running task pulse animation */
-.task-running-pulse {
-  animation: task-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes task-pulse {
-  0%, 100% {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0 rgba(214, 216, 118, 0.4);
-  }
-  50% {
-    border-color: rgba(214, 216, 118, 0.8);
-    box-shadow: 0 0 0 4px rgba(214, 216, 118, 0.1);
-  }
-}
-
-/* Stuck task warning pulse */
-.task-stuck-pulse {
-  animation: stuck-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes stuck-pulse {
-  0%, 100% {
-    border-color: var(--warning);
-    box-shadow: 0 0 0 0 rgba(210, 215, 20, 0.3);
-  }
-  50% {
-    border-color: rgba(210, 215, 20, 0.8);
-    box-shadow: 0 0 8px rgba(210, 215, 20, 0.2);
-  }
+  background-color: var(--secondary);
 }
 
 /* Progress bar animated shimmer for active state */
 .progress-animated-fill {
-  background: linear-gradient(
-    90deg,
-    var(--primary) 0%,
-    rgba(214, 216, 118, 0.7) 50%,
-    var(--primary) 100%
-  );
-  background-size: 200% 100%;
+  background: var(--primary);
   animation: progress-shimmer 2s linear infinite;
 }
 
@@ -1530,11 +2222,7 @@ body {
 /* Review section styling */
 .review-section-highlight {
   border: 1px solid rgba(168, 85, 247, 0.3);
-  background: linear-gradient(
-    135deg,
-    rgba(168, 85, 247, 0.08) 0%,
-    rgba(168, 85, 247, 0.02) 100%
-  );
+  background: rgba(168, 85, 247, 0.05);
   border-radius: var(--radius-xl);
   padding: 1rem;
 }
@@ -1554,13 +2242,8 @@ body {
 /* Section divider with gradient */
 .section-divider-gradient {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--border) 20%,
-    var(--border) 80%,
-    transparent 100%
-  );
+  background: var(--border);
+  opacity: 0.15;
   margin: 1rem 0;
 }
 

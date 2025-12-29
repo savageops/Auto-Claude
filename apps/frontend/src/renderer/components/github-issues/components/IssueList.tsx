@@ -1,4 +1,4 @@
-import { Loader2, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle } from '@/lib/icons';
 import { ScrollArea } from '../../ui/scroll-area';
 import { IssueListItem } from './IssueListItem';
 import { EmptyState } from './EmptyStates';
@@ -26,7 +26,7 @@ export function IssueList({
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }

@@ -24,7 +24,7 @@ Usage:
     # Decorate GitHub operations
     @rate_limited(operation_type="github")
     async def fetch_pr_data(pr_number: int):
-        result = subprocess.run(["gh", "pr", "view", str(pr_number)])
+        result = subprocess.run(["gh", "pr", "view", str(pr_number)], encoding="utf-8", errors="replace")
         return result
 
     # Track AI costs
@@ -512,7 +512,7 @@ def rate_limited(
     Usage:
         @rate_limited(operation_type="github")
         async def fetch_pr_data(pr_number: int):
-            result = subprocess.run(["gh", "pr", "view", str(pr_number)])
+            result = subprocess.run(["gh", "pr", "view", str(pr_number)], encoding="utf-8", errors="replace")
             return result
     """
 

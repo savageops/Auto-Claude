@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Github,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Info,
@@ -10,7 +10,7 @@ import {
   Copy,
   Check,
   Clock
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 
@@ -326,7 +326,7 @@ export function GitHubOAuthFlow({ onSuccess, onCancel }: GitHubOAuthFlowProps) {
       {/* Checking status */}
       {status === 'checking' && (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
@@ -417,7 +417,7 @@ export function GitHubOAuthFlow({ onSuccess, onCancel }: GitHubOAuthFlowProps) {
           <Card className="border border-info/30 bg-info/10">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <Loader2 className="h-6 w-6 animate-spin text-info shrink-0" />
+                <RefreshCw className="h-6 w-6 animate-spin text-info shrink-0" />
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-foreground">
                     Authenticating...

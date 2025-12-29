@@ -4,7 +4,7 @@ import {
   Github,
   GitBranch,
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   ChevronRight,
@@ -15,7 +15,7 @@ import {
   Globe,
   Building,
   User
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -49,7 +49,7 @@ interface GitHubSetupModalProps {
 type SetupStep = 'github-auth' | 'claude-auth' | 'repo-confirm' | 'repo' | 'branch' | 'complete';
 
 /**
- * Setup Modal - Required setup flow after Auto Claude initialization
+ * Setup Modal - Required setup flow after Turret initialization
  *
  * Flow:
  * 1. Authenticate with GitHub (via gh CLI OAuth) - for repo operations
@@ -527,7 +527,7 @@ export function GitHubSetupModal({
                     <Label>Owner</Label>
                     {isLoadingOrgs ? (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <RefreshCw className="h-4 w-4 animate-spin" />
                         Loading accounts...
                       </div>
                     ) : (
@@ -667,7 +667,7 @@ export function GitHubSetupModal({
                 <Button onClick={handleCreateRepo} disabled={isCreatingRepo || !newRepoName.trim()}>
                   {isCreatingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Creating...
                     </>
                   ) : (
@@ -682,7 +682,7 @@ export function GitHubSetupModal({
                 <Button onClick={handleLinkRepo} disabled={isCreatingRepo || !existingRepoName.trim()}>
                   {isCreatingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Linking...
                     </>
                   ) : (
@@ -697,7 +697,7 @@ export function GitHubSetupModal({
                 <Button variant="outline" onClick={detectRepository} disabled={isLoadingRepo}>
                   {isLoadingRepo ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       Checking...
                     </>
                   ) : (
@@ -718,7 +718,7 @@ export function GitHubSetupModal({
                 Select Base Branch
               </DialogTitle>
               <DialogDescription>
-                Choose which branch Auto Claude should use as the base for creating task branches.
+                Choose which branch Turret should use as the base for creating task branches.
               </DialogDescription>
             </DialogHeader>
 
@@ -746,7 +746,7 @@ export function GitHubSetupModal({
                   <SelectTrigger>
                     {isLoadingBranches ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <RefreshCw className="h-3 w-3 animate-spin" />
                         <span>Loading branches...</span>
                       </div>
                     ) : (
@@ -771,7 +771,7 @@ export function GitHubSetupModal({
                 </Select>
                 <p className="text-xs text-muted-foreground">
                   All tasks will be created from branches like{' '}
-                  <code className="px-1 bg-muted rounded">auto-claude/task-name</code>
+                  <code className="px-1 bg-muted rounded">turret/task-name</code>
                   {selectedBranch && (
                     <> based on <code className="px-1 bg-muted rounded">{selectedBranch}</code></>
                   )}
@@ -785,7 +785,7 @@ export function GitHubSetupModal({
                   <div className="text-xs text-muted-foreground">
                     <p className="font-medium text-foreground">Why select a branch?</p>
                     <p className="mt-1">
-                      Auto Claude creates isolated workspaces for each task. Selecting the right base branch ensures
+                      Turret creates isolated workspaces for each task. Selecting the right base branch ensures
                       your tasks start with the latest code from your main development line.
                     </p>
                   </div>
@@ -831,7 +831,7 @@ export function GitHubSetupModal({
                 <CheckCircle2 className="h-8 w-8 text-success" />
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                Auto Claude is ready to use! You can now create tasks that will be
+                Turret is ready to use! You can now create tasks that will be
                 automatically based on <code className="px-1 bg-muted rounded">{selectedBranch}</code>.
               </p>
             </div>

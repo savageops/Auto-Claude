@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Loader2, CheckCircle2, MessageCircle } from 'lucide-react';
+import { Sparkles, RefreshCw, CheckCircle2, MessageCircle } from '@/lib/icons';
 import { Button } from '../../ui/button';
 import { Progress } from '../../ui/progress';
 import { Checkbox } from '../../ui/checkbox';
@@ -121,7 +121,7 @@ export function InvestigationDialog({
             {/* Comments section */}
             {loadingComments ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : fetchCommentsError ? (
               <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-4">
@@ -223,7 +223,7 @@ export function InvestigationDialog({
           )}
           {investigationStatus.phase !== 'idle' && investigationStatus.phase !== 'complete' && (
             <Button variant="outline" disabled>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
               Creating...
             </Button>
           )}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { File, Folder, ChevronRight } from 'lucide-react';
+import { File, Folder, ChevronRight } from '@/lib/icons';
 import { cn } from '../lib/utils';
 import { useFileExplorerStore } from '../stores/file-explorer-store';
 import type { FileNode } from '../../shared/types';

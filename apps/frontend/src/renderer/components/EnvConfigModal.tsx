@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   AlertCircle,
   Key,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   ExternalLink,
   Copy,
@@ -12,7 +12,7 @@ import {
   LogIn,
   ChevronDown,
   ChevronRight
-} from 'lucide-react';
+} from '@/lib/icons';
 import {
   Dialog,
   DialogContent,
@@ -160,7 +160,7 @@ export function EnvConfigModal({
         return;
       }
 
-      // Save the token to auto-claude .env
+      // Save the token to turret .env
       const result = await window.electronAPI.updateSourceEnv({
         claudeOAuthToken: profile.oauthToken
       });
@@ -274,7 +274,7 @@ export function EnvConfigModal({
         {/* Loading state */}
         {isChecking && (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -380,7 +380,7 @@ export function EnvConfigModal({
                 >
                   {isSaving ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -432,7 +432,7 @@ export function EnvConfigModal({
                 >
                   {isAuthenticating ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                       Waiting for authentication...
                     </>
                   ) : (
@@ -545,7 +545,7 @@ export function EnvConfigModal({
                     <p className="text-xs text-muted-foreground">
                       The token will be saved to{' '}
                       <code className="px-1 py-0.5 bg-muted rounded font-mono">
-                        {sourcePath ? `${sourcePath}/.env` : 'auto-claude/.env'}
+                        {sourcePath ? `${sourcePath}/.env` : 'turret/.env'}
                       </code>
                     </p>
                   </div>
@@ -572,7 +572,7 @@ export function EnvConfigModal({
             <Button onClick={handleSave} disabled={isSaving || isAuthenticating}>
               {isSaving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (

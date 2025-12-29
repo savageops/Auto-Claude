@@ -3,12 +3,12 @@ import {
   Brain,
   Database,
   Info,
-  Loader2,
+  RefreshCw,
   CheckCircle2,
   AlertCircle,
   Eye,
   EyeOff,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -74,7 +74,7 @@ interface MemoryConfig {
 export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
   const { settings, updateSettings } = useSettingsStore();
   const [config, setConfig] = useState<MemoryConfig>({
-    database: 'auto_claude_memory',
+    database: 'turret_memory',
     embeddingProvider: 'ollama',
     openaiApiKey: settings.globalOpenAIApiKey || '',
     azureOpenaiApiKey: '',
@@ -378,14 +378,14 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             Memory
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Auto Claude Memory helps remember context across your coding sessions
+            Turret Memory helps remember context across your coding sessions
           </p>
         </div>
 
         {/* Loading state for infrastructure check */}
         {isCheckingInfra && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -455,7 +455,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
                   Memory Database
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Stored in ~/.auto-claude/memories/
+                  Stored in ~/.turret/memories/
                 </p>
               </div>
               {kuzuAvailable && (
@@ -518,7 +518,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
                 Saving...
               </>
             ) : (

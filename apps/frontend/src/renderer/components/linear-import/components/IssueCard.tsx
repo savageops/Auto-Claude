@@ -9,7 +9,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { PRIORITY_COLORS, STATE_TYPE_COLORS } from '../types';
 import type { LinearIssue } from '../types';

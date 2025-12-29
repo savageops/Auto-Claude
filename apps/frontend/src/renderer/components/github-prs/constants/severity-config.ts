@@ -10,9 +10,9 @@ import {
   Shield,
   Code,
   FileText,
-  TestTube,
+  FlaskConical as TestTube,
   Zap,
-} from 'lucide-react';
+} from '@/lib/icons';
 
 export type SeverityGroup = 'critical' | 'high' | 'medium' | 'low';
 

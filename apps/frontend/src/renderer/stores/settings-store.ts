@@ -2,10 +2,19 @@ import { create } from 'zustand';
 import type { AppSettings } from '../../shared/types';
 import { DEFAULT_APP_SETTINGS } from '../../shared/constants';
 
+// Sequence tracking to prevent race conditions
+let updateSequenceCounter = 0;
+function getNextSequence(): number {
+  return ++updateSequenceCounter;
+}
+
 interface SettingsState {
   settings: AppSettings;
   isLoading: boolean;
   error: string | null;
+
+  // Internal: sequence number for optimistic concurrency control
+  _updateSequence: number;
 
   // Actions
   setSettings: (settings: AppSettings) => void;
@@ -18,12 +27,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   settings: DEFAULT_APP_SETTINGS as AppSettings,
   isLoading: true,  // Start as true since we load settings on app init
   error: null,
+  _updateSequence: 0,
 
-  setSettings: (settings) => set({ settings }),
+  setSettings: (settings) => set({
+    settings,
+    _updateSequence: getNextSequence()
+  }),
 
   updateSettings: (updates) =>
     set((state) => ({
-      settings: { ...state.settings, ...updates }
+      settings: { ...state.settings, ...updates },
+      _updateSequence: getNextSequence()
     })),
 
   setLoading: (isLoading) => set({ isLoading }),
@@ -64,10 +78,22 @@ function migrateOnboardingCompleted(settings: AppSettings): AppSettings {
  */
 export async function loadSettings(): Promise<void> {
   const store = useSettingsStore.getState();
+
+  // Capture sequence at start to detect race conditions
+  const startSequence = store._updateSequence;
+
   store.setLoading(true);
 
   try {
     const result = await window.electronAPI.getSettings();
+
+    // Check sequence before updating settings
+    const currentState = useSettingsStore.getState();
+    if (currentState._updateSequence !== startSequence) {
+      console.log('[SettingsStore] Race condition detected in loadSettings, aborting stale update');
+      return;
+    }
+
     if (result.success && result.data) {
       // Apply migration for onboardingCompleted flag
       const migratedSettings = migrateOnboardingCompleted(result.data);

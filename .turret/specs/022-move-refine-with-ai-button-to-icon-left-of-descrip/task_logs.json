@@ -1,0 +1,290 @@
+{
+  "spec_id": "022-move-refine-with-ai-button-to-icon-left-of-descrip",
+  "created_at": "2025-12-26T18:23:39.864396+00:00",
+  "updated_at": "2025-12-26T18:26:19.885326+00:00",
+  "phases": {
+    "planning": {
+      "phase": "planning",
+      "status": "active",
+      "started_at": "2025-12-26T18:23:39.864396+00:00",
+      "completed_at": null,
+      "entries": [
+        {
+          "timestamp": "2025-12-26T18:23:39.864396+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:23:39.865397+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:23:56.963599+00:00",
+          "type": "success",
+          "content": "Discovered 41 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:23:56.964623+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:06.534277+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:06.536274+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:17.883386+00:00",
+          "type": "text",
+          "content": "I'll analyze the complexity of this task. Let me start by reading the requirements file.",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:17.884389+00:00",
+          "type": "tool_start",
+          "content": "[Read] ...utton-to-icon-left-of-descrip\\requirements.json",
+          "phase": "planning",
+          "tool_name": "Read",
+          "tool_input": "...utton-to-icon-left-of-descrip\\requirements.json"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:17.885389+00:00",
+          "type": "tool_start",
+          "content": "[Glob] pattern: **/*task*dialog*",
+          "phase": "planning",
+          "tool_name": "Glob",
+          "tool_input": "pattern: **/*task*dialog*"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:17.885389+00:00",
+          "type": "tool_start",
+          "content": "[Glob] pattern: **/*task*creation*",
+          "phase": "planning",
+          "tool_name": "Glob",
+          "tool_input": "pattern: **/*task*creation*"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:20.490986+00:00",
+          "type": "tool_end",
+          "content": "[Glob] Done",
+          "phase": "planning",
+          "tool_name": "Glob",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:24:29.230360+00:00",
+          "type": "text",
+          "content": "Let me search for the relevant UI components to understand the scope:",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:29.232363+00:00",
+          "type": "tool_start",
+          "content": "[Grep] pattern: Refine with AI",
+          "phase": "planning",
+          "tool_name": "Grep",
+          "tool_input": "pattern: Refine with AI"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:29.233365+00:00",
+          "type": "tool_start",
+          "content": "[Grep] pattern: refine.*ai|RefineAI|refineAI",
+          "phase": "planning",
+          "tool_name": "Grep",
+          "tool_input": "pattern: refine.*ai|RefineAI|refineAI"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:29.234366+00:00",
+          "type": "tool_start",
+          "content": "[Glob] pattern: **/*.tsx",
+          "phase": "planning",
+          "tool_name": "Glob",
+          "tool_input": "pattern: **/*.tsx"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:32.408513+00:00",
+          "type": "tool_end",
+          "content": "[Glob] Done",
+          "phase": "planning",
+          "tool_name": "Glob",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:24:37.129044+00:00",
+          "type": "text",
+          "content": "Let me read the main component file to understand the current implementation:",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:37.130044+00:00",
+          "type": "tool_start",
+          "content": "[Read] ...\\src\\renderer\\components\\TaskCreationWizard.tsx",
+          "phase": "planning",
+          "tool_name": "Read",
+          "tool_input": "...\\src\\renderer\\components\\TaskCreationWizard.tsx"
+        },
+        {
+          "timestamp": "2025-12-26T18:24:38.364586+00:00",
+          "type": "tool_end",
+          "content": "[Read] Done",
+          "phase": "planning",
+          "tool_name": "Read",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:25:05.718118+00:00",
+          "type": "text",
+          "content": "Now I have a complete picture of the task. Let me create the complexity assessment:",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:05.719123+00:00",
+          "type": "tool_start",
+          "content": "[Write] ...icon-left-of-descrip\\complexity_assessment.json",
+          "phase": "planning",
+          "tool_name": "Write",
+          "tool_input": "...icon-left-of-descrip\\complexity_assessment.json"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:06.954369+00:00",
+          "type": "tool_end",
+          "content": "[Write] Done",
+          "phase": "planning",
+          "tool_name": "Write",
+          "detail": "File created successfully at: D:\\Workspaces\\01_Projects\\01_Github\\Turret\\.turret\\specs\\022-move-refine-with-ai-button-to-icon-left-of-descrip\\complexity_assessment.json",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:25:17.730966+00:00",
+          "type": "text",
+          "content": "## Complexity Assessment Complete ✅\n\n### Summary\n\n| Attribute | Value |\n|-----------|-------|\n| **Complexity** | Simple |\n| **Workflow Type** | Feature (UI modification) |\n| **Confidence** | 95% |\n\n### Key Findings\n\n**Current State:**\n- The \"Refine with AI\" button is in `TaskCreationWizard.tsx` (lines 872-891)\n- Located below the description textarea with text label\n- Uses `Sparkles` icon from lucide-react (already imported)\n- Ghost variant, size \"sm\"\n\n**Required Changes:**\n1. Move button to left of the description textarea label/field\n2. Convert to icon-only (remove \"Refine with AI\" text)\n3. Make minimal (likely smaller size, icon-only variant)\n4. Add tooltip/title for accessibility\n\n### Why Simple Complexity:\n\n| Criteria | Assessment |\n|----------|------------|\n| Files affected | 1 (TaskCreationWizard.tsx) |\n| Services | 1 (frontend only) |\n| External integrations | None |\n| New dependencies | None |\n| Patterns exist | ✅ Yes |\n| Infrastructure | None |\n\n### Recommended Pipeline\n```\ndiscovery → quick_spec → validation\n```\n\n### Validation Recommendations\n- **Risk Level**: Low\n- **Minimal Mode**: Yes\n- **Tests Required**: Unit tests only (if exist)\n- **Security Scan**: Not required\n- **Staging Deployment**: Not required",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:17.765861+00:00",
+          "type": "info",
+          "content": "Starting phase 4: QUICK SPEC",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:29.227516+00:00",
+          "type": "text",
+          "content": "I'll quickly locate the task creation dialog component and create the minimal spec.",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:29.228517+00:00",
+          "type": "tool_start",
+          "content": "[Grep] pattern: Refine with AI",
+          "phase": "planning",
+          "tool_name": "Grep",
+          "tool_input": "pattern: Refine with AI"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:29.229516+00:00",
+          "type": "tool_start",
+          "content": "[Grep] pattern: new task|create task|task creation",
+          "phase": "planning",
+          "tool_name": "Grep",
+          "tool_input": "pattern: new task|create task|task creation"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:31.212493+00:00",
+          "type": "tool_end",
+          "content": "[Grep] Done",
+          "phase": "planning",
+          "tool_name": "Grep",
+          "detail": "Found 16 files\napps\\frontend\\src\\renderer\\components\\TaskCreationWizard.tsx\napps\\frontend\\src\\renderer\\components\\terminal\\TaskSelector.tsx\napps\\frontend\\src\\renderer\\components\\settings\\integrations\\LinearIntegration.tsx\napps\\frontend\\src\\renderer\\components\\settings\\integrations\\GitHubIntegration.tsx\napps\\frontend\\src\\renderer\\components\\project-settings\\IntegrationSettings.tsx\napps\\frontend\\src\\renderer\\components\\project-settings\\LinearIntegrationSection.tsx\napps\\frontend\\src\\renderer\\components\\project-settings\\GitHubIntegrationSection.tsx\napps\\frontend\\src\\renderer\\components\\project-settings\\GeneralSettings.tsx\napps\\frontend\\src\\renderer\\components\\project-settings\\AutoBuildIntegration.tsx\napps\\frontend\\src\\renderer\\components\\onboarding\\FirstSpecStep.tsx\napps\\frontend\\src\\renderer\\components\\github-issues\\components\\InvestigationDialog.tsx\napps\\frontend\\src\\renderer\\components\\github-issues\\components\\IssueDetail.tsx\napps\\frontend\\src\\renderer\\components\\Sidebar.tsx\napps\\frontend\\src\\renderer\\components\\Insights.tsx\napps\\frontend\\src\\renderer\\components\\GitHubSetupModal.tsx\napps\\frontend\\src\\renderer\\components\\AgentProfiles.tsx",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:25:37.470301+00:00",
+          "type": "text",
+          "content": "Let me look at the current implementation:",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:37.471300+00:00",
+          "type": "tool_start",
+          "content": "[Read] ...\\src\\renderer\\components\\TaskCreationWizard.tsx",
+          "phase": "planning",
+          "tool_name": "Read",
+          "tool_input": "...\\src\\renderer\\components\\TaskCreationWizard.tsx"
+        },
+        {
+          "timestamp": "2025-12-26T18:25:38.687169+00:00",
+          "type": "tool_end",
+          "content": "[Read] Done",
+          "phase": "planning",
+          "tool_name": "Read",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:26:06.735992+00:00",
+          "type": "text",
+          "content": "Now I understand the current implementation. The \"Refine with AI\" button is on lines 872-891, positioned below the description textarea in a `flex justify-between` layout. I need to move it to be an icon-only button to the left of the description field.\n\nLet me create the minimal spec and implementation plan:",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2025-12-26T18:26:06.737992+00:00",
+          "type": "tool_start",
+          "content": "[Write] ...-with-ai-button-to-icon-left-of-descrip\\spec.md",
+          "phase": "planning",
+          "tool_name": "Write",
+          "tool_input": "...-with-ai-button-to-icon-left-of-descrip\\spec.md"
+        },
+        {
+          "timestamp": "2025-12-26T18:26:06.737992+00:00",
+          "type": "tool_start",
+          "content": "[Write] ...o-icon-left-of-descrip\\implementation_plan.json",
+          "phase": "planning",
+          "tool_name": "Write",
+          "tool_input": "...o-icon-left-of-descrip\\implementation_plan.json"
+        },
+        {
+          "timestamp": "2025-12-26T18:26:08.001877+00:00",
+          "type": "tool_end",
+          "content": "[Write] Done",
+          "phase": "planning",
+          "tool_name": "Write",
+          "detail": "File created successfully at: D:\\Workspaces\\01_Projects\\01_Github\\Turret\\.turret\\specs\\022-move-refine-with-ai-button-to-icon-left-of-descrip\\spec.md",
+          "collapsed": true
+        },
+        {
+          "timestamp": "2025-12-26T18:26:19.885326+00:00",
+          "type": "tool_start",
+          "content": "[Bash] cat > \"D:\\Workspaces\\01_Projects\\01_Github\\Auto...",
+          "phase": "planning",
+          "tool_name": "Bash",
+          "tool_input": "cat > \"D:\\Workspaces\\01_Projects\\01_Github\\Auto..."
+        }
+      ]
+    },
+    "coding": {
+      "phase": "coding",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    },
+    "validation": {
+      "phase": "validation",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    }
+  }
+}

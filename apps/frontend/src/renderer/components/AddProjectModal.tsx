@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FolderOpen, FolderPlus, ChevronRight } from 'lucide-react';
+import { FolderOpen, FolderPlus, ChevronRight } from '@/lib/icons';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';

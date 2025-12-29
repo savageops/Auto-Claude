@@ -100,7 +100,7 @@ export async function githubFetch(
     headers: {
       'Accept': 'application/vnd.github+json',
       'Authorization': `Bearer ${token}`,
-      'User-Agent': 'Auto-Claude-UI',
+      'User-Agent': 'Turret-UI',
       ...options.headers
     }
   });

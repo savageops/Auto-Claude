@@ -1,4 +1,4 @@
-import { Play, Square, CheckCircle2, RotateCcw, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Play, Square, CheckCircle2, RotateCcw, Trash2, RefreshCw, AlertTriangle } from '@/lib/icons';
 import { Button } from '../ui/button';
 import {
   AlertDialog,
@@ -21,10 +21,15 @@ interface TaskActionsProps {
   showDeleteDialog: boolean;
   isDeleting: boolean;
   deleteError: string | null;
+  showRestartDialog: boolean;
+  isRestarting: boolean;
+  restartError: string | null;
   onStartStop: () => void;
   onRecover: () => void;
   onDelete: () => void;
+  onRestart: () => void;
   onShowDeleteDialog: (show: boolean) => void;
+  onShowRestartDialog: (show: boolean) => void;
 }
 
 export function TaskActions({
@@ -36,24 +41,29 @@ export function TaskActions({
   showDeleteDialog,
   isDeleting,
   deleteError,
+  showRestartDialog,
+  isRestarting,
+  restartError,
   onStartStop,
   onRecover,
   onDelete,
-  onShowDeleteDialog
+  onRestart,
+  onShowDeleteDialog,
+  onShowRestartDialog
 }: TaskActionsProps) {
   return (
     <>
       <div className="p-4">
         {isStuck ? (
           <Button
-            className="w-full"
-            variant="warning"
+            className="w-full bg-primary/20 hover:bg-primary/30 text-primary"
+            variant="ghost"
             onClick={onRecover}
             disabled={isRecovering}
           >
             {isRecovering ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Recovering...
               </>
             ) : (
@@ -65,8 +75,8 @@ export function TaskActions({
           </Button>
         ) : isIncomplete ? (
           <Button
-            className="w-full"
-            variant="default"
+            className="w-full bg-primary/80 hover:bg-primary/90 text-background"
+            variant="ghost"
             onClick={onStartStop}
           >
             <Play className="mr-2 h-4 w-4" />
@@ -74,8 +84,11 @@ export function TaskActions({
           </Button>
         ) : (task.status === 'backlog' || task.status === 'in_progress') && (
           <Button
-            className="w-full"
-            variant={isRunning ? 'destructive' : 'default'}
+            className={`w-full ${isRunning
+              ? 'bg-primary/30 hover:bg-primary/40 text-primary'
+              : 'bg-primary/80 hover:bg-primary/90 text-background'
+              }`}
+            variant="ghost"
             onClick={onStartStop}
           >
             {isRunning ? (
@@ -98,11 +111,23 @@ export function TaskActions({
           </div>
         )}
 
+        {/* Restart Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full mt-3 text-orange-500 hover:bg-orange-500/10 hover:text-orange-600"
+          onClick={() => onShowRestartDialog(true)}
+          disabled={isDeleting || isRecovering}
+        >
+          <RotateCcw className="mr-2 h-4 w-4" />
+          Restart Task
+        </Button>
+
         {/* Delete Button - always visible but disabled when running */}
         <Button
           variant="ghost"
           size="sm"
-          className="w-full mt-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          className="w-full mt-1 text-muted-foreground hover:bg-muted hover:text-foreground/70"
           onClick={() => onShowDeleteDialog(true)}
           disabled={isRunning && !isStuck}
         >
@@ -110,6 +135,57 @@ export function TaskActions({
           Delete Task
         </Button>
       </div>
+
+      {/* Restart Confirmation Dialog */}
+      <AlertDialog open={showRestartDialog} onOpenChange={onShowRestartDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Restart Task?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-3">
+                <p>
+                  Are you sure you want to restart <strong className="text-foreground">"{task.title}"</strong>?
+                </p>
+                <p className="text-orange-500">
+                  This will delete all progress (execution logs, implementation plan) and start fresh from the current main branch.
+                  Your original task request (spec) will be preserved.
+                </p>
+                {restartError && (
+                  <p className="text-destructive bg-destructive/10 px-3 py-2 rounded-lg text-sm">
+                    {restartError}
+                  </p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isRestarting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                onRestart();
+              }}
+              disabled={isRestarting}
+              className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-500"
+            >
+              {isRestarting ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Restarting...
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Confirm Restart
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={onShowDeleteDialog}>
@@ -143,11 +219,11 @@ export function TaskActions({
                 onDelete();
               }}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-primary/30 hover:bg-primary/40 text-primary"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
                 </>
               ) : (

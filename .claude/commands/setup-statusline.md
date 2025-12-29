@@ -1,11 +1,11 @@
 # Setup ccstatusline Integration for Auto-Build
 
-Configure ccstatusline to display real-time auto-claude progress in your Claude Code status bar.
+Configure ccstatusline to display real-time turret progress in your Claude Code status bar.
 
 ## Prerequisites
 
 1. **ccstatusline** must be installed and configured
-2. **auto-claude** must be in your project
+2. **turret** must be in your project
 
 ## Installation
 
@@ -26,7 +26,7 @@ This launches the interactive TUI to configure your status line.
 In the ccstatusline TUI config, add a **Custom Command** widget with:
 
 ```
-Command: python /path/to/your/project/auto-claude/statusline.py --format compact
+Command: python /path/to/your/project/turret/statusline.py --format compact
 ```
 
 **Recommended widget settings:**
@@ -41,7 +41,7 @@ Edit `~/.config/ccstatusline/settings.json` and add to your widgets array:
 ```json
 {
   "type": "custom",
-  "command": "python /path/to/your/project/auto-claude/statusline.py --format compact",
+  "command": "python /path/to/your/project/turret/statusline.py --format compact",
   "interval": 5,
   "showWhenEmpty": false
 }
@@ -80,7 +80,7 @@ Output: Raw JSON status data
 
 ## Status File
 
-Auto-build writes status to `.auto-claude-status` in your project root:
+Auto-build writes status to `.turret-status` in your project root:
 
 ```json
 {
@@ -121,9 +121,9 @@ When active, you'll see these indicators:
 ## Troubleshooting
 
 ### Status not showing?
-1. Check if `.auto-claude-status` exists in your project root
+1. Check if `.turret-status` exists in your project root
 2. Verify the path to `statusline.py` is correct
-3. Try running the command manually: `python auto-claude/statusline.py --format compact`
+3. Try running the command manually: `python turret/statusline.py --format compact`
 
 ### Updates too slow?
 - Decrease the polling interval in ccstatusline config (minimum 1 second)
@@ -136,16 +136,16 @@ When active, you'll see these indicators:
 ### Minimal Status Line
 Just chunks and phase:
 ```
-python auto-claude/statusline.py --format compact
+python turret/statusline.py --format compact
 ```
 
 ### With Specific Spec
 Monitor a specific spec:
 ```
-python auto-claude/statusline.py --format compact --spec 001-my-feature
+python turret/statusline.py --format compact --spec 001-my-feature
 ```
 
 ### Full Path for Global Use
 ```
-python ~/projects/my-app/auto-claude/statusline.py --format compact --project-dir ~/projects/my-app
+python ~/projects/my-app/turret/statusline.py --format compact --project-dir ~/projects/my-app
 ```

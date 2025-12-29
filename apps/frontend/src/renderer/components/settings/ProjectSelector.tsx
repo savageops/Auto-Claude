@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FolderOpen, Plus, Trash2 } from 'lucide-react';
+import { FolderOpen, Plus, Trash2 } from '@/lib/icons';
 import {
   Select,
   SelectContent,

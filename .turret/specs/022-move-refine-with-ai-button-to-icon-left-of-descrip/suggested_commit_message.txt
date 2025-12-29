@@ -1,0 +1,4 @@
+feat(task-creation): move refine with ai button to icon
+
+Replace the refine with AI button in the new task creation dialog with a minimal icon
+positioned to the left of the description field, removing the text label for a cleaner UI.

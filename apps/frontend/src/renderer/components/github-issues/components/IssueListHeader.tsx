@@ -1,4 +1,4 @@
-import { Github, RefreshCw, Search, Filter, Wand2, Loader2, Layers } from 'lucide-react';
+import { Github, RefreshCw, Search, Filter, Wand2, Layers } from '@/lib/icons';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -81,7 +81,7 @@ export function IssueListHeader({
                   className="flex-1"
                 >
                   {isAnalyzing ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
                     <Layers className="h-4 w-4 mr-2" />
                   )}
@@ -103,7 +103,7 @@ export function IssueListHeader({
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-2">
                     {autoFixRunning ? (
-                      <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                      <RefreshCw className="h-4 w-4 text-primary animate-spin" />
                     ) : (
                       <Wand2 className="h-4 w-4 text-muted-foreground" />
                     )}

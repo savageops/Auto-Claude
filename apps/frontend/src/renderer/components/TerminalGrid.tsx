@@ -13,7 +13,7 @@ import {
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, Loader2 } from 'lucide-react';
+import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, RefreshCw } from '@/lib/icons';
 import { Terminal } from './Terminal';
 import { Button } from './ui/button';
 import {
@@ -329,7 +329,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                     disabled={isRestoring || isLoadingDates}
                   >
                     {isRestoring ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                     ) : (
                       <History className="h-3 w-3" />
                     )}

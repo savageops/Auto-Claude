@@ -5,15 +5,14 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
-  Loader2,
   CheckCircle2,
   AlertCircle,
   Import,
   Radio,
   Github,
-  RefreshCw,
-  GitBranch
-} from 'lucide-react';
+  GitBranch,
+  RefreshCw
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -201,7 +200,7 @@ export function IntegrationSettings({
                         )}
                       </div>
                       {isCheckingLinear ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : linearConnectionStatus?.connected ? (
                         <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
@@ -392,7 +391,7 @@ export function IntegrationSettings({
                         )}
                       </div>
                       {isCheckingGitHub ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
                       ) : gitHubConnectionStatus?.connected ? (
                         <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
@@ -455,7 +454,7 @@ export function IntegrationSettings({
                     <SelectTrigger>
                       {isLoadingBranches ? (
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <RefreshCw className="h-3 w-3 animate-spin" />
                           <span>Loading branches...</span>
                         </div>
                       ) : (
@@ -472,7 +471,7 @@ export function IntegrationSettings({
                   </Select>
                   {settings.mainBranch && (
                     <p className="text-xs text-muted-foreground">
-                      Tasks will be created on branches like <code className="px-1 bg-muted rounded">auto-claude/task-name</code> from <code className="px-1 bg-muted rounded">{settings.mainBranch}</code>
+                      Tasks will be created on branches like <code className="px-1 bg-muted rounded">turret/task-name</code> from <code className="px-1 bg-muted rounded">{settings.mainBranch}</code>
                     </p>
                   )}
                 </div>

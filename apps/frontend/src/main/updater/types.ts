@@ -1,5 +1,5 @@
 /**
- * Type definitions for Auto Claude updater system
+ * Type definitions for Turret updater system
  */
 
 /**

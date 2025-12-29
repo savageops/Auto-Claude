@@ -34,7 +34,7 @@ def run_context_discovery(
     if context_file.exists():
         return True, "context.json already exists"
 
-    script_path = project_dir / "auto-claude" / "context.py"
+    script_path = project_dir / "turret" / "context.py"
     if not script_path.exists():
         return False, f"Script not found: {script_path}"
 
@@ -56,6 +56,8 @@ def run_context_discovery(
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=300,
         )
 

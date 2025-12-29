@@ -1,10 +1,12 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import { existsSync } from 'fs';
+import type { BrowserWindow } from 'electron';
 import { AgentState } from './agent-state';
 import { AgentEvents } from './agent-events';
 import { AgentProcessManager } from './agent-process';
 import { AgentQueueManager } from './agent-queue';
+import { getTaskMonitor } from './task-monitor';
 import { getClaudeProfileManager } from '../claude-profile-manager';
 import {
   SpecCreationMetadata,
@@ -12,6 +14,7 @@ import {
   RoadmapConfig
 } from './types';
 import type { IdeationConfig } from '../../shared/types';
+import type { ProjectStore } from '../project-store';
 
 /**
  * Main AgentManager - orchestrates agent process lifecycle
@@ -77,7 +80,7 @@ export class AgentManager extends EventEmitter {
   }
 
   /**
-   * Configure paths for Python and auto-claude source
+   * Configure paths for Python and turret source
    */
   configure(pythonPath?: string, autoBuildSourcePath?: string): void {
     this.processManager.configure(pythonPath, autoBuildSourcePath);
@@ -319,6 +322,29 @@ export class AgentManager extends EventEmitter {
    */
   getRunningTasks(): string[] {
     return this.state.getRunningTaskIds();
+  }
+
+  /**
+   * Start task monitoring service
+   * Convenience method that delegates to TaskMonitorService singleton
+   * @param projectStore - The ProjectStore instance to get all projects and tasks
+   * @param getMainWindow - Function to get the main BrowserWindow for IPC communication
+   */
+  startTaskMonitoring(
+    projectStore: ProjectStore,
+    getMainWindow: () => BrowserWindow | null
+  ): void {
+    const taskMonitor = getTaskMonitor();
+    taskMonitor.startMonitoring(this, projectStore, getMainWindow);
+  }
+
+  /**
+   * Stop task monitoring service
+   * Convenience method that delegates to TaskMonitorService singleton
+   */
+  stopTaskMonitoring(): void {
+    const taskMonitor = getTaskMonitor();
+    taskMonitor.stopMonitoring();
   }
 
   /**

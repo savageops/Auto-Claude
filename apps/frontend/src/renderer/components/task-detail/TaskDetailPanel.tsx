@@ -115,6 +115,64 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
     state.setIsDiscarding(false);
   };
 
+  const handleDiscardFile = async (filePath: string) => {
+    state.setWorkspaceError(null);
+    state.setDiscardFileSuccess(null);
+    state.setIsDiscardingFile(true);
+
+    try {
+      const result = await window.electronAPI.discardWorktreeFile(task.id, filePath);
+      if (result.success && result.data?.success) {
+        // Show success feedback with the file path
+        state.setDiscardFileSuccess(filePath);
+
+        // Refresh the diff view to reflect the discarded file
+        const diffResult = await window.electronAPI.getWorktreeDiff(task.id);
+        if (diffResult.success && diffResult.data) {
+          state.setWorktreeDiff(diffResult.data);
+        }
+        // Also refresh the worktree status since file count may have changed
+        const statusResult = await window.electronAPI.getWorktreeStatus(task.id);
+        if (statusResult.success && statusResult.data) {
+          state.setWorktreeStatus(statusResult.data);
+        }
+        // Refresh merge preview if it was loaded
+        if (state.mergePreview) {
+          state.loadMergePreview();
+        }
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          state.setDiscardFileSuccess(null);
+        }, 3000);
+      } else {
+        state.setWorkspaceError(result.data?.message || result.error || 'Failed to discard file changes');
+      }
+    } catch (error) {
+      state.setWorkspaceError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      state.setIsDiscardingFile(false);
+    }
+  };
+
+  const handleRestart = async () => {
+    state.setIsRestarting(true);
+    state.setRestartError(null);
+    try {
+      const result = await window.electronAPI.restartTask(task.id);
+      if (result.success) {
+        state.setShowRestartDialog(false);
+        onClose();
+      } else {
+        state.setRestartError(result.error || 'Failed to restart task');
+      }
+    } catch (error) {
+      state.setRestartError(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      state.setIsRestarting(false);
+    }
+  };
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-full w-96 flex-col bg-card border-l border-border">
@@ -191,9 +249,11 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
                     isLoadingWorktree={state.isLoadingWorktree}
                     isMerging={state.isMerging}
                     isDiscarding={state.isDiscarding}
+                    isDiscardingFile={state.isDiscardingFile}
                     showDiscardDialog={state.showDiscardDialog}
                     showDiffDialog={state.showDiffDialog}
                     workspaceError={state.workspaceError}
+                    discardFileSuccess={state.discardFileSuccess}
                     stageOnly={state.stageOnly}
                     stagedSuccess={state.stagedSuccess}
                     stagedProjectPath={state.stagedProjectPath}
@@ -205,11 +265,13 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
                     onReject={handleReject}
                     onMerge={handleMerge}
                     onDiscard={handleDiscard}
+                    onDiscardFile={handleDiscardFile}
                     onShowDiscardDialog={state.setShowDiscardDialog}
                     onShowDiffDialog={state.setShowDiffDialog}
                     onStageOnlyChange={state.setStageOnly}
                     onShowConflictDialog={state.setShowConflictDialog}
                     onLoadMergePreview={state.loadMergePreview}
+                    onRefreshDiff={state.refreshDiff}
                   />
                 )}
               </div>
@@ -249,10 +311,15 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
           showDeleteDialog={state.showDeleteDialog}
           isDeleting={state.isDeleting}
           deleteError={state.deleteError}
+          showRestartDialog={state.showRestartDialog}
+          isRestarting={state.isRestarting}
+          restartError={state.restartError}
           onStartStop={handleStartStop}
           onRecover={handleRecover}
           onDelete={handleDelete}
+          onRestart={handleRestart}
           onShowDeleteDialog={state.setShowDeleteDialog}
+          onShowRestartDialog={state.setShowRestartDialog}
         />
 
         {/* Edit Task Dialog */}

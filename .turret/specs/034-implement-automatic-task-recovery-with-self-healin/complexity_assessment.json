@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.88,
+  "reasoning": "New monitoring service following existing patterns in the codebase. 4 files touched (1 new, 3 modified), single service, no external integrations. Existing recovery logic just needs extraction into shared function.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 4,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "New TaskMonitorService in task-monitor.ts, modifications to agent-manager.ts (integration), execution-handlers.ts (extract recovery logic), and index.ts (startup). All within frontend main process."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "No external integrations. Reuses existing projectStore, agentManager, and recovery logic. All internal to the application."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Configuration values (10s interval, 3 retries/3min rate limit, 2s grace period) are in-code constants, not external config files."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "AgentManager already uses event emitters, interval timers, and Map-based state tracking. TaskMonitorService follows same patterns. Recovery logic already exists in TASK_RECOVER_STUCK handler."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Race conditions between manual and auto recovery",
+        "False positives during process spawn (needs grace period)",
+        "Rate limiting edge cases at window boundaries",
+        "Proper cleanup on app shutdown"
+      ],
+      "notes": "Core logic is straightforward but edge cases require careful handling. Requirements document addresses these with specific solutions (recovery flag, grace period, lifecycle management)."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New monitoring service with rate limiting logic requires unit tests for rate limit calculations and integration tests for recovery flow. No security-sensitive areas touched (no auth/data handling changes)."
+  },
+
+  "created_at": "2025-12-27T05:04:00.000Z"
+}

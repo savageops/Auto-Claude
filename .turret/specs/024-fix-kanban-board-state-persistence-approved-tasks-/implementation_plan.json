@@ -1,0 +1,81 @@
+{
+  "spec_name": "fix-kanban-board-state-persistence-approved-tasks",
+  "feature": "Fix kanban board state persistence - approved tasks reverting to human review",
+  "workflow_type": "simple",
+  "total_phases": 1,
+  "recommended_workers": 1,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Implementation",
+      "description": "Add status persistence to TASK_REVIEW handler",
+      "depends_on": [],
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Add implementation_plan.json persistence after QA approval in TASK_REVIEW handler (line 234). Copy pattern from TASK_UPDATE_STATUS handler (lines 391-432): read plan file, set status='done' and planStatus='completed', write back with error handling.",
+          "service": "frontend",
+          "status": "completed",
+          "files_to_create": [],
+          "files_to_modify": [
+            "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts"
+          ],
+          "patterns_from": [
+            "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts:391-432"
+          ],
+          "verification": {
+            "type": "manual",
+            "run": "1. Approve a task in human review. 2. Refresh window. 3. Verify task remains in 'done' status. 4. Check implementation_plan.json has status='done' and planStatus='completed'."
+          },
+          "notes": "Added implementation_plan.json persistence after QA approval in TASK_REVIEW handler (lines 236-249). Follows pattern from TASK_UPDATE_STATUS handler: reads plan file, sets status='done' and planStatus='completed', writes back with error handling. Commit: 4575f31",
+          "updated_at": "2025-12-26T20:42:11.625424+00:00"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "created_at": "2025-12-26T18:26:42.624Z",
+    "updated_at": "2025-12-26T20:36:13.615Z",
+    "complexity": "simple",
+    "estimated_sessions": 1
+  },
+  "status": "human_review",
+  "planStatus": "review",
+  "updated_at": "2025-12-26T20:40:18.150Z",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-26T20:40:18.150Z",
+  "last_updated": "2025-12-26T20:51:54.977609+00:00",
+  "qa_signoff": {
+    "status": "approved",
+    "qa_session": 0,
+    "issues_found": [
+      {
+        "description": "None"
+      }
+    ],
+    "tests_passed": {},
+    "timestamp": "2025-12-26T20:51:54.977609+00:00",
+    "ready_for_qa_revalidation": false
+  },
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-26T20:47:32.241047+00:00",
+      "issues": [],
+      "duration_seconds": 302.38
+    },
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-26T20:52:14.515106+00:00",
+      "issues": [],
+      "duration_seconds": 598.54
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 2,
+    "last_iteration": 1,
+    "last_status": "approved",
+    "issues_by_type": {}
+  }
+}

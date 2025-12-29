@@ -1,4 +1,4 @@
-import { Monitor, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Monitor, RotateCcw, ZoomIn, ZoomOut } from '@/lib/icons';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import { Label } from '../ui/label';

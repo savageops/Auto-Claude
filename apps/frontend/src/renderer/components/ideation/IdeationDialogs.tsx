@@ -1,4 +1,4 @@
-import { CheckCircle2, Plus } from 'lucide-react';
+import { CheckCircle2, Plus } from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import {

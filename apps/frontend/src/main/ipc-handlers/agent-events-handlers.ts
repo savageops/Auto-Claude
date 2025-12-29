@@ -24,18 +24,47 @@ export function registerAgenteventsHandlers(
   agentManager: AgentManager,
   getMainWindow: () => BrowserWindow | null
 ): void {
+  // Buffer logs to prevent flooding IPC (100ms throttle)
+  const logBuffers: Map<string, string> = new Map();
+  const logTimers: Map<string, NodeJS.Timeout> = new Map();
+
+  const flushLogBuffer = (taskId: string) => {
+    const buffer = logBuffers.get(taskId);
+    if (buffer) {
+      const mainWindow = getMainWindow();
+      if (mainWindow) {
+        mainWindow.webContents.send(IPC_CHANNELS.TASK_LOG, taskId, buffer);
+      }
+      logBuffers.delete(taskId);
+    }
+    if (logTimers.has(taskId)) {
+      clearTimeout(logTimers.get(taskId)!);
+      logTimers.delete(taskId);
+    }
+  };
+
   // ============================================
   // Agent Manager Events → Renderer
   // ============================================
 
   agentManager.on('log', (taskId: string, log: string) => {
-    const mainWindow = getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_LOG, taskId, log);
+    // Append to buffer
+    const currentBuffer = logBuffers.get(taskId) || '';
+    logBuffers.set(taskId, currentBuffer + log);
+
+    // Schedule flush if not already scheduled
+    if (!logTimers.has(taskId)) {
+      const timer = setTimeout(() => {
+        flushLogBuffer(taskId);
+      }, 100); // 100ms throttle
+      logTimers.set(taskId, timer);
     }
   });
 
   agentManager.on('error', (taskId: string, error: string) => {
+    // Flush logs before error
+    flushLogBuffer(taskId);
+    
     const mainWindow = getMainWindow();
     if (mainWindow) {
       mainWindow.webContents.send(IPC_CHANNELS.TASK_ERROR, taskId, error);
@@ -59,6 +88,9 @@ export function registerAgenteventsHandlers(
   });
 
   agentManager.on('exit', (taskId: string, code: number | null, processType: ProcessType) => {
+    // Flush any remaining logs
+    flushLogBuffer(taskId);
+
     const mainWindow = getMainWindow();
     if (mainWindow) {
       // Stop file watcher

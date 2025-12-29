@@ -15,7 +15,7 @@ if str(_PARENT_DIR) not in sys.path:
     sys.path.insert(0, str(_PARENT_DIR))
 
 from core.workspace.git_utils import (
-    _is_auto_claude_file,
+    _is_turret_file,
     apply_path_mapping,
     detect_file_renames,
     get_file_content_from_ref,
@@ -67,6 +67,8 @@ def _detect_default_branch(project_dir: Path) -> str:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             return env_branch
@@ -78,6 +80,8 @@ def _detect_default_branch(project_dir: Path) -> str:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode == 0:
             return branch
@@ -105,6 +109,8 @@ def _get_changed_files_from_git(
             cwd=worktree_path,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
@@ -123,6 +129,8 @@ def _get_changed_files_from_git(
                 cwd=worktree_path,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=True,
             )
             files = [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
@@ -231,6 +239,8 @@ def _generate_and_save_commit_message(project_dir: Path, spec_name: str) -> None
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 diff_summary = result.stdout.strip()
@@ -241,6 +251,8 @@ def _generate_and_save_commit_message(project_dir: Path, spec_name: str) -> None
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode == 0:
                 files_changed = [
@@ -260,9 +272,9 @@ def _generate_and_save_commit_message(project_dir: Path, spec_name: str) -> None
 
         if commit_message:
             # Save to spec directory for UI to read
-            spec_dir = project_dir / ".auto-claude" / "specs" / spec_name
+            spec_dir = project_dir / ".turret" / "specs" / spec_name
             if not spec_dir.exists():
-                spec_dir = project_dir / "auto-claude" / "specs" / spec_name
+                spec_dir = project_dir / "turret" / "specs" / spec_name
 
             if spec_dir.exists():
                 commit_msg_file = spec_dir / "suggested_commit_message.txt"
@@ -292,15 +304,16 @@ def handle_review_command(project_dir: Path, spec_name: str) -> None:
     review_existing_build(project_dir, spec_name)
 
 
-def handle_discard_command(project_dir: Path, spec_name: str) -> None:
+def handle_discard_command(project_dir: Path, spec_name: str, force: bool = False) -> None:
     """
     Handle the --discard command.
 
     Args:
         project_dir: Project root directory
         spec_name: Name of the spec
+        force: If True, skip confirmation
     """
-    discard_existing_build(project_dir, spec_name)
+    discard_existing_build(project_dir, spec_name, force=force)
 
 
 def handle_list_worktrees_command(project_dir: Path) -> None:
@@ -331,12 +344,12 @@ def handle_list_worktrees_command(project_dir: Path) -> None:
 
         print("-" * 70)
         print()
-        print("  To merge:   python auto-claude/run.py --spec <name> --merge")
-        print("  To review:  python auto-claude/run.py --spec <name> --review")
-        print("  To discard: python auto-claude/run.py --spec <name> --discard")
+        print("  To merge:   python turret/run.py --spec <name> --merge")
+        print("  To review:  python turret/run.py --spec <name> --review")
+        print("  To discard: python turret/run.py --spec <name> --discard")
         print()
         print(
-            "  To cleanup all worktrees: python auto-claude/run.py --cleanup-worktrees"
+            "  To cleanup all worktrees: python turret/run.py --cleanup-worktrees"
         )
     print()
 
@@ -375,7 +388,7 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
 
     debug(MODULE, "Checking for git-level merge conflicts (non-destructive)...")
 
-    spec_branch = f"auto-claude/{spec_name}"
+    spec_branch = f"turret/{spec_name}"
     result = {
         "has_conflicts": False,
         "conflicting_files": [],
@@ -392,6 +405,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if base_result.returncode == 0:
             result["base_branch"] = base_result.stdout.strip()
@@ -402,6 +417,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if merge_base_result.returncode != 0:
             debug_warning(MODULE, "Could not find merge base")
@@ -415,6 +432,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if ahead_result.returncode == 0:
             commits_behind = int(ahead_result.stdout.strip())
@@ -440,6 +459,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # merge-tree returns exit code 1 if there are conflicts
@@ -462,11 +483,11 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
                     )
                     if match:
                         file_path = match.group(1).strip()
-                        # Skip .auto-claude files - they should never be merged
+                        # Skip .turret files - they should never be merged
                         if (
                             file_path
                             and file_path not in result["conflicting_files"]
-                            and not _is_auto_claude_file(file_path)
+                            and not _is_turret_file(file_path)
                         ):
                             result["conflicting_files"].append(file_path)
 
@@ -478,6 +499,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 main_files = (
                     set(main_files_result.stdout.strip().split("\n"))
@@ -491,6 +514,8 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
                     cwd=project_dir,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                 )
                 spec_files = (
                     set(spec_files_result.stdout.strip().split("\n"))
@@ -499,10 +524,10 @@ def _check_git_merge_conflicts(project_dir: Path, spec_name: str) -> dict:
                 )
 
                 # Files modified in both = potential conflicts
-                # Filter out .auto-claude files - they should never be merged
+                # Filter out .turret files - they should never be merged
                 conflicting = main_files & spec_files
                 result["conflicting_files"] = [
-                    f for f in conflicting if not _is_auto_claude_file(f)
+                    f for f in conflicting if not _is_turret_file(f)
                 ]
                 debug(
                     MODULE, f"Found {len(conflicting)} files modified in both branches"

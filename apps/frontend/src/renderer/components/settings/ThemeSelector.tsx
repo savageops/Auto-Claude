@@ -1,4 +1,4 @@
-import { Check, Sun, Moon, Monitor } from 'lucide-react';
+import { Check, Sun, Moon, Monitor } from '@/lib/icons';
 import { cn } from '../../lib/utils';
 import { Label } from '../ui/label';
 import { COLOR_THEMES } from '../../../shared/constants';

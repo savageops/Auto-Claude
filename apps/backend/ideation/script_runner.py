@@ -26,7 +26,7 @@ class ScriptRunner:
         """Run a Python script and return (success, output).
 
         Args:
-            script: Relative path to script from auto-claude directory
+            script: Relative path to script from turret directory
             args: Command line arguments for the script
             timeout: Maximum execution time in seconds (default: 300)
 
@@ -46,6 +46,8 @@ class ScriptRunner:
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=timeout,
             )
 

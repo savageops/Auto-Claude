@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Github, RefreshCw, KeyRound, Loader2, CheckCircle2, AlertCircle, User, Lock, Globe, ChevronDown, GitBranch } from 'lucide-react';
+import { Github, RefreshCw, KeyRound, CheckCircle2, AlertCircle, User, Lock, Globe, ChevronDown, GitBranch } from '@/lib/icons';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Switch } from '../../ui/switch';
@@ -404,7 +404,7 @@ function RepositoryDropdown({
         >
           {isLoading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
               Loading repositories...
             </span>
           ) : selectedRepo ? (
@@ -528,7 +528,7 @@ function ConnectionStatus({ isChecking, connectionStatus }: ConnectionStatusProp
           )}
         </div>
         {isChecking ? (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : connectionStatus?.connected ? (
           <CheckCircle2 className="h-4 w-4 text-success" />
         ) : (
@@ -640,7 +640,7 @@ function BranchSelector({
         >
           {isLoading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
               Loading branches...
             </span>
           ) : selectedBranch ? (

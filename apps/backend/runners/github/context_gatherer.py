@@ -292,7 +292,7 @@ class PRContextGatherer:
             if proc.returncode != 0:
                 return ""
 
-            return stdout.decode("utf-8")
+            return stdout.decode("utf-8", errors="replace")
         except asyncio.TimeoutError:
             print(f"[Context] Timeout reading {path} from {ref}", flush=True)
             return ""
@@ -328,12 +328,12 @@ class PRContextGatherer:
 
             if proc.returncode != 0:
                 print(
-                    f"[Context] Failed to get patch for {path}: {stderr.decode('utf-8')}",
+                    f"[Context] Failed to get patch for {path}: {stderr.decode('utf-8', errors='replace')}",
                     flush=True,
                 )
                 return ""
 
-            return stdout.decode("utf-8")
+            return stdout.decode("utf-8", errors="replace")
         except asyncio.TimeoutError:
             print(f"[Context] Timeout getting patch for {path}", flush=True)
             return ""

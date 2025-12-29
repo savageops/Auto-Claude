@@ -6,6 +6,7 @@ import type {
   TaskStartOptions,
   TaskStatus,
   TaskRecoveryResult,
+  TaskRefinementResult,
   ImplementationPlan,
   TaskMetadata,
   TaskLogs,
@@ -28,6 +29,7 @@ export interface TaskAPI {
   ) => Promise<IPCResult<Task>>;
   startTask: (taskId: string, options?: TaskStartOptions) => void;
   stopTask: (taskId: string) => void;
+  restartTask: (taskId: string) => Promise<IPCResult>;
   submitReview: (
     taskId: string,
     approved: boolean,
@@ -42,6 +44,11 @@ export interface TaskAPI {
     options?: import('../../shared/types').TaskRecoveryOptions
   ) => Promise<IPCResult<TaskRecoveryResult>>;
   checkTaskRunning: (taskId: string) => Promise<IPCResult<boolean>>;
+  refineTask: (briefDescription: string) => Promise<IPCResult<TaskRefinementResult>>;
+  saveUserRedirect: (
+    taskId: string,
+    instruction: string
+  ) => Promise<IPCResult>;
 
   // Workspace Management (for human review)
   getWorktreeStatus: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeStatus>>;
@@ -49,6 +56,8 @@ export interface TaskAPI {
   mergeWorktree: (taskId: string, options?: { noCommit?: boolean }) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
   mergeWorktreePreview: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeMergeResult>>;
   discardWorktree: (taskId: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>>;
+  discardWorktreeFile: (taskId: string, filePath: string) => Promise<IPCResult<import('../../shared/types').WorktreeDiscardFileResult>>;
+  getWorktreeConflictDiff: (taskId: string, filePath: string) => Promise<IPCResult<string>>;
   listWorktrees: (projectId: string) => Promise<IPCResult<import('../../shared/types').WorktreeListResult>>;
   archiveTasks: (projectId: string, taskIds: string[], version?: string) => Promise<IPCResult<boolean>>;
   unarchiveTasks: (projectId: string, taskIds: string[]) => Promise<IPCResult<boolean>>;
@@ -98,6 +107,9 @@ export const createTaskAPI = (): TaskAPI => ({
   stopTask: (taskId: string): void =>
     ipcRenderer.send(IPC_CHANNELS.TASK_STOP, taskId),
 
+  restartTask: (taskId: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_RESTART, taskId),
+
   submitReview: (
     taskId: string,
     approved: boolean,
@@ -120,6 +132,12 @@ export const createTaskAPI = (): TaskAPI => ({
   checkTaskRunning: (taskId: string): Promise<IPCResult<boolean>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_CHECK_RUNNING, taskId),
 
+  refineTask: (briefDescription: string): Promise<IPCResult<TaskRefinementResult>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_REFINE, briefDescription),
+
+  saveUserRedirect: (taskId: string, instruction: string): Promise<IPCResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_SAVE_REDIRECT, taskId, instruction),
+
   // Workspace Management
   getWorktreeStatus: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeStatus>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_STATUS, taskId),
@@ -135,6 +153,12 @@ export const createTaskAPI = (): TaskAPI => ({
 
   discardWorktree: (taskId: string): Promise<IPCResult<import('../../shared/types').WorktreeDiscardResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD, taskId),
+
+  discardWorktreeFile: (taskId: string, filePath: string): Promise<IPCResult<import('../../shared/types').WorktreeDiscardFileResult>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_DISCARD_FILE, taskId, filePath),
+
+  getWorktreeConflictDiff: (taskId: string, filePath: string): Promise<IPCResult<string>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.TASK_WORKTREE_CONFLICT_DIFF, taskId, filePath),
 
   listWorktrees: (projectId: string): Promise<IPCResult<import('../../shared/types').WorktreeListResult>> =>
     ipcRenderer.invoke(IPC_CHANNELS.TASK_LIST_WORKTREES, projectId),

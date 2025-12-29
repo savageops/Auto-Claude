@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Activity, TrendingUp, AlertCircle } from 'lucide-react';
+import { Activity, TrendingUp, AlertCircle } from '@/lib/icons';
 import {
   Tooltip,
   TooltipContent,

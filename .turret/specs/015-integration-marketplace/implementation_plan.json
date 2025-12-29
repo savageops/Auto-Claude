@@ -1,0 +1,8 @@
+{
+  "feature": "Integration Marketplace",
+  "description": "# Integration Marketplace\n\nCreate a marketplace for integrations with external tools (IDEs, CI/CD, project management, communication). Include official integrations for popular tools and community-contributed ones.\n\n## Rationale\nExpands Turret's reach and reduces friction for teams using various tools. Addresses user pain point about parallel development coordination by integrating with existing workflows.\n\n## User Stories\n- As a developer, I want to connect Turret to our Jira so that tasks sync automatically\n- As a team, we want Slack integration so that everyone gets notified of progress\n\n## Acceptance Criteria\n- [ ] Integration catalog shows available connections\n- [ ] Official integrations for GitHub, GitLab, Jira, Slack\n- [ ] One-click installation for integrations\n- [ ] Integration health monitoring and troubleshooting\n- [ ] Community can submit integrations for review\n",
+  "created_at": "2025-12-26T17:53:17.969Z",
+  "updated_at": "2025-12-26T17:53:17.969Z",
+  "status": "pending",
+  "phases": []
+}

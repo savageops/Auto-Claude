@@ -183,10 +183,10 @@ def handle_workspace_choice(
         print(muted("-" * 60))
         print()
         print("When you're done testing:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
         print("To discard (if you don't like it):")
-        print(muted(f"  python auto-claude/run.py --spec {spec_name} --discard"))
+        print(muted(f"  python turret/run.py --spec {spec_name} --discard"))
         print()
 
     elif choice == WorkspaceChoice.MERGE:
@@ -221,7 +221,7 @@ def handle_workspace_choice(
             print(highlight(f"  cd {staging_path}"))
         print()
         print("To add these changes to your project:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
 
     else:  # LATER
@@ -235,10 +235,10 @@ def handle_workspace_choice(
             print(highlight(f"  cd {project_dir}/.worktrees/{spec_name}"))
         print()
         print("When you're ready to add it:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+        print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
         print()
         print("To see what was built:")
-        print(muted(f"  python auto-claude/run.py --spec {spec_name} --review"))
+        print(muted(f"  python turret/run.py --spec {spec_name} --review"))
         print()
 
 
@@ -246,7 +246,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
     """
     Show what an existing build contains.
 
-    Called when user runs: python auto-claude/run.py --spec X --review
+    Called when user runs: python turret/run.py --spec X --review
 
     Args:
         project_dir: The project directory
@@ -262,7 +262,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
         print_status(f"No existing build found for '{spec_name}'.", "warning")
         print()
         print("To start a new build:")
-        print(highlight(f"  python auto-claude/run.py --spec {spec_name}"))
+        print(highlight(f"  python turret/run.py --spec {spec_name}"))
         return False
 
     content = [
@@ -284,7 +284,7 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
     print(highlight(f"  cd {worktree_path}"))
     print()
     print("To add these changes to your project:")
-    print(highlight(f"  python auto-claude/run.py --spec {spec_name} --merge"))
+    print(highlight(f"  python turret/run.py --spec {spec_name} --merge"))
     print()
     print("To see full diff:")
     if worktree_info:
@@ -294,17 +294,18 @@ def review_existing_build(project_dir: Path, spec_name: str) -> bool:
     return True
 
 
-def discard_existing_build(project_dir: Path, spec_name: str) -> bool:
+def discard_existing_build(project_dir: Path, spec_name: str, force: bool = False) -> bool:
     """
     Discard an existing build (with confirmation).
 
-    Called when user runs: python auto-claude/run.py --spec X --discard
+    Called when user runs: python turret/run.py --spec X --discard
 
     Requires typing "delete" to confirm - prevents accidents.
 
     Args:
         project_dir: The project directory
         spec_name: Name of the spec
+        force: If True, ship confirmation
 
     Returns:
         True if discarded
@@ -316,32 +317,37 @@ def discard_existing_build(project_dir: Path, spec_name: str) -> bool:
         print_status(f"No existing build found for '{spec_name}'.", "warning")
         return False
 
-    content = [
-        warning(f"{icon(Icons.WARNING)} DELETE BUILD RESULTS?"),
-        "",
-        "This will permanently delete all work for this build.",
-    ]
-    print()
-    print(box(content, width=60, style="heavy"))
+    if not force:
+        content = [
+            warning(f"{icon(Icons.WARNING)} DELETE BUILD RESULTS?"),
+            "",
+            "This will permanently delete all work for this build.",
+        ]
+        print()
+        print(box(content, width=60, style="heavy"))
 
     manager = WorktreeManager(project_dir)
 
-    show_build_summary(manager, spec_name)
-
-    print()
-    print(f"Are you sure? Type {highlight('delete')} to confirm: ", end="")
-
-    try:
-        confirmation = input().strip().lower()
-    except KeyboardInterrupt:
+    if not force:
+        show_build_summary(manager, spec_name)
         print()
-        print_status("Cancelled. Your build is still saved.", "info")
-        return False
+        print(f"Are you sure? Type {highlight('delete')} to confirm: ", end="")
 
-    if confirmation != "delete":
-        print()
-        print_status("Cancelled. Your build is still saved.", "info")
-        return False
+        try:
+            confirmation = input().strip().lower()
+        except KeyboardInterrupt:
+            print()
+            print_status("Cancelled. Your build is still saved.", "info")
+            return False
+        except EOFError:
+            print()
+            print_status("Non-interactive mode requires --force to discard.", "error")
+            return False
+
+        if confirmation != "delete":
+            print()
+            print_status("Cancelled. Your build is still saved.", "info")
+            return False
 
     # Actually delete
     manager.remove_worktree(spec_name, delete_branch=True)

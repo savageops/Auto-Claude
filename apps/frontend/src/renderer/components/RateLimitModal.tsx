@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, ExternalLink, Clock, RefreshCw, User, ChevronDown, Check, Zap, Star, Plus } from 'lucide-react';
+import { AlertCircle, ExternalLink, Clock, RefreshCw, User, ChevronDown, Check, Zap, Star, Plus } from '@/lib/icons';
 import {
   Dialog,
   DialogContent,

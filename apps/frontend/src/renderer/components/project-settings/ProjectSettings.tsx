@@ -1,4 +1,4 @@
-import { Settings2, Save, Loader2 } from 'lucide-react';
+import { Settings2, Save, RefreshCw } from '@/lib/icons';
 import { LinearTaskImportModal } from '../LinearTaskImportModal';
 import {
   Dialog,
@@ -166,7 +166,7 @@ export function ProjectSettings({ project, open, onOpenChange }: ProjectSettings
           <Button onClick={() => handleSave(() => onOpenChange(false))} disabled={isSaving || isSavingEnv}>
             {isSaving || isSavingEnv ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (

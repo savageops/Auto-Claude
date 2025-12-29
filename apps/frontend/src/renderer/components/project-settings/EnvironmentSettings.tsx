@@ -4,13 +4,13 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  Loader2,
+  RefreshCw,
   Globe,
   Check,
   Star,
   Settings,
   Users
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { cn } from '../../lib/utils';
@@ -103,7 +103,7 @@ export function EnvironmentSettings({
         <div className="space-y-4 pl-6 pt-2">
           {isLoadingEnv || isLoadingProfiles ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <RefreshCw className="h-4 w-4 animate-spin" />
               Loading configuration...
             </div>
           ) : envConfig ? (
@@ -142,7 +142,7 @@ export function EnvironmentSettings({
                       disabled={isCheckingClaudeAuth}
                     >
                       {isCheckingClaudeAuth ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <RefreshCw className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
                           <ExternalLink className="h-4 w-4 mr-2" />

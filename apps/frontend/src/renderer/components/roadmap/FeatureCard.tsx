@@ -1,4 +1,4 @@
-import { ExternalLink, Play, TrendingUp } from 'lucide-react';
+import { ExternalLink, Play, TrendingUp } from '@/lib/icons';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -19,7 +19,7 @@ export function FeatureCard({
   hasCompetitorInsight = false,
 }: FeatureCardProps) {
   return (
-    <Card className="p-4 hover:bg-muted/50 cursor-pointer transition-colors" onClick={onClick}>
+    <Card className="p-4 hover:bg-secondary cursor-pointer transition-colors" onClick={onClick}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">

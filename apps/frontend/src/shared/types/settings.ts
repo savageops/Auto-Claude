@@ -7,7 +7,7 @@ import type { ChangelogFormat, ChangelogAudience, ChangelogEmojiLevel } from './
 import type { SupportedLanguage } from '../constants/i18n';
 
 // Color theme types for multi-theme support
-export type ColorTheme = 'default' | 'dusk' | 'lime' | 'ocean' | 'retro' | 'neo' | 'forest';
+export type ColorTheme = 'default' | 'dusk' | 'steel' | 'ocean' | 'stone' | 'moss' | 'frost' | 'ash' | 'subtle' | 'mono' | 'midnight' | 'sand' | 'slate' | 'charcoal' | 'sage' | 'ink' | 'pearl' | 'graphite';
 
 export interface ThemePreviewColors {
   bg: string;
@@ -120,9 +120,58 @@ export interface AppSettings {
   _migratedAgentProfileToAuto?: boolean;
   // Language preference for UI (i18n)
   language?: SupportedLanguage;
+  // Prompt configuration
+  promptConfig?: PromptConfig;
+  // Legacy: AI Merge configuration (deprecated - use promptConfig.merge)
+  mergeConfig?: MergePromptConfig;
 }
 
-// Auto-Claude Source Environment Configuration (for auto-claude repo .env)
+// Prompt Configuration
+export interface PromptConfig {
+  // Merge prompts configuration
+  merge: MergePromptConfig;
+  // Task execution prompts
+  taskExecution: TaskExecutionPromptConfig;
+  // Global custom instructions appended to all prompts
+  globalInstructions?: string;
+}
+
+// AI Merge Configuration
+export interface MergePromptConfig {
+  // System prompt - overall behavior
+  systemPrompt: string;
+  // Critical rules - what to never do
+  preventDeletion: boolean;
+  preventFeatureReduction: boolean;
+  preserveAllImports: boolean;
+  preserveAllHooks: boolean;
+  preserveAllProps: boolean;
+  preserveAllState: boolean;
+  // Conflict resolution strategy
+  combineConflicts: boolean;  // Combine both approaches vs choose one
+  includeMoreWhenUncertain: boolean;
+  // Custom merge instructions
+  customInstructions?: string;
+}
+
+// Task Execution Prompts (Planner, Coder, QA, and supporting agents)
+export interface TaskExecutionPromptConfig {
+  // Base prompts from .md files (editable via UI, saved back to files)
+  plannerBasePrompt?: string;
+  coderBasePrompt?: string;
+  qaBasePrompt?: string;
+  followupPlannerBasePrompt?: string;
+  qaFixerBasePrompt?: string;
+  validationFixerBasePrompt?: string;
+  coderRecoveryBasePrompt?: string;
+  prFixerBasePrompt?: string;
+  // Custom system prompt additions (appended to base)
+  plannerInstructions?: string;
+  coderInstructions?: string;
+  qaInstructions?: string;
+}
+
+// Turret Source Environment Configuration (for turret repo .env)
 export interface SourceEnvConfig {
   // Claude Authentication (required for ideation, roadmap generation, etc.)
   hasClaudeToken: boolean;
@@ -139,7 +188,7 @@ export interface SourceEnvCheckResult {
   error?: string;
 }
 
-// Auto Claude Source Update Types
+// Turret Source Update Types
 export interface AutoBuildSourceUpdateCheck {
   updateAvailable: boolean;
   currentVersion: string;

@@ -26,8 +26,12 @@ export const IPC_CHANNELS = {
   TASK_STOP: 'task:stop',
   TASK_REVIEW: 'task:review',
   TASK_UPDATE_STATUS: 'task:updateStatus',
+  TASK_STATUS: 'task:status',
   TASK_RECOVER_STUCK: 'task:recoverStuck',
+  TASK_RESTART: 'task:restart',
   TASK_CHECK_RUNNING: 'task:checkRunning',
+  TASK_REFINE: 'task:refine',
+  TASK_SAVE_REDIRECT: 'task:saveRedirect',  // Save user redirect instruction
 
   // Workspace management (for human review)
   // Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
@@ -36,6 +40,8 @@ export const IPC_CHANNELS = {
   TASK_WORKTREE_MERGE: 'task:worktreeMerge',
   TASK_WORKTREE_MERGE_PREVIEW: 'task:worktreeMergePreview',  // Preview merge conflicts before merging
   TASK_WORKTREE_DISCARD: 'task:worktreeDiscard',
+  TASK_WORKTREE_DISCARD_FILE: 'task:worktreeDiscardFile',  // Discard specific file changes
+  TASK_WORKTREE_CONFLICT_DIFF: 'task:worktreeConflictDiff',  // Get diff for specific conflict
   TASK_LIST_WORKTREES: 'task:listWorktrees',
   TASK_ARCHIVE: 'task:archive',
   TASK_UNARCHIVE: 'task:unarchive',
@@ -106,6 +112,23 @@ export const IPC_CHANNELS = {
   // Settings
   SETTINGS_GET: 'settings:get',
   SETTINGS_SAVE: 'settings:save',
+
+  // Prompt file operations (read/write base prompts from backend .md files)
+  PROMPT_READ_BASE: 'prompt:readBase',
+  PROMPT_WRITE_BASE: 'prompt:writeBase',
+
+  // Ideation prompts (dynamic from backend dict)
+  PROMPT_LIST_IDEATION: 'prompt:listIdeation',
+  PROMPT_READ_IDEATION: 'prompt:readIdeation',
+  PROMPT_WRITE_IDEATION: 'prompt:writeIdeation',
+
+  // Roadmap prompts
+  PROMPT_READ_ROADMAP: 'prompt:readRoadmap',
+  PROMPT_WRITE_ROADMAP: 'prompt:writeRoadmap',
+
+  // Insights prompt
+  PROMPT_READ_INSIGHTS: 'prompt:readInsights',
+  PROMPT_WRITE_INSIGHTS: 'prompt:writeInsights',
 
   // Dialogs
   DIALOG_SELECT_DIRECTORY: 'dialog:selectDirectory',
@@ -283,13 +306,13 @@ export const IPC_CHANNELS = {
   OLLAMA_PULL_MODEL: 'ollama:pullModel',
   OLLAMA_PULL_PROGRESS: 'ollama:pullProgress',
 
-  // Auto Claude source updates
+  // Turret source updates
   AUTOBUILD_SOURCE_CHECK: 'autobuild:source:check',
   AUTOBUILD_SOURCE_DOWNLOAD: 'autobuild:source:download',
   AUTOBUILD_SOURCE_VERSION: 'autobuild:source:version',
   AUTOBUILD_SOURCE_PROGRESS: 'autobuild:source:progress',
 
-  // Auto Claude source environment configuration
+  // Turret source environment configuration
   AUTOBUILD_SOURCE_ENV_GET: 'autobuild:source:env:get',
   AUTOBUILD_SOURCE_ENV_UPDATE: 'autobuild:source:env:update',
   AUTOBUILD_SOURCE_ENV_CHECK_TOKEN: 'autobuild:source:env:checkToken',
@@ -361,5 +384,7 @@ export const IPC_CHANNELS = {
   RELEASE_GET_VERSIONS: 'release:getVersions',
 
   // Release events (main -> renderer)
-  RELEASE_PROGRESS: 'release:progress'
-} as const;
+  RELEASE_PROGRESS: 'release:progress',
+  RELEASE_COMPLETE: 'release:complete',
+  RELEASE_ERROR: 'release:error',
+};

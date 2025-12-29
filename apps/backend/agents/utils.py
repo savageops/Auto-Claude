@@ -22,6 +22,8 @@ def get_latest_commit(project_dir: Path) -> str | None:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         return result.stdout.strip()
@@ -37,6 +39,8 @@ def get_commit_count(project_dir: Path) -> int:
             cwd=project_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
         )
         return int(result.stdout.strip())
@@ -54,6 +58,30 @@ def load_implementation_plan(spec_dir: Path) -> dict | None:
             return json.load(f)
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def save_implementation_plan(spec_dir: Path, plan: dict) -> bool:
+    """Save the implementation plan JSON."""
+    plan_file = spec_dir / "implementation_plan.json"
+    try:
+        with open(plan_file, "w") as f:
+            json.dump(plan, f, indent=2)
+        return True
+    except OSError:
+        return False
+
+
+def update_subtask_status(spec_dir: Path, subtask_id: str, status: str) -> bool:
+    """Update the status of a subtask in the implementation plan."""
+    plan = load_implementation_plan(spec_dir)
+    if not plan:
+        return False
+
+    subtask = find_subtask_in_plan(plan, subtask_id)
+    if subtask:
+        subtask["status"] = status
+        return save_implementation_plan(spec_dir, plan)
+    return False
 
 
 def find_subtask_in_plan(plan: dict, subtask_id: str) -> dict | None:

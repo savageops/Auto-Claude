@@ -14,6 +14,7 @@ Public API
 ----------
 Main functions:
 - bash_security_hook: Pre-tool-use hook for command validation
+- file_edit_blocking_hook: Pre-tool-use hook for file edit safety
 - validate_command: Standalone validation function for testing
 - get_security_profile: Get or create security profile for a project
 - reset_profile_cache: Reset cached security profile
@@ -35,7 +36,7 @@ from project_analyzer import (
     needs_validation,
 )
 
-from .hooks import bash_security_hook, validate_command
+from .hooks import bash_security_hook, file_edit_blocking_hook, validate_command
 
 # Command parsing utilities
 from .parser import (
@@ -72,6 +73,7 @@ from .validator import (
 __all__ = [
     # Main API
     "bash_security_hook",
+    "file_edit_blocking_hook",
     "validate_command",
     "get_security_profile",
     "reset_profile_cache",

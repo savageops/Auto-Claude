@@ -102,6 +102,27 @@ def create_subtask_tools(spec_dir: Path, project_dir: Path) -> list:
             # Update plan metadata
             plan["last_updated"] = datetime.now(timezone.utc).isoformat()
 
+            # Check if ALL subtasks are now completed
+            all_completed = True
+            total_subtasks = 0
+            for phase in plan.get("phases", []):
+                for sub in phase.get("subtasks", []):
+                    total_subtasks += 1
+                    if sub.get("status") != "completed":
+                        all_completed = False
+                        # No break here, we want to count total_subtasks for metadata
+            
+            if all_completed and total_subtasks > 0:
+                # Transition overall plan status to human review
+                # Use human_review as the terminal state before merge
+                plan["status"] = "human_review"
+                # planStatus 'review' signals that the AI has finished its work
+                plan["planStatus"] = "review"
+                # Add a marker for the UI to know it's ready for human sign-off
+                if "metadata" not in plan:
+                    plan["metadata"] = {}
+                plan["metadata"]["all_subtasks_completed_at"] = datetime.now(timezone.utc).isoformat()
+
             with open(plan_file, "w") as f:
                 json.dump(plan, f, indent=2)
 
@@ -109,7 +130,7 @@ def create_subtask_tools(spec_dir: Path, project_dir: Path) -> list:
                 "content": [
                     {
                         "type": "text",
-                        "text": f"Successfully updated subtask '{subtask_id}' to status '{status}'",
+                        "text": f"Successfully updated subtask '{subtask_id}' to status '{status}'" + (" (All tasks complete!)" if all_completed else ""),
                     }
                 ]
             }

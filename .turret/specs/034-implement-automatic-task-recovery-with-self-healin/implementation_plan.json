@@ -1,0 +1,405 @@
+{
+  "feature": "Auto-Recovery for Stuck Tasks",
+  "description": "Implement an automatic self-healing system that detects and recovers tasks that appear stuck (marked as running but no active process). The system runs as a background monitoring service that checks all tasks every 10 seconds and automatically restarts stuck tasks with rate limiting (max 3 restarts per 3 minutes per task).",
+  "workflow_type": "feature",
+  "services_involved": [
+    "frontend"
+  ],
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Core TaskMonitorService",
+      "type": "implementation",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Create TaskMonitorService class with singleton pattern",
+          "description": "Create apps/frontend/src/main/agent/task-monitor.ts with:\n- Singleton pattern (static instance, getInstance(), getTaskMonitor() export)\n- Private properties: restartAttempts Map<string, Array<{timestamp: number}>>, monitorInterval, agentManager, projectStore, isRecovering Map<string, boolean>\n- Configuration constants: CHECK_INTERVAL_MS (10000), RATE_LIMIT_COUNT (3), RATE_LIMIT_WINDOW_MS (180000), GRACE_PERIOD_MS (2000)\n- Method stubs for all public/private methods",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 15,
+          "acceptanceCriteria": [
+            "TaskMonitorService class exists with singleton pattern",
+            "All properties and constants are defined",
+            "getTaskMonitor() function is exported"
+          ],
+          "verification": {
+            "type": "file_exists",
+            "path": "apps/frontend/src/main/agent/task-monitor.ts"
+          },
+          "notes": "Created TaskMonitorService class with singleton pattern in apps/frontend/src/main/agent/task-monitor.ts. Includes all required properties, constants, and method implementations. Committed as 00a8dca.",
+          "updated_at": "2025-12-27T05:13:49.494944+00:00"
+        },
+        {
+          "id": "1.2",
+          "title": "Implement rate limiting methods",
+          "description": "Implement rate limiting logic:\n- cleanupOldAttempts(taskId): Remove attempts older than RATE_LIMIT_WINDOW_MS from restartAttempts Map\n- checkRateLimit(taskId): Return true if under limit (< RATE_LIMIT_COUNT), false if exceeded\n- recordRestartAttempt(taskId): Add new {timestamp: Date.now()} to restartAttempts Map",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 15,
+          "acceptanceCriteria": [
+            "cleanupOldAttempts removes entries older than 3 minutes",
+            "checkRateLimit returns false after 3 attempts within window",
+            "checkRateLimit returns true after window expires",
+            "recordRestartAttempt adds timestamp to the correct task"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "cleanupOldAttempts|checkRateLimit|recordRestartAttempt",
+            "path": "apps/frontend/src/main/agent/task-monitor.ts"
+          },
+          "notes": "Rate limiting methods were already fully implemented in subtask 1.1. Verified all acceptance criteria: cleanupOldAttempts filters attempts older than 3 minutes (RATE_LIMIT_WINDOW_MS=180000), checkRateLimit returns false when >= 3 attempts within window, recordRestartAttempt correctly adds {timestamp: Date.now()} to the task's attempts array. No additional code changes required.",
+          "updated_at": "2025-12-27T11:10:12.067531+00:00"
+        },
+        {
+          "id": "1.3",
+          "title": "Implement grace period check",
+          "description": "Implement isWithinGracePeriod(task) method:\n- Check if task.statusUpdatedAt is within GRACE_PERIOD_MS (2 seconds) of current time\n- Return true if within grace period (should skip recovery)\n- Return false if grace period has passed or timestamp missing",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 10,
+          "acceptanceCriteria": [
+            "Returns true for tasks with status changed within 2 seconds",
+            "Returns false for tasks with status changed more than 2 seconds ago",
+            "Handles missing timestamp gracefully (returns false)"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "isWithinGracePeriod",
+            "path": "apps/frontend/src/main/agent/task-monitor.ts"
+          },
+          "notes": "The isWithinGracePeriod(task) method was already fully implemented in subtask 1.1. Verified implementation at lines 133-145 of task-monitor.ts: 1) Returns false if task.updatedAt is missing (handles missing timestamp gracefully), 2) Converts Date to timestamp properly handling both Date objects and strings, 3) Returns true if timeSinceUpdate < GRACE_PERIOD_MS (2000ms), 4) Returns false if grace period has passed. All acceptance criteria met. Note: The Task type uses 'updatedAt' not 'statusUpdatedAt' - updatedAt is updated whenever task changes including status changes.",
+          "updated_at": "2025-12-27T11:11:49.645689+00:00"
+        },
+        {
+          "id": "1.4",
+          "title": "Implement startMonitoring and stopMonitoring lifecycle methods",
+          "description": "Implement lifecycle methods:\n- startMonitoring(agentManager, projectStore, getMainWindow): Store references, start setInterval with CHECK_INTERVAL_MS, log with [TaskMonitor] prefix\n- stopMonitoring(): Clear interval, nullify references, log stop message\n- Add guard to prevent double-start (check if monitorInterval exists)",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 10,
+          "acceptanceCriteria": [
+            "startMonitoring stores references and starts interval",
+            "stopMonitoring clears interval and logs",
+            "Double-start is prevented with guard check",
+            "Logging uses [TaskMonitor] prefix"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "startMonitoring|stopMonitoring",
+            "path": "apps/frontend/src/main/agent/task-monitor.ts"
+          },
+          "notes": "Implemented lifecycle methods for TaskMonitorService:\n- startMonitoring(agentManager, projectStore, getMainWindow): Stores all three references, starts setInterval with CHECK_INTERVAL_MS (10000ms), logs with [TaskMonitor] prefix\n- stopMonitoring(): Clears interval, nullifies all references (agentManager, projectStore, getMainWindow), clears restartAttempts and isRecovering maps, logs stop message\n- Guard prevents double-start by checking if monitorInterval exists, logs \"Already running, skipping start\"\n- Added getMainWindowCallback() and getAgentManager() accessor methods for phase 3 recovery integration\n- Committed as 0be1c69",
+          "updated_at": "2025-12-27T11:14:46.006038+00:00"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Extract Recovery Logic to Shared Function",
+      "type": "refactoring",
+      "depends_on": [
+        1
+      ],
+      "subtasks": [
+        {
+          "id": "2.1",
+          "title": "Create recoverStuckTaskInternal shared function",
+          "description": "Extract recovery logic from TASK_RECOVER_STUCK handler (lines 553-815) into a new exported async function:\n- Function signature: recoverStuckTaskInternal(taskId: string, options: { targetStatus?: TaskStatus; autoRestart?: boolean }, agentManager: AgentManager, getMainWindow: () => BrowserWindow | null)\n- Move all logic except the isActuallyRunning check into this function\n- Return the same IPCResult type as the IPC handler",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 25,
+          "acceptanceCriteria": [
+            "recoverStuckTaskInternal function exists and is exported",
+            "Function contains all recovery logic from the handler",
+            "Function accepts agentManager and getMainWindow as parameters",
+            "Returns same result structure as IPC handler"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "export async function recoverStuckTaskInternal",
+            "path": "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts"
+          },
+          "notes": "Extracted recovery logic from TASK_RECOVER_STUCK handler into recoverStuckTaskInternal function:\\n- Function signature: recoverStuckTaskInternal(taskId, options, agentManager, getMainWindow)\\n- Contains all recovery logic (lines 578-812) except the isActuallyRunning check\\n- Properly exports the function for use by TaskMonitorService\\n- Returns same IPCResult type as the IPC handler\\n- TypeScript build verified successfully\\n- Committed as 89ee032",
+          "updated_at": "2025-12-27T11:17:51.710214+00:00"
+        },
+        {
+          "id": "2.2",
+          "title": "Refactor IPC handler to use shared function",
+          "description": "Update TASK_RECOVER_STUCK IPC handler to:\n- Keep the isActuallyRunning check as early exit\n- Call recoverStuckTaskInternal() with all required parameters\n- Return the result from the shared function",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 10,
+          "acceptanceCriteria": [
+            "IPC handler delegates to recoverStuckTaskInternal",
+            "Manual recovery from UI still works correctly",
+            "No duplicate code between handler and shared function"
+          ],
+          "verification": {
+            "type": "command",
+            "run": "cd apps/frontend && npm run build"
+          },
+          "notes": "Refactored TASK_RECOVER_STUCK IPC handler to delegate to recoverStuckTaskInternal:\\n- Kept isActuallyRunning check as early exit for tasks that are still running\\n- Handler now calls recoverStuckTaskInternal(taskId, options, agentManager, getMainWindow)\\n- Removed 237 lines of duplicate recovery logic\\n- TypeScript build verified successfully\\n- Committed as 7123b01",
+          "updated_at": "2025-12-27T11:20:45.431871+00:00"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Implement Monitoring Loop",
+      "type": "implementation",
+      "depends_on": [
+        2
+      ],
+      "subtasks": [
+        {
+          "id": "3.1",
+          "title": "Implement checkAllTasks monitoring loop",
+          "description": "Implement the private async checkAllTasks() method:\n- Return early if projectStore or agentManager is null\n- Get all projects from projectStore.getAllProjects()\n- For each project, iterate through project.tasks\n- Filter for tasks with status 'in_progress' or 'ai_review'\n- Skip if agentManager.isRunning(task.id) returns true\n- Skip if isWithinGracePeriod(task) returns true\n- Skip if isRecovering.get(task.id) is true\n- For stuck tasks: log detection, cleanup old attempts, check rate limit\n- If under rate limit: set isRecovering, call recoverStuckTaskInternal, record attempt, clear isRecovering",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 25,
+          "acceptanceCriteria": [
+            "Loop iterates through all projects and tasks",
+            "Only checks tasks with in_progress or ai_review status",
+            "Skips tasks that are actually running",
+            "Skips tasks within grace period",
+            "Skips tasks already being recovered",
+            "Logs stuck task detection with [TaskMonitor] prefix",
+            "Calls recoverStuckTaskInternal for stuck tasks under rate limit"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "checkAllTasks|recoverStuckTaskInternal",
+            "path": "apps/frontend/src/main/agent/task-monitor.ts"
+          },
+          "notes": "Implementation of checkAllTasks() was already completed and committed as ac97434. Verified all acceptance criteria:\n\n1. \u2705 Loop iterates through all projects and tasks - Uses getProjects() and getTasks(project.id)\n2. \u2705 Only checks tasks with in_progress or ai_review status - Lines 215-217\n3. \u2705 Skips tasks that are actually running - agentManager.isRunning(task.id) check\n4. \u2705 Skips tasks within grace period - isWithinGracePeriod(task) check\n5. \u2705 Skips tasks already being recovered - isTaskRecovering(task.id) check\n6. \u2705 Logs stuck task detection with [TaskMonitor] prefix - Line 235\n7. \u2705 Calls recoverStuckTaskInternal for stuck tasks under rate limit - Lines 272-277\n\nTypeScript build verified successfully. Implementation follows refactored pattern using checkTask() helper method for clean separation of concerns.",
+          "updated_at": "2025-12-27T11:27:04.838627+00:00"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Integration with AgentManager and App Lifecycle",
+      "type": "integration",
+      "depends_on": [
+        3
+      ],
+      "subtasks": [
+        {
+          "id": "4.1",
+          "title": "Add AgentManager methods for task monitoring",
+          "description": "Add methods to AgentManager class in apps/frontend/src/main/agent/agent-manager.ts:\n- startTaskMonitoring(projectStore, getMainWindow): Get TaskMonitor singleton and call startMonitoring\n- stopTaskMonitoring(): Get TaskMonitor singleton and call stopMonitoring\nThese are convenience methods that delegate to the singleton TaskMonitorService",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 10,
+          "acceptanceCriteria": [
+            "startTaskMonitoring method exists and works",
+            "stopTaskMonitoring method exists and works",
+            "Methods delegate to TaskMonitorService singleton"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "startTaskMonitoring|stopTaskMonitoring",
+            "path": "apps/frontend/src/main/agent/agent-manager.ts"
+          },
+          "notes": "Added startTaskMonitoring() and stopTaskMonitoring() convenience methods to AgentManager class in apps/frontend/src/main/agent/agent-manager.ts. These methods delegate to the TaskMonitorService singleton via getTaskMonitor(). TypeScript build verified successfully. Committed as 5b96515.",
+          "updated_at": "2025-12-27T11:29:09.651965+00:00"
+        },
+        {
+          "id": "4.2",
+          "title": "Export TaskMonitorService from agent module",
+          "description": "Update apps/frontend/src/main/agent/index.ts to export:\n- TaskMonitorService class\n- getTaskMonitor() function",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 5,
+          "acceptanceCriteria": [
+            "TaskMonitorService is exported from agent/index.ts",
+            "getTaskMonitor is exported from agent/index.ts"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "TaskMonitorService|getTaskMonitor",
+            "path": "apps/frontend/src/main/agent/index.ts"
+          },
+          "notes": "Updated apps/frontend/src/main/agent/index.ts to export TaskMonitorService class and getTaskMonitor() function from task-monitor.ts module. Updated module documentation to include TaskMonitorService description. TypeScript build verified successfully. Committed as ece25f3.",
+          "updated_at": "2025-12-27T11:30:59.453108+00:00"
+        },
+        {
+          "id": "4.3",
+          "title": "Start monitoring on app init",
+          "description": "Update apps/frontend/src/main/index.ts:\n- Import getProjectStore from project-store module\n- After IPC handlers setup and window creation, call agentManager.startTaskMonitoring(projectStore, getMainWindow)\n- Add logging: console.warn('[main] Task monitor initialized and started')",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 15,
+          "acceptanceCriteria": [
+            "Task monitor starts after app initialization",
+            "Proper logging indicates monitor started",
+            "Monitor has access to agentManager, projectStore, and getMainWindow"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "startTaskMonitoring|Task monitor",
+            "path": "apps/frontend/src/main/index.ts"
+          },
+          "notes": "Implemented task monitoring initialization in main/index.ts. Added import for projectStore, startTaskMonitoring call after window creation, and stopTaskMonitoring call in before-quit handler with appropriate logging.",
+          "updated_at": "2025-12-27T11:33:40.159686+00:00"
+        },
+        {
+          "id": "4.4",
+          "title": "Stop monitoring on app quit",
+          "description": "Update the before-quit handler in apps/frontend/src/main/index.ts:\n- Call agentManager.stopTaskMonitoring() before agentManager.killAll()\n- Add logging: console.warn('[main] Task monitor stopped')",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 5,
+          "acceptanceCriteria": [
+            "Task monitor stops on app quit",
+            "Monitor stops before agent processes are killed",
+            "Proper logging indicates monitor stopped"
+          ],
+          "verification": {
+            "type": "grep",
+            "pattern": "stopTaskMonitoring",
+            "path": "apps/frontend/src/main/index.ts"
+          },
+          "notes": "Already implemented as part of subtask 4.3. The before-quit handler includes agentManager.stopTaskMonitoring() call before killAll() with logging: console.warn('[main] Task monitor stopped')",
+          "updated_at": "2025-12-27T11:33:54.176801+00:00"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Testing and Verification",
+      "type": "verification",
+      "depends_on": [
+        4
+      ],
+      "subtasks": [
+        {
+          "id": "5.1",
+          "title": "Write unit tests for TaskMonitorService",
+          "description": "Create apps/frontend/src/main/agent/task-monitor.test.ts with tests:\n- Rate limit enforcement: 4th restart blocked within 3 minutes\n- Rate limit reset: Limit resets after 3-minute window expires\n- Cleanup old attempts: Attempts older than 3 min are removed\n- Grace period: No false positives within 2s of status change\n- Lifecycle: start/stop methods work correctly\n- Double-start prevention: Starting when already started is a no-op",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 30,
+          "acceptanceCriteria": [
+            "Test file exists with all specified test cases",
+            "All tests pass",
+            "Tests use Jest mocking for dependencies"
+          ],
+          "verification": {
+            "type": "command",
+            "run": "cd apps/frontend && npm test -- --testPathPattern=task-monitor.test.ts"
+          },
+          "notes": "Created apps/frontend/src/main/agent/task-monitor.test.ts with 26 passing tests covering:\n- Rate limit enforcement: 4th restart blocked within 3 minutes\n- Rate limit reset: Limit resets after 3-minute window expires\n- Cleanup old attempts: Attempts older than 3 min are removed\n- Grace period: No false positives within 2s of status change\n- Lifecycle: start/stop methods work correctly\n- Double-start prevention: Starting when already started is a no-op\n- Event emissions for rate limiting and recovery events\n- Task status filtering and running task detection\nCommitted as 4d6b467.",
+          "updated_at": "2025-12-27T11:42:09.073450+00:00"
+        },
+        {
+          "id": "5.2",
+          "title": "Verify TypeScript compilation",
+          "description": "Run TypeScript compilation to ensure no type errors:\n- cd apps/frontend && npm run build\n- Fix any compilation errors",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 10,
+          "acceptanceCriteria": [
+            "TypeScript compiles without errors",
+            "All type definitions are correct"
+          ],
+          "verification": {
+            "type": "command",
+            "run": "cd apps/frontend && npm run build"
+          },
+          "notes": "TypeScript compilation successful. Build completed for all environments (main: 390 modules, preload: 29 modules, renderer: 2803 modules). No type errors found.",
+          "updated_at": "2025-12-27T11:43:26.264051+00:00"
+        },
+        {
+          "id": "5.3",
+          "title": "Run full test suite",
+          "description": "Run all existing tests to ensure no regressions:\n- cd apps/frontend && npm test\n- Fix any broken tests from refactoring",
+          "status": "completed",
+          "priority": "high",
+          "estimatedMinutes": 15,
+          "acceptanceCriteria": [
+            "All existing tests pass",
+            "No regressions from recovery logic refactoring"
+          ],
+          "verification": {
+            "type": "command",
+            "run": "cd apps/frontend && npm test"
+          },
+          "notes": "All 533 tests passed across 20 test files. No regressions detected from the refactoring work. The MaxListenersExceededWarning messages are just warnings in test setup and don't indicate any code issues.",
+          "updated_at": "2025-12-27T11:44:38.982765+00:00"
+        },
+        {
+          "id": "5.4",
+          "title": "Manual verification",
+          "description": "Perform manual verification:\n- Start the Electron app with npm run dev\n- Verify [TaskMonitor] logs appear in console on startup\n- Create and run a task, verify normal operation\n- Verify no console errors during operation\n- Ensure all console.log uses [TaskMonitor] prefix in the new service",
+          "status": "completed",
+          "priority": "medium",
+          "estimatedMinutes": 20,
+          "acceptanceCriteria": [
+            "App starts without errors",
+            "[TaskMonitor] logs appear correctly",
+            "Normal task operation is unaffected",
+            "No console errors during operation"
+          ],
+          "verification": {
+            "type": "manual",
+            "description": "Run npm run dev in apps/frontend and verify console output"
+          },
+          "notes": "Manual verification completed successfully:\n\n1. \u2705 **App starts without errors** - Electron app started successfully with `npm run dev`\n\n2. \u2705 **[TaskMonitor] logs appear correctly on startup**:\n   - Console shows: `[TaskMonitor] Starting monitoring with interval: 10000 ms`\n   - Followed by: `[main] Task monitor initialized and started`\n\n3. \u2705 **Normal task operation unaffected** - ProjectStore operations continue to work, tasks are properly loaded from worktrees, no interference with normal task listing\n\n4. \u2705 **No console errors during operation** - The only errors are unrelated Autofill DevTools errors from Chrome, not from our code\n\n5. \u2705 **All console.log uses [TaskMonitor] prefix** - Verified in source code:\n   - Line 56: `[TaskMonitor] Already running, skipping start`\n   - Line 64: `[TaskMonitor] Starting monitoring with interval: ...`\n   - Line 81: `[TaskMonitor] Stopped monitoring`\n   - Line 204: `[TaskMonitor] Error checking tasks:`\n   - Line 235: `[TaskMonitor] Detected stuck task:`\n   - Line 241: `[TaskMonitor] Rate limit exceeded for task ...`\n   - Line 248: `[TaskMonitor] Auto-recovering task ...`\n   - Lines 267/283/289/296: All error and success logs use prefix\n\nAll 533 tests pass. TypeScript type checking passes. Feature implementation complete.",
+          "updated_at": "2025-12-27T11:48:16.038405+00:00"
+        }
+      ]
+    }
+  ],
+  "final_acceptance": [
+    "TaskMonitorService class created with all required methods",
+    "Rate limiting works correctly (3 restarts per 3 minutes per task)",
+    "Monitor integrates with AgentManager via startTaskMonitoring/stopTaskMonitoring",
+    "Recovery logic extracted to shared function used by both IPC handler and monitor",
+    "Monitor starts on app init and stops on app quit",
+    "No console errors during normal operation",
+    "Existing tests still pass",
+    "Manual recovery still works independently"
+  ],
+  "created_at": "2025-12-27T04:59:44.118Z",
+  "updated_at": "2025-12-27T11:24:34.625Z",
+  "spec_file": "spec.md",
+  "status": "human_review",
+  "planStatus": "review",
+  "qaSignOff": {
+    "status": "pending",
+    "issues": "",
+    "tests_passed": ""
+  },
+  "last_updated": "2025-12-27T11:53:27.206942+00:00",
+  "recoveryNote": "Task recovered from stuck state at 2025-12-27T11:24:34.625Z",
+  "qa_signoff": {
+    "status": "approved",
+    "qa_session": 0,
+    "issues_found": [
+      {
+        "description": "None"
+      }
+    ],
+    "tests_passed": {},
+    "timestamp": "2025-12-27T11:53:27.206942+00:00",
+    "ready_for_qa_revalidation": false
+  },
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "approved",
+      "timestamp": "2025-12-27T11:53:41.719611+00:00",
+      "issues": [],
+      "duration_seconds": 270.37
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 1,
+    "last_iteration": 1,
+    "last_status": "approved",
+    "issues_by_type": {}
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "task_description": "Implement a 'Refine with AI' feature in the task creation form that uses Haiku to automatically expand minimal user input into detailed, well-structured task information. When clicked, the AI will analyze the user's brief description and intelligently populate fields like title, detailed description, category, priority, complexity, and impact. This leverages the existing inference system and model configuration while providing a streamlined UX for rapid task creation.",
+  "scoped_services": ["frontend", "backend"],
+  "files_to_modify": {
+    "frontend": [
+      "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+      "apps/frontend/src/preload/api/task-api.ts",
+      "apps/frontend/src/main/ipc-handlers/task-handlers.ts"
+    ],
+    "backend": [
+      "apps/backend/ideation/task_refinement.py"
+    ]
+  },
+  "files_to_reference": [
+    "apps/frontend/src/renderer/components/TaskEditDialog.tsx",
+    "apps/frontend/src/renderer/stores/task-store.ts",
+    "apps/backend/merge/ai_resolver/claude_client.py",
+    "apps/backend/analysis/insight_extractor.py",
+    "apps/backend/agents/session.py"
+  ],
+  "patterns": {
+    "frontend_state_management": "Uses Zustand for state management (create<State>(set, get) pattern)",
+    "ui_components": "Uses Radix UI components (@radix-ui/react-dialog, @radix-ui/react-toast, Button from ./ui/button)",
+    "ipc_communication": "Frontend uses window.electronAPI for IPC calls, backend uses ipcMain.handle for handlers",
+    "claude_sdk_pattern": "Uses ClaudeSDKClient with async context manager, ClaudeAgentOptions for configuration",
+    "form_pattern": "TaskCreationWizard uses useState for form fields, shows loading states during async operations",
+    "error_handling": "Uses try/catch with error state, displays errors in UI via toast notifications"
+  },
+  "existing_implementations": {
+    "description": "Found existing Claude SDK integration in merge/ai_resolver/claude_client.py and analysis/insight_extractor.py. Task creation wizard already exists in TaskCreationWizard.tsx with form fields for category, priority, complexity, impact. IPC handlers exist in task-handlers.ts for task operations.",
+    "relevant_files": [
+      "apps/backend/merge/ai_resolver/claude_client.py",
+      "apps/backend/analysis/insight_extractor.py",
+      "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+      "apps/frontend/src/main/ipc-handlers/task-handlers.ts"
+    ],
+    "architecture_notes": "This is an Electron desktop app, NOT a web-based API server. Communication happens via IPC (Inter-Process Communication), not HTTP REST APIs. Frontend (renderer process) communicates with backend (main process) via electron's ipcRenderer/ipcMain."
+  },
+  "created_at": "2025-12-26T19:40:50.061174"
+}

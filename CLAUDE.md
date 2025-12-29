@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Auto Claude is a multi-agent autonomous coding framework that builds software through coordinated AI agent sessions. It uses the Claude Agent SDK to run agents in isolated workspaces with security controls.
+Turret is a multi-agent autonomous coding framework that builds software through coordinated AI agent sessions. It uses the Claude Agent SDK to run agents in isolated workspaces with security controls.
 
 **CRITICAL: All AI interactions use the Claude Agent SDK (`claude-agent-sdk` package), NOT the Anthropic API directly.**
 
@@ -190,7 +190,7 @@ See [RELEASE.md](RELEASE.md) for detailed release process documentation.
 **Workspace & Security:**
 - **cli/worktree.py** - Git worktree isolation for safe feature development
 - **context/project_analyzer.py** - Project stack detection for dynamic tooling
-- **auto_claude_tools.py** - Custom MCP tools integration
+- **turret_tools.py** - Custom MCP tools integration
 
 **Integrations:**
 - **linear_updater.py** - Optional Linear integration for progress tracking
@@ -217,7 +217,7 @@ See [RELEASE.md](RELEASE.md) for detailed release process documentation.
 
 ### Spec Directory Structure
 
-Each spec in `.auto-claude/specs/XXX-name/` contains:
+Each spec in `.turret/specs/XXX-name/` contains:
 - `spec.md` - Feature specification
 - `requirements.json` - Structured user requirements
 - `context.json` - Discovered codebase context
@@ -227,15 +227,15 @@ Each spec in `.auto-claude/specs/XXX-name/` contains:
 
 ### Branching & Worktree Strategy
 
-Auto Claude uses git worktrees for isolated builds. All branches stay LOCAL until user explicitly pushes:
+Turret uses git worktrees for isolated builds. All branches stay LOCAL until user explicitly pushes:
 
 ```
 main (user's branch)
-└── auto-claude/{spec-name}  ← spec branch (isolated worktree)
+└── turret/{spec-name}  ← spec branch (isolated worktree)
 ```
 
 **Key principles:**
-- ONE branch per spec (`auto-claude/{spec-name}`)
+- ONE branch per spec (`turret/{spec-name}`)
 - Parallel work uses subagents (agent decides when to spawn)
 - NO automatic pushes to GitHub - user controls when to push
 - User reviews in spec worktree (`.worktrees/{spec-name}/`)
@@ -255,11 +255,11 @@ Three-layer defense:
 2. **Filesystem Permissions** - Operations restricted to project directory
 3. **Command Allowlist** - Dynamic allowlist from project analysis (security.py + project_analyzer.py)
 
-Security profile cached in `.auto-claude-security.json`.
+Security profile cached in `.turret-security.json`.
 
 ### Claude Agent SDK Integration
 
-**CRITICAL: Auto Claude uses the Claude Agent SDK for ALL AI interactions. Never use the Anthropic API directly.**
+**CRITICAL: Turret uses the Claude Agent SDK for ALL AI interactions. Never use the Anthropic API directly.**
 
 **Client Location:** `apps/backend/core/client.py`
 
@@ -307,7 +307,7 @@ response = client.create_agent_session(
 
 **Graphiti Memory (Mandatory)** - `integrations/graphiti/`
 
-Auto Claude uses Graphiti as its primary memory system with embedded LadybugDB (no Docker required):
+Turret uses Graphiti as its primary memory system with embedded LadybugDB (no Docker required):
 
 - **Graph database with semantic search** - Knowledge graph for cross-session context
 - **Session insights** - Patterns, gotchas, discoveries automatically extracted
@@ -324,7 +324,7 @@ Auto Claude uses Graphiti as its primary memory system with embedded LadybugDB (
 **Configuration:**
 - Set provider credentials in `apps/backend/.env` (see `.env.example`)
 - Required env vars: `GRAPHITI_ENABLED=true`, `ANTHROPIC_API_KEY` or other provider keys
-- Memory data stored in `.auto-claude/specs/XXX/graphiti/`
+- Memory data stored in `.turret/specs/XXX/graphiti/`
 
 **Usage in agents:**
 ```python
@@ -372,6 +372,147 @@ const { t } = useTranslation(['navigation', 'common']);
 1. Add the translation key to ALL language files (at minimum: `en/*.json` and `fr/*.json`)
 2. Use `namespace:section.key` format (e.g., `navigation:items.githubPRs`)
 3. Never use hardcoded strings in JSX/TSX files
+
+### AutoMem Memory Association
+
+**CRITICAL: When storing memories in AutoMem, always associate related memories using the correct relation types.**
+
+AutoMem supports the following relation types for associating memories:
+
+**Relation Types:**
+
+| Type | When to Use | Example |
+|------|-------------|---------|
+| `CONTRADICTS` | Memory conflicts with or invalidates another | "Prefer early returns" contradicts "Use nested conditionals" |
+| `DERIVED_FROM` | Memory is a conclusion drawn from another | "Use h-1.5 for progress bars" derived from "RoadmapGenerationProgress pattern" |
+| `EVOLVED_INTO` | Memory represents an evolution of a previous approach | "No Component Pop-ins pattern" evolved from "Skeleton loading approach" |
+| `EXEMPLIFIES` | Memory is a concrete example of a general principle | "WorkspaceStatus loading state" exemplifies "No Component Pop-ins" |
+| `EXPLAINS` | Memory provides reasoning/context for another | "Topographic spacing system" explains "Use .5 increments" |
+| `INVALIDATED_BY` | Memory was made obsolete by new information | "CSS animations" invalidated by "Use framer-motion standard" |
+| `LEADS_TO` | Memory caused or resulted in another decision | "User prefers no pop-ins" leads to "Structure stability pattern" |
+| `OCCURRED_BEFORE` | Temporal relationship between memories | "First skeleton attempt" occurred before "Framer-motion redesign" |
+| `PARALLEL_CONTEXT` | Memories exist in similar but separate contexts | "Backend loading patterns" parallel context to "Frontend loading patterns" |
+| `PART_OF` | Memory belongs to a larger concept/system | "Progress bar height h-1.5" part of "Design system requirements" |
+| `PRECEDED_BY` | Memory follows chronologically from another | "Final implementation" preceded by "Design research phase" |
+| `PREFERS_OVER` | Memory documents a preference between alternatives | "Framer-motion" prefers over "CSS animations" |
+| `REINFORCES` | Memory strengthens or supports another | "RoadmapGenerationProgress pattern" reinforces "Design system consistency" |
+| `RELATES_TO` | General relationship between memories | "Loading states" relates to "User experience" |
+| `SHARES_THEME` | Memories share common themes/topics | "Spacing system" shares theme with "Color opacity system" |
+| `SIMILAR_TO` | Memories are analogous or comparable | "Topographic spacing" similar to "Topographic colors" |
+
+**Best Practices:**
+
+1. **Use specific relation types** - Prefer `EXEMPLIFIES`, `DERIVED_FROM`, `PREFERS_OVER` over generic `RELATES_TO`
+2. **Create bidirectional associations** - Associate both memories with complementary relation types
+3. **Build knowledge graphs** - Link design decisions to their rationale using `EXPLAINS` and `LEADS_TO`
+4. **Document evolution** - Use `EVOLVED_INTO` and `INVALIDATED_BY` to track design pattern changes
+5. **Mark preferences** - Use `PREFERS_OVER` to document user/project preferences clearly
+
+**Example Usage:**
+```python
+# Store a design pattern
+pattern_id = store_memory({
+  content: "Progress bars use h-1.5 height, rounded-full container, framer-motion animation",
+  importance: 0.95,
+  tags: ["design-system", "golden-standard", "ui-patterns"]
+})
+
+# Store the source it was derived from
+source_id = store_memory({
+  content: "RoadmapGenerationProgress.tsx is the canonical pattern for loading states",
+  importance: 0.90,
+  tags: ["design-system", "reference-implementation"]
+})
+
+# Associate them
+associate_memories(pattern_id, source_id, "DERIVED_FROM")
+associate_memories(source_id, pattern_id, "EXEMPLIFIES")
+```
+
+### UI Loading States - No Component Pop-ins
+
+**CRITICAL DESIGN RULE: Components must render their full structure immediately. Loading states show placeholder VALUES, never hide entire sections.**
+
+This prevents jarring layout shifts and creates a professional, polished user experience.
+
+**Core Pattern:**
+- ✅ Full component structure visible on mount
+- ✅ Placeholder values during loading (skeleton text, loading spinners, subtle progress bars)
+- ✅ Smooth transitions from placeholder → real data (animate values only, not layout)
+- ✅ Progress indicators blend into the design system (subtle, integrated)
+- ❌ Never hide/show entire sections based on loading state
+- ❌ Never mount/unmount components conditionally for loading
+- ❌ Never let components "pop in" after data loads
+
+**Anti-Pattern Example:**
+```tsx
+// ❌ WRONG - component pops in when data loads
+{isLoadingPreview && !data ? null : <StatusCard data={data} />}
+```
+
+**Golden Standard Example:**
+```tsx
+// ✅ CORRECT - structure always visible, values update smoothly
+<div className="p-2.5 rounded-lg border bg-muted/30">
+  <div className="flex-1 space-y-1.5">
+    <div className="flex items-center gap-2">
+      {isLoading ? (
+        <>
+          <RefreshCw className="h-4 w-4 text-muted-foreground animate-spin" />
+          <span className="text-sm text-muted-foreground/80">Analyzing...</span>
+        </>
+      ) : (
+        <>
+          <CheckCircle className="h-4 w-4 text-success" />
+          <span className="text-sm font-medium text-success">{data.status}</span>
+        </>
+      )}
+    </div>
+
+    {/* Progress bar - visible when loading, matching RoadmapGenerationProgress */}
+    {isLoading && (
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <motion.div
+          className="absolute h-full w-1/3 rounded-sm bg-primary"
+          animate={{ x: ['-100%', '400%'] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ opacity: 0.7 }}
+        />
+      </div>
+    )}
+  </div>
+</div>
+```
+
+**Design System Requirements:**
+- **Progress Bars**: Use `h-1.5` height, `rounded-full` container, `rounded-sm` fill
+- **Animation**: Use `motion` from `motion/react` (framer-motion), NOT CSS animations
+- **Spacing**: Clean, tight padding (`p-2.5`, `space-y-1.5`, consistent gaps)
+- **Colors**: Topographic monochromatic scheme with opacity variations (0.7, 0.8, 1.0)
+  - Loading: `bg-muted/30`, `text-muted-foreground/80`
+  - Success: `bg-success/10`, `text-success`
+  - Warning: `bg-warning/10`, `text-warning`
+  - Error: `bg-destructive/10`, `text-destructive`
+- **Transitions**: Use `transition-all duration-300` for smooth state changes
+
+**Real-World Example (Merge Preview in TaskReview):**
+- Card structure ALWAYS identical (same padding, border, spacing)
+- Loading state: placeholder text + indeterminate progress bar (h-1.5, framer-motion)
+- Loaded state: real data, no progress bar
+- Only content/opacity changes, structure remains 100% stable
+- Matches RoadmapGenerationProgress design system exactly
+
+**Reference Implementation:**
+See `RoadmapGenerationProgress.tsx` (lines 342-369) for the canonical progress bar pattern used throughout the app.
+
+**Why This Matters:**
+- **Professional UX** - No jarring layout shifts or pop-in effects
+- **Perceived Performance** - User sees progress immediately, feels faster
+- **Consistent Structure** - User knows what to expect, reduces cognitive load
+- **Design Consistency** - Progress bars look identical across the entire app
+- **Clean, Sharp Aesthetic** - Topographic monochromatic design with tight padding
+
+This is a **UNIVERSAL PRINCIPLE** - apply to all loading states across the application.
 
 ### End-to-End Testing (Electron App)
 
@@ -478,4 +619,258 @@ npm run dev      # Run in development mode (includes --remote-debugging-port=922
 4. QA agents will automatically interact with the running app for testing
 
 **Project data storage:**
-- `.auto-claude/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored
+- `.turret/specs/` - Per-project data (specs, plans, QA reports, memory) - gitignored
+
+## Active Development Plan Template
+
+**Plan**: `use-ful-naming.md`
+**Location**: `.docs/plans/ddmmyyhhmm-use-ful-naming.md`
+
+| Phase | Status |
+|-------|--------|
+| Phase 1: Full-Height UI | ✅ Complete |
+| Phase 2: Smarter AI + Config | ✅ Complete |
+| Phase 3: Multiplayer/Sockets | ✅ Complete |
+| Phase 4: Hero Powers | ✅ Complete |
+| Phase 5: Game Over Enhancement | ✅ Complete |
+| Phase 6: Tiered Spells | ✅ Complete |
+
+---
+
+## Reference Documentation Requirements
+
+**CRITICAL**: All code changes MUST consult the reference documentation in `.docs/` before implementation.
+
+### Reference Documents
+
+| Document | Consult For |
+|----------|-------------|
+| `DIRECTORY_REFERENCE.md` | File structure, architecture, where to put code |
+| `MECHANICS_REFERENCE.md` | Game rules, combat logic, trigger ordering |
+| `SCHEMA_REFERENCE.md` | TypeScript interfaces, data structures, JSON schemas |
+| `AI_PLAYER_INTEGRATION.md` | LLM tools, controller patterns, AI architecture |
+| `BATTLEGROUNDS_MASTER_REVIEW.md` | Complete game mechanics, edge cases, seasonal features |
+| `MONOREPO_ARCHITECTURE.md` | Package dependencies, build order, where to add features |
+
+---
+
+## Mandatory Workflow
+
+### Before Writing ANY Code
+
+1. **Identify which system** you're modifying (combat, tavern, triggers, AI, etc.)
+2. **Read the relevant reference doc section** - find exact specifications
+3. **Use interfaces verbatim** from SCHEMA_REFERENCE.md - no custom variants
+4. **Follow directory structure exactly** from DIRECTORY_REFERENCE.md
+5. **If the reference docs don't cover it**, ask before implementing
+
+### Before Committing
+
+1. Verify code matches reference doc specifications
+2. Ensure file is in correct directory per DIRECTORY_REFERENCE.md
+3. Confirm interfaces match SCHEMA_REFERENCE.md exactly
+4. Check that mechanics follow MECHANICS_REFERENCE.md rules
+
+---
+
+## What TO DO
+
+- **Always read reference docs first** before implementing any feature
+- **Use exact interfaces** defined in documentation - copy them verbatim
+- **Follow the directory structure** - put files where DIRECTORY_REFERENCE.md specifies
+- **Keep engine layer pure** - no I/O, no side effects, fully testable
+- **Use context objects** - pass state explicitly, never use globals
+- **Update reference docs** when adding new systems (with user approval)
+- **Ask for clarification** if reference docs are ambiguous or incomplete
+
+## What NOT TO DO
+
+- **Never implement without reading docs** - always consult first
+- **Never deviate from documented interfaces** - use them exactly as written
+- **Never add files to wrong directories**
+- **Never use global state** - use context objects
+- **Never assume mechanics**
+- **Never create undocumented patterns** - if it's not in docs, ask first
+
+---
+
+## Project Structure
+
+```
+.docs/                    # Reference documentation (READ-ONLY unless approved)
+├── DIRECTORY_REFERENCE.md
+├── MECHANICS_REFERENCE.md
+├── SCHEMA_REFERENCE.md
+├── BATTLEGROUNDS_MASTER_REVIEW.md
+└── MONOREPO_ARCHITECTURE.md
+
+backend/src/              # Implementation (follows DIRECTORY_REFERENCE.md)
+├── data/                 # JSON data files only
+├── engine/               # Pure game logic
+├── ai/                   # LLM player system
+├── api/                  # REST/WebSocket adapters
+└── cli/                  # Terminal interface
+```
+
+---
+
+## Decision Making
+
+### When Reference Docs Are Clear
+- Follow them exactly, no interpretation needed
+
+### When Reference Docs Are Ambiguous
+- Ask user for clarification before proceeding
+- Do not make assumptions
+
+### When Reference Docs Don't Cover Something
+- Stop and ask user how to proceed
+- Propose adding to reference docs if it's a new system
+
+### When Implementation Conflicts With Docs
+- Docs are authoritative - implementation must conform
+- If docs are wrong, get approval to update them first
+
+---
+
+## File Naming (from DIRECTORY_REFERENCE.md)
+
+| Element | Convention | Example |
+|---------|------------|---------|
+| Files | kebab-case | `board-entity.ts` |
+| Exports | PascalCase | `BoardEntity` |
+| Registry files | underscore prefix | `_card-mappings.ts` |
+| Constants | UPPER_SNAKE | `STARTING_GOLD` |
+| Functions | camelCase | `applyDamage()` |
+
+---
+
+## Adding New Features Checklist
+
+1. [ ] Read relevant sections of all applicable reference docs
+2. [ ] Identify correct directory from DIRECTORY_REFERENCE.md
+3. [ ] Copy exact interfaces from SCHEMA_REFERENCE.md
+4. [ ] Implement mechanics per MECHANICS_REFERENCE.md
+5. [ ] If AI-related, follow AI_PLAYER_INTEGRATION.md patterns
+6. [ ] Verify implementation matches documentation
+7. [ ] Ask if reference docs need updating for new patterns
+
+---
+
+## AutoMem Memory Association
+
+**CRITICAL: Always associate related memories using correct relation types when storing in AutoMem.**
+
+### Relation Types
+
+| Type | Use Case | Example |
+|------|----------|---------|
+| `CONTRADICTS` | Conflicts with another memory | "Early returns" contradicts "Nested conditionals" |
+| `DERIVED_FROM` | Conclusion from another memory | "Use h-1.5" derived from "Progress bar pattern" |
+| `EVOLVED_INTO` | Evolution of previous approach | "No pop-ins" evolved from "Skeleton loading" |
+| `EXEMPLIFIES` | Concrete example of principle | "WorkspaceStatus loading" exemplifies "No pop-ins" |
+| `EXPLAINS` | Provides reasoning/context | "Spacing system" explains "Use .5 increments" |
+| `INVALIDATED_BY` | Made obsolete by new info | "CSS animations" invalidated by "Framer-motion" |
+| `LEADS_TO` | Caused another decision | "No pop-ins preference" leads to "Stability pattern" |
+| `OCCURRED_BEFORE` | Temporal relationship | "First attempt" occurred before "Redesign" |
+| `PARALLEL_CONTEXT` | Similar but separate contexts | "Backend patterns" parallel to "Frontend patterns" |
+| `PART_OF` | Belongs to larger system | "Progress height" part of "Design system" |
+| `PRECEDED_BY` | Follows chronologically | "Implementation" preceded by "Research" |
+| `PREFERS_OVER` | Preference between alternatives | "Framer-motion" prefers over "CSS animations" |
+| `REINFORCES` | Strengthens another memory | "Progress pattern" reinforces "Design consistency" |
+| `RELATES_TO` | General relationship | "Loading states" relates to "User experience" |
+| `SHARES_THEME` | Common themes/topics | "Spacing" shares theme with "Color opacity" |
+| `SIMILAR_TO` | Analogous or comparable | "Topographic spacing" similar to "Topographic colors" |
+
+### Best Practices
+
+1. **Use specific types** - Prefer `EXEMPLIFIES`, `DERIVED_FROM`, `PREFERS_OVER` over generic `RELATES_TO`
+2. **Bidirectional associations** - Link both memories with complementary relation types
+3. **Build knowledge graphs** - Use `EXPLAINS` and `LEADS_TO` to connect decisions to rationale
+4. **Document evolution** - Use `EVOLVED_INTO` and `INVALIDATED_BY` to track pattern changes
+5. **Mark preferences** - Use `PREFERS_OVER` to document clear preferences
+
+### Example
+
+```python
+# Store pattern and source
+pattern_id = store_memory({
+  content: "Progress bars: h-1.5, rounded-full, framer-motion",
+  importance: 0.95,
+  tags: ["design-system", "ui-patterns"]
+})
+
+source_id = store_memory({
+  content: "RoadmapGenerationProgress.tsx is canonical pattern",
+  importance: 0.90,
+  tags: ["design-system", "reference"]
+})
+
+# Associate bidirectionally
+associate_memories(pattern_id, source_id, "DERIVED_FROM")
+associate_memories(source_id, pattern_id, "EXEMPLIFIES")
+```
+
+---
+
+## Post-Compact Recovery (MANDATORY)
+
+**After ANY `/compact` or context reset, IMMEDIATELY:**
+
+1. **Read checkpoint**: `Read .checkpoint/session.md`
+2. **Parse state**: Extract `[PHASE]`, `[BLOCKED]`, progress items
+3. **Load context**: Reference the "Context Keywords" for quick lookups
+4. **Resume work**: Follow "Resume Instructions" section exactly
+
+This ensures continuity across compaction boundaries. The checkpoint contains:
+- Files modified and why
+- Key decisions made
+- Current progress state
+- Exact next steps to take
+
+**Never start work after compacting without reading the checkpoint first.**
+
+---
+
+# Professional DevOps Protocol (Telegraphic)
+Modulab MMLLM 1. Focus: Production-ready, modular, maintainable.
+
+## Core Principles (MANDATORY)
+**Arch**: KISS (Clarity); LEVER (Leverage/Evolve/Validate/Execute/Repeat); STEP (Simple/Testable/Extensible/Performant); YAGNI (No unnecessary additions); DRY (Reuse patterns); UNIFORM (Consistent naming/UI).
+**Modularity**: Plug-in/adapter arch; 1 file/entity; externalize/import funcs; painless replacement.
+**Quality**: Production-ready; TODO impl plans; no complexity; back-compat; non-destructive (inject/blend); Discriminated unions/type guards; no `any`; rigorous error handling.
+
+## Documentation (CRITICAL)
+| File | Purpose |
+|---|---|
+| `CLAUDE.md` | Rules, stack, "never deviate" |
+| `technical_summary.md` | Arch, flow, env, deps, deploy |
+| `.docs/plan.md` | Roadmap, arch decisions |
+| `.docs/todo.md` | Tasks, blockers, progress |
+| `.docs/changelog/` | Latest changes (prepend) |
+*Check CLAUDE.md at start; create if missing.*
+
+## AutoMem (DevOps Extension)
+**Tools**: `recall_memory` (Context); `store_memory` (Persist); `associate_memories` (Link); `update_memory` (Edit); `delete_memory` (Remove); `check_database_health` (Integrity).
+**Store**: Knowledge/pref + reasoning, how-to, rules, arch decisions. **Never**: commands, complaints, retries, chat.
+**Recall**: Mandatory before significant work.
+| Trigger | Focus | Tags |
+|---|---|---|
+| Session start | Project context/decisions | `[project]`, `architecture` |
+| Complex task | Patterns/impls | `[project]`, `patterns` |
+| Refactor | Anti-patterns/standards | `anti-pattern`, `golden-standard` |
+| Bug fix | Root causes/past fixes | `bug-fix`, `critical` |
+| Arch change | Layer rules/deps | `architecture`, `golden-standard` |
+| Delegation | Subagent context | `[relevant-topic]` |
+
+**Associations** (CRITICAL): Always link related memories. **Types**: `CONTRADICTS`, `DERIVED_FROM`, `EVOLVED_INTO`, `EXEMPLIFIES`, `EXPLAINS`, `INVALIDATED_BY`, `LEADS_TO`, `OCCURRED_BEFORE`, `PARALLEL_CONTEXT`, `PART_OF`, `PRECEDED_BY`, `PREFERS_OVER`, `REINFORCES`, `RELATES_TO`, `SHARES_THEME`, `SIMILAR_TO`. **Best**: Use specific types (`EXEMPLIFIES`, `DERIVED_FROM`, `PREFERS_OVER`) over `RELATES_TO`; bidirectional links; build graphs with `EXPLAINS`/`LEADS_TO`; track evolution with `EVOLVED_INTO`/`INVALIDATED_BY`.
+
+**Patterns**:
+```javascript
+// Recall (Nontrivial task = mandatory)
+mcp__automem__recall_memory({ query: "arch/patterns/anti-patterns", tags: ["project", "architecture"], limit: 15 })
+// Store (ONLY IF KNOWLEDGE/DATA/CONTEXT CONTRIBUTES TO THE MEMORY. IF IT DOESNT ADD VALUE, DO NOT STORE. PROJECT TASKS, ACTIONS, ETC DONT ADD VALUE TO LONG TERM MEMORY.) (Tag first + associate)
+await store_memory({ content: "X using Y: Z", tags: ["tag", "tag", "tag", "tag", "tag", "cat"], importance: 0.9, metadata: { files: ["f.ts"] } });
+await associate_memories({ memory1_id: "A", memory2_id: "B", type: "DERIVED_FROM", strength: 0.9 });
+// Bidirectional: associate_memories(B, A, "EXEMPLIFIES")
+```

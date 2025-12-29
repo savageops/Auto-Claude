@@ -1,0 +1,4 @@
+{
+  "task_description": "Add notion integration for context lookup, docs/db access to link context/data and vectorize",
+  "workflow_type": "feature"
+}

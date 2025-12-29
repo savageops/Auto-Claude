@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { Circle } from 'lucide-react';
+import { Circle } from '@/lib/icons';
 import { cn } from '../../lib/utils';
 
 const RadioGroup = React.forwardRef<
@@ -25,9 +25,10 @@ const RadioGroupItem = React.forwardRef<
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
-        'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background',
+        'aspect-square h-4 w-4 rounded-full bg-muted text-primary ring-offset-background',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
+        'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
         className
       )}
       {...props}

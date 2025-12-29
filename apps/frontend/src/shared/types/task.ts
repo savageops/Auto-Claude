@@ -145,6 +145,8 @@ export interface TaskDraft {
   images: ImageAttachment[];
   referencedFiles: ReferencedFile[];
   requireReviewBeforeCoding?: boolean;
+  autoRecoveryEnabled?: boolean;
+  maxRecoveryAttempts?: number;
   savedAt: Date;
 }
 
@@ -228,6 +230,10 @@ export interface TaskMetadata {
   // Archive status
   archivedAt?: string;  // ISO date when task was archived
   archivedInVersion?: string;  // Version in which task was archived (from changelog)
+
+  // Auto-recovery settings
+  autoRecoveryEnabled?: boolean;  // Enable/disable automatic task recovery for stuck tasks (default: true)
+  maxRecoveryAttempts?: number;   // Maximum number of auto-recovery attempts (default: 3)
 }
 
 export interface Task {
@@ -252,7 +258,7 @@ export interface Task {
   updatedAt: Date;
 }
 
-// Implementation Plan (from auto-claude)
+// Implementation Plan (from turret)
 export interface ImplementationPlan {
   feature?: string;  // Some plans use 'feature', some use 'title'
   title?: string;    // Alternative to 'feature' for task name
@@ -400,6 +406,17 @@ export interface WorktreeDiscardResult {
 }
 
 /**
+ * Result of discarding a specific file's changes in the worktree
+ * Uses git restore to revert the file to its base branch state
+ */
+export interface WorktreeDiscardFileResult {
+  success: boolean;
+  message: string;
+  error?: string;
+  filePath: string;  // The file path that was discarded
+}
+
+/**
  * Information about a single spec worktree
  * Per-spec architecture: Each spec has its own worktree at .worktrees/{spec-name}/
  */
@@ -455,4 +472,17 @@ export interface TaskStartOptions {
   workers?: number;
   model?: string;
   baseBranch?: string; // Override base branch for worktree creation
+}
+
+/**
+ * Task refinement result returned by the AI service
+ * Used when expanding brief task descriptions into complete task details
+ */
+export interface TaskRefinementResult {
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  complexity: string;
+  impact: string;
 }

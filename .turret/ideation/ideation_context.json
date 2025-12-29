@@ -1,0 +1,60 @@
+{
+  "existing_features": [],
+  "tech_stack": [
+    "React",
+    "TypeScript",
+    "Python"
+  ],
+  "target_audience": "Professional software developers who want to accelerate their development workflow by delegating coding tasks to autonomous AI agents",
+  "planned_features": [
+    "Customizable QA Validation Rules",
+    "Integration Marketplace",
+    "Interactive Onboarding Wizard",
+    "Advanced Merge Completion Recording",
+    "Task Templates Library",
+    "Enhanced Git Worktree UI",
+    "Agent Confidence Metrics",
+    "Specification: Add Accordion Behavior to Done Kanban Items",
+    "Plugin System Architecture",
+    "Autonomous Recovery from Failures",
+    "Smart Notification System",
+    "Advanced Conflict Analysis",
+    "Advanced Kanban Board Features",
+    "Custom Agent Roles",
+    "Python Version Flexibility",
+    "GitHub/GitLab Integration",
+    "Cloud Sync for Settings and Memory",
+    "Semantic Memory Search",
+    "Specification: Replace All Icons with Hugeicons Library",
+    "Add skeleton loading states for KanbanBoard and WelcomeScreen",
+    "Quick Spec: Move Refine with AI Button to Icon",
+    "Team Collaboration Features",
+    "Memory Curation Dashboard",
+    "Agent Activity Dashboard",
+    "Status Tracking System Consolidation",
+    "Add File Discard to Review Workflow",
+    "Add Code Splitting and Lazy Loading",
+    "Enterprise SSO & RBAC",
+    "Health Monitoring Email Alerts",
+    "Specification: AI-Powered Task Refinement Button",
+    "Add API Response Caching",
+    "Quick Spec: Fix Kanban Board State Persistence for Approved Tasks",
+    "Native Dependency Simplification",
+    "Workflow Automation Builder",
+    "Large Codebase Performance Optimization",
+    "Multi-Agent Task Coordination",
+    "Specification: Selective Staging for Merge Conflicts Preview"
+  ],
+  "graph_hints": {},
+  "config": {
+    "enabled_types": [
+      "code_improvements",
+      "ui_ux_improvements",
+      "security_hardening"
+    ],
+    "include_roadmap_context": true,
+    "include_kanban_context": true,
+    "max_ideas_per_type": 5
+  },
+  "created_at": "2025-12-27T05:27:42.152653"
+}

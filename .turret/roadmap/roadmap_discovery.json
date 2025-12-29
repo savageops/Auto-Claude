@@ -1,0 +1,131 @@
+{
+  "project_name": "Turret",
+  "project_type": "desktop-app",
+  "tech_stack": {
+    "primary_language": "TypeScript",
+    "frameworks": ["Electron", "React", "Python"],
+    "key_dependencies": [
+      "claude-agent-sdk",
+      "@radix-ui/react-*",
+      "zustand",
+      "vite",
+      "tailwindcss",
+      "graphiti-core",
+      "node-pty"
+    ]
+  },
+  "target_audience": {
+    "primary_persona": "Software developers who want to delegate coding tasks to AI agents while maintaining control over their codebase",
+    "secondary_personas": [
+      "Tech leads managing multiple development tasks simultaneously",
+      "Solo developers working on complex projects who need productivity multipliers",
+      "Teams exploring AI-assisted development workflows"
+    ],
+    "pain_points": [
+      "Manual coding is slow and tedious for repetitive or boilerplate tasks",
+      "Existing AI coding assistants require constant supervision and context-switching",
+      "Merging AI-generated code into main branch is risky without proper isolation",
+      "AI assistants forget context between sessions leading to repeated explanations",
+      "Validating AI-generated code quality requires manual review effort"
+    ],
+    "goals": [
+      "Automate implementation of well-defined coding tasks",
+      "Run multiple AI coding agents in parallel for faster delivery",
+      "Safely integrate AI-generated code with built-in QA and conflict resolution",
+      "Build and ship features faster without sacrificing code quality",
+      "Maintain persistent context so AI remembers project patterns and decisions"
+    ],
+    "usage_context": "Desktop application used during active development sessions. Developers create tasks via Kanban board, watch agents work in real-time terminals, and review/merge completed work. Works alongside existing development tools and git workflows."
+  },
+  "product_vision": {
+    "one_liner": "Autonomous multi-agent coding framework that plans, builds, and validates software for you",
+    "problem_statement": "AI coding assistants require constant supervision, lack persistent memory, and produce code that's risky to merge without extensive review. Developers need a way to delegate entire coding tasks safely.",
+    "value_proposition": "Turret provides true autonomous coding with isolated git worktrees for safety, built-in QA validation before human review, AI-powered merge conflict resolution, and persistent memory across sessions - letting developers describe what they want and get validated, mergeable code.",
+    "success_metrics": [
+      "Number of tasks completed autonomously without human intervention",
+      "Time saved per task compared to manual implementation",
+      "Percentage of first-attempt QA passes (code quality)",
+      "Merge conflict resolution success rate",
+      "User retention and daily active usage",
+      "Number of parallel agents utilized per session"
+    ]
+  },
+  "current_state": {
+    "maturity": "growth",
+    "existing_features": [
+      "Kanban board for visual task management",
+      "Autonomous task execution with Claude AI agents",
+      "Parallel execution with up to 12 agent terminals",
+      "Isolated git worktree workspaces for safe development",
+      "Self-validating QA pipeline before human review",
+      "AI-powered merge conflict resolution",
+      "Memory Layer for cross-session context retention (Graphiti)",
+      "Cross-platform desktop apps (Windows, macOS, Linux)",
+      "Auto-updates for seamless version upgrades",
+      "OAuth integration with Claude",
+      "CLI mode for headless/CI operation",
+      "Roadmap feature with AI-assisted planning",
+      "Insights chat interface for codebase exploration",
+      "Ideation feature for improvement discovery",
+      "Changelog generation from completed tasks",
+      "Linear integration for external task sync",
+      "AI-powered task refinement"
+    ],
+    "known_gaps": [
+      "Advanced conflict analysis checks not yet implemented",
+      "Merge completion recording not fully implemented",
+      "Password hashing needs proper implementation in tests"
+    ],
+    "technical_debt": [
+      "Some TODO comments indicating incomplete implementations in merge/conflict handling",
+      "Test mocking could be improved for password handling",
+      "Large node_modules footprint from Electron dependencies"
+    ]
+  },
+  "competitive_context": {
+    "alternatives": [
+      "GitHub Copilot - AI pair programming assistant",
+      "Cursor - AI-powered code editor",
+      "Windsurf/Codeium - AI coding assistant",
+      "Aider - Command-line AI coding assistant",
+      "Claude Code CLI - Terminal-based Claude coding",
+      "Cody (Sourcegraph) - AI coding assistant with codebase context"
+    ],
+    "differentiators": [
+      "True autonomous execution - delegates entire tasks, not just autocomplete",
+      "Isolated git worktrees - changes never touch main branch until reviewed",
+      "Built-in QA validation loop - catches issues before human review",
+      "AI-powered merge conflict resolution - handles complex integrations",
+      "Persistent Memory Layer - agents remember context across sessions",
+      "Parallel multi-agent execution - up to 12 simultaneous tasks",
+      "Visual Kanban task management - not just a CLI or editor plugin",
+      "Self-hosted desktop app - no cloud code exposure required"
+    ],
+    "market_position": "Turret positions itself as a higher-autonomy alternative to copilot-style assistants. While tools like Copilot and Cursor require constant developer interaction, Turret aims for true task delegation where developers describe goals and receive validated, merge-ready code. The desktop app approach provides full control over code privacy.",
+    "competitor_pain_points": [],
+    "competitor_analysis_available": false
+  },
+  "constraints": {
+    "technical": [
+      "Requires Claude Pro/Max subscription for API access",
+      "Depends on Claude Code CLI for agent execution",
+      "Python 3.12 specifically required (not 3.14) for native dependency compatibility",
+      "Electron app size can be large due to bundled runtime",
+      "Memory Layer requires additional setup (Graphiti)",
+      "Native dependencies (node-pty, real_ladybug) require C++ build tools on Windows"
+    ],
+    "resources": [
+      "Primary development by single core contributor (AndyMik90)",
+      "Small community of additional contributors (10+ contributors)",
+      "Open source with AGPL-3.0 license"
+    ],
+    "dependencies": [
+      "Claude AI API (Anthropic) - core AI capability",
+      "GitHub Actions for CI/CD pipeline",
+      "Git for version control and worktree isolation",
+      "Graphiti for optional Memory Layer",
+      "Linear for optional external task management integration"
+    ]
+  },
+  "created_at": "2025-12-27T12:00:00Z"
+}

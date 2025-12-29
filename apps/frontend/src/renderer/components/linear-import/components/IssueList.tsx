@@ -2,7 +2,7 @@
  * List of issues with loading/empty states
  */
 
-import { Loader2 } from 'lucide-react';
+import { RefreshCw } from '@/lib/icons';
 import { ScrollArea } from '../../ui/scroll-area';
 import { IssueCard } from './IssueCard';
 import type { LinearIssue } from '../types';
@@ -30,7 +30,7 @@ export function IssueList({
     return (
       <ScrollArea className="flex-1 -mx-6 px-6 min-h-0">
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </ScrollArea>
     );

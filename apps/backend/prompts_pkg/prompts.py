@@ -37,7 +37,7 @@ def get_planner_prompt(spec_dir: Path) -> str:
     if not prompt_file.exists():
         raise FileNotFoundError(
             f"Planner prompt not found at {prompt_file}\n"
-            "Make sure the auto-claude/prompts/planner.md file exists."
+            "Make sure the turret/prompts/planner.md file exists."
         )
 
     prompt = prompt_file.read_text()
@@ -47,7 +47,7 @@ def get_planner_prompt(spec_dir: Path) -> str:
 
 Your spec file is located at: `{spec_dir}/spec.md`
 
-🚨 CRITICAL FILE CREATION INSTRUCTIONS 🚨
+CRITICAL FILE CREATION INSTRUCTIONS
 
 You MUST use the Write tool to create these files in the spec directory:
 - `{spec_dir}/implementation_plan.json` - Subtask-based implementation plan (USE WRITE TOOL!)
@@ -57,7 +57,7 @@ You MUST use the Write tool to create these files in the spec directory:
 DO NOT just describe what these files should contain. You MUST actually call the Write tool
 with the file path and complete content to create them.
 
-The project root is the parent of auto-claude/. Implement code in the project root, not in the spec directory.
+The project root is the parent of turret/. Implement code in the project root, not in the spec directory.
 
 ---
 
@@ -80,7 +80,7 @@ def get_coding_prompt(spec_dir: Path) -> str:
     if not prompt_file.exists():
         raise FileNotFoundError(
             f"Coding prompt not found at {prompt_file}\n"
-            "Make sure the auto-claude/prompts/coder.md file exists."
+            "Make sure the turret/prompts/coder.md file exists."
         )
 
     prompt = prompt_file.read_text()
@@ -93,7 +93,7 @@ Your spec and progress files are located at:
 - Progress notes: `{spec_dir}/build-progress.txt`
 - Recovery context: `{spec_dir}/memory/attempt_history.json`
 
-The project root is the parent of auto-claude/. All code goes in the project root, not in the spec directory.
+The project root is the parent of turret/. All code goes in the project root, not in the spec directory.
 
 ---
 
@@ -148,12 +148,12 @@ def _get_recovery_context(spec_dir: Path) -> str:
         # Check for stuck subtasks
         stuck_subtasks = history.get("stuck_subtasks", [])
         if stuck_subtasks:
-            context = """## ⚠️ RECOVERY ALERT - STUCK SUBTASKS DETECTED
+            context = """## RECOVERY ALERT - STUCK SUBTASKS DETECTED
 
 Some subtasks have been attempted multiple times without success. These subtasks need:
 - A COMPLETELY DIFFERENT approach
 - Possibly simpler implementation
-- Or escalation to human if infeasible
+- Or warm up gradually
 
 Stuck subtasks:
 """
@@ -171,12 +171,13 @@ Stuck subtasks:
                 subtasks_with_retries.append((subtask_id, len(attempts)))
 
         if subtasks_with_retries:
-            context = """## ⚠️ RECOVERY CONTEXT - RETRY AWARENESS
+            context = """## RECOVERY CONTEXT - RETRY AWARENESS
 
 Some subtasks have been attempted before. When working on these:
 1. READ memory/attempt_history.json for the specific subtask
 2. See what approaches were tried
 3. Use a DIFFERENT approach
+4. Warm up gradually
 
 Subtasks with previous attempts:
 """
@@ -208,7 +209,7 @@ def get_followup_planner_prompt(spec_dir: Path) -> str:
     if not prompt_file.exists():
         raise FileNotFoundError(
             f"Follow-up planner prompt not found at {prompt_file}\n"
-            "Make sure the auto-claude/prompts/followup_planner.md file exists."
+            "Make sure the turret/prompts/followup_planner.md file exists."
         )
 
     prompt = prompt_file.read_text()
@@ -228,7 +229,7 @@ You are adding follow-up work to a **completed** spec.
 
 **Important paths:**
 - Spec directory: `{spec_dir}`
-- Project root: Parent of auto-claude/ (where code should be implemented)
+- Project root: Parent of turret/ (where code should be implemented)
 
 **Your task:**
 1. Read `{spec_dir}/FOLLOWUP_REQUEST.md` to understand what to add

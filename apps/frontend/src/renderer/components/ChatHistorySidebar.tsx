@@ -7,8 +7,8 @@ import {
   Check,
   X,
   MoreVertical,
-  Loader2
-} from 'lucide-react';
+  RefreshCw
+} from '@/lib/icons';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
@@ -126,7 +126,7 @@ export function ChatHistorySidebar({
       <ScrollArea className="flex-1">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : sessions.length === 0 ? (
           <div className="px-3 py-8 text-center text-sm text-muted-foreground">
