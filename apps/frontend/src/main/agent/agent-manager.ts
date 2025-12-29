@@ -89,13 +89,13 @@ export class AgentManager extends EventEmitter {
   /**
    * Start spec creation process
    */
-  startSpecCreation(
+  async startSpecCreation(
     taskId: string,
     projectPath: string,
     taskDescription: string,
     specDir?: string,
     metadata?: SpecCreationMetadata
-  ): void {
+  ): Promise<void> {
     // Pre-flight auth check: Verify active profile has valid authentication
     const profileManager = getClaudeProfileManager();
     if (!profileManager.hasValidAuth()) {
@@ -109,6 +109,27 @@ export class AgentManager extends EventEmitter {
       this.emit('error', taskId, 'Auto-build source path not found. Please configure it in App Settings.');
       return;
     }
+
+    // CRITICAL FIX: Ensure Python venv is initialized before spawning agents
+    // This prevents agents from using global Python instead of backend venv Python
+    const { pythonEnvManager } = await import('../python-env-manager');
+    let pythonPath = pythonEnvManager.getPythonPath();
+
+    if (!pythonPath || !pythonEnvManager.isEnvReady()) {
+      console.warn('[AgentManager] Python env not ready, initializing now...');
+      const status = await pythonEnvManager.initialize(autoBuildSource);
+
+      if (!status.ready || !status.pythonPath) {
+        this.emit('error', taskId, `Python environment initialization failed: ${status.error || 'Unknown error'}`);
+        return;
+      }
+
+      pythonPath = status.pythonPath;
+    }
+
+    // ALWAYS configure agent manager with venv Python path (even if already initialized)
+    this.configure(pythonPath, autoBuildSource);
+    console.warn('[AgentManager] Configured with venv Python:', pythonPath);
 
     const specRunnerPath = path.join(autoBuildSource, 'runners', 'spec_runner.py');
 
@@ -158,12 +179,12 @@ export class AgentManager extends EventEmitter {
   /**
    * Start task execution (run.py)
    */
-  startTaskExecution(
+  async startTaskExecution(
     taskId: string,
     projectPath: string,
     specId: string,
     options: TaskExecutionOptions = {}
-  ): void {
+  ): Promise<void> {
     // Pre-flight auth check: Verify active profile has valid authentication
     const profileManager = getClaudeProfileManager();
     if (!profileManager.hasValidAuth()) {
@@ -177,6 +198,27 @@ export class AgentManager extends EventEmitter {
       this.emit('error', taskId, 'Auto-build source path not found. Please configure it in App Settings.');
       return;
     }
+
+    // CRITICAL FIX: Ensure Python venv is initialized before spawning agents
+    // This prevents agents from using global Python instead of backend venv Python
+    const { pythonEnvManager } = await import('../python-env-manager');
+    let pythonPath = pythonEnvManager.getPythonPath();
+
+    if (!pythonPath || !pythonEnvManager.isEnvReady()) {
+      console.warn('[AgentManager] Python env not ready, initializing now...');
+      const status = await pythonEnvManager.initialize(autoBuildSource);
+
+      if (!status.ready || !status.pythonPath) {
+        this.emit('error', taskId, `Python environment initialization failed: ${status.error || 'Unknown error'}`);
+        return;
+      }
+
+      pythonPath = status.pythonPath;
+    }
+
+    // ALWAYS configure agent manager with venv Python path (even if already initialized)
+    this.configure(pythonPath, autoBuildSource);
+    console.warn('[AgentManager] Configured with venv Python:', pythonPath);
 
     const runPath = path.join(autoBuildSource, 'run.py');
 

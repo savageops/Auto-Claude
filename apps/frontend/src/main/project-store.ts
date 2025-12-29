@@ -246,12 +246,12 @@ export class ProjectStore {
   getTasks(projectId: string): Task[] {
     const project = this.getProject(projectId);
     if (!project) {
-      console.warn('[ProjectStore] Project not found for id:', projectId);
+      console.warn(`[ProjectStore] Project not found for id: "${projectId}". Available projects:`, this.data.projects.map(p => ({ id: p.id, name: p.name })));
       return [];
     }
     
     // Consolidated start log
-    console.log(`[ProjectStore] Loading tasks for project: ${project.name} (${project.autoBuildPath})`);
+    console.log(`[ProjectStore] Loading tasks for project: ${project.name} (${project.autoBuildPath}) at path: ${project.path}`);
 
     const allTasks: Task[] = [];
     const specsBaseDir = getSpecsDir(project.autoBuildPath);

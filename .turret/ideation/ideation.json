@@ -1,11 +1,14 @@
 {
-  "id": "ideation-20251227-002939",
+  "id": "ideation-20251229-155130",
   "project_id": "D:\\Workspaces\\01_Projects\\01_Github\\Turret",
   "config": {
     "enabled_types": [
       "code_improvements",
       "ui_ux_improvements",
-      "security_hardening"
+      "security_hardening",
+      "documentation_gaps",
+      "performance_optimizations",
+      "code_quality"
     ],
     "include_roadmap_context": true,
     "include_kanban_context": true,
@@ -15,128 +18,129 @@
     {
       "id": "ci-001",
       "type": "code_improvements",
-      "title": "Add Search to PR List",
-      "description": "Add search and filter functionality to the GitHub Pull Requests list, allowing users to quickly find PRs by title, author, or branch name.",
-      "rationale": "The GitHub Issues list has comprehensive search/filter functionality (IssueListHeader with searchQuery, onSearchChange, filterState). The PRList component lacks this feature entirely despite handling similar list data. The useIssueFiltering hook pattern already exists and can be adapted for PRs.",
+      "title": "Add Keyboard Shortcuts for Task Operations",
+      "description": "Extend the existing keyboard shortcut pattern from the sidebar navigation to Kanban board task operations. Add shortcuts for common actions like opening task details (Enter), closing dialogs (Escape), marking tasks done (D), and moving to backlog (B).",
+      "rationale": "The Sidebar component already has a well-established keyboard shortcuts pattern with the 'shortcut' property on navigation items (K for Kanban, A for Terminals, etc.). This pattern can be directly extended to task operations in the KanbanBoard component without architectural changes.",
       "builds_upon": [
-        "GitHub Issues search (IssueListHeader.tsx)",
-        "useIssueFiltering hook pattern"
+        "Sidebar keyboard shortcuts pattern",
+        "TaskCard click handlers",
+        "KanbanBoard DnD system"
       ],
-      "estimated_effort": "trivial",
+      "estimated_effort": "small",
       "affected_files": [
-        "apps/frontend/src/renderer/components/github-prs/components/PRList.tsx",
-        "apps/frontend/src/renderer/components/github-prs/hooks/useGitHubPRs.ts"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/TaskCard.tsx",
+        "apps/frontend/src/renderer/App.tsx"
       ],
       "existing_patterns": [
-        "IssueListHeader.tsx search input implementation",
-        "useIssueFiltering.ts hook structure",
-        "filterIssuesBySearch utility pattern"
+        "Sidebar.tsx shortcut property definition",
+        "App.tsx useEffect keyboard listener for project switching"
       ],
-      "implementation_approach": "1. Create usePRFiltering hook based on existing useIssueFiltering pattern. 2. Add PRListHeader component mirroring IssueListHeader structure with search input. 3. Wire up filtering to PRList component. The search should filter by PR title, author.login, and headRefName fields.",
+      "implementation_approach": "1. Add useEffect keyboard listener in KanbanBoard for focused task shortcuts. 2. Track selected/focused task state. 3. Map key events to existing updateTaskStatus and selectTask actions from task-store. 4. Follow the same pattern as App.tsx global keyboard handling.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-002",
       "type": "code_improvements",
-      "title": "Consolidate Filtering Hooks into Generic useFiltering",
-      "description": "Create a generic useFiltering hook that can be used across GitHub Issues, Linear Issues, PRs, and other list components, reducing code duplication.",
-      "rationale": "Two nearly identical useIssueFiltering hooks exist - one in github-issues/hooks and one in linear-import/hooks. Both implement similar search/filter logic that could be abstracted into a shared generic hook.",
+      "title": "Add Task Export to JSON/CSV",
+      "description": "Add export functionality for tasks in the Kanban board, allowing users to download their task list with all metadata in JSON or CSV format for backup or external tool integration.",
+      "rationale": "All task data structures are already defined in shared/types/task.ts with comprehensive Task type. The task-store provides getTasksByStatus selector. The only missing piece is the download trigger, which is a trivial browser API call using Blob and URL.createObjectURL.",
       "builds_upon": [
-        "github-issues/hooks/useIssueFiltering.ts",
-        "linear-import/hooks/useIssueFiltering.ts"
+        "Task type definitions in shared/types/task.ts",
+        "task-store state management",
+        "Button UI component"
       ],
-      "estimated_effort": "small",
+      "estimated_effort": "trivial",
       "affected_files": [
-        "apps/frontend/src/renderer/hooks/useFiltering.ts (new)",
-        "apps/frontend/src/renderer/hooks/index.ts",
-        "apps/frontend/src/renderer/components/github-issues/hooks/useIssueFiltering.ts",
-        "apps/frontend/src/renderer/components/linear-import/hooks/useIssueFiltering.ts"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/lib/utils.ts"
       ],
       "existing_patterns": [
-        "useIssueFiltering pattern with useMemo",
-        "Generics pattern used in types/common.ts"
+        "Task type in shared/types/task.ts",
+        "useTaskStore selectors",
+        "Button component in ui/button.tsx"
       ],
-      "implementation_approach": "1. Create generic useFiltering<T> hook in renderer/hooks/ that accepts items, searchQuery, and a searchFn predicate. 2. Refactor both useIssueFiltering hooks to use the new generic hook with domain-specific search predicates. 3. Export from hooks/index.ts for shared access.",
+      "implementation_approach": "1. Add exportTasks utility function to lib/utils.ts that serializes tasks to JSON/CSV string. 2. Add export button in KanbanBoard header with dropdown for format selection. 3. Use Blob and URL.createObjectURL for download trigger.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-003",
       "type": "code_improvements",
-      "title": "Add Keyboard Shortcuts to Ideation Panel",
-      "description": "Add keyboard shortcuts for common ideation actions: dismiss (D), convert to task (C), archive (A), select all (Ctrl+A), and refresh (R).",
-      "rationale": "Keyboard shortcuts pattern exists in TaskEditDialog.tsx (Ctrl+Enter for submit) and App.tsx. The Ideation panel has frequent user actions (dismiss, convert, archive) that would benefit from keyboard acceleration. The store already has all the action methods.",
+      "title": "Add Task Filters to Kanban Board",
+      "description": "Add filtering capabilities to the Kanban board following the established ChangelogFilters pattern. Allow filtering tasks by creation date range, text search across title/description, and review reason.",
+      "rationale": "ChangelogFilters.tsx demonstrates a mature filter UI pattern with RadioGroup selections, date inputs, and Select dropdowns. The KanbanBoard already has tasks as props and uses useMemo for processing - adding filter logic fits naturally into this flow.",
       "builds_upon": [
-        "TaskEditDialog keyboard handling",
-        "ideation-store actions (dismissIdea, archiveIdea)"
+        "ChangelogFilters component pattern",
+        "KanbanBoard task processing",
+        "UI components (Select, Input, RadioGroup, Card)"
       ],
-      "estimated_effort": "small",
+      "estimated_effort": "medium",
       "affected_files": [
-        "apps/frontend/src/renderer/components/ideation/Ideation.tsx",
-        "apps/frontend/src/renderer/components/ideation/IdeaCard.tsx"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/stores/task-store.ts"
       ],
       "existing_patterns": [
-        "onKeyDown event handling in TaskEditDialog",
-        "Keyboard shortcut registration pattern in App.tsx"
+        "ChangelogFilters.tsx filter state management and UI structure",
+        "useMemo for derived task lists in KanbanBoard",
+        "Input component for search, Select for dropdowns"
       ],
-      "implementation_approach": "1. Add useEffect with keydown listener in Ideation.tsx for global shortcuts (R to refresh). 2. Add onKeyDown to IdeaCard for item-level shortcuts when focused (D to dismiss, C to convert, A to archive). 3. Show shortcuts in tooltips using existing Tooltip component pattern.",
+      "implementation_approach": "1. Add filter state (search term, date range, reviewReason filter) to KanbanBoard. 2. Create compact filter bar component inspired by ChangelogFilters sidebar pattern. 3. Apply filters in useMemo before column grouping using existing task properties. 4. Use existing Input, Select, Checkbox UI components.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-004",
       "type": "code_improvements",
-      "title": "Create Shared GenericEmptyState Component",
-      "description": "Extract the EmptyState pattern from github-issues into a shared, reusable component that other features can use for consistent empty state UI.",
-      "rationale": "EmptyState component in github-issues/components/EmptyStates.tsx is well-designed with props for icon, message, and searchQuery handling. IdeationEmptyState and RoadmapEmptyState implement similar patterns separately. A shared component would ensure consistency and reduce duplication.",
+      "title": "Add Bulk Task Selection and Operations",
+      "description": "Enable multi-select functionality for tasks in the Kanban board to perform bulk operations like moving multiple tasks to a different status, archiving, or deleting.",
+      "rationale": "The Archive All button for Done column already demonstrates the bulk operation pattern. Checkbox component exists in ui/checkbox.tsx. The archiveTasks function in task-store shows multi-task operations are supported. This extends existing patterns to user-selectable scope.",
       "builds_upon": [
-        "github-issues EmptyStates.tsx pattern",
-        "IdeationEmptyState.tsx",
-        "RoadmapEmptyState.tsx"
+        "Archive All button pattern in Done column",
+        "Checkbox UI component",
+        "archiveTasks function in task-store"
       ],
-      "estimated_effort": "small",
+      "estimated_effort": "medium",
       "affected_files": [
-        "apps/frontend/src/renderer/components/ui/empty-state.tsx (new)",
-        "apps/frontend/src/renderer/components/github-issues/components/EmptyStates.tsx",
-        "apps/frontend/src/renderer/components/ideation/IdeationEmptyState.tsx",
-        "apps/frontend/src/renderer/components/roadmap/RoadmapEmptyState.tsx"
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/components/TaskCard.tsx",
+        "apps/frontend/src/renderer/stores/task-store.ts"
       ],
       "existing_patterns": [
-        "EmptyState component structure with icon, message props",
-        "UI component pattern in components/ui/"
+        "archiveTasks function in task-store.ts",
+        "Checkbox component in ui/checkbox.tsx",
+        "Archive All button onClick handler in DroppableColumn"
       ],
-      "implementation_approach": "1. Create GenericEmptyState in components/ui/empty-state.tsx with props: icon, title, description, searchQuery, actionButton. 2. Migrate github-issues EmptyState to use this shared component. 3. Refactor IdeationEmptyState and RoadmapEmptyState to use GenericEmptyState, passing domain-specific content.",
+      "implementation_approach": "1. Add selectedTaskIds state to KanbanBoard. 2. Add checkbox to TaskCard (conditionally rendered based on selection mode toggle). 3. Add bulk action toolbar that appears when tasks selected. 4. Extend task-store with bulkUpdateTaskStatus action following archiveTasks pattern.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "ci-005",
       "type": "code_improvements",
-      "title": "Add Export to Markdown for Changelog Entries",
-      "description": "Add ability to export changelog entries to a CHANGELOG.md file in the project root, formatted according to Keep a Changelog standard.",
-      "rationale": "The changelog system has comprehensive formatter (formatter.ts), parser (parser.ts), and generator infrastructure but no export-to-file capability. The formatter already produces markdown-compatible output. This builds on existing changelog patterns to complete the workflow.",
+      "title": "Add New Agent Tool Category for Task Analytics",
+      "description": "Extend the backend tool registry to include task analytics tools that can provide insights on task completion rates, average time in each status, and bottleneck identification.",
+      "rationale": "The tool registry pattern in agents/tools_pkg/registry.py shows a clean modular approach with create_*_tools factory functions (create_subtask_tools, create_progress_tools, create_qa_tools, create_memory_tools). Adding an analytics category follows the established factory pattern exactly.",
       "builds_upon": [
-        "changelog/formatter.ts",
-        "changelog/generator.ts",
-        "changelog-service.ts"
+        "Tool registry pattern in registry.py",
+        "create_*_tools factory functions",
+        "Existing tool structure in tools/*.py"
       ],
-      "estimated_effort": "medium",
+      "estimated_effort": "small",
       "affected_files": [
-        "apps/frontend/src/main/changelog/exporter.ts (new)",
-        "apps/frontend/src/main/changelog/index.ts",
-        "apps/frontend/src/main/ipc-handlers/changelog-handlers.ts",
-        "apps/frontend/src/renderer/components/changelog/ChangelogHeader.tsx",
-        "apps/frontend/src/preload/api/index.ts"
+        "apps/backend/agents/tools_pkg/tools/analytics.py",
+        "apps/backend/agents/tools_pkg/tools/__init__.py",
+        "apps/backend/agents/tools_pkg/registry.py"
       ],
       "existing_patterns": [
-        "changelog/formatter.ts formatting functions",
-        "fs-utils.ts file writing patterns",
-        "IPC handler registration pattern"
+        "create_subtask_tools, create_progress_tools factory pattern",
+        "Tool function signature pattern with spec_dir and project_dir params",
+        "Tool return format from existing tool implementations"
       ],
-      "implementation_approach": "1. Create exporter.ts with exportToMarkdown(entries, projectPath) function using existing formatter. 2. Add exportChangelog IPC handler in changelog-handlers.ts. 3. Add export button to ChangelogHeader.tsx using existing Button component. 4. Write to {projectPath}/CHANGELOG.md with proper header and formatted entries.",
+      "implementation_approach": "1. Create new tools/analytics.py following tools/progress.py structure. 2. Add create_analytics_tools(spec_dir, project_dir) factory function. 3. Register in registry.py create_all_tools by adding all_tools.extend(create_analytics_tools(...)). 4. Implement get_task_metrics and get_completion_trends tools.",
       "status": "draft",
-      "created_at": "2025-12-26T19:15:00.000Z"
+      "created_at": "2025-12-27T05:30:00.000Z"
     },
     {
       "id": "uiux-001",
@@ -235,41 +239,42 @@
     {
       "id": "sec-001",
       "type": "security_hardening",
-      "title": "Enable Electron Sandbox Mode for Defense-in-Depth",
-      "description": "The Electron main window is configured with sandbox: false in apps/frontend/src/main/index.ts (line 66). While contextIsolation is enabled and nodeIntegration is disabled, the sandbox provides an additional security layer by restricting the renderer process at the OS level.",
-      "rationale": "The Electron sandbox limits what code running in the renderer process can do at the operating system level. Without it, a compromised renderer (e.g., via XSS in loaded content) has more system access. This is important since the app loads external fonts from fonts.googleapis.com and may render external release notes.",
-      "category": "configuration",
+      "title": "Add Path Validation to File Explorer IPC Handler",
+      "description": "The file explorer IPC handler in `apps/frontend/src/main/ipc-handlers/file-handlers.ts` accepts arbitrary directory paths from the renderer via `listDirectory(dirPath)` and reads directory contents without validating the path is within allowed project boundaries. This could allow listing files outside intended directories.",
+      "rationale": "Defense-in-depth requires validating paths in the main process even with context isolation enabled. While exploitation requires renderer compromise, the impact of unrestricted file listing could expose sensitive system files or other user data.",
+      "category": "input_validation",
       "severity": "medium",
       "affectedFiles": [
-        "apps/frontend/src/main/index.ts"
+        "apps/frontend/src/main/ipc-handlers/file-handlers.ts",
+        "apps/frontend/src/preload/api/file-api.ts"
       ],
-      "vulnerability": "CWE-693: Protection Mechanism Failure",
-      "currentRisk": "Renderer process has fewer OS-level restrictions than recommended. If an attacker could execute code in the renderer context, they would have more capabilities than necessary.",
-      "remediation": "Enable sandbox mode by setting sandbox: true in webPreferences. Review any preload script functionality that requires sandbox: false and refactor to use IPC handlers in the main process instead. Test PTY terminal integration thoroughly as node-pty may need adjustments.",
+      "vulnerability": "CWE-22: Path Traversal",
+      "currentRisk": "A compromised renderer could request listing of arbitrary directories, potentially exposing system files, credentials, or sensitive data outside project scope.",
+      "remediation": "Add path validation to ensure requested paths are within allowed project directories:\n```typescript\nfunction isPathWithinProject(requestedPath: string, projectPath: string): boolean {\n  const resolved = path.resolve(requestedPath);\n  const projectResolved = path.resolve(projectPath);\n  return resolved.startsWith(projectResolved + path.sep);\n}\n```\nMaintain a list of allowed base paths from registered projects and reject requests outside these boundaries. The existing `isPathSafe()` utility in shell-escape.ts can be extended for this purpose.",
       "references": [
-        "https://www.electronjs.org/docs/latest/tutorial/sandbox",
-        "https://cheatsheetseries.owasp.org/cheatsheets/Electron_Security_Cheat_Sheet.html"
+        "https://owasp.org/www-community/attacks/Path_Traversal",
+        "https://cwe.mitre.org/data/definitions/22.html"
       ],
       "compliance": [
         "SOC2",
-        "OWASP Desktop App Security"
+        "OWASP"
       ]
     },
     {
       "id": "sec-002",
       "type": "security_hardening",
-      "title": "Add Fallback Security Warning for Unencrypted Token Storage",
-      "description": "In apps/frontend/src/main/claude-profile/token-encryption.ts, when Electron's safeStorage encryption is unavailable, OAuth tokens are stored in plaintext with only a console.warn. Users have no visibility that their credentials are stored insecurely.",
-      "rationale": "OAuth tokens provide access to Claude AI services and potentially sensitive user data. Silent fallback to plaintext storage without user notification is a security anti-pattern. Users should be able to make informed decisions about their credential security.",
+      "title": "Add User-Facing Warning for Unencrypted Token Storage Fallback",
+      "description": "In `apps/frontend/src/main/claude-profile/token-encryption.ts`, when Electron's safeStorage encryption is unavailable, OAuth tokens fallback to plaintext storage with only a console.warn. Users receive no notification that their credentials are stored insecurely.",
+      "rationale": "OAuth tokens provide access to Claude AI services. Silent fallback to plaintext storage without user notification is a security anti-pattern. Users should make informed decisions about credential security, especially on systems without OS keychain support.",
       "category": "data_protection",
-      "severity": "medium",
+      "severity": "high",
       "affectedFiles": [
         "apps/frontend/src/main/claude-profile/token-encryption.ts",
         "apps/frontend/src/main/claude-profile/profile-storage.ts"
       ],
       "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
-      "currentRisk": "On systems where safeStorage is unavailable (e.g., certain Linux configurations without a keyring), OAuth tokens are stored in plaintext in settings.json, readable by any process with file access.",
-      "remediation": "1) Emit an IPC event to show a prominent UI warning when encryption fails. 2) Consider a fallback encryption using a machine-derived key (hardware ID + salt). 3) Add isTokenStoredSecurely() API for the UI to show security status. 4) Log security audit events when fallback occurs.",
+      "currentRisk": "On systems where safeStorage is unavailable (certain Linux configurations without a keyring daemon), OAuth tokens are stored in plaintext in settings.json, readable by any process with file access to the user's config directory.",
+      "remediation": "1) Emit an IPC event when encryption fails to show a persistent UI warning in settings. 2) Add `isTokenStoredSecurely()` method for the UI to display security status badges. 3) Consider a fallback encryption mechanism using device-derived keys. 4) Log security events when plaintext fallback occurs for audit compliance:\n```typescript\nif (!safeStorage.isEncryptionAvailable()) {\n  mainWindow?.webContents.send('security-warning', {\n    type: 'token-plaintext',\n    message: 'Credentials stored without encryption'\n  });\n}\n```",
       "references": [
         "https://www.electronjs.org/docs/latest/api/safe-storage",
         "https://cwe.mitre.org/data/definitions/312.html"
@@ -282,9 +287,9 @@
     {
       "id": "sec-003",
       "type": "security_hardening",
-      "title": "Add npm Dependency Vulnerability Scanning to CI Pipeline",
-      "description": "The .github/workflows/quality-security.yml workflow runs CodeQL and Bandit for code analysis, but lacks npm audit or any JavaScript/TypeScript dependency vulnerability scanning. The frontend has 35+ runtime dependencies that could contain known CVEs.",
-      "rationale": "Third-party npm packages are a common attack vector. Packages like electron, react-markdown, @xterm/xterm, and various @radix-ui components should be monitored for vulnerabilities. Supply chain attacks on npm are well-documented.",
+      "title": "Integrate npm Audit into CI Security Pipeline",
+      "description": "The `.github/workflows/quality-security.yml` runs CodeQL and Bandit for code analysis but lacks npm dependency vulnerability scanning. The frontend has 35+ runtime dependencies (electron, xterm, @radix-ui components) that could contain known CVEs.",
+      "rationale": "Supply chain attacks via npm packages are common. The project uses Electron v39, @xterm/xterm v6.0, react-markdown, and numerous UI libraries that should be continuously monitored. New CVEs are published regularly for popular packages.",
       "category": "dependencies",
       "severity": "medium",
       "affectedFiles": [
@@ -292,11 +297,12 @@
         "apps/frontend/package.json"
       ],
       "vulnerability": "CWE-1104: Use of Unmaintained Third Party Components",
-      "currentRisk": "Vulnerable npm dependencies may exist without automated detection. The project uses Electron v39, xterm v6, and many UI libraries that should be continuously monitored.",
-      "remediation": "Add an npm audit job to quality-security.yml:\n\n```yaml\nnpm-security:\n  name: NPM Dependency Audit\n  runs-on: ubuntu-latest\n  steps:\n    - uses: actions/checkout@v4\n    - uses: actions/setup-node@v4\n      with:\n        node-version: '24'\n    - run: cd apps/frontend && npm ci\n    - run: cd apps/frontend && npm audit --audit-level=high\n```\n\nFor Python, add pip-audit to scan apps/backend/requirements.txt.",
+      "currentRisk": "Vulnerable npm dependencies could exist without automated detection. Electron updates frequently have security fixes that might be missed without automated monitoring.",
+      "remediation": "Add npm audit job to the security workflow:\n```yaml\nnpm-security:\n  name: NPM Dependency Audit\n  runs-on: ubuntu-latest\n  steps:\n    - uses: actions/checkout@v4\n    - uses: actions/setup-node@v4\n      with:\n        node-version: '24'\n    - run: cd apps/frontend && npm ci\n    - run: cd apps/frontend && npm audit --audit-level=high\n```\nConsider using `npm audit --omit=dev` for production-only scanning and GitHub's built-in Dependabot alerts for continuous monitoring.",
       "references": [
         "https://docs.npmjs.com/cli/v10/commands/npm-audit",
-        "https://owasp.org/www-project-dependency-check/"
+        "https://owasp.org/www-project-dependency-check/",
+        "https://github.com/features/security"
       ],
       "compliance": [
         "SOC2",
@@ -307,9 +313,9 @@
     {
       "id": "sec-004",
       "type": "security_hardening",
-      "title": "Replace Custom HTML Sanitization with DOMPurify",
-      "description": "Two React components use dangerouslySetInnerHTML with custom regex-based HTML escaping: AppUpdateNotification.tsx (release notes) and AdvancedSettings.tsx. While the current escaping handles basic XSS (<, >, &), regex-based sanitization can miss edge cases.",
-      "rationale": "Release notes come from external sources (GitHub releases API). Custom sanitizers often miss edge cases like malformed UTF-8 sequences, HTML5 entities, or SVG-based XSS. DOMPurify has been extensively tested against thousands of XSS vectors.",
+      "title": "Use DOMPurify or rehype-sanitize for Release Notes Rendering",
+      "description": "Two components use dangerouslySetInnerHTML with custom regex-based HTML escaping: `AppUpdateNotification.tsx` and `AdvancedSettings.tsx`. While the current implementation escapes <, >, & before processing markdown, regex-based sanitization is prone to bypass vulnerabilities.",
+      "rationale": "Release notes content comes from external sources (GitHub releases API via electron-updater). Custom regex sanitizers often miss edge cases like malformed UTF-8, SVG-based XSS, or mutation-based attacks. Battle-tested libraries like DOMPurify have been tested against thousands of XSS vectors.",
       "category": "input_validation",
       "severity": "low",
       "affectedFiles": [
@@ -317,8 +323,8 @@
         "apps/frontend/src/renderer/components/settings/AdvancedSettings.tsx"
       ],
       "vulnerability": "CWE-79: Improper Neutralization of Input During Web Page Generation",
-      "currentRisk": "If a crafted release note bypasses the regex sanitization, XSS could occur in the Electron renderer context. The current sanitization escapes &, <, > before processing, which is good, but a whitelist approach is safer.",
-      "remediation": "Option 1: Use react-markdown (already installed) with rehype-sanitize:\n```tsx\nimport ReactMarkdown from 'react-markdown';\nimport rehypeSanitize from 'rehype-sanitize';\n<ReactMarkdown rehypePlugins={[rehypeSanitize]}>{markdown}</ReactMarkdown>\n```\n\nOption 2: Use DOMPurify:\n```tsx\nimport DOMPurify from 'dompurify';\nconst html = DOMPurify.sanitize(processedMarkdown, { ALLOWED_TAGS: ['h3','h4','strong','code','li','ul','br'] });\n```",
+      "currentRisk": "If a crafted release note bypasses the regex sanitization (e.g., via mXSS), code could execute in the Electron renderer context. The current approach escapes &<> first which is good practice, but a whitelist approach is more robust.",
+      "remediation": "Since react-markdown is already installed, use it with rehype-sanitize:\n```tsx\nimport ReactMarkdown from 'react-markdown';\nimport rehypeSanitize from 'rehype-sanitize';\n\n<ReactMarkdown rehypePlugins={[rehypeSanitize]}>\n  {updateInfo.releaseNotes}\n</ReactMarkdown>\n```\nAlternatively, install DOMPurify and use a strict allowlist:\n```tsx\nimport DOMPurify from 'dompurify';\nconst clean = DOMPurify.sanitize(html, {\n  ALLOWED_TAGS: ['h3','h4','strong','code','li','ul','br','div'],\n  ALLOWED_ATTR: ['class']\n});\n```",
       "references": [
         "https://github.com/cure53/DOMPurify",
         "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html"
@@ -330,9 +336,9 @@
     {
       "id": "sec-005",
       "type": "security_hardening",
-      "title": "Add Python Dependency Hash Pinning for Supply Chain Security",
-      "description": "The apps/backend/requirements.txt and tests/requirements-test.txt specify dependencies with version ranges but lack cryptographic hash pinning. This leaves the project vulnerable to supply chain attacks where a malicious version could replace a legitimate one.",
-      "rationale": "Supply chain attacks on Python packages (e.g., typosquatting, account compromise) are increasing. Hash pinning ensures that only verified, known-good versions are installed. Critical packages like claude-agent-sdk, graphiti-core handle AI credentials.",
+      "title": "Implement Python Dependency Hash Pinning for Supply Chain Security",
+      "description": "The `apps/backend/requirements.txt` specifies dependencies with version ranges but lacks cryptographic hash pinning. This leaves the project vulnerable to supply chain attacks where a compromised package version could replace a legitimate one without detection.",
+      "rationale": "Critical packages like claude-agent-sdk and graphiti-core handle AI credentials and execute in the backend context. Supply chain attacks on Python packages are increasing. Hash pinning ensures only verified, known-good package contents are installed.",
       "category": "dependencies",
       "severity": "medium",
       "affectedFiles": [
@@ -340,15 +346,349 @@
         "tests/requirements-test.txt"
       ],
       "vulnerability": "CWE-494: Download of Code Without Integrity Check",
-      "currentRisk": "Dependencies are installed without cryptographic verification. A compromised PyPI package could inject malicious code into the build or development environment.",
-      "remediation": "Use pip-compile from pip-tools to generate requirements with hashes:\n```bash\npip install pip-tools\npip-compile --generate-hashes requirements.in -o requirements.txt\npip install --require-hashes -r requirements.txt\n```\n\nAlternatively, adopt Poetry or PDM with lockfiles. Add pip-audit to CI for ongoing vulnerability scanning:\n```yaml\n- run: pip install pip-audit && pip-audit -r apps/backend/requirements.txt\n```",
+      "currentRisk": "Dependencies are installed without cryptographic verification. A compromised PyPI package (via account takeover, typosquatting, or dependency confusion) could inject malicious code into builds.",
+      "remediation": "Use pip-compile from pip-tools to generate hashed requirements:\n```bash\npip install pip-tools\npip-compile --generate-hashes requirements.in -o requirements.txt\npip install --require-hashes -r requirements.txt\n```\nAdd pip-audit to CI for vulnerability scanning:\n```yaml\n- run: pip install pip-audit\n- run: pip-audit -r apps/backend/requirements.txt\n```\nConsider adopting Poetry or PDM with lockfiles for better dependency resolution and security.",
       "references": [
         "https://pip.pypa.io/en/stable/topics/secure-installs/",
-        "https://slsa.dev/spec/v1.0/requirements"
+        "https://slsa.dev/spec/v1.0/requirements",
+        "https://github.com/pypa/pip-audit"
       ],
       "compliance": [
         "SOC2",
         "SLSA Level 2"
+      ]
+    },
+    {
+      "id": "doc-001",
+      "type": "documentation_gaps",
+      "title": "Add API documentation for agent modules",
+      "description": "The apps/backend/agents/ module exports key classes (Planner, Coder, AgentSession) with minimal docstrings. Functions like run_agent_session(), create_client() and the agent lifecycle methods lack comprehensive documentation including parameters, return values, exceptions, and usage examples.",
+      "rationale": "The agents/ module is the core of Turret's autonomous coding capability. Contributors need to understand agent lifecycle, session management, and how to extend agents. Currently developers must read source code to understand the API.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "apps/backend/agents/session.py",
+        "apps/backend/agents/coder.py",
+        "apps/backend/agents/planner.py",
+        "apps/backend/core/client.py"
+      ],
+      "currentDocumentation": "Module-level docstrings exist but function-level documentation is sparse. Only run_followup_planner() has comprehensive docstrings.",
+      "proposedContent": "Add Google-style docstrings for all public functions including: parameters with types and descriptions, return types and meaning, exceptions raised, and usage examples. Create agents/README.md with architecture overview.",
+      "priority": "high",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-002",
+      "type": "documentation_gaps",
+      "title": "Create architecture diagrams for data flow",
+      "description": "The project lacks visual architecture documentation showing how data flows between components: Frontend (Electron) → IPC → Backend (Python) → Claude Agent SDK → Memory/Graphiti. The CLAUDE.md has text-based structure but no diagrams.",
+      "rationale": "New contributors struggle to understand the overall system architecture. Visual diagrams would accelerate onboarding and help developers understand where their changes fit in the broader system.",
+      "category": "architecture",
+      "targetAudience": "contributors",
+      "affectedAreas": [
+        "CLAUDE.md",
+        "apps/backend/README.md",
+        "apps/frontend/README.md"
+      ],
+      "currentDocumentation": "CLAUDE.md has text descriptions and folder structure. No visual diagrams exist for component interactions, data flow, or agent lifecycle.",
+      "proposedContent": "Create Mermaid diagrams for: 1) High-level system architecture, 2) Agent execution pipeline (spec → plan → code → QA), 3) IPC communication between Electron and Python, 4) Memory/Graphiti integration flow. Add to CLAUDE.md or new docs/ARCHITECTURE.md.",
+      "priority": "high",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-003",
+      "type": "documentation_gaps",
+      "title": "Add Graphiti memory integration guide",
+      "description": "The Graphiti/LadybugDB memory system in apps/backend/integrations/graphiti/ lacks user-facing documentation. Configuration options (GRAPHITI_ENABLED, provider selection), usage patterns, and troubleshooting are undocumented.",
+      "rationale": "Memory Layer is a key feature listed in README but users don't know how to enable, configure, or troubleshoot it. The env.example mentions it but lacks context on provider options (OpenAI, Anthropic, Azure, Ollama, Google AI).",
+      "category": "examples",
+      "targetAudience": "users",
+      "affectedAreas": [
+        "apps/backend/integrations/graphiti/",
+        "apps/backend/.env.example",
+        "guides/CLI-USAGE.md"
+      ],
+      "currentDocumentation": "Only CLAUDE.md mentions Graphiti configuration briefly. No end-user guide for setup, provider configuration, or memory inspection.",
+      "proposedContent": "Create guides/MEMORY-LAYER.md covering: 1) What the Memory Layer does, 2) Provider configuration (with examples for each), 3) Environment variables explained, 4) How agents use memory, 5) Viewing/clearing memory data, 6) Troubleshooting common issues.",
+      "priority": "medium",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-004",
+      "type": "documentation_gaps",
+      "title": "Document frontend IPC handler API",
+      "description": "The apps/frontend/src/main/ipc-handlers/ directory contains 20+ handler modules that define the Electron-to-Python communication API. These handlers have minimal JSDoc comments and no centralized API reference.",
+      "rationale": "Frontend developers adding new features need to understand available IPC channels and their payloads. Currently they must search through handler files to discover available operations.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "apps/frontend/src/main/ipc-handlers/index.ts",
+        "apps/frontend/src/main/ipc-handlers/task/",
+        "apps/frontend/src/main/ipc-handlers/github/",
+        "apps/frontend/src/main/ipc-handlers/ideation/"
+      ],
+      "currentDocumentation": "Individual README files exist in some subdirectories (github/, task/) but lack consistent API documentation. No unified reference for all IPC channels.",
+      "proposedContent": "Add JSDoc to each handler function with @param, @returns, and @example. Create apps/frontend/src/main/ipc-handlers/API.md documenting all IPC channels, payloads, and response formats in a searchable table.",
+      "priority": "medium",
+      "estimatedEffort": "high"
+    },
+    {
+      "id": "doc-005",
+      "type": "documentation_gaps",
+      "title": "Add troubleshooting guide for common agent failures",
+      "description": "The README has basic troubleshooting for installation issues, but lacks documentation for runtime agent failures: rate limits, stuck subtasks, QA loop failures, memory errors, and worktree conflicts.",
+      "rationale": "Users encounter agent runtime issues but have no guidance on diagnosing or resolving them. Discord support shows recurring questions about rate limits, failed builds, and stuck QA loops that could be addressed by documentation.",
+      "category": "troubleshooting",
+      "targetAudience": "users",
+      "affectedAreas": [
+        "README.md",
+        "guides/CLI-USAGE.md"
+      ],
+      "currentDocumentation": "README troubleshooting covers installation only. No runtime debugging guidance exists.",
+      "proposedContent": "Create guides/TROUBLESHOOTING.md with sections: 1) Rate limit handling and auto-recovery, 2) Debugging stuck subtasks (PAUSE file, HUMAN_INPUT.md), 3) QA loop not approving (common criteria issues), 4) Worktree conflicts resolution, 5) Memory/Graphiti connection issues, 6) Reading debug logs (DEBUG=true DEBUG_LEVEL=2).",
+      "priority": "high",
+      "estimatedEffort": "low"
+    },
+    {
+      "id": "perf-001",
+      "type": "performance_optimizations",
+      "title": "Implement React Component Memoization",
+      "description": "Add React.memo and useMemo/useCallback hooks to prevent unnecessary re-renders in the frontend components, especially for components that receive complex objects as props or perform expensive computations.",
+      "priority": "medium",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": [
+        "frontend"
+      ],
+      "tags": [
+        "react",
+        "rendering",
+        "optimization"
+      ],
+      "created_at": "2025-12-26T19:15:00.000000",
+      "status": "archived",
+      "linked_task_id": "066-implement-react-component-memoization"
+    },
+    {
+      "id": "perf-002",
+      "type": "performance_optimizations",
+      "title": "Add Code Splitting and Lazy Loading",
+      "description": "Implement React.lazy and Suspense for route-based code splitting in the Vite/React frontend to reduce initial bundle size and improve first contentful paint.",
+      "priority": "high",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": [
+        "frontend"
+      ],
+      "tags": [
+        "vite",
+        "bundle-size",
+        "lazy-loading"
+      ],
+      "created_at": "2025-12-26T19:15:00.000000",
+      "status": "archived",
+      "linked_task_id": "065-add-code-splitting-and-lazy-loading"
+    },
+    {
+      "id": "perf-003",
+      "type": "performance_optimizations",
+      "title": "Optimize Zustand Store Subscriptions",
+      "description": "Review Zustand store selectors to ensure components only subscribe to the specific state slices they need, preventing unnecessary re-renders when unrelated state changes.",
+      "priority": "medium",
+      "effort": "low",
+      "impact": "medium",
+      "affected_services": [
+        "frontend"
+      ],
+      "tags": [
+        "zustand",
+        "state-management",
+        "subscriptions"
+      ],
+      "created_at": "2025-12-26T19:15:00.000000",
+      "status": "archived",
+      "linked_task_id": "067-optimize-zustand-store-subscriptions"
+    },
+    {
+      "id": "perf-004",
+      "type": "performance_optimizations",
+      "title": "Add API Response Caching",
+      "description": "Implement caching strategies for backend API responses to reduce redundant computations and improve response times for frequently accessed endpoints.",
+      "priority": "medium",
+      "effort": "medium",
+      "impact": "high",
+      "affected_services": [
+        "backend"
+      ],
+      "tags": [
+        "caching",
+        "api",
+        "python"
+      ],
+      "created_at": "2025-12-26T19:15:00.000000",
+      "status": "archived",
+      "linked_task_id": "068-add-api-response-caching"
+    },
+    {
+      "id": "perf-005",
+      "type": "performance_optimizations",
+      "title": "Optimize Electron IPC Communication",
+      "description": "Review and optimize Electron IPC calls between main and renderer processes, batch multiple small requests where possible, and consider using shared memory for large data transfers.",
+      "priority": "medium",
+      "effort": "high",
+      "impact": "medium",
+      "affected_services": [
+        "frontend"
+      ],
+      "tags": [
+        "electron",
+        "ipc",
+        "desktop"
+      ],
+      "created_at": "2025-12-26T19:15:00.000000"
+    },
+    {
+      "id": "cq-001",
+      "type": "code_quality",
+      "title": "Split oversized TaskCreationWizard component into smaller focused components",
+      "description": "The TaskCreationWizard.tsx component at 1166 lines is significantly over the recommended 400-500 line limit for React components. It handles multiple concerns: form state management, image attachments, file autocomplete, branch selection, model configuration, and draft persistence.",
+      "rationale": "Large monolithic components are difficult to test, maintain, and reason about. Splitting into smaller, focused components improves reusability, testability, and makes code reviews easier. Each sub-component can be developed and tested independently.",
+      "category": "large_files",
+      "severity": "major",
+      "affectedFiles": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx"
+      ],
+      "currentState": "Single 1166-line component handling: form state (title, description, metadata), image attachments with drag-drop, file autocomplete with @ mentions, Git branch selection, model/thinking configuration, and draft auto-save",
+      "proposedChange": "Extract into focused sub-components:\n- TaskWizardForm.tsx (basic form fields)\n- TaskImageAttachments.tsx (image upload/paste/drag-drop)\n- TaskFileReferences.tsx (@ autocomplete and file explorer)\n- TaskGitOptions.tsx (branch selection)\n- TaskModelConfig.tsx (model and thinking level selection)\n- useTaskDraft.ts (hook for draft persistence)\n- useTaskForm.ts (hook for form state management)",
+      "codeExample": "// Current (1166 lines in one file):\nexport function TaskCreationWizard({ projectId, open, onOpenChange }) {\n  const [title, setTitle] = useState('');\n  const [description, setDescription] = useState('');\n  const [images, setImages] = useState([]);\n  // ... 50+ more state variables and handlers\n}\n\n// Proposed:\nimport { TaskImageAttachments } from './task-wizard/TaskImageAttachments';\nimport { TaskFileReferences } from './task-wizard/TaskFileReferences';\nimport { useTaskDraft } from './task-wizard/useTaskDraft';\n\nexport function TaskCreationWizard({ projectId, open, onOpenChange }) {\n  const { draft, saveDraft } = useTaskDraft(projectId);\n  return (\n    <Dialog>\n      <TaskWizardForm />\n      <TaskImageAttachments />\n      <TaskFileReferences />\n    </Dialog>\n  );\n}",
+      "bestPractice": "Single Responsibility Principle - React components should do one thing well. Complex forms should be composed of smaller, reusable sub-components.",
+      "metrics": {
+        "lineCount": 1166,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": [
+        "Ensure component has integration tests before refactoring"
+      ]
+    },
+    {
+      "id": "cq-002",
+      "type": "code_quality",
+      "title": "Consolidate large IPC handler files by extracting shared utilities",
+      "description": "Several IPC handler files exceed 600-1000 lines: pr-handlers.ts (1133), worktree-handlers.ts (1003), autofix-handlers.ts (926), oauth-handlers.ts (832), execution-handlers.ts (816). These files contain similar patterns for subprocess execution, error handling, and IPC response formatting.",
+      "rationale": "Large handler files with repeated patterns increase maintenance burden and risk of inconsistent error handling. Extracting common patterns into shared utilities reduces code duplication and ensures consistent behavior across all handlers.",
+      "category": "duplication",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/frontend/src/main/ipc-handlers/github/pr-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/task/worktree-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/github/autofix-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/github/oauth-handlers.ts",
+        "apps/frontend/src/main/ipc-handlers/task/execution-handlers.ts"
+      ],
+      "currentState": "Each handler file independently implements subprocess execution, progress callbacks, error formatting, and cleanup logic. The github/utils/ folder has some shared utilities but they're not consistently used.",
+      "proposedChange": "Extend the shared utilities pattern:\n1. Create a createIPCHandler() factory that standardizes error handling and logging\n2. Extract common subprocess execution patterns into subprocess-utils.ts\n3. Create a progress-reporter.ts utility for consistent progress callbacks\n4. Use a response-builder.ts for consistent IPC response formatting",
+      "codeExample": "// Current pattern (repeated in 5+ files):\nipcMain.handle('github:review-pr', async (_, args) => {\n  try {\n    const result = await runPythonSubprocess(...);\n    return { success: true, data: result };\n  } catch (error) {\n    console.error('[PR Review] Error:', error);\n    return { success: false, error: error.message };\n  }\n});\n\n// Proposed:\nimport { createIPCHandler, runWithProgress } from '../utils/ipc-helpers';\n\nconst reviewPR = createIPCHandler('github:review-pr', async (args, ctx) => {\n  return runWithProgress(ctx, {\n    command: 'review',\n    args,\n    phases: ['analyzing', 'reviewing', 'complete']\n  });\n});",
+      "bestPractice": "DRY (Don't Repeat Yourself) - Extract common patterns into reusable utilities",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": 200,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-003",
+      "type": "code_quality",
+      "title": "Increase test coverage for renderer components",
+      "description": "The frontend has only 18 test files covering the renderer, while there are 50+ component files. Critical components like TaskCreationWizard, KanbanBoard, App.tsx, and most store files lack dedicated test coverage. The existing tests are concentrated in main process and integration tests.",
+      "rationale": "Low test coverage increases the risk of regressions when refactoring or adding features. Component tests enable confident refactoring and serve as documentation for expected behavior. The complex state management in stores like ideation-store.ts (757 lines) and task-store.ts (568 lines) would particularly benefit from unit tests.",
+      "category": "testing",
+      "severity": "major",
+      "affectedFiles": [
+        "apps/frontend/src/renderer/components/TaskCreationWizard.tsx",
+        "apps/frontend/src/renderer/components/KanbanBoard.tsx",
+        "apps/frontend/src/renderer/App.tsx",
+        "apps/frontend/src/renderer/stores/ideation-store.ts",
+        "apps/frontend/src/renderer/stores/task-store.ts",
+        "apps/frontend/src/renderer/stores/changelog-store.ts"
+      ],
+      "currentState": "18 test files for frontend, mostly covering main process handlers and integration tests. Renderer components and Zustand stores have minimal coverage.",
+      "proposedChange": "Add test coverage for critical paths:\n1. Store tests: Test state transitions, actions, and edge cases for ideation-store, task-store, changelog-store\n2. Component tests: Add React Testing Library tests for TaskCreationWizard form validation, KanbanBoard drag-drop, App route switching\n3. Hook tests: Test custom hooks like useVirtualizedTree (already has test) pattern for other hooks",
+      "codeExample": "// Example: ideation-store.test.ts\nimport { useIdeationStore } from '../ideation-store';\nimport { act, renderHook } from '@testing-library/react';\n\ndescribe('IdeationStore', () => {\n  beforeEach(() => {\n    const { result } = renderHook(() => useIdeationStore());\n    act(() => result.current.clearSession());\n  });\n\n  it('should initialize type states when generation starts', () => {\n    const { result } = renderHook(() => useIdeationStore());\n    act(() => result.current.initializeTypeStates(['code_quality', 'security']));\n    expect(result.current.typeStates.code_quality).toBe('pending');\n  });\n\n  it('should update idea status correctly', () => {\n    // ... test updateIdeaStatus action\n  });\n});",
+      "bestPractice": "Test Pyramid - Unit tests should form the base, covering critical business logic in stores and complex component behavior",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": 30
+      },
+      "estimatedEffort": "large",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-004",
+      "type": "code_quality",
+      "title": "Remove dead backup file and add git hooks to prevent future occurrences",
+      "description": "A backup file changelog-handlers.ts.bk exists in the IPC handlers directory. Backup files should not be committed to version control and indicate a workflow issue. This type of file clutters the codebase and can cause confusion about which version is active.",
+      "rationale": "Dead code and backup files in the repository increase cognitive load, can cause confusion during code reviews, and may accidentally be modified or imported. Git hooks can prevent these files from being committed.",
+      "category": "dead_code",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/frontend/src/main/ipc-handlers/changelog-handlers.ts.bk"
+      ],
+      "currentState": "Backup file (9125 bytes) exists alongside the main changelog-handlers.ts. The project uses Husky for git hooks but doesn't prevent .bk files.",
+      "proposedChange": "1. Delete the backup file: rm apps/frontend/src/main/ipc-handlers/changelog-handlers.ts.bk\n2. Add to .gitignore: *.bk, *.backup, *.orig, *.old\n3. Optionally add a pre-commit hook to warn about these patterns",
+      "codeExample": "# .gitignore additions:\n*.bk\n*.backup\n*.orig\n*.old\n*~\n\n# Optional: .husky/pre-commit addition:\n#!/bin/sh\nif git diff --cached --name-only | grep -E '\\.(bk|backup|orig|old)$'; then\n  echo \"Error: Attempting to commit backup files. Please remove them.\"\n  exit 1\nfi",
+      "bestPractice": "Clean Repository - Version control should only contain production-ready code, not temporary or backup files",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "small",
+      "breakingChange": false,
+      "prerequisites": null
+    },
+    {
+      "id": "cq-005",
+      "type": "code_quality",
+      "title": "Split core/workspace.py into domain-specific modules to complete the refactoring",
+      "description": "The workspace.py file at 1564 lines acknowledges it was 'refactored for better maintainability' with modules extracted to workspace/, but the main file still contains 'complex merge operations' that could be further extracted. The file has extensive import aliasing with underscores (_apply_path_mapping, _is_lock_file, etc.) indicating an incomplete refactoring.",
+      "rationale": "The current state is a partial refactoring - models, utilities, and display functions were extracted but the core merge logic remains monolithic. Completing the refactoring would improve testability and make the merge system easier to maintain and extend.",
+      "category": "large_files",
+      "severity": "minor",
+      "affectedFiles": [
+        "apps/backend/core/workspace.py",
+        "apps/backend/core/workspace/git_utils.py",
+        "apps/backend/core/workspace/models.py",
+        "apps/backend/core/workspace/setup.py",
+        "apps/backend/core/workspace/display.py",
+        "apps/backend/core/workspace/finalization.py"
+      ],
+      "currentState": "1564-line file with merge operations that 'reference each other' including: merge_existing_build, _try_smart_merge, _resolve_git_conflicts_with_ai, _run_parallel_merges, _merge_file_with_ai, _heuristic_merge. The file imports functions with underscore prefixes from its submodules.",
+      "proposedChange": "Complete the refactoring by extracting the merge logic:\n1. Create core/workspace/merge_operations.py for the merge_existing_build and related functions\n2. Create core/workspace/ai_merge.py for AI-powered merge resolution (_merge_file_with_ai_async, _async_ai_call)\n3. Create core/workspace/conflict_resolver.py for conflict detection and resolution\n4. Update workspace/__init__.py to expose the clean public API\n5. Remove the underscore-prefixed import aliasing",
+      "codeExample": "# Current imports (showing incomplete refactoring):\nfrom core.workspace.git_utils import (\n    apply_path_mapping as _apply_path_mapping,\n    detect_file_renames as _detect_file_renames,\n    get_file_content_from_ref as _get_file_content_from_ref,\n    is_lock_file as _is_lock_file,\n)\n\n# Proposed: Complete the extraction\n# core/workspace/merge_operations.py\nfrom .git_utils import apply_path_mapping, detect_file_renames\nfrom .ai_merge import merge_file_with_ai\nfrom .conflict_resolver import resolve_git_conflicts\n\ndef merge_existing_build(project_dir: Path, spec_name: str, ...) -> bool:\n    \"\"\"Main entry point for merging builds.\"\"\"\n    ...",
+      "bestPractice": "Single Responsibility Principle - Each module should have one clear purpose. Complete refactorings rather than leaving them half-done.",
+      "metrics": {
+        "lineCount": 1564,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": [
+        "Ensure existing tests pass before refactoring",
+        "Document the current merge behavior"
       ]
     }
   ],
@@ -356,53 +696,83 @@
     "existing_features": [],
     "tech_stack": [
       "React",
-      "Python",
-      "TypeScript"
+      "TypeScript",
+      "Python"
     ],
-    "target_audience": "Software developers who want to automate coding tasks and accelerate their development workflow through AI agents",
+    "target_audience": "Professional software developers who want to accelerate their development workflow by delegating coding tasks to autonomous AI agents",
     "planned_features": [
-      "Integration Marketplace",
-      "Team Collaboration Features",
-      "Add Individual File Discard in Human Review",
-      "Agent Activity Dashboard",
-      "Large Codebase Performance Optimization",
-      "Workflow Automation Builder",
-      "Advanced Kanban Board Features",
-      "Add skeleton loading states for KanbanBoard and WelcomeScreen",
-      "Agent Confidence Metrics",
-      "Status Tracking System Consolidation",
-      "Task Templates Library",
-      "Advanced Merge Completion Recording",
-      "Customizable QA Validation Rules",
-      "Native Dependency Simplification",
-      "Cloud Sync for Settings and Memory",
+      "Add API Response Caching",
+      "Advanced Conflict Analysis",
+      "Consolidate large IPC handler files by extracting shared utilities",
+      "Specification: Document and Integrate MCP Server System",
       "Quick Spec: Fix Kanban Board State Persistence for Approved Tasks",
+      "Enhanced Git Worktree UI",
+      "Advanced Kanban Board Features",
+      "Plugin System Architecture",
+      "Native Dependency Simplification",
+      "Multi-Agent Task Coordination",
+      "Specification: Add Instruction Log Entry to Task Details",
+      "Quick Spec: Add Missing agentTools Translation",
       "Smart Notification System",
+      "Add skeleton loading states for KanbanBoard and WelcomeScreen",
+      "Quick Spec: Fix claude_agent_sdk Module Import",
+      "Task Templates Library",
+      "Enterprise SSO & RBAC",
+      "Add New Agent Tool Category for Task Analytics",
+      "Quick Spec: Add Restart Button",
       "Memory Curation Dashboard",
+      "Specification: Auto-Recovery for Stuck Tasks",
+      "Split core/workspace.py into domain-specific modules to complete the refactoring",
+      "Custom Agent Roles",
+      "Cloud Sync for Settings and Memory",
+      "GitHub/GitLab Integration",
+      "Customizable QA Validation Rules",
+      "Quick Spec: Fix Import Error in Task Dialog",
+      "Interactive Onboarding Wizard",
+      "Workflow Automation Builder",
+      "Specification: Block File Edits When Modified Since Last Read",
+      "Agent Activity Dashboard",
       "Python Version Flexibility",
       "Add Code Splitting and Lazy Loading",
-      "Plugin System Architecture",
-      "Add API Response Caching",
-      "Interactive Onboarding Wizard",
+      "Add Collapsible Sidebar Navigation Sections",
+      "Specification: Add CLAUDE.md Project Setting for Agent Context",
+      "Add File Discard to Review Workflow",
+      "Specification: Add Accordion Behavior to Done Kanban Items",
+      "Status Tracking System Consolidation",
+      "Split oversized TaskCreationWizard component into smaller focused components",
+      "Integration Marketplace",
+      "Large Codebase Performance Optimization",
+      "Specification: Investigate and Fix Kanban Board State Persistence",
+      "Specification: GitHub Commit Siphoning Extension",
       "Quick Spec: Move Refine with AI Button to Icon",
+      "Specification: AI-Powered Task Refinement Button",
+      "Specification: Enhance Task Creation with AI-Powered Refinement",
+      "Team Collaboration Features",
+      "Agent Confidence Metrics",
+      "Specification: Tasks Index with Kanban Board Database View",
+      "Quick Spec: Document Context Injection Feature",
       "Semantic Memory Search",
       "Specification: Replace All Icons with Hugeicons Library",
-      "Specification: Selective Staging for Merge Conflicts Preview",
-      "Specification: Add Accordion Behavior to Done Kanban Items",
-      "Specification: AI-Powered Task Refinement Button"
+      "Autonomous Recovery from Failures",
+      "Health Monitoring Email Alerts",
+      "Specification: Expand Theme Library with Six Additional Color Variations",
+      "Advanced Merge Completion Recording"
     ]
   },
   "summary": {
-    "total_ideas": 15,
+    "total_ideas": 30,
     "by_type": {
       "code_improvements": 5,
       "ui_ux_improvements": 5,
-      "security_hardening": 5
+      "security_hardening": 5,
+      "documentation_gaps": 5,
+      "performance_optimizations": 5,
+      "code_quality": 5
     },
     "by_status": {
-      "draft": 15
+      "draft": 30
     }
   },
-  "generated_at": "2025-12-27T00:29:39.087710",
-  "updated_at": "2025-12-27T00:29:39.087710"
+  "generated_at": "2025-12-29T15:51:30.440625",
+  "updated_at": "2025-12-29T13:52:12.659Z"
 }

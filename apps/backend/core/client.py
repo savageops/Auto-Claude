@@ -11,6 +11,7 @@ use `ClaudeSDKClient` directly with `allowed_tools=[]` and `max_turns=1`.
 
 import json
 import os
+import platform
 from pathlib import Path
 
 from turret_tools import (
@@ -26,6 +27,24 @@ from core.auth import get_sdk_env_vars, require_auth_token
 from linear_updater import is_linear_enabled
 from prompts_pkg.project_context import detect_project_capabilities, load_project_index
 from security import bash_security_hook, file_edit_blocking_hook
+
+
+def get_bundled_claude_exe_path() -> str | None:
+    """Find bundled claude.exe in site-packages."""
+    try:
+        # The bundled claude.exe is located inside the claude_agent_sdk package
+        import claude_agent_sdk
+        sdk_path = Path(claude_agent_sdk.__file__).parent
+        
+        # Binary name based on platform
+        cli_name = "claude.exe" if platform.system() == "Windows" else "claude"
+        bundled_path = sdk_path / "_bundled" / cli_name
+        
+        if bundled_path.exists():
+            return str(bundled_path.resolve())
+    except Exception:
+        pass
+    return None
 
 
 def is_graphiti_mcp_enabled() -> bool:
@@ -264,6 +283,10 @@ def create_client(
                 "Edit(./**)",
                 "Glob(./**)",
                 "Grep(./**)",
+                # Allow access to spec directory (which might be outside ./ if dev_mode)
+                f"Read({spec_dir.resolve() or './'}/**)",
+                f"Write({spec_dir.resolve() or './'}/**)",
+                f"Edit({spec_dir.resolve() or './'}/**)",
                 # Bash permission granted here, but actual commands are validated
                 # by the bash_security_hook (see security.py for allowed commands)
                 "Bash(*)",
@@ -284,10 +307,16 @@ def create_client(
     with open(settings_file, "w") as f:
         json.dump(security_settings, f, indent=2)
 
-    print(f"Security settings: {settings_file}")
-    print("   - Sandbox enabled (OS-level bash isolation)")
-    print(f"   - Filesystem restricted to: {project_dir.resolve()}")
-    print("   - Bash commands restricted to allowlist")
+    # Explicitly find bundled claude.exe for Windows stability
+    cli_path = get_bundled_claude_exe_path()
+
+    print(f"Creating Claude SDK client:")
+    print(f"   - Project: {project_dir.resolve()}")
+    print(f"   - Spec: {spec_dir}")
+    print(f"   - CLI Path: {cli_path or 'automatic'}")
+    print(f"   - Settings: {settings_file}")
+    print("   - Sandbox: enabled (OS-level bash isolation)")
+    print("   - Bash commands: restricted to allowlist")
     if max_thinking_tokens:
         print(f"   - Extended thinking: {max_thinking_tokens:,} tokens")
     else:
@@ -417,6 +446,7 @@ def create_client(
             },
             max_turns=1000,
             cwd=str(project_dir.resolve()),
+            cli_path=cli_path,
             settings=str(settings_file.resolve()),
             env=sdk_env,  # Pass ANTHROPIC_BASE_URL etc. to subprocess
             max_thinking_tokens=max_thinking_tokens,  # Extended thinking budget

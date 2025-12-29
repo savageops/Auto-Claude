@@ -909,7 +909,7 @@
       "dependencies": [
         "feature-18"
       ],
-      "status": "under_review",
+      "status": "planned",
       "acceptance_criteria": [
         "SAML and OIDC SSO support",
         "Role definitions: Admin, Developer, Viewer",
@@ -921,6 +921,7 @@
         "As an IT admin, I want SSO so employees use corporate credentials",
         "As a security officer, I want audit logs for compliance requirements"
       ],
+      "linked_spec_id": "069-enterprise-sso-rbac",
       "competitor_insight_ids": [
         "pain-1-2"
       ]
@@ -928,7 +929,7 @@
   ],
   "metadata": {
     "created_at": "2025-12-26T20:30:00Z",
-    "updated_at": "2025-12-27T10:29:58.045Z",
+    "updated_at": "2025-12-29T14:33:51.625Z",
     "generated_by": "roadmap_features agent",
     "prioritization_framework": "MoSCoW",
     "competitor_analysis_used": true,

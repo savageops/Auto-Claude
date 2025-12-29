@@ -1782,6 +1782,810 @@
   --shadow-focus: none;
 }
 
+/* ============================================
+   COPPER THEME (Light)
+   Warm copper/bronze monochrome with earthy undertones
+   ============================================ */
+[data-theme="copper"] {
+  /* Backgrounds */
+  --background: #FAF5F0;
+  --foreground: #3D2914;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #3D2914;
+
+  /* Primary accent - warm copper */
+  --primary: #B87333;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #F5EDE5;
+  --secondary-foreground: #3D2914;
+
+  /* Muted */
+  --muted: #F8F2EC;
+  --muted-foreground: #8B6914;
+
+  /* Accent */
+  --accent: #F5E6D8;
+  --accent-foreground: #B87333;
+
+  /* Destructive */
+  --destructive: #C44536;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #E8D5C4;
+  --input: #E8D5C4;
+  --ring: #B87333;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #3D2914;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #3D2914;
+
+  /* Semantic colors */
+  --success: #6B8E23;
+  --success-foreground: #FFFFFF;
+  --success-light: #E8F0DC;
+  --warning: #CD853F;
+  --warning-foreground: #3D2914;
+  --warning-light: #FDF5E6;
+  --info: #5F9EA0;
+  --info-foreground: #FFFFFF;
+  --info-light: #E0F0F0;
+  --error: #C44536;
+  --error-light: #FCE8E6;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(61, 41, 20, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(61, 41, 20, 0.07), 0 2px 4px -2px rgba(61, 41, 20, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(61, 41, 20, 0.08), 0 4px 6px -4px rgba(61, 41, 20, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(61, 41, 20, 0.08), 0 8px 10px -6px rgba(61, 41, 20, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(184, 115, 51, 0.2);
+}
+
+/* ============================================
+   COPPER THEME (Dark)
+   Rich bronze tones with warm copper accents
+   ============================================ */
+[data-theme="copper"].dark {
+  /* Backgrounds */
+  --background: #1A1410;
+  --foreground: #F5E6D8;
+
+  /* Card surfaces */
+  --card: #2A2018;
+  --card-foreground: #F5E6D8;
+
+  /* Primary accent - bright copper for dark mode */
+  --primary: #D4915A;
+  --primary-foreground: #1A1410;
+
+  /* Secondary */
+  --secondary: #2F251C;
+  --secondary-foreground: #F5E6D8;
+
+  /* Muted */
+  --muted: #241C15;
+  --muted-foreground: #C4A882;
+
+  /* Accent */
+  --accent: #3D2E22;
+  --accent-foreground: #D4915A;
+
+  /* Destructive */
+  --destructive: #E07B6A;
+  --destructive-foreground: #1A1410;
+
+  /* Borders and inputs */
+  --border: #4A3828;
+  --input: #4A3828;
+  --ring: #D4915A;
+
+  /* Sidebar */
+  --sidebar: #1F1812;
+  --sidebar-foreground: #F5E6D8;
+
+  /* Popover */
+  --popover: #352A20;
+  --popover-foreground: #F5E6D8;
+
+  /* Semantic colors */
+  --success: #8FB339;
+  --success-foreground: #1A1410;
+  --success-light: #2A3318;
+  --warning: #DDA15E;
+  --warning-foreground: #1A1410;
+  --warning-light: #3D3018;
+  --info: #7EC8CA;
+  --info-foreground: #1A1410;
+  --info-light: #1A2E30;
+  --error: #E07B6A;
+  --error-light: #3D1A15;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(212, 145, 90, 0.3);
+}
+
+/* ============================================
+   LAVENDER THEME (Light)
+   Soft, calming lavender/purple palette
+   ============================================ */
+[data-theme="lavender"] {
+  /* Backgrounds */
+  --background: #F5F0FA;
+  --foreground: #2D1B4E;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #2D1B4E;
+
+  /* Primary accent - soft lavender purple */
+  --primary: #9F7AEA;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #F0E6FA;
+  --secondary-foreground: #2D1B4E;
+
+  /* Muted */
+  --muted: #F8F4FC;
+  --muted-foreground: #6B5B7A;
+
+  /* Accent */
+  --accent: #EDE5F5;
+  --accent-foreground: #9F7AEA;
+
+  /* Destructive */
+  --destructive: #E53E3E;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #E2D4F0;
+  --input: #E2D4F0;
+  --ring: #9F7AEA;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2D1B4E;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #2D1B4E;
+
+  /* Semantic colors */
+  --success: #38A169;
+  --success-foreground: #FFFFFF;
+  --success-light: #C6F6D5;
+  --warning: #DD6B20;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEEBC8;
+  --info: #3182CE;
+  --info-foreground: #FFFFFF;
+  --info-light: #BEE3F8;
+  --error: #E53E3E;
+  --error-light: #FED7D7;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(45, 27, 78, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(45, 27, 78, 0.07), 0 2px 4px -2px rgba(45, 27, 78, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(45, 27, 78, 0.08), 0 4px 6px -4px rgba(45, 27, 78, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(45, 27, 78, 0.08), 0 8px 10px -6px rgba(45, 27, 78, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(159, 122, 234, 0.2);
+}
+
+/* ============================================
+   LAVENDER THEME (Dark)
+   Deep purple tones with soft lavender accents
+   ============================================ */
+[data-theme="lavender"].dark {
+  /* Backgrounds */
+  --background: #1A1025;
+  --foreground: #F5F0FA;
+
+  /* Card surfaces */
+  --card: #2D1B4E;
+  --card-foreground: #F5F0FA;
+
+  /* Primary accent - bright lavender for dark mode */
+  --primary: #B794F4;
+  --primary-foreground: #1A1025;
+
+  /* Secondary */
+  --secondary: #251538;
+  --secondary-foreground: #F5F0FA;
+
+  /* Muted */
+  --muted: #1F122E;
+  --muted-foreground: #C4B5D4;
+
+  /* Accent */
+  --accent: #3D2563;
+  --accent-foreground: #B794F4;
+
+  /* Destructive */
+  --destructive: #FC8181;
+  --destructive-foreground: #1A1025;
+
+  /* Borders and inputs */
+  --border: #4A3070;
+  --input: #4A3070;
+  --ring: #B794F4;
+
+  /* Sidebar */
+  --sidebar: #1F122E;
+  --sidebar-foreground: #F5F0FA;
+
+  /* Popover */
+  --popover: #3D2563;
+  --popover-foreground: #F5F0FA;
+
+  /* Semantic colors */
+  --success: #68D391;
+  --success-foreground: #1A1025;
+  --success-light: #1C4532;
+  --warning: #F6AD55;
+  --warning-foreground: #1A1025;
+  --warning-light: #652B19;
+  --info: #63B3ED;
+  --info-foreground: #1A1025;
+  --info-light: #1A365D;
+  --error: #FC8181;
+  --error-light: #5A1A1A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(183, 148, 244, 0.3);
+}
+
+/* ============================================
+   MINT THEME (Light)
+   Fresh, cool mint green palette
+   ============================================ */
+[data-theme="mint"] {
+  /* Backgrounds */
+  --background: #F0FDF4;
+  --foreground: #14532D;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #14532D;
+
+  /* Primary accent - vibrant mint green */
+  --primary: #10B981;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #ECFDF5;
+  --secondary-foreground: #14532D;
+
+  /* Muted */
+  --muted: #F0FDF4;
+  --muted-foreground: #047857;
+
+  /* Accent */
+  --accent: #D1FAE5;
+  --accent-foreground: #10B981;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #A7F3D0;
+  --input: #A7F3D0;
+  --ring: #10B981;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #14532D;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #14532D;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEF3C7;
+  --info: #0284C7;
+  --info-foreground: #FFFFFF;
+  --info-light: #E0F2FE;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(5, 150, 105, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(5, 150, 105, 0.07), 0 2px 4px -2px rgba(5, 150, 105, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(5, 150, 105, 0.08), 0 4px 6px -4px rgba(5, 150, 105, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(5, 150, 105, 0.08), 0 8px 10px -6px rgba(5, 150, 105, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* ============================================
+   MINT THEME (Dark)
+   Deep teal tones with bright mint accents
+   ============================================ */
+[data-theme="mint"].dark {
+  /* Backgrounds */
+  --background: #042F2E;
+  --foreground: #ECFDF5;
+
+  /* Card surfaces */
+  --card: #134E4A;
+  --card-foreground: #ECFDF5;
+
+  /* Primary accent - bright mint for dark mode */
+  --primary: #34D399;
+  --primary-foreground: #042F2E;
+
+  /* Secondary */
+  --secondary: #115E59;
+  --secondary-foreground: #ECFDF5;
+
+  /* Muted */
+  --muted: #0D3D3B;
+  --muted-foreground: #6EE7B7;
+
+  /* Accent */
+  --accent: #115E59;
+  --accent-foreground: #34D399;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #042F2E;
+
+  /* Borders and inputs */
+  --border: #14746F;
+  --input: #14746F;
+  --ring: #34D399;
+
+  /* Sidebar */
+  --sidebar: #0D3D3B;
+  --sidebar-foreground: #ECFDF5;
+
+  /* Popover */
+  --popover: #1F5F5B;
+  --popover-foreground: #ECFDF5;
+
+  /* Semantic colors */
+  --success: #4ADE80;
+  --success-foreground: #042F2E;
+  --success-light: #064E3B;
+  --warning: #FBBF24;
+  --warning-foreground: #042F2E;
+  --warning-light: #451A03;
+  --info: #38BDF8;
+  --info-foreground: #042F2E;
+  --info-light: #0C4A6E;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(52, 211, 153, 0.3);
+}
+
+/* ============================================
+   SUNSET THEME (Light)
+   Warm orange-coral monochrome with golden tones
+   ============================================ */
+[data-theme="sunset"] {
+  /* Backgrounds */
+  --background: #FFF5EB;
+  --foreground: #4A2C2A;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #4A2C2A;
+
+  /* Primary accent - warm coral/terracotta */
+  --primary: #E07B5F;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #FFF0E5;
+  --secondary-foreground: #4A2C2A;
+
+  /* Muted */
+  --muted: #FDF5EF;
+  --muted-foreground: #8B5A4A;
+
+  /* Accent */
+  --accent: #FFE4D4;
+  --accent-foreground: #E07B5F;
+
+  /* Destructive */
+  --destructive: #C53030;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #F5D5C5;
+  --input: #F5D5C5;
+  --ring: #E07B5F;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #4A2C2A;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #4A2C2A;
+
+  /* Semantic colors */
+  --success: #48BB78;
+  --success-foreground: #FFFFFF;
+  --success-light: #C6F6D5;
+  --warning: #DD6B20;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEEBC8;
+  --info: #4299E1;
+  --info-foreground: #FFFFFF;
+  --info-light: #BEE3F8;
+  --error: #C53030;
+  --error-light: #FED7D7;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(74, 44, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(74, 44, 42, 0.07), 0 2px 4px -2px rgba(74, 44, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(74, 44, 42, 0.08), 0 4px 6px -4px rgba(74, 44, 42, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(74, 44, 42, 0.08), 0 8px 10px -6px rgba(74, 44, 42, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(224, 123, 95, 0.2);
+}
+
+/* ============================================
+   SUNSET THEME (Dark)
+   Deep warm brown tones with coral accents
+   ============================================ */
+[data-theme="sunset"].dark {
+  /* Backgrounds */
+  --background: #1A0F0C;
+  --foreground: #FDF5EF;
+
+  /* Card surfaces */
+  --card: #2D1F1A;
+  --card-foreground: #FDF5EF;
+
+  /* Primary accent - bright coral/salmon for dark mode */
+  --primary: #F0A889;
+  --primary-foreground: #1A0F0C;
+
+  /* Secondary */
+  --secondary: #251815;
+  --secondary-foreground: #FDF5EF;
+
+  /* Muted */
+  --muted: #1F1512;
+  --muted-foreground: #D4A58A;
+
+  /* Accent */
+  --accent: #3D2A22;
+  --accent-foreground: #F0A889;
+
+  /* Destructive */
+  --destructive: #FC8181;
+  --destructive-foreground: #1A0F0C;
+
+  /* Borders and inputs */
+  --border: #4A3630;
+  --input: #4A3630;
+  --ring: #F0A889;
+
+  /* Sidebar */
+  --sidebar: #1F1512;
+  --sidebar-foreground: #FDF5EF;
+
+  /* Popover */
+  --popover: #382820;
+  --popover-foreground: #FDF5EF;
+
+  /* Semantic colors */
+  --success: #68D391;
+  --success-foreground: #1A0F0C;
+  --success-light: #1C4532;
+  --warning: #F6AD55;
+  --warning-foreground: #1A0F0C;
+  --warning-light: #652B19;
+  --info: #63B3ED;
+  --info-foreground: #1A0F0C;
+  --info-light: #1A365D;
+  --error: #FC8181;
+  --error-light: #5A1A1A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(240, 168, 137, 0.3);
+}
+
+/* ============================================
+   TEAL THEME (Light)
+   Fresh, professional teal/cyan palette
+   ============================================ */
+[data-theme="teal"] {
+  /* Backgrounds */
+  --background: #F0FDFA;
+  --foreground: #134E4A;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #134E4A;
+
+  /* Primary accent - vibrant teal */
+  --primary: #0D9488;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #CCFBF1;
+  --secondary-foreground: #134E4A;
+
+  /* Muted */
+  --muted: #F0FDFA;
+  --muted-foreground: #115E59;
+
+  /* Accent */
+  --accent: #99F6E4;
+  --accent-foreground: #0D9488;
+
+  /* Destructive */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #5EEAD4;
+  --input: #5EEAD4;
+  --ring: #0D9488;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #134E4A;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #134E4A;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEF3C7;
+  --info: #0284C7;
+  --info-foreground: #FFFFFF;
+  --info-light: #E0F2FE;
+  --error: #DC2626;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(13, 148, 136, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(13, 148, 136, 0.07), 0 2px 4px -2px rgba(13, 148, 136, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(13, 148, 136, 0.08), 0 4px 6px -4px rgba(13, 148, 136, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(13, 148, 136, 0.08), 0 8px 10px -6px rgba(13, 148, 136, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+
+/* ============================================
+   TEAL THEME (Dark)
+   Deep teal tones with bright cyan accents
+   ============================================ */
+[data-theme="teal"].dark {
+  /* Backgrounds */
+  --background: #042F2E;
+  --foreground: #F0FDFA;
+
+  /* Card surfaces */
+  --card: #115E59;
+  --card-foreground: #F0FDFA;
+
+  /* Primary accent - bright teal for dark mode */
+  --primary: #2DD4BF;
+  --primary-foreground: #042F2E;
+
+  /* Secondary */
+  --secondary: #134E4A;
+  --secondary-foreground: #F0FDFA;
+
+  /* Muted */
+  --muted: #0D3D3B;
+  --muted-foreground: #5EEAD4;
+
+  /* Accent */
+  --accent: #134E4A;
+  --accent-foreground: #2DD4BF;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #042F2E;
+
+  /* Borders and inputs */
+  --border: #0F766E;
+  --input: #0F766E;
+  --ring: #2DD4BF;
+
+  /* Sidebar */
+  --sidebar: #0D3D3B;
+  --sidebar-foreground: #F0FDFA;
+
+  /* Popover */
+  --popover: #14746F;
+  --popover-foreground: #F0FDFA;
+
+  /* Semantic colors */
+  --success: #34D399;
+  --success-foreground: #042F2E;
+  --success-light: #064E3B;
+  --warning: #FBBF24;
+  --warning-foreground: #042F2E;
+  --warning-light: #451A03;
+  --info: #38BDF8;
+  --info-foreground: #042F2E;
+  --info-light: #0C4A6E;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(45, 212, 191, 0.3);
+}
+
+/* ============================================
+   ROSE THEME (Light)
+   Soft, elegant rose/pink palette
+   ============================================ */
+[data-theme="rose"] {
+  /* Backgrounds */
+  --background: #FFF1F2;
+  --foreground: #4C1D24;
+
+  /* Card surfaces */
+  --card: #FFFFFF;
+  --card-foreground: #4C1D24;
+
+  /* Primary accent - soft rose pink */
+  --primary: #E11D48;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary */
+  --secondary: #FFE4E6;
+  --secondary-foreground: #4C1D24;
+
+  /* Muted */
+  --muted: #FFF1F2;
+  --muted-foreground: #9F1239;
+
+  /* Accent */
+  --accent: #FECDD3;
+  --accent-foreground: #E11D48;
+
+  /* Destructive */
+  --destructive: #B91C1C;
+  --destructive-foreground: #FFFFFF;
+
+  /* Borders and inputs */
+  --border: #FECDD3;
+  --input: #FECDD3;
+  --ring: #E11D48;
+
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #4C1D24;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #4C1D24;
+
+  /* Semantic colors */
+  --success: #059669;
+  --success-foreground: #FFFFFF;
+  --success-light: #D1FAE5;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FEF3C7;
+  --info: #0284C7;
+  --info-foreground: #FFFFFF;
+  --info-light: #E0F2FE;
+  --error: #B91C1C;
+  --error-light: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(76, 29, 36, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(76, 29, 36, 0.07), 0 2px 4px -2px rgba(76, 29, 36, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(76, 29, 36, 0.08), 0 4px 6px -4px rgba(76, 29, 36, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(76, 29, 36, 0.08), 0 8px 10px -6px rgba(76, 29, 36, 0.04);
+  --shadow-focus: 0 0 0 3px rgba(225, 29, 72, 0.2);
+}
+
+/* ============================================
+   ROSE THEME (Dark)
+   Deep burgundy tones with bright rose accents
+   ============================================ */
+[data-theme="rose"].dark {
+  /* Backgrounds */
+  --background: #1C0A0D;
+  --foreground: #FFF1F2;
+
+  /* Card surfaces */
+  --card: #4C1D24;
+  --card-foreground: #FFF1F2;
+
+  /* Primary accent - bright rose for dark mode */
+  --primary: #FB7185;
+  --primary-foreground: #1C0A0D;
+
+  /* Secondary */
+  --secondary: #881337;
+  --secondary-foreground: #FFF1F2;
+
+  /* Muted */
+  --muted: #2D0F14;
+  --muted-foreground: #FDA4AF;
+
+  /* Accent */
+  --accent: #9F1239;
+  --accent-foreground: #FB7185;
+
+  /* Destructive */
+  --destructive: #F87171;
+  --destructive-foreground: #1C0A0D;
+
+  /* Borders and inputs */
+  --border: #881337;
+  --input: #881337;
+  --ring: #FB7185;
+
+  /* Sidebar */
+  --sidebar: #2D0F14;
+  --sidebar-foreground: #FFF1F2;
+
+  /* Popover */
+  --popover: #5C1E28;
+  --popover-foreground: #FFF1F2;
+
+  /* Semantic colors */
+  --success: #34D399;
+  --success-foreground: #1C0A0D;
+  --success-light: #064E3B;
+  --warning: #FBBF24;
+  --warning-foreground: #1C0A0D;
+  --warning-light: #451A03;
+  --info: #38BDF8;
+  --info-foreground: #1C0A0D;
+  --info-light: #0C4A6E;
+  --error: #F87171;
+  --error-light: #450A0A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 3px rgba(251, 113, 133, 0.3);
+}
+
 /* Base styles */
 * {
   border-color: var(--border);

@@ -121,5 +121,42 @@ export const COLOR_THEMES: ColorThemeDefinition[] = [
     name: 'Graphite',
     description: 'Medium gray monochrome with metallic hints',
     previewColors: { bg: '#F5F6F7', accent: '#71767A', darkBg: '#18191B', darkAccent: '#91969A' }
+  },
+  // New themes added by spec 050
+  {
+    id: 'copper',
+    name: 'Copper',
+    description: 'Warm copper/bronze monochrome with earthy undertones',
+    previewColors: { bg: '#F7F2ED', accent: '#B87333', darkBg: '#1A1410', darkAccent: '#D4956A' }
+  },
+  {
+    id: 'lavender',
+    name: 'Lavender',
+    description: 'Soft purple-violet monochrome with gentle contrast',
+    previewColors: { bg: '#F5F0FA', accent: '#9B7BB8', darkBg: '#1A1520', darkAccent: '#A899C4' }
+  },
+  {
+    id: 'mint',
+    name: 'Mint',
+    description: 'Fresh mint green monochrome with clean lines',
+    previewColors: { bg: '#E8FAF5', accent: '#2DD4BF', darkBg: '#0D1917', darkAccent: '#8BC4A8' }
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    description: 'Warm orange-coral monochrome with golden tones',
+    previewColors: { bg: '#FEF5E7', accent: '#F97316', darkBg: '#1A1410', darkAccent: '#E09878' }
+  },
+  {
+    id: 'teal',
+    name: 'Teal',
+    description: 'Deep teal-cyan monochrome with aquatic depth',
+    previewColors: { bg: '#E8FAF8', accent: '#0D9488', darkBg: '#0D1917', darkAccent: '#6AABAB' }
+  },
+  {
+    id: 'rose',
+    name: 'Rose',
+    description: 'Dusty rose-mauve monochrome with soft warmth',
+    previewColors: { bg: '#FFF1F2', accent: '#E11D48', darkBg: '#1A1015', darkAccent: '#C49AAB' }
   }
 ];

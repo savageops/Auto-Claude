@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS, AUTO_BUILD_PATHS, getSpecsDir } from '../../../shared/constants';
 import type { IPCResult, TaskStartOptions, TaskStatus } from '../../../shared/types';
 import path from 'path';
-import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
+import * as fs from 'fs';
 import { spawnSync } from 'child_process';
 import { AgentManager } from '../../agent';
 import { fileWatcher } from '../../file-watcher';
@@ -73,8 +73,8 @@ export async function recoverStuckTaskInternal(
   try {
     // Read the plan to analyze subtask progress
     let plan: Record<string, unknown> | null = null;
-    if (existsSync(planPath)) {
-      const planContent = readFileSync(planPath, 'utf-8');
+    if (fs.existsSync(planPath)) {
+      const planContent = fs.readFileSync(planPath, 'utf-8');
       plan = JSON.parse(planContent);
     }
 
@@ -235,11 +235,11 @@ export async function recoverStuckTaskInternal(
           // No spec file - need to run spec_runner.py to create the spec
           const taskDescription = task.description || task.title;
           console.warn(`[Recovery] Starting spec creation for: ${task.specId}`);
-          agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDirForWatcher, task.metadata);
+          await agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDirForWatcher, task.metadata);
         } else {
           // Spec exists - run task execution
           console.warn(`[Recovery] Starting task execution for: ${task.specId}`);
-          agentManager.startTaskExecution(
+          await agentManager.startTaskExecution(
             taskId,
             project.path,
             task.specId,
@@ -301,7 +301,7 @@ export function registerTaskExecutionHandlers(
    */
   ipcMain.on(
     IPC_CHANNELS.TASK_START,
-    (_, taskId: string, _options?: TaskStartOptions) => {
+    async (_, taskId: string, _options?: TaskStartOptions) => {
       console.warn('[TASK_START] Received request for taskId:', taskId);
       const mainWindow = getMainWindow();
       if (!mainWindow) {
@@ -400,7 +400,7 @@ export function registerTaskExecutionHandlers(
 
         // Start spec creation process - pass the existing spec directory
         // so spec_runner uses it instead of creating a new one
-        agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDir, task.metadata);
+        await agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDir, task.metadata);
       } else if (needsImplementation) {
         // Spec exists but no subtasks - run run.py to create implementation plan and execute
         // Read the spec.md to get the task description
@@ -414,7 +414,7 @@ export function registerTaskExecutionHandlers(
         console.warn('[TASK_START] Starting task execution (no subtasks) for:', task.specId);
         // Start task execution which will create the implementation plan
         // Note: No parallel mode for planning phase - parallel only makes sense with multiple subtasks
-        agentManager.startTaskExecution(
+        await agentManager.startTaskExecution(
           taskId,
           project.path,
           task.specId,
@@ -446,7 +446,7 @@ export function registerTaskExecutionHandlers(
           console.error('[TASK_START] Failed to update plan status:', e);
         }
 
-        agentManager.startTaskExecution(
+        await agentManager.startTaskExecution(
           taskId,
           project.path,
           task.specId,
@@ -704,144 +704,139 @@ export function registerTaskExecutionHandlers(
         }
       }
 
-            // Update implementation_plan.json using shared helper
-            const success = updateTaskStatusInPlan(project, task, status);
-            
-            if (!success) {
-              // If file doesn't exist yet, we might need to initialize it
-              // This handles drag-and-drop for tasks that haven't started yet
-              try {
-                const specsBaseDir = getSpecsDir(project.autoBuildPath);
-                const specDir = path.join(project.path, specsBaseDir, task.specId);
-                
-                if (!existsSync(specDir)) {
-                  mkdirSync(specDir, { recursive: true });
-                }
-                
-                const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
-                if (!existsSync(planPath)) {
-                   const plan = {
-                    feature: task.title,
-                    description: task.description || '',
-                    created_at: task.createdAt.toISOString(),
-                    updated_at: new Date().toISOString(),
-                    status: status, // Store exact UI status for persistence
-                    planStatus: status === 'in_progress' ? 'in_progress'
-                      : status === 'ai_review' ? 'review'
-                      : status === 'human_review' ? 'review'
-                      : status === 'done' ? 'completed'
-                      : 'pending',
-                    phases: []
-                  };
-                  writeFileSync(planPath, JSON.stringify(plan, null, 2));
-                }
-              } catch (err) {
-                console.error('[TASK_UPDATE_STATUS] Failed to initialize plan:', err);
-                return { success: false, error: 'Failed to update task status' };
-              }
-            }
-        // Auto-stop task when status changes AWAY from 'in_progress' and process IS running
-        // This handles the case where user drags a running task back to Planning/backlog
-        if (status !== 'in_progress' && agentManager.isRunning(taskId)) {
-          console.warn('[TASK_UPDATE_STATUS] Stopping task due to status change away from in_progress:', taskId);
-          agentManager.killTask(taskId);
+      // Get spec directory for use in both status update and auto-start
+      const specsBaseDir = getSpecsDir(project.autoBuildPath);
+      const specDir = path.join(project.path, specsBaseDir, task.specId);
+
+      // Update implementation_plan.json using shared helper
+      const success = updateTaskStatusInPlan(project, task, status);
+
+      if (!success) {
+        // If file doesn't exist yet, we might need to initialize it
+        // This handles drag-and-drop for tasks that haven't started yet
+        try {
+          if (!existsSync(specDir)) {
+            mkdirSync(specDir, { recursive: true });
+          }
+
+          const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+          if (!existsSync(planPath)) {
+            const plan = {
+              feature: task.title,
+              description: task.description || '',
+              created_at: task.createdAt.toISOString(),
+              updated_at: new Date().toISOString(),
+              status: status, // Store exact UI status for persistence
+              planStatus: status === 'in_progress' ? 'in_progress'
+                : status === 'ai_review' ? 'review'
+                : status === 'human_review' ? 'review'
+                : status === 'done' ? 'completed'
+                : 'pending',
+              phases: []
+            };
+            writeFileSync(planPath, JSON.stringify(plan, null, 2));
+          }
+        } catch (err) {
+          console.error('[TASK_UPDATE_STATUS] Failed to initialize plan:', err);
+          return { success: false, error: 'Failed to update task status' };
         }
+      }
 
-        // Auto-start task when status changes to 'in_progress' and no process is running
-        if (status === 'in_progress' && !agentManager.isRunning(taskId)) {
-          const mainWindow = getMainWindow();
+      // Auto-stop task when status changes AWAY from 'in_progress' and process IS running
+      // This handles the case where user drags a running task back to Planning/backlog
+      if (status !== 'in_progress' && agentManager.isRunning(taskId)) {
+        console.warn('[TASK_UPDATE_STATUS] Stopping task due to status change away from in_progress:', taskId);
+        agentManager.killTask(taskId);
+      }
 
-          // Check git status before auto-starting
-          const gitStatusCheck = checkGitStatus(project.path);
-          if (!gitStatusCheck.isGitRepo || !gitStatusCheck.hasCommits) {
-            console.warn('[TASK_UPDATE_STATUS] Git check failed, cannot auto-start task');
-            if (mainWindow) {
-              mainWindow.webContents.send(
-                IPC_CHANNELS.TASK_ERROR,
-                taskId,
-                gitStatusCheck.error || 'Git repository with commits required to run tasks.'
-              );
-            }
-            return { success: false, error: gitStatusCheck.error || 'Git repository required' };
-          }
+      // Auto-start task when status changes to 'in_progress' and no process is running
+      if (status === 'in_progress' && !agentManager.isRunning(taskId)) {
+        const mainWindow = getMainWindow();
 
-          // Check authentication before auto-starting
-          const profileManager = getClaudeProfileManager();
-          if (!profileManager.hasValidAuth()) {
-            console.warn('[TASK_UPDATE_STATUS] No valid authentication for active profile');
-            if (mainWindow) {
-              mainWindow.webContents.send(
-                IPC_CHANNELS.TASK_ERROR,
-                taskId,
-                'Claude authentication required. Please go to Settings > Claude Profiles and authenticate your account, or set an OAuth token.'
-              );
-            }
-            return { success: false, error: 'Claude authentication required' };
-          }
-
-          console.warn('[TASK_UPDATE_STATUS] Auto-starting task:', taskId);
-
-          // Start file watcher for this task
-          fileWatcher.watch(taskId, specDir);
-
-          // Check if spec.md exists
-          const specFilePath = path.join(specDir, AUTO_BUILD_PATHS.SPEC_FILE);
-          const hasSpec = existsSync(specFilePath);
-          const needsSpecCreation = !hasSpec;
-          const needsImplementation = hasSpec && task.subtasks.length === 0;
-
-          console.warn('[TASK_UPDATE_STATUS] hasSpec:', hasSpec, 'needsSpecCreation:', needsSpecCreation, 'needsImplementation:', needsImplementation);
-
-          if (needsSpecCreation) {
-            // No spec file - need to run spec_runner.py to create the spec
-            const taskDescription = task.description || task.title;
-            console.warn('[TASK_UPDATE_STATUS] Starting spec creation for:', task.specId);
-            agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDir, task.metadata);
-          } else if (needsImplementation) {
-            // Spec exists but no subtasks - run run.py to create implementation plan and execute
-            console.warn('[TASK_UPDATE_STATUS] Starting task execution (no subtasks) for:', task.specId);
-            agentManager.startTaskExecution(
-              taskId,
-              project.path,
-              task.specId,
-              {
-                parallel: false,
-                workers: 1
-              }
-            );
-          } else {
-            // Task has subtasks, start normal execution
-            // Note: Parallel execution is handled internally by the agent
-            console.warn('[TASK_UPDATE_STATUS] Starting task execution (has subtasks) for:', task.specId);
-            agentManager.startTaskExecution(
-              taskId,
-              project.path,
-              task.specId,
-              {
-                parallel: false,
-                workers: 1
-              }
-            );
-          }
-
-          // Notify renderer about status change
+        // Check git status before auto-starting
+        const gitStatusCheck = checkGitStatus(project.path);
+        if (!gitStatusCheck.isGitRepo || !gitStatusCheck.hasCommits) {
+          console.warn('[TASK_UPDATE_STATUS] Git check failed, cannot auto-start task');
           if (mainWindow) {
             mainWindow.webContents.send(
-              IPC_CHANNELS.TASK_STATUS_CHANGE,
+              IPC_CHANNELS.TASK_ERROR,
               taskId,
-              'in_progress'
+              gitStatusCheck.error || 'Git repository with commits required to run tasks.'
             );
           }
+          return { success: false, error: gitStatusCheck.error || 'Git repository required' };
         }
 
-        return { success: true };
-      } catch (error) {
-        console.error('Failed to update task status:', error);
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Failed to update task status'
-        };
+        // Check authentication before auto-starting
+        const profileManager = getClaudeProfileManager();
+        if (!profileManager.hasValidAuth()) {
+          console.warn('[TASK_UPDATE_STATUS] No valid authentication for active profile');
+          if (mainWindow) {
+            mainWindow.webContents.send(
+              IPC_CHANNELS.TASK_ERROR,
+              taskId,
+              'Claude authentication required. Please go to Settings > Claude Profiles and authenticate your account, or set an OAuth token.'
+            );
+          }
+          return { success: false, error: 'Claude authentication required' };
+        }
+
+        console.warn('[TASK_UPDATE_STATUS] Auto-starting task:', taskId);
+
+        // Start file watcher for this task
+        fileWatcher.watch(taskId, specDir);
+
+        // Check if spec.md exists
+        const specFilePath = path.join(specDir, AUTO_BUILD_PATHS.SPEC_FILE);
+        const hasSpec = existsSync(specFilePath);
+        const needsSpecCreation = !hasSpec;
+        const needsImplementation = hasSpec && task.subtasks.length === 0;
+
+        console.warn('[TASK_UPDATE_STATUS] hasSpec:', hasSpec, 'needsSpecCreation:', needsSpecCreation, 'needsImplementation:', needsImplementation);
+
+        if (needsSpecCreation) {
+          // No spec file - need to run spec_runner.py to create the spec
+          const taskDescription = task.description || task.title;
+          console.warn('[TASK_UPDATE_STATUS] Starting spec creation for:', task.specId);
+          await agentManager.startSpecCreation(task.specId, project.path, taskDescription, specDir, task.metadata);
+        } else if (needsImplementation) {
+          // Spec exists but no subtasks - run run.py to create implementation plan and execute
+          console.warn('[TASK_UPDATE_STATUS] Starting task execution (no subtasks) for:', task.specId);
+          await agentManager.startTaskExecution(
+            taskId,
+            project.path,
+            task.specId,
+            {
+              parallel: false,
+              workers: 1
+            }
+          );
+        } else {
+          // Task has subtasks, start normal execution
+          // Note: Parallel execution is handled internally by the agent
+          console.warn('[TASK_UPDATE_STATUS] Starting task execution (has subtasks) for:', task.specId);
+          await agentManager.startTaskExecution(
+            taskId,
+            project.path,
+            task.specId,
+            {
+              parallel: false,
+              workers: 1
+            }
+          );
+        }
+
+        // Notify renderer about status change
+        if (mainWindow) {
+          mainWindow.webContents.send(
+            IPC_CHANNELS.TASK_STATUS_CHANGE,
+            taskId,
+            'in_progress'
+          );
+        }
       }
+
+      return { success: true };
     }
   );
 
@@ -879,8 +874,7 @@ export function registerTaskExecutionHandlers(
         const formattedInstruction = `\n\n## Redirect Instruction (${timestamp})\n${instruction}\n`;
 
         if (existsSync(redirectPath)) {
-          const fs = await import('fs');
-          fs.appendFileSync(redirectPath, formattedInstruction);
+          appendFileSync(redirectPath, formattedInstruction);
         } else {
           writeFileSync(redirectPath, `# User Redirect Instructions\n${formattedInstruction}`);
         }
@@ -913,10 +907,6 @@ export function registerTaskExecutionHandlers(
         try {
           const { task, project } = findTaskAndProject(taskId);
           if (task && project) {
-            const { getSpecsDir } = require('../../../shared/constants'); // Dynamic import to avoid cycles if any
-            const fs = require('fs');
-            const path = require('path');
-
             const specsRelPath = getSpecsDir(project.autoBuildPath);
             const specDir = path.join(project.path, specsRelPath, task.specId);
             const logFile = path.join(specDir, 'task_logs.json');

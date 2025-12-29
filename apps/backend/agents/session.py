@@ -552,6 +552,7 @@ async def run_agent_session(
 
                     current_tool = None
 
+        print("\n" + "-" * 70 + "\n")
         debug_success("session", "Response stream completed")
 
     except Exception as e:
@@ -577,6 +578,13 @@ async def run_agent_session(
         tool_count=tool_count,
     )
 
+    # Build metrics for return value
+    metrics = {
+        "message_count": message_count,
+        "tool_count": tool_count,
+        "response_length": len(response_text),
+    }
+
     # Check if build is complete
     if is_build_complete(spec_dir):
         debug_success(
@@ -586,7 +594,7 @@ async def run_agent_session(
             tool_count=tool_count,
             response_length=len(response_text),
         )
-        return "complete", response_text
+        return "complete", response_text, metrics
 
     # If build is not complete but agent said complete (e.g. "subtask completed"),
     # force continue so we pick up the next subtask.
@@ -601,4 +609,4 @@ async def run_agent_session(
         tool_count=tool_count,
         response_length=len(response_text),
     )
-    return status, response_text
+    return status, response_text, metrics

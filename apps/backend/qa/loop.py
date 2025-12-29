@@ -100,26 +100,12 @@ async def run_qa_validation_loop(
     # Initialize task logger for the validation phase
     task_logger = get_task_logger(spec_dir)
 
-    # Verify build is complete
-    if not is_build_complete(spec_dir):
-        debug_warning("qa_loop", "Build is not complete, cannot run QA")
-        print("\n❌ Build is not complete. Cannot run QA validation.")
-        completed, total = count_subtasks(spec_dir)
-        debug("qa_loop", "Build progress", completed=completed, total=total)
-        print(f"   Progress: {completed}/{total} subtasks completed")
-        return False
-
     # Check if there's pending human feedback that needs to be processed
+    # We check this BEFORE build completion to allow fixing issues in incomplete builds
     fix_request_file = spec_dir / "QA_FIX_REQUEST.md"
     has_human_feedback = fix_request_file.exists()
 
-    # Check if already approved - but if there's human feedback, we need to process it first
-    if is_qa_approved(spec_dir) and not has_human_feedback:
-        debug_success("qa_loop", "Build already approved by QA")
-        print("\n✅ Build already approved by QA.")
-        return True
-
-    # If there's human feedback, we need to run the fixer first before re-validating
+    # If there's human feedback, we need to run the fixer first
     if has_human_feedback:
         debug(
             "qa_loop",
@@ -154,7 +140,7 @@ async def run_qa_validation_loop(
             return False
 
         debug_success("qa_loop", "Human feedback fixes applied")
-        print("\n✅ Fixes applied based on human feedback. Running QA validation...")
+        print("\n✅ Fixes applied based on human feedback.")
 
         # Remove the fix request file after processing
         try:
@@ -162,6 +148,26 @@ async def run_qa_validation_loop(
             debug("qa_loop", "Removed processed QA_FIX_REQUEST.md")
         except OSError:
             pass  # Ignore if file removal fails
+
+    # Verify build is complete
+    if not is_build_complete(spec_dir):
+        debug_warning("qa_loop", "Build is not complete, cannot run QA")
+        print("\n❌ Build is not complete. Cannot run QA validation.")
+        completed, total = count_subtasks(spec_dir)
+        debug("qa_loop", "Build progress", completed=completed, total=total)
+        print(f"   Progress: {completed}/{total} subtasks completed")
+        
+        if has_human_feedback:
+             print("   (Fixes were applied. You may need to Resume the build now.)")
+             
+        return False
+
+    # Check if already approved - but if there's human feedback, we re-validate
+    # (Note: has_human_feedback logic was handled above, so if we are here, we re-validate)
+    if is_qa_approved(spec_dir) and not has_human_feedback:
+        debug_success("qa_loop", "Build already approved by QA")
+        print("\n✅ Build already approved by QA.")
+        return True
 
     # Check for no-test projects
     if is_no_test_project(spec_dir, project_dir):

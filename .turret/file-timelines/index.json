@@ -4651,7 +4651,9 @@
     ".turret/specs/053-implement-tasks-index-with-kanban-board-database-v/task_metadata.json",
     "apps/frontend/src/renderer/components/TasksIndex.tsx",
     "apps/frontend/src/shared/i18n/locales/en/tasks.json",
-    "\"D\\357\\200\\272temp_merge_preview.txt\""
+    "apps/frontend/src/main/ipc-handlers/agent-events-handlers.ts",
+    "apps/frontend/src/main/ipc-handlers/task/shared.ts",
+    "apps/frontend/src/renderer/types/electron.d.ts"
   ],
-  "last_updated": "2025-12-29T02:46:51.672851"
+  "last_updated": "2025-12-29T16:02:48.219839"
 }

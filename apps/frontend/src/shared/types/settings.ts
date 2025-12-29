@@ -7,7 +7,7 @@ import type { ChangelogFormat, ChangelogAudience, ChangelogEmojiLevel } from './
 import type { SupportedLanguage } from '../constants/i18n';
 
 // Color theme types for multi-theme support
-export type ColorTheme = 'default' | 'dusk' | 'steel' | 'ocean' | 'stone' | 'moss' | 'frost' | 'ash' | 'subtle' | 'mono' | 'midnight' | 'sand' | 'slate' | 'charcoal' | 'sage' | 'ink' | 'pearl' | 'graphite';
+export type ColorTheme = 'default' | 'dusk' | 'steel' | 'ocean' | 'stone' | 'moss' | 'frost' | 'ash' | 'subtle' | 'mono' | 'midnight' | 'sand' | 'slate' | 'charcoal' | 'sage' | 'ink' | 'pearl' | 'graphite' | 'copper' | 'lavender' | 'mint' | 'sunset' | 'teal' | 'rose';
 
 export interface ThemePreviewColors {
   bg: string;

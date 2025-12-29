@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "054-fix-sidebar-item-visual-alignment-and-styling-inco",
-  "state": "building",
+  "spec": "050-expand-theme-library-with-six-additional-color-var",
+  "state": "qa_complete",
   "subtasks": {
-    "completed": 0,
-    "total": 1,
-    "in_progress": 1,
+    "completed": 12,
+    "total": 12,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Add Missing Translation",
-    "id": 1,
-    "total": 1
+    "current": "Merge Resolution",
+    "id": null,
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2025-12-29T01:43:38.298892"
+    "number": 6,
+    "started_at": "2025-12-29T09:15:00.000000"
   },
-  "last_update": "2025-12-29T01:43:38.314499"
+  "last_update": "2025-12-29T09:15:00.000000"
 }
