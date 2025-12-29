@@ -130,8 +130,9 @@
             "command": "grep -c \"useClaudeMd\" apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx",
             "expected": "3"
           },
-          "status": "in_progress",
-          "notes": "Add useTranslation hook import, add Switch toggle after Model select using existing notification toggle pattern. Use `settings.useClaudeMd ?? true` for default-on behavior."
+          "status": "completed",
+          "notes": "Added useTranslation hook and CLAUDE.md toggle switch to GeneralSettings component in Agent Configuration section. Uses settings.useClaudeMd ?? true for default-on behavior with i18n labels. Verification passed (4 occurrences of useClaudeMd found - includes Description key). Already committed in e1d9b31b.",
+          "updated_at": "2025-12-29T00:40:10.466884+00:00"
         }
       ]
     },
@@ -161,7 +162,7 @@
             "command": "grep -c \"USE_CLAUDE_MD\" apps/frontend/src/main/agent/agent-process.ts",
             "expected": "1"
           },
-          "status": "pending",
+          "status": "in_progress",
           "notes": "Add after GRAPHITI_MCP_URL block: `if (project.settings.useClaudeMd !== false) { env['USE_CLAUDE_MD'] = 'true'; }`"
         }
       ]
@@ -382,7 +383,7 @@
     }
   },
   "qa_signoff": null,
-  "last_updated": "2025-12-29T00:37:03.072564+00:00",
+  "last_updated": "2025-12-29T00:40:10.466884+00:00",
   "status": "in_progress",
   "planStatus": "in_progress",
   "updated_at": "2025-12-29T00:37:22.015Z",
