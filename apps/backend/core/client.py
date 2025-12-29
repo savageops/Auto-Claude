@@ -320,6 +320,15 @@ def create_client(
             if v
         ]
         print(f"   - Project capabilities: {', '.join(caps)}")
+
+    # Load CLAUDE.md content if enabled
+    claude_md_content: str | None = None
+    if should_use_claude_md():
+        claude_md_content = load_claude_md(project_dir)
+        if claude_md_content:
+            print("   - CLAUDE.md: loaded project instructions")
+        else:
+            print("   - CLAUDE.md: enabled but file not found")
     print()
 
     # Configure MCP servers
@@ -368,19 +377,32 @@ def create_client(
         if auto_claude_mcp_server:
             mcp_servers["auto-claude"] = auto_claude_mcp_server
 
+    # Build system prompt with optional CLAUDE.md content
+    base_system_prompt = (
+        f"You are an expert full-stack developer building production-quality software. "
+        f"Your working directory is: {project_dir.resolve()}\n"
+        f"Your filesystem access is RESTRICTED to this directory only. "
+        f"Use relative paths (starting with ./) for all file operations. "
+        f"Never use absolute paths or try to access files outside your working directory.\n\n"
+        f"You follow existing code patterns, write clean maintainable code, and verify "
+        f"your work through thorough testing. You communicate progress through Git commits "
+        f"and build-progress.txt updates."
+    )
+
+    # Inject CLAUDE.md content into system prompt if available
+    if claude_md_content:
+        system_prompt = (
+            f"{base_system_prompt}\n\n"
+            f"## Project Instructions (from CLAUDE.md)\n\n"
+            f"{claude_md_content}"
+        )
+    else:
+        system_prompt = base_system_prompt
+
     return ClaudeSDKClient(
         options=ClaudeAgentOptions(
             model=model,
-            system_prompt=(
-                f"You are an expert full-stack developer building production-quality software. "
-                f"Your working directory is: {project_dir.resolve()}\n"
-                f"Your filesystem access is RESTRICTED to this directory only. "
-                f"Use relative paths (starting with ./) for all file operations. "
-                f"Never use absolute paths or try to access files outside your working directory.\n\n"
-                f"You follow existing code patterns, write clean maintainable code, and verify "
-                f"your work through thorough testing. You communicate progress through Git commits "
-                f"and build-progress.txt updates."
-            ),
+            system_prompt=system_prompt,
             allowed_tools=allowed_tools_list,
             mcp_servers=mcp_servers,
             hooks={
