@@ -1,0 +1,68 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.90,
+  "reasoning": "Well-defined feature touching 7 files across frontend and backend services. No external integrations or infrastructure changes. Follows existing patterns for settings toggles (similar to Graphiti MCP toggle). Standard scope for a feature flag with UI control.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 7,
+      "estimated_services": 2,
+      "is_cross_cutting": false,
+      "notes": "Changes are localized to settings management (frontend) and agent initialization (backend). Clear separation of concerns."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "No external services. Simply reads a local CLAUDE.md file from project root. Uses standard Python pathlib and file I/O."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": true,
+      "notes": "Adds useClaudeMd to DEFAULT_PROJECT_SETTINGS and ProjectSettings type. Simple boolean toggle with default value."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Follows existing patterns: similar to graphitiMcpEnabled toggle, uses same env var passing mechanism, same UI Switch component pattern."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [
+        "File encoding edge cases (handled with explicit UTF-8)",
+        "Large CLAUDE.md files could bloat system prompt"
+      ],
+      "notes": "Graceful degradation when file missing or unreadable (returns None). Feature defaulted to ON matches user expectations."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "minimal_mode": true,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Low-risk feature with graceful error handling. Unit tests for file loading functions, integration tests for settings toggle behavior. No auth or security-sensitive areas touched."
+  },
+
+  "created_at": "2025-12-29T12:00:00Z"
+}

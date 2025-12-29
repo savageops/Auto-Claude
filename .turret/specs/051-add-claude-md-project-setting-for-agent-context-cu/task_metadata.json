@@ -1,0 +1,23 @@
+{
+  "sourceType": "manual",
+  "category": "feature",
+  "priority": "medium",
+  "complexity": "medium",
+  "impact": "medium",
+  "model": "opus",
+  "thinkingLevel": "high",
+  "isAutoProfile": true,
+  "phaseModels": {
+    "spec": "opus",
+    "planning": "sonnet",
+    "coding": "opus",
+    "qa": "sonnet"
+  },
+  "phaseThinking": {
+    "spec": "ultrathink",
+    "planning": "medium",
+    "coding": "high",
+    "qa": "ultrathink"
+  },
+  "autoRecoveryEnabled": true
+}

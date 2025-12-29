@@ -1,0 +1,381 @@
+{
+  "feature": "CLAUDE.md Project Setting for Agent Context",
+  "workflow_type": "feature",
+  "workflow_rationale": "New end-to-end feature spanning frontend (UI toggle, env var passing) and backend (file loading, system prompt injection). Follows existing patterns for settings toggles.",
+  "phases": [
+    {
+      "id": "phase-1-frontend-config",
+      "name": "Frontend Configuration",
+      "type": "implementation",
+      "description": "Add type definition and default setting for useClaudeMd",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Add useClaudeMd to ProjectSettings type definition",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/shared/types/project.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/shared/types/project.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -n \"useClaudeMd\" apps/frontend/src/shared/types/project.ts",
+            "expected": "useClaudeMd?: boolean"
+          },
+          "status": "in_progress",
+          "notes": "Add `useClaudeMd?: boolean` with JSDoc comment after mainBranch field in ProjectSettings interface"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Add useClaudeMd to DEFAULT_PROJECT_SETTINGS",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/shared/constants/config.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/shared/constants/config.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -n \"useClaudeMd\" apps/frontend/src/shared/constants/config.ts",
+            "expected": "useClaudeMd: true"
+          },
+          "status": "pending",
+          "notes": "Add `useClaudeMd: true` with comment after graphitiMcpUrl in DEFAULT_PROJECT_SETTINGS"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-i18n",
+      "name": "Internationalization",
+      "type": "implementation",
+      "description": "Add translation keys for EN and FR locales",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Add English translations for CLAUDE.md toggle",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/shared/i18n/locales/en/settings.json"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/shared/i18n/locales/en/settings.json"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -A1 \"useClaudeMd\" apps/frontend/src/shared/i18n/locales/en/settings.json",
+            "expected": "Use CLAUDE.md"
+          },
+          "status": "pending",
+          "notes": "Add to projectSections.general: 'useClaudeMd': 'Use CLAUDE.md', 'useClaudeMdDescription': 'Include CLAUDE.md instructions in agent context'"
+        },
+        {
+          "id": "subtask-2-2",
+          "description": "Add French translations for CLAUDE.md toggle",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/shared/i18n/locales/fr/settings.json"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/shared/i18n/locales/fr/settings.json"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -A1 \"useClaudeMd\" apps/frontend/src/shared/i18n/locales/fr/settings.json",
+            "expected": "Utiliser CLAUDE.md"
+          },
+          "status": "pending",
+          "notes": "Add to projectSections.general: 'useClaudeMd': 'Utiliser CLAUDE.md', 'useClaudeMdDescription': 'Inclure les instructions CLAUDE.md dans le contexte de l'agent'"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-frontend-ui",
+      "name": "Frontend UI Toggle",
+      "type": "implementation",
+      "description": "Add toggle switch in GeneralSettings component",
+      "depends_on": [
+        "phase-1-frontend-config",
+        "phase-2-i18n"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Add CLAUDE.md toggle switch to GeneralSettings component",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -c \"useClaudeMd\" apps/frontend/src/renderer/components/project-settings/GeneralSettings.tsx",
+            "expected": "3"
+          },
+          "status": "pending",
+          "notes": "Add useTranslation hook import, add Switch toggle after Model select using existing notification toggle pattern. Use `settings.useClaudeMd ?? true` for default-on behavior."
+        }
+      ]
+    },
+    {
+      "id": "phase-4-frontend-agent",
+      "name": "Frontend Agent Process",
+      "type": "implementation",
+      "description": "Pass USE_CLAUDE_MD env var to backend agent process",
+      "depends_on": [
+        "phase-1-frontend-config"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Set USE_CLAUDE_MD env var in agent-process.ts",
+          "service": "frontend",
+          "files_to_modify": [
+            "apps/frontend/src/main/agent/agent-process.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/frontend/src/main/agent/agent-process.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -c \"USE_CLAUDE_MD\" apps/frontend/src/main/agent/agent-process.ts",
+            "expected": "1"
+          },
+          "status": "pending",
+          "notes": "Add after GRAPHITI_MCP_URL block: `if (project.settings.useClaudeMd !== false) { env['USE_CLAUDE_MD'] = 'true'; }`"
+        }
+      ]
+    },
+    {
+      "id": "phase-5-backend",
+      "name": "Backend CLAUDE.md Loading",
+      "type": "implementation",
+      "description": "Add functions to load CLAUDE.md and inject into system prompt",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Add should_use_claude_md() and load_claude_md() functions",
+          "service": "backend",
+          "files_to_modify": [
+            "apps/backend/core/client.py"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/backend/core/client.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -c \"def should_use_claude_md\\|def load_claude_md\" apps/backend/core/client.py",
+            "expected": "2"
+          },
+          "status": "pending",
+          "notes": "Add after get_electron_debug_port(): should_use_claude_md() checks USE_CLAUDE_MD env var, load_claude_md(project_dir) reads file with Path and UTF-8 encoding, returns None on error"
+        },
+        {
+          "id": "subtask-5-2",
+          "description": "Modify create_client() to inject CLAUDE.md content into system prompt",
+          "service": "backend",
+          "files_to_modify": [
+            "apps/backend/core/client.py"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "apps/backend/core/client.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "grep -c \"CLAUDE.md\" apps/backend/core/client.py",
+            "expected": "5"
+          },
+          "status": "pending",
+          "notes": "Extract system_prompt to base_prompt variable, check should_use_claude_md(), if true load and append with '# Project Instructions (from CLAUDE.md)' header, add debug print statements for included/not found/disabled states"
+        }
+      ]
+    },
+    {
+      "id": "phase-6-integration",
+      "name": "Integration Verification",
+      "type": "integration",
+      "description": "Verify end-to-end functionality of CLAUDE.md integration",
+      "depends_on": [
+        "phase-3-frontend-ui",
+        "phase-4-frontend-agent",
+        "phase-5-backend"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-6-1",
+          "description": "Verify settings persistence and UI toggle behavior",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "manual",
+            "instructions": "1. Open Project Settings > General section. 2. Verify 'Use CLAUDE.md' toggle is visible with correct label. 3. Toggle ON/OFF and verify state persists after closing dialog. 4. Verify default is ON for new projects."
+          },
+          "status": "pending"
+        },
+        {
+          "id": "subtask-6-2",
+          "description": "Verify CLAUDE.md content injection into system prompt",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "e2e",
+            "steps": [
+              "Enable CLAUDE.md toggle in project settings",
+              "Ensure CLAUDE.md file exists in project root",
+              "Start an agent task",
+              "Verify console output shows 'CLAUDE.md: included in system prompt'",
+              "Toggle OFF in settings",
+              "Start another agent task",
+              "Verify console output shows 'CLAUDE.md: disabled by project settings'"
+            ]
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 6,
+    "total_subtasks": 9,
+    "services_involved": [
+      "frontend",
+      "backend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 3,
+      "parallel_groups": [
+        {
+          "phases": [
+            "phase-1-frontend-config",
+            "phase-2-i18n",
+            "phase-5-backend"
+          ],
+          "reason": "Independent changes with no file overlap - config/types, i18n, and backend can all be done in parallel"
+        },
+        {
+          "phases": [
+            "phase-3-frontend-ui",
+            "phase-4-frontend-agent"
+          ],
+          "reason": "Both depend on phase-1 but modify different files"
+        }
+      ],
+      "recommended_workers": 2,
+      "speedup_estimate": "1.5x faster than sequential"
+    },
+    "startup_command": "source turret/.venv/bin/activate && python turret/run.py --spec 051 --parallel 2"
+  },
+  "verification_strategy": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "Toggle appears in Project Settings > General section",
+      "Toggle defaults to ON for new/existing projects",
+      "CLAUDE.md content injected when enabled and file exists",
+      "Graceful handling when file missing or unreadable",
+      "Console shows appropriate status messages",
+      "EN and FR translations display correctly",
+      "No regressions in existing tests"
+    ],
+    "verification_steps": [
+      {
+        "name": "TypeScript Compilation",
+        "command": "cd apps/frontend && npx tsc --noEmit",
+        "expected_outcome": "No type errors",
+        "type": "build",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Frontend Unit Tests",
+        "command": "cd apps/frontend && npm test",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Python Syntax Check",
+        "command": "python -m py_compile apps/backend/core/client.py",
+        "expected_outcome": "No syntax errors",
+        "type": "build",
+        "required": true,
+        "blocking": true
+      }
+    ],
+    "reasoning": "Low-risk feature following existing patterns. Unit tests verify file loading logic, integration tests verify settings toggle behavior."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "cd apps/frontend && npm test"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [],
+      "services_to_test": [
+        "frontend",
+        "backend"
+      ]
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "Project Settings Dialog",
+          "checks": [
+            "Toggle visible in General section",
+            "Label shows 'Use CLAUDE.md'",
+            "Description shows 'Include CLAUDE.md instructions in agent context'",
+            "Toggle state persists"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": null
+}
