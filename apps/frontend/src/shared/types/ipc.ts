@@ -402,6 +402,68 @@ export interface ElectronAPI {
   onUpdateAvailable: (callback: (info: AppUpdateAvailableEvent) => void) => () => void;
   onUpdateProgress: (callback: (progress: AppUpdateProgress) => void) => () => void;
   onUpdateDownloaded: (callback: (info: AppUpdateDownloadedEvent) => void) => () => void;
+
+  // App update operations (App-prefixed - from AppUpdateAPI)
+  checkAppUpdate: () => Promise<IPCResult<AppUpdateInfo | null>>;
+  downloadAppUpdate: () => Promise<IPCResult>;
+  installAppUpdate: () => void;
+  onAppUpdateAvailable: (callback: (info: AppUpdateAvailableEvent) => void) => () => void;
+  onAppUpdateDownloaded: (callback: (info: AppUpdateDownloadedEvent) => void) => () => void;
+  onAppUpdateProgress: (callback: (progress: AppUpdateProgress) => void) => () => void;
+
+  // Git detection
+  detectMainBranch: (projectPath: string) => Promise<IPCResult<string>>;
+
+  // Changelog generation events (from ChangelogAPI)
+  onChangelogGenerationProgress: (callback: (projectId: string, progress: ChangelogGenerationProgress) => void) => () => void;
+  onChangelogGenerationComplete: (callback: (projectId: string, result: ChangelogGenerationResult) => void) => () => void;
+  onChangelogGenerationError: (callback: (projectId: string, error: string) => void) => () => void;
+
+  // Changelog version suggestion
+  suggestChangelogVersion: (projectId: string, taskIds: string[]) => Promise<IPCResult<{ version: string; reason: string }>>;
+  suggestChangelogVersionFromCommits: (projectId: string, commits: GitCommit[]) => Promise<IPCResult<{ version: string; reason: string }>>;
+
+  // Changelog image operations
+  saveChangelogImage: (projectId: string, imageData: string, filename: string) => Promise<IPCResult<{ relativePath: string; url: string }>>;
+  readLocalImage: (projectPath: string, relativePath: string) => Promise<IPCResult<string>>;
+
+  // Source environment operations
+  checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
+  updateSourceEnv: (config: Partial<SourceEnvConfig>) => Promise<IPCResult>;
+
+  // GitHub API namespace - includes all auto-fix, batch, and PR operations
+  github: {
+    // Investigation events
+    onInvestigationProgress: (callback: (projectId: string, status: GitHubInvestigationStatus) => void) => () => void;
+    onInvestigationComplete: (callback: (projectId: string, result: GitHubInvestigationResult) => void) => () => void;
+    onInvestigationError: (callback: (projectId: string, error: string) => void) => () => void;
+    investigateIssue: (projectId: string, issueNumber: number, selectedCommentIds?: number[]) => void;
+
+    // Auto-fix operations
+    getAutoFixConfig: (projectId: string) => Promise<unknown>;
+    getAutoFixQueue: (projectId: string) => Promise<unknown[]>;
+    getBatches: (projectId: string) => Promise<unknown[]>;
+    startAutoFix: (projectId: string, issueNumber: number) => void;
+
+    // Auto-fix events
+    onAutoFixProgress: (callback: (projectId: string, progress: unknown) => void) => () => void;
+    onAutoFixComplete: (callback: (projectId: string, result: unknown) => void) => () => void;
+    onAutoFixError: (callback: (projectId: string, error: { issueNumber: number; error: string }) => void) => () => void;
+
+    // Batch events
+    onBatchProgress: (callback: (projectId: string, progress: unknown) => void) => () => void;
+    onBatchComplete: (callback: (projectId: string, batches: unknown[]) => void) => () => void;
+    onBatchError: (callback: (projectId: string, error: { error: string }) => void) => () => void;
+
+    // Analyze preview operations
+    analyzeIssuesPreview: (projectId: string, issueNumbers?: number[], maxIssues?: number) => void;
+    approveBatches: (projectId: string, approvedBatches: unknown[]) => Promise<{ success: boolean; batches?: unknown[]; error?: string }>;
+
+    // Analyze preview events
+    onAnalyzePreviewProgress: (callback: (projectId: string, progress: unknown) => void) => () => void;
+    onAnalyzePreviewComplete: (callback: (projectId: string, result: unknown) => void) => () => void;
+    onAnalyzePreviewError: (callback: (projectId: string, error: { error: string }) => void) => () => void;
+  };
 }
 
 // Event-driven updates from main process
