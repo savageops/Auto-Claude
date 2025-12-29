@@ -4,7 +4,12 @@
       "description": "CLAUDE.md toggle implemented in Agent Configuration section using standard Switch pattern with useTranslation hook. Default ON via nullish coalescing (?? true). Translation keys: general.useClaudeMd and general.useClaudeMdDescription",
       "category": "pattern",
       "discovered_at": "2025-12-29T00:49:14.005052+00:00"
+    },
+    "apps/backend/core/client.py": {
+      "description": "CLAUDE.md integration complete with 3-state debug output: should_use_claude_md() checks USE_CLAUDE_MD env var, load_claude_md() reads file with UTF-8 encoding, and system prompt injection adds content under \"## Project Instructions (from CLAUDE.md)\" header. Debug messages print for all states: included, not found, and disabled.",
+      "category": "integration",
+      "discovered_at": "2025-12-29T00:53:23.267334+00:00"
     }
   },
-  "last_updated": "2025-12-29T00:49:14.005052+00:00"
+  "last_updated": "2025-12-29T00:53:23.267334+00:00"
 }

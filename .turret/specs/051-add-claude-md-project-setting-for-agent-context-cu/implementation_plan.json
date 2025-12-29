@@ -264,7 +264,9 @@
               "Verify console output shows 'CLAUDE.md: disabled by project settings'"
             ]
           },
-          "status": "in_progress"
+          "status": "completed",
+          "notes": "Verified CLAUDE.md content injection into system prompt:\n\n**Bug Fixed:**\n- Added missing \"CLAUDE.md: disabled by project settings\" message when toggle is OFF\n- Updated messages to match spec exactly\n\n**Verification Complete:**\n\nFrontend:\n- Toggle in GeneralSettings.tsx (lines 135-150) with i18n labels and `?? true` default\n- USE_CLAUDE_MD env var set in agent-process.ts (line 101) when `useClaudeMd !== false`\n\nBackend:\n- should_use_claude_md() checks USE_CLAUDE_MD env var (line 62-69)\n- load_claude_md() loads file with UTF-8 encoding, graceful error handling (lines 72-88)\n- System prompt injection with \"## Project Instructions (from CLAUDE.md)\" header (lines 394-398)\n- Debug messages for all 3 states:\n  - \"included in system prompt\" - when enabled and file found\n  - \"not found in project root\" - when enabled but file missing\n  - \"disabled by project settings\" - when toggle is OFF\n\nCLAUDE.md file exists at project root (482 lines of project instructions).\n\nE2E verification requires running the Electron app - code paths verified through static analysis.\n\nCommitted in d5b64bf8.",
+          "updated_at": "2025-12-29T00:53:10.758462+00:00"
         }
       ]
     }
@@ -388,9 +390,12 @@
     }
   },
   "qa_signoff": null,
-  "last_updated": "2025-12-29T00:50:01.375881+00:00",
-  "status": "in_progress",
-  "planStatus": "in_progress",
+  "last_updated": "2025-12-29T00:53:10.758462+00:00",
+  "status": "human_review",
+  "planStatus": "review",
   "updated_at": "2025-12-29T00:37:22.015Z",
-  "recoveryNote": "Task recovered from stuck state at 2025-12-29T00:37:22.015Z"
+  "recoveryNote": "Task recovered from stuck state at 2025-12-29T00:37:22.015Z",
+  "metadata": {
+    "all_subtasks_completed_at": "2025-12-29T00:53:10.758462+00:00"
+  }
 }

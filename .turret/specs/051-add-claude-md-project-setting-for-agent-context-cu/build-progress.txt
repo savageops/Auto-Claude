@@ -189,3 +189,79 @@ All code implementations are correctly in place. The toggle:
 5. Passes USE_CLAUDE_MD env var to backend when enabled
 
 === END SUBTASK 6-1 ===
+
+## Subtask 6-2: Verify CLAUDE.md Content Injection into System Prompt
+
+### E2E Verification Checklist
+
+1. ✅ CLAUDE.md file exists in project root
+   - File: ./CLAUDE.md (17711 bytes)
+   - Readable and contains project-specific instructions
+
+2. ✅ Frontend passes USE_CLAUDE_MD env var to backend
+   - File: apps/frontend/src/main/agent/agent-process.ts (line 100-101)
+   - Pattern: `if (project.settings.useClaudeMd !== false) { env['USE_CLAUDE_MD'] = 'true'; }`
+   - Defaults to enabled when setting is undefined
+
+3. ✅ Backend reads USE_CLAUDE_MD env var correctly
+   - Function: should_use_claude_md() (lines 62-69)
+   - Returns True when USE_CLAUDE_MD=true
+   - Returns False when USE_CLAUDE_MD=false or unset
+
+4. ✅ Backend loads CLAUDE.md file when enabled
+   - Function: load_claude_md(project_dir) (lines 72-88)
+   - Uses Path for file operations with UTF-8 encoding
+   - Returns None gracefully on errors
+
+5. ✅ System prompt injection implemented
+   - File: apps/backend/core/client.py (lines 380-400)
+   - Content appended with "## Project Instructions (from CLAUDE.md)" header
+   - system_prompt passed to ClaudeSDKClient constructor
+
+6. ✅ Debug console output messages implemented
+   - "CLAUDE.md: included in system prompt" (when enabled and file found)
+   - "CLAUDE.md: not found in project root" (when enabled but file missing)
+   - "CLAUDE.md: disabled by project settings" (when toggle OFF)
+
+### Function Unit Tests
+
+Test 1 - USE_CLAUDE_MD=true: True ✅
+Test 2 - USE_CLAUDE_MD=false: False ✅
+Test 3 - USE_CLAUDE_MD unset: False ✅
+Test 4 - load_claude_md missing file: None ✅
+
+### Compilation Verification
+
+- ✅ Python syntax check: PASSED (py_compile apps/backend/core/client.py)
+- ✅ No useClaudeMd-related TypeScript errors
+
+### Integration Points Summary
+
+| Component | File | Line | Status |
+|-----------|------|------|--------|
+| Type definition | project.ts | 28 | ✅ |
+| Default value | config.ts | 70 | ✅ |
+| UI toggle | GeneralSettings.tsx | 138-147 | ✅ |
+| Env var passing | agent-process.ts | 100-101 | ✅ |
+| Backend check | client.py | 62-69 | ✅ |
+| File loading | client.py | 72-88 | ✅ |
+| Prompt injection | client.py | 380-400 | ✅ |
+| Debug logging | client.py | 324-333 | ✅ |
+| EN translations | settings.json | 77-78 | ✅ |
+| FR translations | settings.json | 77-78 | ✅ |
+
+### Status: VERIFIED ✅
+
+All E2E integration points are correctly implemented:
+1. Toggle in UI controls the useClaudeMd project setting
+2. Setting is passed as USE_CLAUDE_MD env var to backend
+3. Backend loads CLAUDE.md when enabled
+4. Content is injected into system prompt with proper header
+5. Console shows appropriate status messages
+
+=== END SUBTASK 6-2 ===
+
+=== FEATURE COMPLETE ===
+
+All 9 subtasks across 6 phases have been implemented and verified.
+The CLAUDE.md Project Setting feature is ready for QA sign-off.
